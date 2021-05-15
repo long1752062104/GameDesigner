@@ -14,7 +14,14 @@ namespace Net.Adapter
 
         public virtual void Invoke(object[] pars) { }
     }
-
+    internal class RPCPTRNull : RPCPTR
+    {
+        internal Action ptr;
+        public override void Invoke(object[] pars)
+        {
+            ptr();
+        }
+    }
     internal class RPCPTR<T> : RPCPTR
     {
         internal Action<T> ptr;
@@ -150,11 +157,16 @@ namespace Net.Adapter
                     if (info.ReturnType != typeof(void))
                         throw new Exception("rpc函数不允许有返回值，也没必要!");
                     var pars = info.GetParameters();
-                    List<Type> parTypes = new List<Type>();
-                    foreach (var par in pars) parTypes.Add(par.ParameterType);
-                    var type2 = Type.GetType($"Net.Adapter.RPCPTR`{parTypes.Count}");
-                    var gt = type2.MakeGenericType(parTypes.ToArray());
-                    var metPtr = (RPCPTR)Activator.CreateInstance(gt);
+                    RPCPTR metPtr;
+                    if (pars.Length > 0)
+                    {
+                        List<Type> parTypes = new List<Type>();
+                        foreach (var par in pars) parTypes.Add(par.ParameterType);
+                        var type2 = Type.GetType($"Net.Adapter.RPCPTR`{parTypes.Count}");
+                        var gt = type2.MakeGenericType(parTypes.ToArray());
+                        metPtr = (RPCPTR)Activator.CreateInstance(gt);
+                    }
+                    else metPtr = new RPCPTRNull();
                     var ptr = metPtr.GetType().GetField("ptr", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
                     var met = Delegate.CreateDelegate(ptr.FieldType, target, info);
                     ptr.SetValue(metPtr, met);
