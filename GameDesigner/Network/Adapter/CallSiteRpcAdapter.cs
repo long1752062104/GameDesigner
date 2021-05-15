@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Net.Server;
+using System.Threading;
 
 namespace Net.Adapter
 {
@@ -132,7 +133,10 @@ namespace Net.Adapter
     /// </summary>
     public class CallSiteRpcAdapter : IRPCAdapter
     {
+        internal SynchronizationContext Context;
         internal MyDictionary<string, RPCPTR> RPCS = new MyDictionary<string, RPCPTR>();
+
+        public CallSiteRpcAdapter() { Context = SynchronizationContext.Current; }
 
         public void AddRpcHandle(object target, bool append)
         {
@@ -167,7 +171,10 @@ namespace Net.Adapter
                 return;
             if (RPCS.TryGetValue(model.func, out RPCPTR model1))
             {
-                model1.Invoke(model.pars);
+                if (Context != null)
+                    Context.Post((obj) => { model1.Invoke(model.pars); }, null);
+                else
+                    model1.Invoke(model.pars);
             }
         }
 

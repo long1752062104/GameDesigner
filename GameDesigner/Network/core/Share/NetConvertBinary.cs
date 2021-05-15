@@ -116,9 +116,9 @@
             //基础结构类型初始化
             map = new MyDictionary<Type, Member[]>
             {
-                { typeof(string), new Member[] { new Member() { Type = typeof(string), IsPrimitive = true, TypeCode = TypeCode.String } } },
                 { typeof(byte), new Member[] { new Member() { Type = typeof(byte), IsPrimitive = true, TypeCode = TypeCode.Byte } } },
                 { typeof(sbyte), new Member[] { new Member() { Type = typeof(sbyte), IsPrimitive = true, TypeCode = TypeCode.SByte } } },
+                { typeof(bool), new Member[] { new Member() { Type = typeof(bool), IsPrimitive = true, TypeCode = TypeCode.Boolean } } },
                 { typeof(short), new Member[] { new Member() { Type = typeof(short), IsPrimitive = true, TypeCode = TypeCode.Int16 } } },
                 { typeof(ushort), new Member[] { new Member() { Type = typeof(ushort), IsPrimitive = true, TypeCode = TypeCode.UInt16 } } },
                 { typeof(char), new Member[] { new Member() { Type = typeof(char), IsPrimitive = true, TypeCode = TypeCode.Char } } },
@@ -130,6 +130,7 @@
                 { typeof(double), new Member[] { new Member() { Type = typeof(double), IsPrimitive = true, TypeCode = TypeCode.Double } } },
                 { typeof(DateTime), new Member[] { new Member() { Type = typeof(DateTime), IsPrimitive = true, TypeCode = TypeCode.DateTime } } },
                 { typeof(decimal), new Member[] { new Member() { Type = typeof(decimal), IsPrimitive = true, TypeCode = TypeCode.Decimal } } },
+                { typeof(string), new Member[] { new Member() { Type = typeof(string), IsPrimitive = true, TypeCode = TypeCode.String } } },
             };
             //其他可能用到的
             AddNetworkType<Vector2>();
