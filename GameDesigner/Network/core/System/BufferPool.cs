@@ -66,6 +66,7 @@ namespace Net.Share
             Index = index;
             Count = count;
             length = count;
+            Position = index;
             isDespose = !isRecovery;//如果不回收，则已经释放状态，不允许压入数组池
             this.isRecovery = isRecovery;
         }
