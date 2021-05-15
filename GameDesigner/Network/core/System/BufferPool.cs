@@ -82,7 +82,7 @@ namespace Net.Share
 
         ~Segment()
         {
-            if (isRecovery & BufferPool.Log)
+            if (isRecovery && BufferPool.Log)
                 NDebug.LogError("片段内存泄漏!请检查代码正确Push内存池!");
             Dispose();
         }
