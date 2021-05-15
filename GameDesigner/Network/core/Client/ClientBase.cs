@@ -1113,7 +1113,7 @@ namespace Net.Client
             {
                 try
                 {
-                    Thread.Sleep(50);
+                    Thread.Sleep(1);
                     CheckEventsUpdate();
                     if (OnCheckRpcUpdate == null)
                         OnCheckRpcUpdate = CheckRpcUpdate;
