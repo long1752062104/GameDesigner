@@ -201,7 +201,7 @@
                     if (!rPCModels.TryDequeue(out RPCModel rPCModel))
                         continue;
                     if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRpc(rPCModel);
+                        rPCModel.buffer = OnSerializeRPC(rPCModel);
                     int num = (int)stream.Length + rPCModel.buffer.Length + frame;
                     if (num > BufferPool.Size)
                     {

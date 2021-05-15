@@ -229,7 +229,7 @@
         /// </summary>
         /// <param name="func"></param>
         /// <param name="pars"></param>
-        [Obsolete("此方法已不再支持，请使用Send方法代替!", true)]
+        [Obsolete("此方法不再支持，请使用Send方法代替!", true)]
         public virtual void AddOperation(string func, params object[] pars)
         {
             AddOperation(NetCmd.CallRpc, func, pars);
@@ -241,7 +241,7 @@
         /// <param name="cmd"></param>
         /// <param name="func"></param>
         /// <param name="pars"></param>
-        [Obsolete("此方法已不再支持，请使用Send方法代替!", true)]
+        [Obsolete("此方法不再支持，请使用Send方法代替!", true)]
         public virtual void AddOperation(byte cmd, string func, params object[] pars)
         {
             Operation opt = new Operation(cmd, NetConvert.Serialize(new RPCModel(0, func, pars)));

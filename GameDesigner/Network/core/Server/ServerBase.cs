@@ -1211,7 +1211,7 @@ namespace Net.Server
                     if (!rtRPCModels.TryDequeue(out RPCModel rPCModel))
                         continue;
                     if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRpc(rPCModel);
+                        rPCModel.buffer = OnSerializeRPC(rPCModel);
                     if (stream1.Length + rPCModel.buffer.Length + frame > BufferPool.Size)
                     {
                         BufferPool.Push(segment);
@@ -1325,7 +1325,7 @@ namespace Net.Server
                     if (!rPCModels.TryDequeue(out RPCModel rPCModel))
                         continue;
                     if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRpc(rPCModel);
+                        rPCModel.buffer = OnSerializeRPC(rPCModel);
                     int num = (int)stream.Length + rPCModel.buffer.Length + frame;
                     if (num > BufferPool.Size)
                     {
@@ -2368,7 +2368,7 @@ namespace Net.Server
         /// <param name="pars">本地客户端rpc参数</param>
         public virtual void Multicast(ICollection<Player> clients, bool reliable, byte cmd, string func, params object[] pars)
         {
-            byte[] buffer = OnSerializeRpc(new RPCModel(1, func, pars));
+            byte[] buffer = OnSerializeRPC(new RPCModel(1, func, pars));
             if (buffer.Length / MTU > ushort.MaxValue)
             {
                 Debug.LogError("数据太大，请分块发送!");

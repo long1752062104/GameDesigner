@@ -254,7 +254,7 @@
                     if (!rtRPCModels.TryDequeue(out RPCModel rpc1))
                         continue;
                     if (rpc1.kernel & rpc1.serialize)
-                        rpc1.buffer = OnSerializeRpc(rpc1);
+                        rpc1.buffer = OnSerializeRPC(rpc1);
                     stream1.WriteByte((byte)(rpc1.kernel ? 68 : 74));
                     stream1.WriteByte(rpc1.cmd);
                     stream1.Write(BitConverter.GetBytes(rpc1.buffer.Length), 0, 4);
@@ -368,7 +368,7 @@
                     if (!rPCModels.TryDequeue(out RPCModel rPCModel))
                         continue;
                     if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRpc(rPCModel);
+                        rPCModel.buffer = OnSerializeRPC(rPCModel);
                     int num = (int)stream.Length + rPCModel.buffer.Length + frame + 28;
                     if (num > BufferPool.Size)
                     {

@@ -1890,7 +1890,7 @@ namespace Net.Client
         /// </summary>
         /// <param name="func"></param>
         /// <param name="pars"></param>
-        [Obsolete("此方法已不再支持，请使用Send方法代替!", true)]
+        [Obsolete("此方法不再支持，请使用Send方法代替!", true)]
         public void AddOperation(string func, params object[] pars)
         {
             AddOperation(NetCmd.CallRpc, func, pars);
@@ -1903,7 +1903,7 @@ namespace Net.Client
         /// <param name="cmd"></param>
         /// <param name="func"></param>
         /// <param name="pars"></param>
-        [Obsolete("此方法已不再支持，请使用Send方法代替!", true)]
+        [Obsolete("此方法不再支持，请使用Send方法代替!", true)]
         public void AddOperation(byte cmd, string func, params object[] pars)
         {
             Operation opt = new Operation(cmd, OnSerializeRPC(new RPCModel(cmd, func, pars)));
