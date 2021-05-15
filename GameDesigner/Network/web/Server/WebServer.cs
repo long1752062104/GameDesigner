@@ -77,8 +77,8 @@
             if (OnRPCExecute == null) OnRPCExecute += OnRpcExecuteInternal;
             if (OnSerializeRPC == null) OnSerializeRPC = OnSerializeRpc;
             if (OnDeserializeRPC == null) OnDeserializeRPC = OnDeserializeRpc;
-            if (OnSerializeOPT == null) OnSerializeOPT = OnSerializeOpt;
-            if (OnDeserializeOPT == null) OnDeserializeOPT = OnDeserializeOpt;
+            if (OnSerializeOPT == null) OnSerializeOPT = OnSerializeOptInternal;
+            if (OnDeserializeOPT == null) OnDeserializeOPT = OnDeserializeOptInternal;
             Debug.LogHandle += Log;
             Debug.LogWarningHandle += Log;
             Debug.LogErrorHandle += Log;

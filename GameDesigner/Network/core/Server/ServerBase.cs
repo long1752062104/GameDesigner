@@ -507,14 +507,18 @@ namespace Net.Server
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        protected virtual byte[] OnSerializeRpc(RPCModel model) { return NetConvert.Serialize(model); }
+        protected virtual byte[] OnSerializeRpc(RPCModel model) { return OnSerializeRPC(model); }
+
+        protected internal byte[] OnSerializeRpcInternal(RPCModel model) { return NetConvert.Serialize(model); }
 
         /// <summary>
         /// 当内核解析远程过程函数时调用, 如果想改变内核rpc的序列化方式, 可重写定义解析协议
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        protected virtual FuncData OnDeserializeRpc(byte[] buffer, int index, int count) { return NetConvert.Deserialize(buffer, index, count); }
+        protected virtual FuncData OnDeserializeRpc(byte[] buffer, int index, int count) { return OnDeserializeRPC(buffer, index, count); }
+
+        protected internal FuncData OnDeserializeRpcInternal(byte[] buffer, int index, int count) { return NetConvert.Deserialize(buffer, index, count); }
         #endregion
 
         /// <summary>
@@ -543,10 +547,10 @@ namespace Net.Server
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托
             if (OnRemoveRpc == null) OnRemoveRpc = RemoveRpcInternal;
             if (OnRPCExecute == null) OnRPCExecute = OnRpcExecuteInternal;
-            if (OnSerializeRPC == null) OnSerializeRPC = OnSerializeRpc;
-            if (OnDeserializeRPC == null) OnDeserializeRPC = OnDeserializeRpc;
-            if (OnSerializeOPT == null) OnSerializeOPT = OnSerializeOpt;
-            if (OnDeserializeOPT == null) OnDeserializeOPT = OnDeserializeOpt;
+            if (OnSerializeRPC == null) OnSerializeRPC = OnSerializeRpcInternal;
+            if (OnDeserializeRPC == null) OnDeserializeRPC = OnDeserializeRpcInternal;
+            if (OnSerializeOPT == null) OnSerializeOPT = OnSerializeOptInternal;
+            if (OnDeserializeOPT == null) OnDeserializeOPT = OnDeserializeOptInternal;
             Debug.LogHandle += Log;
             Debug.LogWarningHandle += Log;
             Debug.LogErrorHandle += Log;
@@ -1074,7 +1078,7 @@ namespace Net.Server
                     }
                     break;
                 case NetCmd.OperationSync:
-                    OperationList list = OnDeserializeOpt(model.buffer, model.index, model.count);
+                    OperationList list = OnDeserializeOPT(model.buffer, model.index, model.count);
                     OnOperationSyncHandle(client, list);
                     break;
                 case NetCmd.Ping:
@@ -1095,6 +1099,11 @@ namespace Net.Server
 
         protected virtual byte[] OnSerializeOpt(OperationList list)
         {
+            return OnSerializeOPT(list);
+        }
+
+        protected internal byte[] OnSerializeOptInternal(OperationList list)
+        {
             var segment = BufferPool.Take();
             using (MemoryStream stream = new MemoryStream(segment))
             {
@@ -1107,6 +1116,11 @@ namespace Net.Server
         }
 
         protected virtual OperationList OnDeserializeOpt(byte[] buffer, int index, int count)
+        {
+            return OnDeserializeOPT(buffer, index, count);
+        }
+
+        protected internal OperationList OnDeserializeOptInternal(byte[] buffer, int index, int count)
         {
             using (MemoryStream stream = new MemoryStream(buffer, index, count))
             {

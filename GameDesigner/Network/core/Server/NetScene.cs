@@ -43,7 +43,7 @@
         /// 玩家操作是以可靠传输进行发送的?
         /// </summary>
         public bool SendOperationReliable { get; set; }
-        internal Func<OperationList, byte[]> onSerializeOptHandle;
+        public Func<OperationList, byte[]> onSerializeOptHandle;
         /// <summary>
         /// 获取场景当前人数
         /// </summary>
