@@ -1,0 +1,7 @@
+1. 将dotNetty文件夹复制到GameDesigner/Network目录下即可
+3. 在VS的GameDesigner项目引用下Plugins文件夹的dll 或者 在NuGet下载dotNetty的几个关键dll
+4. 将Plugins\Windows\win-x64\libuv.dll 复制放到你的项目bin\Debug\目录下,  看平台选择不同的libuv.dll
+
+注意: libuv.dll要看平台选择不同的libuv.dll 复制到程序目录下
+
+警告: 在unity项目中要把 dotNetty删除掉! 只能在服务器中使用! 或者将dotNetty文件夹名改为dotNetty~隐藏即可!  dotNetty服务器可以使用客户端的TcpClient类进行连接!

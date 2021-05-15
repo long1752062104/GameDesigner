@@ -1,0 +1,113 @@
+State Machine Controller
+Open the state machine editor
+State attribute
+Status name
+Status identifier
+Action system
+Animation mode
+Old animation
+New animation
+Action execution mode
+Action randomised
+Action sequence
+Animation speed
+Animation cycle?
+Exit status at end of action
+get into the state
+Action tree
+Action Tree Set
+Add action
+Remove action
+Action - -->
+Remove action
+Copy action
+Paste new action
+Paste action value
+Movie clips
+Play sound effects
+Sound playback mode
+Play in
+Event playback
+Quit playback
+Sound object
+Animation time
+Animation length
+Animation events
+Skill object
+Skill generation
+instantiation
+Object pool
+Object pool management
+Skills Setting Mode
+Self location
+Mount parent object
+Parent Object Location
+parent object
+Skill position
+Skill survival time
+Remove action scripts
+Copy action scripts
+Paste new action scripts
+Paste action script values
+Add action scripts
+Create action script paths:
+Create action scripts
+cancel
+Remove status scripts
+Copy status script
+Paste a new status script
+Paste status script values
+Adding status scripts
+Create a status script path:
+Create status scripts
+cancel
+Connection properties
+Connection mode
+current time
+End time
+The current time will automatically enter the next state at the end of the time.
+Enter the next state
+Remove connection scripts
+Copy connection scripts
+Paste a new connection script
+Paste connection script values
+Add connection scripts
+Create a connection script path:
+Create connection scripts
+cancel
+You can create a connection behavior script to control the state to the next state
+Edit action scripts
+Edit status script
+Edit connection script
+selectObjectMode
+StateHideFlags
+PluginLanguage
+Game Designer Editor Window
+reset
+Create a state machine
+Tips!
+Please select the object and click to create the state machine!
+yes
+no
+Create transition
+Default state
+Replication state
+deleted state
+Create state
+New state
+Paste Selection Status
+Delete Selection State
+Create and replace state machines
+Tips!
+Please select the object and click to create the state machine!
+yes
+no
+Create and replace state machines
+Tips!
+Please select the object and click to create the state machine!
+yes
+no
+New state machine
+Delete state machine
+Delete state manager
+State Machine Hidden Flag

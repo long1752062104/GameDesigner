@@ -1,0 +1,4 @@
+H:\GameDesigner\obj\Release\GameDesigner.csprojAssemblyReference.cache
+H:\GameDesigner\obj\Release\GameDesigner.Properties.Resources.resources
+H:\GameDesigner\obj\Release\GameDesigner.csproj.GenerateResource.cache
+H:\GameDesigner\obj\Release\GameDesigner.csproj.CoreCompileInputs.cache
