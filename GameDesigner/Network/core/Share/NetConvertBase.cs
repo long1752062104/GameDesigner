@@ -186,5 +186,27 @@
             byte v = index < 2 ? index : (byte)(2 << (index - 2));
             return (data & v) == v;
         }
+
+        public static byte GetBitArray(byte data, byte index = 1, byte count = 5, byte bitPos = 1)
+        {
+            byte result = 0;
+            for (byte i = index; i < count; i++)
+            {
+                var flag = GetBit(data, i);
+                SetBit(ref result, bitPos, flag);
+                bitPos++;
+            }
+            return result;
+        }
+
+        public static void SetBitArray(ref byte data, byte bitPos, byte value, byte index = 1, byte count = 5)
+        {
+            for (byte i = index; i < count; i++)
+            {
+                var flag = GetBit(value, i);
+                SetBit(ref data, bitPos, flag);
+                bitPos++;
+            }
+        }
     }
 }
