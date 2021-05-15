@@ -542,7 +542,7 @@ namespace Net.Server
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托
             if (OnRemoveRpc == null) OnRemoveRpc = RemoveRpcInternal;
-            if (OnRPCExecute == null) OnRPCExecute = OnRpcExecute;
+            if (OnRPCExecute == null) OnRPCExecute = OnRpcExecuteInternal;
             if (OnSerializeRPC == null) OnSerializeRPC = OnSerializeRpc;
             if (OnDeserializeRPC == null) OnDeserializeRPC = OnDeserializeRpc;
             if (OnSerializeOPT == null) OnSerializeOPT = OnSerializeOpt;
@@ -918,12 +918,12 @@ namespace Net.Server
                 case NetCmd.CallRpc:
                     if (model.func == null)
                         return;
-                    OnRPCExecute(client, model);
+                    OnRpcExecute(client, model);
                     break;
                 case NetCmd.SafeCall:
                     if (model.func == null)
                         return;
-                    OnRPCExecute(client, model);
+                    OnRpcExecute(client, model);
                     break;
                 case NetCmd.Local:
                     client.udpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
@@ -1479,6 +1479,11 @@ namespace Net.Server
         /// <param name="client">客户端</param>
         /// <param name="model">数据模型</param>
         protected virtual void OnRpcExecute(Player client, RPCModel model)
+        {
+            OnRPCExecute(client, model);
+        }
+        
+        protected internal void OnRpcExecuteInternal(Player client, RPCModel model)
         {
             if (model.methodMask != 0)
                 RpcMaskDic.TryGetValue(model.methodMask, out model.func);

@@ -33,7 +33,7 @@
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle += AddRpcInternal;//在start之前就要添加你的委托
             if (OnRemoveRpc == null) OnRemoveRpc += RemoveRpcInternal;
-            if (OnRPCExecute == null) OnRPCExecute += OnRpcExecute;
+            if (OnRPCExecute == null) OnRPCExecute += OnRpcExecuteInternal;
             if (OnSerializeRPC == null) OnSerializeRPC = OnSerializeRpc;
             if (OnDeserializeRPC == null) OnDeserializeRPC = OnDeserializeRpc;
             if (OnSerializeOPT == null) OnSerializeOPT = OnSerializeOpt;
