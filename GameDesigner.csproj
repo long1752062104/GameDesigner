@@ -232,6 +232,7 @@
     <None Include="GameDesigner\Component\Client\UnityThread.cs.meta" />
     <None Include="GameDesigner\Component\Clone.cs.meta" />
     <None Include="GameDesigner\Component\Command.cs.meta" />
+    <None Include="GameDesigner\Component\MySqlHelper.cs.meta" />
     <None Include="GameDesigner\Component\NTransform.cs.meta" />
     <None Include="GameDesigner\Component\RoomData.cs.meta" />
     <None Include="GameDesigner\Component\SqlServerHelper.cs.meta" />
@@ -770,7 +771,6 @@
     <None Include="GameDesigner\Network\core\Event\NDebug.cs.meta" />
     <None Include="GameDesigner\Network\core\Server.meta" />
     <None Include="GameDesigner\Network\core\Server\DataBase.cs.meta" />
-    <None Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs.meta" />
     <None Include="GameDesigner\Network\core\Server\NetBehaviour.cs.meta" />
     <None Include="GameDesigner\Network\core\Server\NetPlayer.cs.meta" />
     <None Include="GameDesigner\Network\core\Server\NetPort.cs.meta" />
@@ -798,6 +798,7 @@
     <None Include="GameDesigner\Network\core\Share\NetConvertBase.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\NetConvertBinary.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\NetConvertFast.cs.meta" />
+    <None Include="GameDesigner\Network\core\Share\NetConvertFast2.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\NetConvertOld.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\NetDelegate.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\NetState.cs.meta" />
@@ -887,6 +888,9 @@
     <None Include="GameDesigner\Network\gudp\Client\NetworkClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Client\TcpClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Client\UdpClient.cs.meta" />
+    <None Include="GameDesigner\Network\gudp\Helper.meta" />
+    <None Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs.meta" />
+    <None Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server.meta" />
     <None Include="GameDesigner\Network\gudp\Server\NetworkServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\RawPlayer.cs.meta" />
@@ -1745,9 +1749,6 @@
     <Compile Include="GameDesigner\Network\core\Event\EventSystem.cs" />
     <Compile Include="GameDesigner\Network\core\Event\NDebug.cs" />
     <Compile Include="GameDesigner\Network\core\Server\DataBase.cs" />
-    <Compile Include="GameDesigner\Network\core\Share\NetConvertFast2.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetBehaviour.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetPlayer.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetPort.cs" />
@@ -1774,6 +1775,7 @@
     <Compile Include="GameDesigner\Network\core\Share\NetConvertBase.cs" />
     <Compile Include="GameDesigner\Network\core\Share\NetConvertBinary.cs" />
     <Compile Include="GameDesigner\Network\core\Share\NetConvertFast.cs" />
+    <Compile Include="GameDesigner\Network\core\Share\NetConvertFast2.cs" />
     <Compile Include="GameDesigner\Network\core\Share\NetConvertOld.cs" />
     <Compile Include="GameDesigner\Network\core\Share\NetDelegate.cs" />
     <Compile Include="GameDesigner\Network\core\Share\NetState.cs" />
@@ -1830,6 +1832,8 @@
     <Compile Include="GameDesigner\Network\gudp\Client\NetworkClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Client\TcpClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Client\UdpClient.cs" />
+    <Compile Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs" />
+    <Compile Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\NetworkServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\RawPlayer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\RawServer.cs" />

@@ -70,7 +70,7 @@ namespace Net.Component.Client
                 var value = pro.property.GetValue(component);
                 pro.value = NetConvert.Serialize(new RPCModel() { pars = new object[] { value } });
             }
-            ClientManager.Instance.client.AddOperation(Command.PropertySync, name, componentTypeName, propertySyncs);
+            //ClientManager.Instance.client.AddOperation(Command.PropertySync, name, componentTypeName, propertySyncs);
         }
 
         public void SetPropertySync(List<PropertySync> properties)
