@@ -1,0 +1,5 @@
+1. 将udx文件夹复制到GameDesigner/Network目录下即可
+3. 在VS的GameDesigner项目引用下Plugins文件夹的dll 或者 在NuGet下载udx的dll
+4. 将Plugins\Windows\FastUdxApi.dll 复制放到你的项目bin\Debug\目录下,  看平台选择不同的FastUdxApi.dll
+
+注意: FastUdxApi.dll要看平台选择不同的FastUdxApi.dll 复制到程序目录下

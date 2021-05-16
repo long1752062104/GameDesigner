@@ -1,0 +1,646 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DotNetty.Codecs</name>
+    </assembly>
+    <members>
+        <member name="F:DotNetty.Codecs.Base64.Base64Dialect.STANDARD">
+            <summary>
+                http://www.faqs.org/rfcs/rfc3548.html
+                Table 1: The Base 64 Alphabet
+            </summary>
+        </member>
+        <member name="F:DotNetty.Codecs.Base64.Base64Dialect.URL_SAFE">
+            <summary>
+                http://www.faqs.org/rfcs/rfc3548.html
+                Table 2: The "URL and Filename safe" Base 64 Alphabet
+            </summary>
+        </member>
+        <member name="F:DotNetty.Codecs.ByteToMessageDecoder.MergeCumulator">
+            <summary>
+                Cumulates instances of <see cref="T:DotNetty.Buffers.IByteBuffer" /> by merging them into one <see cref="T:DotNetty.Buffers.IByteBuffer" />, using memory
+                copies.
+            </summary>
+        </member>
+        <member name="F:DotNetty.Codecs.ByteToMessageDecoder.CompositionCumulation">
+            <summary>
+                Cumulate instances of <see cref="T:DotNetty.Buffers.IByteBuffer" /> by add them to a <see cref="T:DotNetty.Buffers.CompositeByteBuffer" /> and therefore
+                avoiding memory copy when possible.
+            </summary>
+            <remarks>
+                Be aware that <see cref="T:DotNetty.Buffers.CompositeByteBuffer" /> use a more complex indexing implementation so depending on your
+                use-case
+                and the decoder implementation this may be slower then just use the <see cref="F:DotNetty.Codecs.ByteToMessageDecoder.MergeCumulator" />.
+            </remarks>
+        </member>
+        <member name="P:DotNetty.Codecs.ByteToMessageDecoder.SingleDecode">
+            <summary>
+                Determines whether only one message should be decoded per <see cref="M:DotNetty.Codecs.ByteToMessageDecoder.ChannelRead(DotNetty.Transport.Channels.IChannelHandlerContext,System.Object)" /> call.
+                Default is <code>false</code> as this has performance impacts.
+            </summary>
+            <remarks>Is particularly useful in support of protocol upgrade scenarios.</remarks>
+        </member>
+        <member name="P:DotNetty.Codecs.ByteToMessageDecoder.ActualReadableBytes">
+            <summary>
+                Returns the actual number of readable bytes in the internal cumulative
+                buffer of this decoder. You usually do not need to rely on this value
+                to write a decoder. Use it only when you must use it at your own risk.
+                This method is a shortcut to <see cref="P:DotNetty.Buffers.IByteBuffer.ReadableBytes" /> of <see cref="P:DotNetty.Codecs.ByteToMessageDecoder.InternalBuffer" />.
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.CodecException">
+            <summary>
+                An <see cref="T:System.Exception" /> which is thrown by a codec.
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.Adler32">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/Adler32.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.CRC32">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/CRC32.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.Deflate">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/Deflate.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.Deflater">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/Deflater.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.GZIPException">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/GZIPException.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.GZIPHeader">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/GZIPHeader.java
+            
+            http://www.ietf.org/rfc/rfc1952.txt
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.InfBlocks">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/InfBlocks.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.InfCodes">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/InfCodes.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.Inflate">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/Inflate.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.Inflater">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/Inflater.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.InfTree">
+            <summary>
+             https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/InfTree.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.JZlib">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/JZlib.java
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.Compression.JZlibEncoder.#ctor(DotNetty.Codecs.Compression.ZlibWrapper,System.Int32,System.Int32,System.Int32)">
+             Creates a new zlib encoder with the specified {@code compressionLevel},
+             the specified {@code windowBits}, the specified {@code memLevel}, and
+             the specified wrapper.
+            
+             @param compressionLevel
+                    {@code 1} yields the fastest compression and {@code 9} yields the
+                    best compression.  {@code 0} means no compression.  The default
+                    compression level is {@code 6}.
+             @param windowBits
+                    The base two logarithm of the size of the history buffer.  The
+                    value should be in the range {@code 9} to {@code 15} inclusive.
+                    Larger values result in better compression at the expense of
+                    memory usage.  The default value is {@code 15}.
+             @param memLevel
+                    How much memory should be allocated for the internal compression
+                    state.  {@code 1} uses minimum memory and {@code 9} uses maximum
+                    memory.  Larger values result in better and faster compression
+                    at the expense of memory usage.  The default value is {@code 8}
+            
+             @throws CompressionException if failed to initialize zlib
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.StaticTree">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/StaticTree.java
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.Tree">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/Tree.java
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.Compression.ZlibEncoder.CloseAsync">
+             Close this {@link ZlibEncoder} and so finish the encoding.
+            
+             The returned {@link ChannelFuture} will be notified once the
+             operation completes.
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.ZlibWrapper">
+            The container file formats that wrap the stream compressed by the DEFLATE
+            algorithm.
+        </member>
+        <member name="F:DotNetty.Codecs.Compression.ZlibWrapper.Zlib">
+            The ZLIB wrapper as specified in <a href="http://tools.ietf.org/html/rfc1950">RFC 1950</a>.
+        </member>
+        <member name="F:DotNetty.Codecs.Compression.ZlibWrapper.Gzip">
+            The GZIP wrapper as specified in <a href="http://tools.ietf.org/html/rfc1952">RFC 1952</a>.
+        </member>
+        <member name="F:DotNetty.Codecs.Compression.ZlibWrapper.None">
+            Raw DEFLATE stream only (no header and no footer).
+        </member>
+        <member name="F:DotNetty.Codecs.Compression.ZlibWrapper.ZlibOrNone">
+            Try {@link #ZLIB} first and then {@link #NONE} if the first attempt fails.
+            Please note that you can specify this wrapper type only when decompressing.
+        </member>
+        <member name="T:DotNetty.Codecs.Compression.ZStream">
+            <summary>
+            https://github.com/ymnk/jzlib/blob/master/src/main/java/com/jcraft/jzlib/ZStream.java
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.Compression.ZStream.End">
+            Those methods are expected to be override by Inflater and Deflater.
+            In the future, they will become abstract methods.
+        </member>
+        <member name="T:DotNetty.Codecs.CorruptedFrameException">
+            <summary>
+                A <see cref="T:DotNetty.Codecs.DecoderException" /> which is thrown when the received frame data could not
+                be decoded by an inbound handler.
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.DelimiterBasedFrameDecoder">
+            <summary>
+                A decoder that splits the received <see cref="T:DotNetty.Buffers.IByteBuffer" /> by one or more
+                delimiters.It is particularly useful for decoding the frames which ends
+                with a delimiter such as <see cref="M:DotNetty.Codecs.Delimiters.NullDelimiter" /> or
+                <see cref="M:DotNetty.Codecs.Delimiters.LineDelimiter" />
+                <h3>Specifying more than one delimiter </h3>
+                <see cref="M:DotNetty.Codecs.Delimiters.NullDelimiter" /> allows you to specify more than one
+                delimiter.  If more than one delimiter is found in the buffer, it chooses
+                the delimiter which produces the shortest frame.  For example, if you have
+                the following data in the buffer:
+                +--------------+
+                | ABC\nDEF\r\n |
+                +--------------+
+                a <see cref="M:DotNetty.Codecs.Delimiters.LineDelimiter" /> will choose '\n' as the first delimiter and produce two
+                frames:
+                +-----+-----+
+                | ABC | DEF |
+                +-----+-----+
+                rather than incorrectly choosing '\r\n' as the first delimiter:
+                +----------+
+                | ABC\nDEF |
+                +----------+
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.DelimiterBasedFrameDecoder.#ctor(System.Int32,System.Boolean,System.Boolean,DotNetty.Buffers.IByteBuffer[])">
+            <summary>Common constructor</summary>
+            <param name="maxFrameLength">
+                The maximum length of the decoded frame
+                NOTE: A see <see cref="T:DotNetty.Codecs.TooLongFrameException" /> is thrown if the length of the frame exceeds this
+                value.
+            </param>
+            <param name="stripDelimiter">whether the decoded frame should strip out the delimiter or not</param>
+            <param name="failFast">
+                If true, a <see cref="T:DotNetty.Codecs.TooLongFrameException" /> is
+                thrown as soon as the decoder notices the length of the
+                frame will exceed<tt>maxFrameLength</tt> regardless of
+                whether the entire frame has been read.
+                If false, a <see cref="T:DotNetty.Codecs.TooLongFrameException" /> is
+                thrown after the entire frame that exceeds maxFrameLength has been read.
+            </param>
+            <param name="delimiters">delimiters</param>
+        </member>
+        <member name="M:DotNetty.Codecs.DelimiterBasedFrameDecoder.IsLineBased(DotNetty.Buffers.IByteBuffer[])">
+            <summary>Returns true if the delimiters are "\n" and "\r\n"</summary>
+        </member>
+        <member name="M:DotNetty.Codecs.DelimiterBasedFrameDecoder.IsSubclass">
+            <summary>ReturnsReturn true if the current instance is a subclass of DelimiterBasedFrameDecoder</summary>
+        </member>
+        <member name="M:DotNetty.Codecs.DelimiterBasedFrameDecoder.Decode(DotNetty.Transport.Channels.IChannelHandlerContext,DotNetty.Buffers.IByteBuffer)">
+            <summary>Create a frame out of the <see cref="T:DotNetty.Buffers.IByteBuffer" /> and return it</summary>
+            <param name="ctx">
+                the <see cref="T:DotNetty.Transport.Channels.IChannelHandlerContext" /> which this
+                <see cref="T:DotNetty.Codecs.ByteToMessageDecoder" /> belongs to
+            </param>
+            <param name="buffer">the <see cref="T:DotNetty.Buffers.IByteBuffer" /> from which to read data</param>
+            <returns>
+                the <see cref="T:DotNetty.Buffers.IByteBuffer" /> which represent the frame or null if no frame could be
+                created.
+            </returns>
+        </member>
+        <member name="M:DotNetty.Codecs.DelimiterBasedFrameDecoder.IndexOf(DotNetty.Buffers.IByteBuffer,DotNetty.Buffers.IByteBuffer)">
+            Returns the number of bytes between the readerIndex of the haystack and
+            the first needle found in the haystack.  -1 is returned if no needle is
+            found in the haystack.
+        </member>
+        <member name="M:DotNetty.Codecs.Delimiters.NullDelimiter">
+            <summary>Returns a null (0x00) delimiter, which could be used for Flash XML socket or any similar protocols</summary>
+        </member>
+        <member name="M:DotNetty.Codecs.Delimiters.LineDelimiter">
+            <summary>
+                Returns {@code CR ('\r')} and {@code LF ('\n')} delimiters, which could
+                be used for text-based line protocols.
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Json.JsonObjectDecoder">
+            <summary>
+                Splits a byte stream of JSON objects and arrays into individual objects/arrays and passes them up the
+                <see cref="T:DotNetty.Transport.Channels.IChannelPipeline" />.
+                This class does not do any real parsing or validation. A sequence of bytes is considered a JSON object/array
+                if it contains a matching number of opening and closing braces/brackets. It's up to a subsequent
+                <see cref="T:DotNetty.Transport.Channels.IChannelHandler" />
+                to parse the JSON text into a more usable form i.e.a POCO.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:DotNetty.Codecs.LengthFieldBasedFrameDecoder" -->
+        <member name="M:DotNetty.Codecs.LengthFieldBasedFrameDecoder.#ctor(System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Create a new instance.
+            </summary>
+            <param name="maxFrameLength">
+                The maximum length of the frame.  If the length of the frame is
+                greater than this value then <see cref="T:DotNetty.Codecs.TooLongFrameException" /> will be thrown.
+            </param>
+            <param name="lengthFieldOffset">The offset of the length field.</param>
+            <param name="lengthFieldLength">The length of the length field.</param>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldBasedFrameDecoder.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Create a new instance.
+            </summary>
+            <param name="maxFrameLength">
+                The maximum length of the frame.  If the length of the frame is
+                greater than this value then <see cref="T:DotNetty.Codecs.TooLongFrameException" /> will be thrown.
+            </param>
+            <param name="lengthFieldOffset">The offset of the length field.</param>
+            <param name="lengthFieldLength">The length of the length field.</param>
+            <param name="lengthAdjustment">The compensation value to add to the value of the length field.</param>
+            <param name="initialBytesToStrip">the number of first bytes to strip out from the decoded frame.</param>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldBasedFrameDecoder.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+                Create a new instance.
+            </summary>
+            <param name="maxFrameLength">
+                The maximum length of the frame.  If the length of the frame is
+                greater than this value then <see cref="T:DotNetty.Codecs.TooLongFrameException" /> will be thrown.
+            </param>
+            <param name="lengthFieldOffset">The offset of the length field.</param>
+            <param name="lengthFieldLength">The length of the length field.</param>
+            <param name="lengthAdjustment">The compensation value to add to the value of the length field.</param>
+            <param name="initialBytesToStrip">the number of first bytes to strip out from the decoded frame.</param>
+            <param name="failFast">
+                If <c>true</c>, a <see cref="T:DotNetty.Codecs.TooLongFrameException" /> is thrown as soon as the decoder notices the length
+                of the frame will exceeed <see cref="F:DotNetty.Codecs.LengthFieldBasedFrameDecoder.maxFrameLength" /> regardless of whether the entire frame has been
+                read. If <c>false</c>, a <see cref="T:DotNetty.Codecs.TooLongFrameException" /> is thrown after the entire frame that exceeds
+                <see cref="F:DotNetty.Codecs.LengthFieldBasedFrameDecoder.maxFrameLength" /> has been read.
+                Defaults to <c>true</c> in other overloads.
+            </param>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldBasedFrameDecoder.#ctor(DotNetty.Buffers.ByteOrder,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+                Create a new instance.
+            </summary>
+            <param name="byteOrder">The <see cref="T:DotNetty.Buffers.ByteOrder" /> of the lenght field.</param>
+            <param name="maxFrameLength">
+                The maximum length of the frame.  If the length of the frame is
+                greater than this value then <see cref="T:DotNetty.Codecs.TooLongFrameException" /> will be thrown.
+            </param>
+            <param name="lengthFieldOffset">The offset of the length field.</param>
+            <param name="lengthFieldLength">The length of the length field.</param>
+            <param name="lengthAdjustment">The compensation value to add to the value of the length field.</param>
+            <param name="initialBytesToStrip">the number of first bytes to strip out from the decoded frame.</param>
+            <param name="failFast">
+                If <c>true</c>, a <see cref="T:DotNetty.Codecs.TooLongFrameException" /> is thrown as soon as the decoder notices the length
+                of the frame will exceeed <see cref="F:DotNetty.Codecs.LengthFieldBasedFrameDecoder.maxFrameLength" /> regardless of whether the entire frame has been
+                read. If <c>false</c>, a <see cref="T:DotNetty.Codecs.TooLongFrameException" /> is thrown after the entire frame that exceeds
+                <see cref="F:DotNetty.Codecs.LengthFieldBasedFrameDecoder.maxFrameLength" /> has been read.
+                Defaults to <c>true</c> in other overloads.
+            </param>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldBasedFrameDecoder.Decode(DotNetty.Transport.Channels.IChannelHandlerContext,DotNetty.Buffers.IByteBuffer)">
+            <summary>
+                Create a frame out of the <see cref="T:DotNetty.Buffers.IByteBuffer" /> and return it.
+            </summary>
+            <param name="context">
+                The <see cref="T:DotNetty.Transport.Channels.IChannelHandlerContext" /> which this <see cref="T:DotNetty.Codecs.ByteToMessageDecoder" /> belongs
+                to.
+            </param>
+            <param name="input">The <see cref="T:DotNetty.Buffers.IByteBuffer" /> from which to read data.</param>
+            <returns>The <see cref="T:DotNetty.Buffers.IByteBuffer" /> which represents the frame or <c>null</c> if no frame could be created.</returns>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldBasedFrameDecoder.GetUnadjustedFrameLength(DotNetty.Buffers.IByteBuffer,System.Int32,System.Int32,DotNetty.Buffers.ByteOrder)">
+            <summary>
+                Decodes the specified region of the buffer into an unadjusted frame length.  The default implementation is
+                capable of decoding the specified region into an unsigned 8/16/24/32/64 bit integer.  Override this method to
+                decode the length field encoded differently.
+                Note that this method must not modify the state of the specified buffer (e.g.
+                <see cref="P:DotNetty.Buffers.IByteBuffer.ReaderIndex" />,
+                <see cref="P:DotNetty.Buffers.IByteBuffer.WriterIndex" />, and the content of the buffer.)
+            </summary>
+            <param name="buffer">The buffer we'll be extracting the frame length from.</param>
+            <param name="offset">The offset from the absolute <see cref="P:DotNetty.Buffers.IByteBuffer.ReaderIndex" />.</param>
+            <param name="length">The length of the framelenght field. Expected: 1, 2, 3, 4, or 8.</param>
+            <param name="order">The preferred <see cref="T:DotNetty.Buffers.ByteOrder" /> of buffer.</param>
+            <returns>A long integer that represents the unadjusted length of the next frame.</returns>
+        </member>
+        <member name="T:DotNetty.Codecs.LengthFieldPrepender">
+            <summary>
+                An encoder that prepends the length of the message.  The length value is
+                prepended as a binary form.
+                <p />
+                For example, <tt>{@link LengthFieldPrepender}(2)</tt> will encode the
+                following 12-bytes string:
+                <pre>
+                    +----------------+
+                    | "HELLO, WORLD" |
+                    +----------------+
+                </pre>
+                into the following:
+                <pre>
+                    +--------+----------------+
+                    + 0x000C | "HELLO, WORLD" |
+                    +--------+----------------+
+                </pre>
+                If you turned on the {@code lengthIncludesLengthFieldLength} flag in the
+                constructor, the encoded data would look like the following
+                (12 (original data) + 2 (prepended data) = 14 (0xE)):
+                <pre>
+                    +--------+----------------+
+                    + 0x000E | "HELLO, WORLD" |
+                    +--------+----------------+
+                </pre>
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldPrepender.#ctor(System.Int32)">
+            <summary>
+                Creates a new <see cref="T:DotNetty.Codecs.LengthFieldPrepender" /> instance.
+            </summary>
+            <param name="lengthFieldLength">
+                The length of the prepended length field.
+                Only 1, 2, 3, 4, and 8 are allowed.
+            </param>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldPrepender.#ctor(System.Int32,System.Boolean)">
+            <summary>
+                Creates a new <see cref="T:DotNetty.Codecs.LengthFieldPrepender" /> instance.
+            </summary>
+            <param name="lengthFieldLength">
+                The length of the prepended length field.
+                Only 1, 2, 3, 4, and 8 are allowed.
+            </param>
+            <param name="lengthFieldIncludesLengthFieldLength">
+                If <c>true</c>, the length of the prepended length field is added
+                to the value of the prepended length field.
+            </param>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldPrepender.#ctor(System.Int32,System.Int32)">
+            <summary>
+                Creates a new <see cref="T:DotNetty.Codecs.LengthFieldPrepender" /> instance.
+            </summary>
+            <param name="lengthFieldLength">
+                The length of the prepended length field.
+                Only 1, 2, 3, 4, and 8 are allowed.
+            </param>
+            <param name="lengthAdjustment">The compensation value to add to the value of the length field.</param>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldPrepender.#ctor(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+                Creates a new <see cref="T:DotNetty.Codecs.LengthFieldPrepender" /> instance.
+            </summary>
+            <param name="lengthFieldLength">
+                The length of the prepended length field.
+                Only 1, 2, 3, 4, and 8 are allowed.
+            </param>
+            <param name="lengthFieldIncludesLengthFieldLength">
+                If <c>true</c>, the length of the prepended length field is added
+                to the value of the prepended length field.
+            </param>
+            <param name="lengthAdjustment">The compensation value to add to the value of the length field.</param>
+        </member>
+        <member name="M:DotNetty.Codecs.LengthFieldPrepender.#ctor(DotNetty.Buffers.ByteOrder,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+                Creates a new <see cref="T:DotNetty.Codecs.LengthFieldPrepender" /> instance.
+            </summary>
+            <param name="byteOrder">The <see cref="T:DotNetty.Buffers.ByteOrder" /> of the length field.</param>
+            <param name="lengthFieldLength">
+                The length of the prepended length field.
+                Only 1, 2, 3, 4, and 8 are allowed.
+            </param>
+            <param name="lengthFieldIncludesLengthFieldLength">
+                If <c>true</c>, the length of the prepended length field is added
+                to the value of the prepended length field.
+            </param>
+            <param name="lengthAdjustment">The compensation value to add to the value of the length field.</param>
+        </member>
+        <member name="T:DotNetty.Codecs.LineBasedFrameDecoder">
+            <summary>
+                A decoder that splits the received {@link ByteBuf}s on line endings.
+                Both {@code "\n"} and {@code "\r\n"} are handled.
+                For a more general delimiter-based decoder, see {@link DelimiterBasedFrameDecoder}.
+            </summary>
+        </member>
+        <member name="F:DotNetty.Codecs.LineBasedFrameDecoder.maxLength">
+            Maximum length of a frame we're willing to decode.  
+        </member>
+        <member name="F:DotNetty.Codecs.LineBasedFrameDecoder.failFast">
+            Whether or not to throw an exception as soon as we exceed maxLength. 
+        </member>
+        <member name="F:DotNetty.Codecs.LineBasedFrameDecoder.discarding">
+            True if we're discarding input because we're already over maxLength.  
+        </member>
+        <member name="M:DotNetty.Codecs.LineBasedFrameDecoder.#ctor(System.Int32)">
+            <summary>
+                Initializes a new instance of the <see cref="T:DotNetty.Codecs.LineBasedFrameDecoder" /> class.
+            </summary>
+            <param name="maxLength">
+                the maximum length of the decoded frame.
+                A {@link TooLongFrameException} is thrown if
+                the length of the frame exceeds this value.
+            </param>
+        </member>
+        <member name="M:DotNetty.Codecs.LineBasedFrameDecoder.#ctor(System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+                Initializes a new instance of the <see cref="T:DotNetty.Codecs.LineBasedFrameDecoder" /> class.
+            </summary>
+            <param name="maxLength">
+                the maximum length of the decoded frame.
+                A {@link TooLongFrameException} is thrown if
+                the length of the frame exceeds this value.
+            </param>
+            <param name="stripDelimiter">
+                whether the decoded frame should strip out the
+                delimiter or not
+            </param>
+            <param name="failFast">
+                If <tt>true</tt>, a {@link TooLongFrameException} is
+                thrown as soon as the decoder notices the length of the
+                frame will exceed <tt>maxFrameLength</tt> regardless of
+                whether the entire frame has been read.
+                If <tt>false</tt>, a {@link TooLongFrameException} is
+                thrown after the entire frame that exceeds
+                <tt>maxFrameLength</tt> has been read.
+            </param>
+        </member>
+        <member name="M:DotNetty.Codecs.LineBasedFrameDecoder.Decode(DotNetty.Transport.Channels.IChannelHandlerContext,DotNetty.Buffers.IByteBuffer)">
+            <summary>
+                Create a frame out of the {@link ByteBuf} and return it.
+            </summary>
+            <param name="ctx">the {@link ChannelHandlerContext} which this {@link ByteToMessageDecoder} belongs to</param>
+            <param name="buffer">the {@link ByteBuf} from which to read data</param>
+        </member>
+        <member name="T:DotNetty.Codecs.MessageAggregator`4">
+            <inheritdoc />
+            <summary>
+            An abstract <see cref="T:DotNetty.Transport.Channels.IChannelHandler" /> that aggregates a series of message objects 
+            into a single aggregated message.
+            'A series of messages' is composed of the following:
+            a single start message which optionally contains the first part of the content, and
+            1 or more content messages. The content of the aggregated message will be the merged 
+            content of the start message and its following content messages. If this aggregator 
+            encounters a content message where { @link #isLastContentMessage(ByteBufHolder)}
+            return true for, the aggregator will finish the aggregation and produce the aggregated 
+            message and expect another start message.
+            </summary>
+            <typeparam name="TMessage">The type that covers both start message and content message</typeparam>
+            <typeparam name="TStart">The type of the start message</typeparam>
+            <typeparam name="TContent">The type of the content message</typeparam>
+            <typeparam name="TOutput">The type of the aggregated message</typeparam>
+        </member>
+        <member name="T:DotNetty.Codecs.MessageToMessageDecoder`1">
+            <summary>
+                Message to message decoder.
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.MessageToMessageDecoder`1.Decode(DotNetty.Transport.Channels.IChannelHandlerContext,`0,System.Collections.Generic.List{System.Object})">
+            <summary>
+                Decode from one message to an other. This method will be called for each written message that can be handled
+                by this encoder.
+            </summary>
+            <param name="context">the {@link ChannelHandlerContext} which this {@link MessageToMessageDecoder} belongs to</param>
+            <param name="message">the message to decode to an other one</param>
+            <param name="output">the {@link List} to which decoded messages should be added</param>
+        </member>
+        <member name="M:DotNetty.Codecs.MessageToMessageEncoder`1.AcceptOutboundMessage(System.Object)">
+            <summary>
+                Returns {@code true} if the given message should be handled. If {@code false} it will be passed to the next
+                {@link ChannelHandler} in the {@link ChannelPipeline}.
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.MessageToMessageEncoder`1.Encode(DotNetty.Transport.Channels.IChannelHandlerContext,`0,System.Collections.Generic.List{System.Object})">
+            <summary>
+                Encode from one message to an other. This method will be called for each written message that can be handled
+                by this encoder.
+                @param context           the {@link ChannelHandlerContext} which this {@link MessageToMessageEncoder} belongs to
+                @param message           the message to encode to an other one
+                @param output           the {@link List} into which the encoded message should be added
+                needs to do some kind of aggragation
+                @throws Exception    is thrown if an error accour
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.Protobuf.ProtobufVarint32FrameDecoder">
+            
+             A decoder that splits the received {@link ByteBuf}s dynamically by the
+             value of the Google Protocol Buffers
+             http://code.google.com/apis/protocolbuffers/docs/encoding.html#varints
+             Base 128 Varints integer length field in the message. 
+             For example:
+             
+             BEFORE DECODE (302 bytes)       AFTER DECODE (300 bytes)
+             +--------+---------------+      +---------------+
+             | Length | Protobuf Data |----->| Protobuf Data |
+             | 0xAC02 |  (300 bytes)  |      |  (300 bytes)  |
+             +--------+---------------+      +---------------+
+            
+        </member>
+        <member name="T:DotNetty.Codecs.Protobuf.ProtobufVarint32LengthFieldPrepender">
+            
+             An encoder that prepends the the Google Protocol Buffers
+             http://code.google.com/apis/protocolbuffers/docs/encoding.html#varints
+             Base 128 Varints integer length field. 
+             For example:
+             
+             BEFORE ENCODE (300 bytes)       AFTER ENCODE (302 bytes)
+              +---------------+               +--------+---------------+
+              | Protobuf Data |-------------->| Length | Protobuf Data |
+              |  (300 bytes)  |               | 0xAC02 |  (300 bytes)  |
+              +---------------+               +--------+---------------+
+        </member>
+        <member name="M:DotNetty.Codecs.StringDecoder.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:DotNetty.Codecs.StringDecoder" /> class with the current system
+                character set.
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.StringDecoder.#ctor(System.Text.Encoding)">
+            <summary>
+                Initializes a new instance of the <see cref="T:DotNetty.Codecs.StringDecoder" /> class with the specified character
+                set..
+            </summary>
+            <param name="encoding">Encoding.</param>
+        </member>
+        <member name="T:DotNetty.Codecs.StringEncoder">
+             Encodes the requested {@link String} into a {@link ByteBuf}.
+             A typical setup for a text-based line protocol in a TCP/IP socket would be:
+             <pre>
+             {@link ChannelPipeline} pipeline = ...;
+            
+             // Decoders
+             pipeline.addLast("frameDecoder", new {@link LineBasedFrameDecoder}(80));
+             pipeline.addLast("stringDecoder", new {@link StringDecoder}(CharsetUtil.UTF_8));
+            
+             // Encoder
+             pipeline.addLast("stringEncoder", new {@link StringEncoder}(CharsetUtil.UTF_8));
+             </pre>
+             and then you can use a {@link String} instead of a {@link ByteBuf}
+             as a message:
+             <pre>
+             void channelRead({@link ChannelHandlerContext} ctx, {@link String} msg) {
+                 ch.write("Did you say '" + msg + "'?\n");
+             }
+             </pre>
+        </member>
+        <member name="M:DotNetty.Codecs.StringEncoder.#ctor">
+            <summary>
+                Initializes a new instance of the <see cref="T:DotNetty.Codecs.StringEncoder" /> class with the current system
+                character set.
+            </summary>
+        </member>
+        <member name="M:DotNetty.Codecs.StringEncoder.#ctor(System.Text.Encoding)">
+            <summary>
+                Initializes a new instance of the <see cref="T:DotNetty.Codecs.StringEncoder" /> class with the specified character
+                set..
+            </summary>
+            <param name="encoding">Encoding.</param>
+        </member>
+        <member name="T:DotNetty.Codecs.TooLongFrameException">
+            <summary>
+                A <see cref="T:DotNetty.Codecs.DecoderException" /> which is thrown when the length of the frame
+                decoded is greater than the allowed maximum.
+            </summary>
+        </member>
+        <member name="T:DotNetty.Codecs.UnsupportedMessageTypeException">
+            <summary>
+                Thrown if an unsupported message is received by an codec.
+            </summary>
+        </member>
+    </members>
+</doc>

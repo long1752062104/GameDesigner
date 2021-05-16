@@ -1,0 +1,36 @@
+﻿using UnityEngine;
+using System.Collections;
+using GameDesigner;
+#if UNITY_EDITOR || DEBUG || DEBUG
+using UnityEditor;
+#endif
+
+public class TransitionBehaviorScript : TransitionBehaviour
+{
+    /// <summary>
+    /// 当连接行为更新
+    /// </summary>
+    /// <param name="isEnterNextState">是否进入下一个状态</param>
+    public override void OnUpdate(ref bool isEnterNextState)
+    {
+        Debug.Log("当连接行为更新");
+    }
+
+    /// <summary>
+    /// 当移除状态组件
+    /// </summary>
+    public override void OnDestroyComponent()
+    {
+        Debug.Log("当移除组件");
+    }
+
+    /// <summary>
+    /// 编辑器扩展 (重要提示!你想扩展编辑器就得返回真,否则显示默认编辑器监视面板) ( 参数state : 这个行为是被这个状态管理 )
+    /// </summary>
+    #if UNITY_EDITOR || DEBUG || DEBUG
+    public override bool OnInspectorGUI(State state)
+    {
+        return false; //返回假: 绘制默认监视面板 | 返回真: 绘制扩展自定义监视面板
+    }
+    #endif
+}

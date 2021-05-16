@@ -1,0 +1,66 @@
+using UnityEngine;
+using System.Collections.Generic;
+using GameDesigner;
+#if UNITY_EDITOR || DEBUG || DEBUG
+using UnityEditor;
+#endif
+
+public class ActionBehaviourScript : ActionBehaviour
+{
+    /// <summary>
+    /// 当状态进入时
+    /// </summary>
+    /// <param name="action">当前动作</param>
+    public override void OnEnter (StateAction action)
+	{
+        Debug.Log($"当进入状态 当前状态:{state.name} 当前动作:{action.clipName}");
+	}
+
+    /// <summary>
+    /// 当状态每一帧调用
+    /// </summary>
+    /// <param name="action">当前动作</param>
+    override public void OnUpdate (StateAction action)
+	{
+        Debug.Log($"当更新状态 当前状态:{state.name} 当前动作:{action.clipName}");
+    }
+
+    /// <summary>
+    /// 当状态结束调用
+    /// </summary>
+    /// <param name="action">当前动作</param>
+    override public void OnExit (StateAction action)
+	{
+        Debug.Log($"当退出状态 当前状态:{state.name} 当前动作:{action.clipName}");
+    }
+
+    /// <summary>
+    /// 当动画事件进入
+    /// </summary>
+    /// <param name="action">当前动作</param>
+    /// <param name="animEventTime">动画事件时间</param>
+    public override void OnAnimationEvent(StateAction action , float animEventTime)
+	{
+        Debug.Log($"当动画事件进入 当前状态:{state.name} 当前动作:{action.clipName}");
+    }
+
+    /// <summary>
+    /// 当实例化技能物体时进入
+    /// </summary>
+    /// <param name="action">当前动作</param>
+    /// <param name="spwan">技能物体</param>
+    public override void OnInstantiateSpwan(StateAction action , GameObject spwan)
+	{
+        Debug.Log($"当实例化技能物体时进入 当前状态:{state.name} 当前动作:{action.clipName}");
+    }
+
+    /// <summary>
+    /// 编辑器扩展 (重要提示!你想扩展编辑器就得返回真,否则显示默认编辑器监视面板) ( 参数state : 这个行为是被这个状态管理 )
+    /// </summary>
+    #if UNITY_EDITOR || DEBUG || DEBUG
+    public override bool OnInspectorGUI(State state)
+	{
+		return false; //返回假: 绘制默认监视面板 | 返回真: 绘制扩展自定义监视面板
+	}
+	#endif
+}

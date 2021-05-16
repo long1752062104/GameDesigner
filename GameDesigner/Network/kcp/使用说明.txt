@@ -1,0 +1,2 @@
+1. 将kcp文件夹复制到GameDesigner/Network目录下即可
+3. 在VS的GameDesigner项目引用下Plugins文件夹的dll 或者 在NuGet下载kcp的dll
