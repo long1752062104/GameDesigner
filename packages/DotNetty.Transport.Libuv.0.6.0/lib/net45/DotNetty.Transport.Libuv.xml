@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DotNetty.Transport.Libuv</name>
+    </assembly>
+    <members>
+        <member name="M:DotNetty.Transport.Libuv.LoopExecutor.Initialize">
+            <summary>
+            Called before run the loop in the loop thread.
+            </summary>
+        </member>
+        <member name="M:DotNetty.Transport.Libuv.LoopExecutor.Release">
+            <summary>
+            Called before stop the loop in the loop thread.
+            </summary>
+        </member>
+        <member name="T:DotNetty.Transport.Libuv.Native.sockaddr">
+            <summary>
+            https://github.com/aspnet/KestrelHttpServer/blob/dev/src/Microsoft.AspNetCore.Server.Kestrel/Internal/Networking/SockAddr.cs
+            </summary>
+        </member>
+        <member name="T:DotNetty.Transport.Libuv.Native.Pipe">
+            <summary>
+            IPC pipe for recieving handles from different libuv loops
+            </summary>
+        </member>
+        <member name="T:DotNetty.Transport.Libuv.Native.PipeListener">
+            <summary>
+            IPC pipe server to hand out handles to different libuv loops.
+            </summary>
+        </member>
+        <member name="P:DotNetty.Transport.Libuv.WorkerEventLoop.ConnectTask">
+            <summary>
+            Awaitable for connecting to the dispatcher pipe.
+            </summary>
+        </member>
+    </members>
+</doc>
