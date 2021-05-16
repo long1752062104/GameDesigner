@@ -11,7 +11,7 @@ namespace Net.Adapter
     {
         internal object target;
         internal byte cmd;
-        public virtual void Invoke(object[] pars) { }
+        public virtual void Invoke(object[] pars) {}
     }
     internal class RPCPTRNull : RPCPTR
     {
