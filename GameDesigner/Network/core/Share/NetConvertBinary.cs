@@ -1030,7 +1030,12 @@
             }
             internal override void SetValue(ref object obj, object v)
             {
-                setValue(obj, v);
+                try { 
+                    setValue(obj, v); 
+                } catch (Exception ex) {
+                    NDebug.LogError(ToString() + ex);
+                    throw ex;
+                }
             }
         }
 #endif
@@ -1403,7 +1408,8 @@
                     int arrCount = (int)ReadValue(TypeCode.Int32, buffer, ref index);
                     IList array = (IList)Activator.CreateInstance(member.Type, arrCount);
                     ReadArray(buffer, ref index, ref array, member.ItemType, recordType);
-                    member.SetValue(ref obj, array);
+                    if (obj == null) obj = array;
+                    else member.SetValue(ref obj, array);
                 }
                 else if (member.IsGenericType)
                 {
@@ -1413,7 +1419,8 @@
                         var array1 = Array.CreateInstance(member.ItemType, arrCount);
                         IList array = (IList)Activator.CreateInstance(member.Type, array1);
                         ReadArray(buffer, ref index, ref array, member.ItemType, recordType);
-                        member.SetValue(ref obj, array);
+                        if (obj == null) obj = array;
+                        else member.SetValue(ref obj, array);
                     }
                     else
                     {
@@ -1426,7 +1433,8 @@
                         IDictionary dictionary = (IDictionary)Activator.CreateInstance(member.Type);
                         for (int a = 0; a < arrCount; a++)
                             dictionary.Add(array[a], array1[a]);
-                        member.SetValue(ref obj, dictionary);
+                        if (obj == null) obj = dictionary;
+                        else member.SetValue(ref obj, dictionary);
                     }
                 }
                 else if (networkType1s.ContainsKey(member.Type))//如果是序列化类型
