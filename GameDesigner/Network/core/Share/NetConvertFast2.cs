@@ -3,22 +3,25 @@
     using Net.Event;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
 
     /// <summary>
     /// 快速序列化2接口
     /// </summary>
-    public interface ISerialize
+    public interface ISerialize<T>
     {
         /// <summary>
         /// 序列化写入
         /// </summary>
+        /// <param name="value"></param>
         /// <param name="strem"></param>
-        void Write(Segment strem);
+        void Write(T value, Segment strem);
         /// <summary>
         /// 反序列化读取
         /// </summary>
         /// <param name="strem"></param>
-        void Read(Segment strem);
+        T Read(Segment strem);
     }
 
     /// <summary>
@@ -26,12 +29,13 @@
     /// </summary>
     public class NetConvertFast2 : NetConvertBase
     {
-        private static MyDictionary<ushort, Type> networkTypes = new MyDictionary<ushort, Type>();
-        private static MyDictionary<Type, ushort> networkType1s = new MyDictionary<Type, ushort>();
-        private static Type nonSerialized = typeof(NonSerializedAttribute);
+        private static MyDictionary<ushort, Type> Types = new MyDictionary<ushort, Type>();
+        private static MyDictionary<Type, TypeBind> Types1 = new MyDictionary<Type, TypeBind>();
+        private static readonly MyDictionary<Type, Type> BindTypes = new MyDictionary<Type, Type>();
 
         static NetConvertFast2()
         {
+            GetInterfaces();
             Init();
         }
 
@@ -40,22 +44,16 @@
         /// </summary>
         public static bool Init()
         {
-            networkTypes = new MyDictionary<ushort, Type>();
-            networkType1s = new MyDictionary<Type, ushort>();
-            AddNetworkBaseType();
-            MakeNonSerializedAttribute<NonSerializedAttribute>();
+            Types = new MyDictionary<ushort, Type>();
+            Types1 = new MyDictionary<Type, TypeBind>();
+            AddBaseType();
             return true;
-        }
-
-        public static void MakeNonSerializedAttribute<T>() where T : Attribute
-        {
-            nonSerialized = typeof(T);
         }
 
         /// <summary>
         /// 添加网络基本类型， int，float，bool，string......
         /// </summary>
-        public static void AddNetworkBaseType()
+        public static void AddBaseType()
         {
             AddBaseType<short>();
             AddBaseType<int>();
@@ -122,74 +120,114 @@
             AddBaseType<List<DateTime[]>>();
             AddBaseType<List<decimal[]>>();
             //其他可能用到的
-            AddNetworkType<Vector2>();
-            AddNetworkType<Vector3>();
-            AddNetworkType<Vector4>();
-            AddNetworkType<Quaternion>();
-            AddNetworkType<Rect>();
-            AddNetworkType<Color>();
-            AddNetworkType<Color32>();
-            AddNetworkType<UnityEngine.Vector2>();
-            AddNetworkType<UnityEngine.Vector3>();
-            AddNetworkType<UnityEngine.Vector4>();
-            AddNetworkType<UnityEngine.Quaternion>();
-            AddNetworkType<UnityEngine.Rect>();
-            AddNetworkType<UnityEngine.Color>();
-            AddNetworkType<UnityEngine.Color32>();
+            AddSerializeType<Vector2>();
+            AddSerializeType<Vector3>();
+            AddSerializeType<Vector4>();
+            AddSerializeType<Quaternion>();
+            AddSerializeType<Rect>();
+            AddSerializeType<Color>();
+            AddSerializeType<Color32>();
+            AddSerializeType<UnityEngine.Vector2>();
+            AddSerializeType<UnityEngine.Vector3>();
+            AddSerializeType<UnityEngine.Vector4>();
+            AddSerializeType<UnityEngine.Quaternion>();
+            AddSerializeType<UnityEngine.Rect>();
+            AddSerializeType<UnityEngine.Color>();
+            AddSerializeType<UnityEngine.Color32>();
             //框架操作同步用到
-            AddNetworkType<Operation>();
-            AddNetworkType<Operation[]>();
-            AddNetworkType<OperationList>();
+            AddSerializeType<Operation>();
+            AddSerializeType<Operation[]>();
+            AddSerializeType<OperationList>();
         }
 
         /// <summary>
         /// 添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
         /// </summary>
         /// <typeparam name="T">要添加的网络类型</typeparam>
-        public static void AddNetworkType<T>()
+        public static void AddSerializeType<T>()
         {
-            AddNetworkType(typeof(T));
+            AddSerializeType(typeof(T));
         }
 
         /// <summary>
         /// 添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
         /// </summary>
         /// <param name="type">要添加的网络类型</param>
-        public static void AddNetworkType(Type type)
+        public static void AddSerializeType(Type type)
         {
-            if (networkType1s.ContainsKey(type))
+            if (Types1.ContainsKey(type))
                 throw new Exception($"已经添加{type}键，不需要添加了!");
-            networkTypes.Add((ushort)networkTypes.Count, type);
-            networkType1s.Add(type, (ushort)networkType1s.Count);
+            if (!BindTypes.TryGetValue(type, out Type bindType))
+                throw new Exception($"类型{type}尚未实现绑定类型,请使用工具生成绑定类型!");
+            Types.Add((ushort)Types.Count, type);
+            Types1.Add(type, new TypeBind() { type = bindType, hashCode = (ushort)Types1.Count } );
         }
 
         private static void AddBaseType<T>()
         {
             var type = typeof(T);
-            if (networkType1s.ContainsKey(type))
+            if (Types1.ContainsKey(type))
                 return;
-            networkTypes.Add((ushort)networkTypes.Count, type);
-            networkType1s.Add(type, (ushort)networkType1s.Count);
+            Types.Add((ushort)Types.Count, type);
+            Types1.Add(type, new TypeBind() { type = typeof(BaseBind<T>), hashCode = (ushort)Types1.Count });
+        }
+
+        public static void GetInterfaces()
+        {
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var types = assembly.GetTypes().Where((t)=> { return t.GetInterface("Net.Share.ISerialize`1") != null; });
+                foreach (var type in types)
+                {
+                    var serType = type.GetInterface("Net.Share.ISerialize`1");
+                    var itemType = serType.GetGenericArguments()[0];
+                    BindTypes.Add(itemType, type);
+                }
+            }
         }
 
         /// <summary>
         /// 添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
         /// </summary>
         /// <param name="types"></param>
-        public static void AddNetworkType(params Type[] types)
+        public static void AddSerializeType(params Type[] types)
         {
             foreach (Type type in types)
             {
-                AddNetworkType(type);
+                AddSerializeType(type);
             }
         }
 
-        public static Segment SerializeObject<T>(T obj) where T : ISerialize
+        internal struct BaseBind<T> : ISerialize<T>
+        {
+            public void Write(T value, Segment strem)
+            {
+                strem.WriteValue(value);
+            }
+            public T Read(Segment strem)
+            {
+                return strem.ReadValue<T>();
+            }
+        }
+
+        private class TypeBind 
+        {
+            public Type type;
+            public ushort hashCode;
+        }
+
+        public static Segment SerializeObject<T>(T value)
         {
             var stream = BufferPool.Take();
             try
             {
-                obj.Write(stream);
+                Type type = value.GetType();
+                if(Types1.TryGetValue(type, out TypeBind typeBind))
+                {
+                    var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
+                    bind.Write(value, stream);
+                }
+                else throw new Exception($"请注册或绑定:{type}类型后才能序列化!");
             }
             catch (Exception ex)
             {
@@ -202,12 +240,17 @@
             return stream;
         }
 
-        public static T DeserializeObject<T>(Segment segment) where T : ISerialize, new()
+        public static T DeserializeObject<T>(Segment segment)
         {
-            T obj = new T();
-            obj.Read(segment);
-            BufferPool.Push(segment);
-            return obj;
+            Type type = typeof(T);
+            if (Types1.TryGetValue(type, out TypeBind typeBind)) 
+            {
+                var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
+                T value = bind.Read(segment);
+                BufferPool.Push(segment);
+                return value;
+            }
+            throw new Exception($"请注册或绑定:{type}类型后才能序列化!");
         }
     }
 }

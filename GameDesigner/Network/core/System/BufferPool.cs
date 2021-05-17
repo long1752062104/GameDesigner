@@ -127,6 +127,11 @@ namespace Net.Share
             Count = Position;
         }
 
+        public byte ReadByte()
+        {
+            return Buffer[Position++];
+        }
+
         public void Write(byte[] buffer, int index, int count)
         {
             System.Buffer.BlockCopy(buffer, index, Buffer, Position, count);

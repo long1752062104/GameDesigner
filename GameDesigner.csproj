@@ -169,8 +169,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="GameDesigner\MVC\Controller\" />
-    <Folder Include="GameDesigner\MVC\Model\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -747,8 +745,6 @@
     <None Include="GameDesigner\LockStep\TrueSync\Unity\Editor\TSVectorDrawer.cs.meta" />
     <None Include="GameDesigner\LockStep\TrueSync\Unity\TSTransform.cs.meta" />
     <None Include="GameDesigner\MVC.meta" />
-    <None Include="GameDesigner\MVC\Controller.meta" />
-    <None Include="GameDesigner\MVC\Model.meta" />
     <None Include="GameDesigner\MVC\View.meta" />
     <None Include="GameDesigner\MVC\View\Editor.meta" />
     <None Include="GameDesigner\MVC\View\Editor\AssetBundleWindow.cs.meta" />
@@ -760,6 +756,24 @@
     <None Include="GameDesigner\Network\Adapter\CallSiteRpcAdapter.cs.meta" />
     <None Include="GameDesigner\Network\Adapter\ListenerAdapter.cs.meta" />
     <None Include="GameDesigner\Network\Adapter\SerializeAdapter.cs.meta" />
+    <None Include="GameDesigner\Network\Binding.meta" />
+    <None Include="GameDesigner\Network\Binding\BindingEntry.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetColor32Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetColorBind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetQuaternionBind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetRectBind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetShareOperationBind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetShareOperationListBind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetVector2Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetVector3Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\NetVector4Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineColor32Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineColorBind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineQuaternionBind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineRectBind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineVector2Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineVector3Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineVector4Bind.cs.meta" />
     <None Include="GameDesigner\Network\core.meta" />
     <None Include="GameDesigner\Network\core\Client.meta" />
     <None Include="GameDesigner\Network\core\Client\ClientBase.cs.meta" />
@@ -1742,6 +1756,23 @@
     <Compile Include="GameDesigner\Network\Adapter\CallSiteRpcAdapter.cs" />
     <Compile Include="GameDesigner\Network\Adapter\ListenerAdapter.cs" />
     <Compile Include="GameDesigner\Network\Adapter\SerializeAdapter.cs" />
+    <Compile Include="GameDesigner\Network\Binding\BindingEntry.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetColor32Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetColorBind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetQuaternionBind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetRectBind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetShareOperationBind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetShareOperationListBind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetVector2Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetVector3Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\NetVector4Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineColor32Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineColorBind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineQuaternionBind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineRectBind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineVector2Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineVector3Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineVector4Bind.cs" />
     <Compile Include="GameDesigner\Network\core\Client\ClientBase.cs" />
     <Compile Include="GameDesigner\Network\core\Client\NetBehaviour.cs" />
     <Compile Include="GameDesigner\Network\core\Client\NetEvent.cs" />

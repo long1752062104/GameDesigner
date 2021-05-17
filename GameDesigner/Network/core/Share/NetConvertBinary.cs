@@ -274,41 +274,17 @@
             byte num;
             switch (value)
             {
-                case int i:
-                    if (i == 0) return false;
-                    if(i > 0) num = i < byte.MaxValue ? BYTE : i < ushort.MaxValue ? SHORT : i < Int24 ? INT24 : INT32;
-                    else num = INT32;
-                    stream.WriteByte(num);
-                    fixed (byte* ptr = stream.Buffer)
-                    {
-                        *(int*)(ptr + stream.Position) = i;
-                        stream.Position += num;
-                    }
+                case byte b1:
+                    if (b1 == 0) return false;
+                    stream.WriteByte(b1);
                     break;
-                case float f:
-                    if (f == 0) return false;
-                    num = 4;
-                    stream.WriteByte(num);
-                    fixed (byte* ptr = stream.Buffer)
-                    {
-                        *(float*)(ptr + stream.Position) = f;
-                        stream.Position += num;
-                    }
+                case sbyte sb:
+                    if (sb == 0) return false;
+                    stream.WriteByte((byte)sb);
                     break;
                 case bool b:
                     if (b == false) return false;
                     stream.WriteByte((byte)(b ? 1 : 0));
-                    break;
-                case char c:
-                    if (c == 0) return false;
-                    if (c > 0) num = c < byte.MaxValue ? BYTE : SHORT;
-                    else num = SHORT;
-                    stream.WriteByte(num);
-                    fixed (byte* ptr = stream.Buffer)
-                    {
-                        *(char*)(ptr + stream.Position) = c;
-                        stream.Position += num;
-                    }
                     break;
                 case short s:
                     if (s == 0) return false;
@@ -318,18 +294,6 @@
                     fixed (byte* ptr = stream.Buffer)
                     {
                         *(short*)(ptr + stream.Position) = s;
-                        stream.Position += num;
-                    }
-                    break;
-                case long l:
-                    if (l == 0) return false;
-                    if (l > 0) num = l < byte.MaxValue ? BYTE : l < ushort.MaxValue ? SHORT : l < Int24 ? INT24 : 
-                            l < int.MaxValue ? INT32 : l < Int40 ? INT40 : l < Int48 ? INT48 : l < Int56 ? INT56 : LONG;
-                    else num = LONG;
-                    stream.WriteByte(num);
-                    fixed (byte* ptr = stream.Buffer)
-                    {
-                        *(long*)(ptr + stream.Position) = l;
                         stream.Position += num;
                     }
                     break;
@@ -343,6 +307,28 @@
                         stream.Position += num;
                     }
                     break;
+                case char c:
+                    if (c == 0) return false;
+                    if (c > 0) num = c < byte.MaxValue ? BYTE : SHORT;
+                    else num = SHORT;
+                    stream.WriteByte(num);
+                    fixed (byte* ptr = stream.Buffer)
+                    {
+                        *(char*)(ptr + stream.Position) = c;
+                        stream.Position += num;
+                    }
+                    break;
+                case int i:
+                    if (i == 0) return false;
+                    if(i > 0) num = i < byte.MaxValue ? BYTE : i < ushort.MaxValue ? SHORT : i < Int24 ? INT24 : INT32;
+                    else num = INT32;
+                    stream.WriteByte(num);
+                    fixed (byte* ptr = stream.Buffer)
+                    {
+                        *(int*)(ptr + stream.Position) = i;
+                        stream.Position += num;
+                    }
+                    break;
                 case uint ui:
                     if (ui == 0) return false;
                     num = ui < byte.MaxValue ? BYTE : ui < ushort.MaxValue ? SHORT : ui < Int24 ? INT24 : INT32;
@@ -350,6 +336,24 @@
                     fixed (byte* ptr = stream.Buffer)
                     {
                         *(uint*)(ptr + stream.Position) = ui;
+                        stream.Position += num;
+                    }
+                    break;
+                case float f:
+                    if (f == 0) return false;
+                    num = 4;
+                    stream.WriteByte(num);
+                    stream.Write(&f, 4);
+                    break;
+                case long l:
+                    if (l == 0) return false;
+                    if (l > 0) num = l < byte.MaxValue ? BYTE : l < ushort.MaxValue ? SHORT : l < Int24 ? INT24 : 
+                            l < int.MaxValue ? INT32 : l < Int40 ? INT40 : l < Int48 ? INT48 : l < Int56 ? INT56 : LONG;
+                    else num = LONG;
+                    stream.WriteByte(num);
+                    fixed (byte* ptr = stream.Buffer)
+                    {
+                        *(long*)(ptr + stream.Position) = l;
                         stream.Position += num;
                     }
                     break;
@@ -368,30 +372,7 @@
                     if (d == 0) return false;
                     num = 8;
                     stream.WriteByte(num);
-                    fixed (byte* ptr = stream.Buffer)
-                    {
-                        *(double*)(ptr + stream.Position) = d;
-                        stream.Position += num;
-                    }
-                    break;
-                case byte b1:
-                    if (b1 == 0) return false;
-                    stream.WriteByte(b1);
-                    break;
-                case sbyte sb:
-                    if (sb == 0) return false;
-                    stream.WriteByte((byte)sb);
-                    break;
-                case string str:
-                    int num1 = str.Length * 3;
-                    num = num1 < byte.MaxValue ? BYTE : num1 < ushort.MaxValue ? SHORT : num1 < Int24 ? INT24 : INT32;
-                    stream.WriteByte(num);
-                    num1 = stream.Position;
-                    stream.Position += num;
-                    int count = Encoding.UTF8.GetBytes(str, 0, str.Length, stream.Buffer, stream.Position);
-                    stream.Position = num1;
-                    stream.Write(BitConverter.GetBytes(count), 0, num);
-                    stream.Position += count;
+                    stream.Write(&d, 8);
                     break;
                 case DateTime time:
                     long tocks = time.Ticks;
@@ -412,6 +393,17 @@
                         stream.Position += 16;
                     }
                     break;
+                case string str:
+                    int num1 = str.Length * 3;
+                    num = num1 < byte.MaxValue ? BYTE : num1 < ushort.MaxValue ? SHORT : num1 < Int24 ? INT24 : INT32;
+                    stream.WriteByte(num);
+                    num1 = stream.Position;
+                    stream.Position += num;
+                    int count = Encoding.UTF8.GetBytes(str, 0, str.Length, stream.Buffer, stream.Position);
+                    stream.Position = num1;
+                    stream.Write(BitConverter.GetBytes(count), 0, num);
+                    stream.Position += count;
+                    break;
                 default:
                     throw new IOException("试图写入的类型不是基本类型!");
             }
@@ -431,6 +423,51 @@
             int num = buffer[index++];
             switch (type)
             {
+                case TypeCode.Byte:
+                    obj = (byte)num;
+                    break;
+                case TypeCode.SByte:
+                    obj = (sbyte)num;
+                    break;
+                case TypeCode.Boolean:
+                    obj = num == 1;
+                    break;
+                case TypeCode.Int16:
+                    switch (num)
+                    {
+                        case BYTE:
+                            obj = (short)buffer[index];
+                            break;
+                        case SHORT:
+                            obj = BitConverter.ToInt16(buffer, index);
+                            break;
+                    }
+                    index += num;
+                    break;
+                case TypeCode.UInt16:
+                    switch (num)
+                    {
+                        case BYTE:
+                            obj = (ushort)buffer[index];
+                            break;
+                        case SHORT:
+                            obj = BitConverter.ToUInt16(buffer, index);
+                            break;
+                    }
+                    index += num;
+                    break;
+                case TypeCode.Char:
+                    switch (num)
+                    {
+                        case BYTE:
+                            obj = (char)buffer[index];
+                            break;
+                        case SHORT:
+                            obj = BitConverter.ToChar(buffer, index);
+                            break;
+                    }
+                    index += num;
+                    break;
                 case TypeCode.Int32:
                     switch (num)
                     {
@@ -452,36 +489,30 @@
                     }
                     index += num;
                     break;
+                case TypeCode.UInt32:
+                    switch (num)
+                    {
+                        case BYTE:
+                            obj = (uint)buffer[index];
+                            break;
+                        case SHORT:
+                            obj = (uint)BitConverter.ToUInt16(buffer, index);
+                            break;
+                        case INT24:
+                            if (BitConverter.IsLittleEndian)
+                                obj = (uint)(buffer[index] | (buffer[index + 1] << 8) | (buffer[index + 2] << 16));
+                            else
+                                obj = (uint)((buffer[index] << 24) | (buffer[index + 1] << 16) | (buffer[index + 2] << 8));
+                            break;
+                        case INT32:
+                            obj = BitConverter.ToUInt32(buffer, index);
+                            break;
+                    }
+                    index += num;
+                    break;
                 case TypeCode.Single:
                     obj = BitConverter.ToSingle(buffer, index);
                     index += 4;
-                    break;
-                case TypeCode.Boolean:
-                    obj = num == 1;
-                    break;
-                case TypeCode.Char:
-                    switch (num)
-                    {
-                        case BYTE:
-                            obj = (char)buffer[index];
-                            break;
-                        case SHORT:
-                            obj = BitConverter.ToChar(buffer, index);
-                            break;
-                    }
-                    index += num;
-                    break;
-                case TypeCode.Int16:
-                    switch (num)
-                    {
-                        case BYTE:
-                            obj = (short)buffer[index];
-                            break;
-                        case SHORT:
-                            obj = BitConverter.ToInt16(buffer, index);
-                            break;
-                    }
-                    index += num;
                     break;
                 case TypeCode.Int64:
                     switch (num)
@@ -494,9 +525,9 @@
                             break;
                         case INT24:
                             if (BitConverter.IsLittleEndian)
-                                obj = buffer[index] | (buffer[index + 1] << 8) | (buffer[index + 2] << 16);
+                                obj = (long)(buffer[index] | (buffer[index + 1] << 8) | (buffer[index + 2] << 16));
                             else
-                                obj = (buffer[index] << 24) | (buffer[index + 1] << 16) | (buffer[index + 2] << 8);
+                                obj = (long)((buffer[index] << 24) | (buffer[index + 1] << 16) | (buffer[index + 2] << 8));
                             break;
                         case INT32:
                             obj = (long)BitConverter.ToInt32(buffer, index);
@@ -545,39 +576,6 @@
                             break;
                         case LONG:
                             obj = BitConverter.ToInt64(buffer, index);
-                            break;
-                    }
-                    index += num;
-                    break;
-                case TypeCode.UInt16:
-                    switch (num)
-                    {
-                        case BYTE:
-                            obj = (ushort)buffer[index];
-                            break;
-                        case SHORT:
-                            obj = BitConverter.ToUInt16(buffer, index);
-                            break;
-                    }
-                    index += num;
-                    break;
-                case TypeCode.UInt32:
-                    switch (num)
-                    {
-                        case BYTE:
-                            obj = (uint)buffer[index];
-                            break;
-                        case SHORT:
-                            obj = (uint)BitConverter.ToUInt16(buffer, index);
-                            break;
-                        case INT24:
-                            if (BitConverter.IsLittleEndian)
-                                obj = buffer[index] | (buffer[index + 1] << 8) | (buffer[index + 2] << 16);
-                            else
-                                obj = (buffer[index] << 24) | (buffer[index + 1] << 16) | (buffer[index + 2] << 8);
-                            break;
-                        case INT32:
-                            obj = BitConverter.ToUInt32(buffer, index);
                             break;
                     }
                     index += num;
@@ -652,18 +650,6 @@
                     obj = BitConverter.ToDouble(buffer, index);
                     index += 8;
                     break;
-                case TypeCode.Byte:
-                    obj = (byte)num;
-                    break;
-                case TypeCode.SByte:
-                    obj = (sbyte)num;
-                    break;
-                case TypeCode.String:
-                    index--;
-                    num = (int)ReadValue(TypeCode.Int32, buffer, ref index);
-                    obj = Encoding.UTF8.GetString(buffer, index, num);
-                    index += num;
-                    break;
                 case TypeCode.DateTime:
                     switch (num)
                     {
@@ -688,6 +674,12 @@
                         obj = Marshal.PtrToStructure<decimal>((IntPtr)ptr);
                         index += 15;
                     }
+                    break;
+                case TypeCode.String:
+                    index--;
+                    num = (int)ReadValue(TypeCode.Int32, buffer, ref index);
+                    obj = Encoding.UTF8.GetString(buffer, index, num);
+                    index += num;
                     break;
             }
             return obj;
@@ -982,15 +974,19 @@
             internal Type ItemType;
             internal Type KeyType;
             internal Type ValueType;
+#if !SERVICE
+            internal Func<object, object> getValue;
+            internal Action<object, object> setValue;
+#endif
 
-            internal virtual object GetValue(object s)
+            internal virtual object GetValue(object obj)
             {
-                return s;
+                return obj;
             }
 
-            internal virtual void SetValue(ref object s, object v)
+            internal virtual void SetValue(ref object obj, object v)
             {
-                s = v;
+                obj = v;
             }
 
             public override string ToString()
@@ -998,39 +994,46 @@
                 return $"{name} {Type}";
             }
         }
-
+#if SERVICE
         private class FPMember<T> : Member
         {
             internal CallSite<Func<CallSite, object, object>> getValueCall;
             internal CallSite<Func<CallSite, object, T, object>> setValueCall;
-            
-            internal override object GetValue(object s)
+            internal override object GetValue(object obj)
             {
-                return getValueCall.Target(getValueCall, s);
+                return getValueCall.Target(getValueCall, obj);
             }
-
-            internal override void SetValue(ref object s, object v)
+            internal override void SetValue(ref object obj, object v)
             {
-                setValueCall.Target(setValueCall, s, (T)v);
+                setValueCall.Target(setValueCall, obj, (T)v);
             }
         }
-
         private class FPArrayMember<T> : Member
         {
             internal CallSite<Func<CallSite, object, object>> getValueCall;
             internal CallSite<Func<CallSite, object, T[], object>> setValueCall;
-
-            internal override object GetValue(object s)
+            internal override object GetValue(object obj)
             {
-                return getValueCall.Target(getValueCall, s);
+                return getValueCall.Target(getValueCall, obj);
             }
-
-            internal override void SetValue(ref object s, object v)
+            internal override void SetValue(ref object obj, object v)
             {
-                setValueCall.Target(setValueCall, s, (T[])v);
+                setValueCall.Target(setValueCall, obj, (T[])v);
             }
         }
-
+#else
+        private class FPMember : Member
+        {
+            internal override object GetValue(object obj)
+            {
+                return getValue(obj);
+            }
+            internal override void SetValue(ref object obj, object v)
+            {
+                setValue(obj, v);
+            }
+        }
+#endif
         private static Member[] GetMembers(Type type)
         {
             if (!map.TryGetValue(type, out Member[] members2))
@@ -1057,6 +1060,11 @@
                             var field = member as FieldInfo;
                             var fType = field.FieldType;
                             member1 = GetFPMember(type, fType, field.Name, true);
+#if !SERVICE
+                            var fi = member as FieldInfo;
+                            member1.getValue = fi.GetValue;
+                            member1.setValue = fi.SetValue;
+#endif
                             members1.Add(member1);
                         }
                         else if (member.MemberType == MemberTypes.Property)
@@ -1068,6 +1076,10 @@
                                 continue;
                             var pType = property.PropertyType;
                             member1 = GetFPMember(type, pType, property.Name, true);
+#if !SERVICE
+                            member1.getValue = property.GetValue;
+                            member1.setValue = property.SetValue;
+#endif
                             members1.Add(member1);
                         }
                     }
@@ -1079,6 +1091,7 @@
 
         private static Member GetFPMember(Type type, Type fpType, string Name, bool isClassField) 
         {
+#if SERVICE
             object getValueCall = CallSite<Func<CallSite, object, object>>.Create(Binder.GetMember(0, Name, type, new CSharpArgumentInfo[]
             {
                 CSharpArgumentInfo.Create(0, null)
@@ -1091,18 +1104,13 @@
             }));
             var pm = typeof(FPMember<>).MakeGenericType(new Type[] { fpType });
             var member1 = (Member)Activator.CreateInstance(pm);
+#else
+            var member1 = new FPMember();
+#endif
             if (fpType.IsArray)
             {
-                var interfaces = fpType.GetInterfaces();
-                Type itemType = null;
-                foreach (var interce in interfaces)
-                {
-                    if (interce.IsGenericType)
-                    {
-                        itemType = interce.GenericTypeArguments[0];
-                        break;
-                    }
-                }
+                Type itemType = fpType.GetInterface("IList`1").GenericTypeArguments[0];
+#if SERVICE
                 if (isClassField)
                 {
                     var pm1 = typeof(FPArrayMember<>).MakeGenericType(new Type[] { itemType });
@@ -1120,16 +1128,19 @@
                     getValueCall = null;
                     setValueCall = null;
                 }
+#endif
                 member1.ItemType = itemType;
             }
             else if (fpType.IsGenericType)
             {
+#if SERVICE
                 if (!isClassField) 
                 {
                     member1 = new Member();
                     getValueCall = null;
                     setValueCall = null;
                 }
+#endif
                 if (fpType.GenericTypeArguments.Length == 1)
                 {
                     Type itemType = fpType.GenericTypeArguments[0];
@@ -1143,6 +1154,7 @@
                     member1.ValueType = valueType;
                 }
             }
+#if SERVICE
             if (setValueCall != null & getValueCall != null)
             {
                 var callS = member1.GetType().GetField("setValueCall", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
@@ -1150,6 +1162,7 @@
                 var callS1 = member1.GetType().GetField("getValueCall", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
                 callS1.SetValue(member1, getValueCall);
             }
+#endif
             member1.name = Name;
             member1.IsPrimitive = fpType.IsPrimitive | (fpType == typeof(string)) | (fpType == typeof(decimal)) | (fpType == typeof(DateTime));
             member1.IsEnum = fpType.IsEnum;

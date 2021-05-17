@@ -4,7 +4,7 @@
     /// 帧同步列表
     /// </summary>
     [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllPublic)]
-    public class OperationList : ISerialize
+    public class OperationList
     {
         /// <summary>
         /// 帧索引
@@ -51,31 +51,6 @@
         {
             this.frame = frame;
             operations = opts;
-        }
-
-        public void Write(Segment strem)
-        {
-            strem.WriteValue(frame);
-            int count = operations.Length; 
-            strem.WriteValue(count);
-            if (count == 0)
-                return;
-            foreach (var opt in operations)
-                opt.Write(strem);
-        }
-
-        public void Read(Segment strem)
-        {
-            frame = strem.ReadValue<uint>();
-            var count = strem.ReadValue<int>();
-            operations = new Operation[count];
-            if (count == 0)
-                return;
-            for (int i = 0; i < count; i++)
-            {
-                operations[i] = new Operation();
-                operations[i].Read(strem);
-            }
         }
 
         public override string ToString()
