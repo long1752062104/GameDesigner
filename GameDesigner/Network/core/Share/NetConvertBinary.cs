@@ -1381,7 +1381,7 @@
         {
             object obj;
             if (type == typeof(string)) obj = string.Empty;
-            else if (type.IsArray) obj = default;
+            else if (type.IsArray | type.IsGenericType) obj = default;
             else obj = Activator.CreateInstance(type);
             var members = GetMembers(type);
             var bitLen = ((members.Length - 1) / 8) + 1;
