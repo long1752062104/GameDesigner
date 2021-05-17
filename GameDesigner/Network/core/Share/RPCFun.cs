@@ -16,6 +16,11 @@
         /// 远程方法的掩饰
         /// </summary>
         public ushort mask;
+        /// <summary>
+        /// <code>如果在unity编译为il2cpp后端脚本，则需要先声明类型出来，因为编译后，类型将无法在创建出来</code>
+        /// 例子: void Test(int num, string str); 则需要使用 [Rpc(il2cpp = typeof(RPCPTR&lt;int, string&gt;))]
+        /// </summary>
+        public Type il2cpp;
 
         /// <summary>
         /// 构造RPCFun函数特性

@@ -21,6 +21,7 @@
         private static MyDictionary<ushort, Type> networkTypes = new MyDictionary<ushort, Type>();
         private static MyDictionary<Type, ushort> networkType1s = new MyDictionary<Type, ushort>();
         private static Type nonSerialized = typeof(NonSerializedAttribute);
+        private static MyDictionary<Type, Member[]> map;
 
         static NetConvertBinary()
         {
@@ -959,9 +960,6 @@
             return stream;
         }
 
-
-        private static MyDictionary<Type, Member[]> map;
-
         private class Member
         {
             internal string name;
@@ -978,7 +976,6 @@
             internal Func<object, object> getValue;
             internal Action<object, object> setValue;
 #endif
-
             internal virtual object GetValue(object obj)
             {
                 return obj;
@@ -1030,12 +1027,7 @@
             }
             internal override void SetValue(ref object obj, object v)
             {
-                try { 
-                    setValue(obj, v); 
-                } catch (Exception ex) {
-                    NDebug.LogError(ToString() + ex);
-                    throw ex;
-                }
+                setValue(obj, v);
             }
         }
 #endif
@@ -1114,7 +1106,7 @@
 #endif
             if (fpType.IsArray)
             {
-                Type itemType = fpType.GetInterface("IList`1").GenericTypeArguments[0];
+                Type itemType = fpType.GetInterface("IList`1");
 #if SERVICE
                 if (isClassField)
                 {
@@ -1381,7 +1373,7 @@
         {
             object obj;
             if (type == typeof(string)) obj = string.Empty;
-            else if (type.IsArray | type.IsGenericType) obj = default;
+            else if (type.IsArray) obj = default;
             else obj = Activator.CreateInstance(type);
             var members = GetMembers(type);
             var bitLen = ((members.Length - 1) / 8) + 1;
@@ -1408,8 +1400,7 @@
                     int arrCount = (int)ReadValue(TypeCode.Int32, buffer, ref index);
                     IList array = (IList)Activator.CreateInstance(member.Type, arrCount);
                     ReadArray(buffer, ref index, ref array, member.ItemType, recordType);
-                    if (obj == null) obj = array;
-                    else member.SetValue(ref obj, array);
+                    member.SetValue(ref obj, array);
                 }
                 else if (member.IsGenericType)
                 {
@@ -1419,8 +1410,7 @@
                         var array1 = Array.CreateInstance(member.ItemType, arrCount);
                         IList array = (IList)Activator.CreateInstance(member.Type, array1);
                         ReadArray(buffer, ref index, ref array, member.ItemType, recordType);
-                        if (obj == null) obj = array;
-                        else member.SetValue(ref obj, array);
+                        member.SetValue(ref obj, array);
                     }
                     else
                     {
@@ -1433,8 +1423,7 @@
                         IDictionary dictionary = (IDictionary)Activator.CreateInstance(member.Type);
                         for (int a = 0; a < arrCount; a++)
                             dictionary.Add(array[a], array1[a]);
-                        if (obj == null) obj = dictionary;
-                        else member.SetValue(ref obj, dictionary);
+                        member.SetValue(ref obj, dictionary);
                     }
                 }
                 else if (networkType1s.ContainsKey(member.Type))//如果是序列化类型

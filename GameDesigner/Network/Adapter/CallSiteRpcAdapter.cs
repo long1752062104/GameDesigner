@@ -1,109 +1,108 @@
 ﻿using Net.Share;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Net.Server;
 using System.Threading;
 
 namespace Net.Adapter
 {
-    internal class RPCPTR
+    public class RPCPTR
     {
-        internal object target;
-        internal byte cmd;
+        public object target;
+        public byte cmd;
         public virtual void Invoke(object[] pars) {}
     }
-    internal class RPCPTRNull : RPCPTR
+    public class RPCPTRNull : RPCPTR
     {
-        internal Action ptr;
+        public Action ptr;
         public override void Invoke(object[] pars)
         {
             ptr();
         }
     }
-    internal class RPCPTR<T> : RPCPTR
+    public class RPCPTR<T> : RPCPTR
     {
-        internal Action<T> ptr;
+        public Action<T> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0]);
         }
     }
-    internal class RPCPTR<T, T1> : RPCPTR
+    public class RPCPTR<T, T1> : RPCPTR
     {
-        internal Action<T, T1> ptr;
+        public Action<T, T1> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1]);
         }
     }
-    internal class RPCPTR<T, T1, T2> : RPCPTR
+    public class RPCPTR<T, T1, T2> : RPCPTR
     {
-        internal Action<T, T1, T2> ptr;
+        public Action<T, T1, T2> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2]);
         }
     }
-    internal class RPCPTR<T, T1, T2, T3> : RPCPTR
+    public class RPCPTR<T, T1, T2, T3> : RPCPTR
     {
-        internal Action<T, T1, T2, T3> ptr;
+        public Action<T, T1, T2, T3> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2], (T3)pars[3]);
         }
     }
-    internal class RPCPTR<T, T1, T2, T3, T4> : RPCPTR
+    public class RPCPTR<T, T1, T2, T3, T4> : RPCPTR
     {
-        internal Action<T, T1, T2, T3, T4> ptr;
+        public Action<T, T1, T2, T3, T4> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2], (T3)pars[3], (T4)pars[4]);
         }
     }
-    internal class RPCPTR<T, T1, T2, T3, T4, T5> : RPCPTR
+    public class RPCPTR<T, T1, T2, T3, T4, T5> : RPCPTR
     {
-        internal Action<T, T1, T2, T3, T4, T5> ptr;
+        public Action<T, T1, T2, T3, T4, T5> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2], (T3)pars[3], (T4)pars[4], (T5)pars[5]);
         }
     }
-    internal class RPCPTR<T, T1, T2, T3, T4, T5, T6> : RPCPTR
+    public class RPCPTR<T, T1, T2, T3, T4, T5, T6> : RPCPTR
     {
-        internal Action<T, T1, T2, T3, T4, T5, T6> ptr;
+        public Action<T, T1, T2, T3, T4, T5, T6> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2], (T3)pars[3], (T4)pars[4], (T5)pars[5], (T6)pars[6]);
         }
     }
-    internal class RPCPTR<T, T1, T2, T3, T4, T5, T6, T7> : RPCPTR
+    public class RPCPTR<T, T1, T2, T3, T4, T5, T6, T7> : RPCPTR
     {
-        internal Action<T, T1, T2, T3, T4, T5, T6, T7> ptr;
+        public Action<T, T1, T2, T3, T4, T5, T6, T7> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2], (T3)pars[3], (T4)pars[4], (T5)pars[5], (T6)pars[6], (T7)pars[7]);
         }
     }
-    internal class RPCPTR<T, T1, T2, T3, T4, T5, T6, T7, T8> : RPCPTR
+    public class RPCPTR<T, T1, T2, T3, T4, T5, T6, T7, T8> : RPCPTR
     {
-        internal Action<T, T1, T2, T3, T4, T5, T6, T7, T8> ptr;
+        public Action<T, T1, T2, T3, T4, T5, T6, T7, T8> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2], (T3)pars[3], (T4)pars[4], (T5)pars[5], (T6)pars[6], (T7)pars[7], (T8)pars[8]);
         }
     }
-    internal class RPCPTR<T, T1, T2, T3, T4, T5, T6, T7, T8, T9> : RPCPTR
+    public class RPCPTR<T, T1, T2, T3, T4, T5, T6, T7, T8, T9> : RPCPTR
     {
-        internal Action<T, T1, T2, T3, T4, T5, T6, T7, T8, T9> ptr;
+        public Action<T, T1, T2, T3, T4, T5, T6, T7, T8, T9> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2], (T3)pars[3], (T4)pars[4], (T5)pars[5], (T6)pars[6], (T7)pars[7], (T8)pars[8], (T9)pars[9]);
         }
     }
-    internal class RPCPTR<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : RPCPTR
+    public class RPCPTR<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : RPCPTR
     {
-        internal Action<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> ptr;
+        public Action<T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> ptr;
         public override void Invoke(object[] pars)
         {
             ptr((T)pars[0], (T1)pars[1], (T2)pars[2], (T3)pars[3], (T4)pars[4], (T5)pars[5], (T6)pars[6], (T7)pars[7], (T8)pars[8], (T9)pars[9], (T10)pars[10]);
@@ -141,8 +140,17 @@ namespace Net.Adapter
     {
         internal SynchronizationContext Context;
         internal MyDictionary<string, RPCPTR> RPCS = new MyDictionary<string, RPCPTR>();
+        private readonly bool useIL2CPP;
 
-        public CallSiteRpcAdapter() { Context = SynchronizationContext.Current; }
+        public CallSiteRpcAdapter() 
+        {
+            Context = SynchronizationContext.Current;
+#if UNITY_EDITOR
+#pragma warning disable CS0618 // 类型或成员已过时
+            useIL2CPP = UnityEditor.PlayerSettings.GetPropertyInt("ScriptingBackend", UnityEditor.BuildTargetGroup.Standalone) == 1;
+#pragma warning restore CS0618 // 类型或成员已过时
+#endif
+        }
 
         public void AddRpcHandle(object target, bool append)
         {
@@ -156,16 +164,63 @@ namespace Net.Adapter
                     if (info.ReturnType != typeof(void))
                         throw new Exception("rpc函数不允许有返回值，也没必要!");
                     var pars = info.GetParameters();
-                    RPCPTR metPtr;
-                    if (pars.Length > 0)
+#if UNITY_EDITOR
+                    if (rpc.il2cpp == null & useIL2CPP)
+                        throw new Exception("如果在unity编译为il2cpp后端脚本，则需要先声明类型出来，因为编译后，类型被固定，将无法创建出来! 例子: void Test(int num, string str); 则需要这样添加 [Rpc(il2cpp = typeof(RPCPTR<int, string>))]");
+                    if (useIL2CPP) 
                     {
-                        List<Type> parTypes = new List<Type>();
-                        foreach (var par in pars) parTypes.Add(par.ParameterType);
-                        var type2 = Type.GetType($"Net.Adapter.RPCPTR`{parTypes.Count}");
-                        var gt = type2.MakeGenericType(parTypes.ToArray());
-                        metPtr = (RPCPTR)Activator.CreateInstance(gt);
+                        var pars1 = rpc.il2cpp.GetGenericArguments();
+                        if (pars.Length != pars1.Length)
+                            throw new Exception($"{type}类的:{info.Name}方法定义Rpc的参数长度不一致!");
+                        for (int i = 0; i < pars.Length; i++)
+                            if(pars[i].ParameterType != pars1[i])
+                                throw new Exception($"{type}类的:{info.Name}方法定义Rpc的参数类型不一致!");
                     }
-                    else metPtr = new RPCPTRNull();
+#endif
+                    Type[] parTypes = new Type[pars.Length];
+                    for (int i = 0; i < pars.Length; i++)
+                        parTypes[i] = pars[i].ParameterType;
+                    Type gt = null;
+                    switch (parTypes.Length)
+                    {
+                        case 0:
+                            gt = typeof(RPCPTRNull);
+                            break;
+                        case 1:
+                            gt = typeof(RPCPTR<>).MakeGenericType(parTypes);
+                            break;
+                        case 2:
+                            gt = typeof(RPCPTR<,>).MakeGenericType(parTypes);
+                            break;
+                        case 3:
+                            gt = typeof(RPCPTR<,,>).MakeGenericType(parTypes);
+                            break;
+                        case 4:
+                            gt = typeof(RPCPTR<,,,>).MakeGenericType(parTypes);
+                            break;
+                        case 5:
+                            gt = typeof(RPCPTR<,,,,>).MakeGenericType(parTypes);
+                            break;
+                        case 6:
+                            gt = typeof(RPCPTR<,,,,,>).MakeGenericType(parTypes);
+                            break;
+                        case 7:
+                            gt = typeof(RPCPTR<,,,,,,>).MakeGenericType(parTypes);
+                            break;
+                        case 8:
+                            gt = typeof(RPCPTR<,,,,,,,>).MakeGenericType(parTypes);
+                            break;
+                        case 9:
+                            gt = typeof(RPCPTR<,,,,,,,,>).MakeGenericType(parTypes);
+                            break;
+                        case 10:
+                            gt = typeof(RPCPTR<,,,,,,,,,>).MakeGenericType(parTypes);
+                            break;
+                        case 11:
+                            gt = typeof(RPCPTR<,,,,,,,,,,>).MakeGenericType(parTypes);
+                            break;
+                    }
+                    RPCPTR metPtr = (RPCPTR)Activator.CreateInstance(gt);
                     var ptr = metPtr.GetType().GetField("ptr", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
                     var met = Delegate.CreateDelegate(ptr.FieldType, target, info);
                     ptr.SetValue(metPtr, met);

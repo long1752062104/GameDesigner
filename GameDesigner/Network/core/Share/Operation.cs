@@ -4,7 +4,7 @@
     /// 帧同步操作
     /// </summary>
     [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllPublic)]
-    public class Operation
+    public class Operation //: ISerialize<Operation>
     {
         /// <summary>
         /// 操作指令
@@ -225,6 +225,133 @@
         public FuncData GetData()
         {
             return NetConvert.Deserialize(buffer);
+        }
+
+        public unsafe void Write(Segment strem)
+        {
+            int pos = strem.Position;
+            strem.Position += 2;
+            byte[] bits = new byte[2];
+            if (cmd != 0)
+            {
+                NetConvertBase.SetBit(ref bits[0], 1, true);
+                strem.WriteByte(cmd);
+            }
+            if (cmd1 != 0)
+            {
+                NetConvertBase.SetBit(ref bits[0], 2, true);
+                strem.WriteByte(cmd1);
+            }
+            if (cmd2 != 0)
+            {
+                NetConvertBase.SetBit(ref bits[0], 3, true);
+                strem.WriteByte(cmd2);
+            }
+            if (!string.IsNullOrEmpty(name))
+            {
+                NetConvertBase.SetBit(ref bits[0], 4, true);
+                strem.WriteValue(name);
+            }
+            if (!string.IsNullOrEmpty(name1))
+            {
+                NetConvertBase.SetBit(ref bits[0], 5, true);
+                strem.WriteValue(name1);
+            }
+            if (!string.IsNullOrEmpty(name2))
+            {
+                NetConvertBase.SetBit(ref bits[0], 6, true);
+                strem.WriteValue(name2);
+            }
+            if (position != Vector3.zero)
+            {
+                NetConvertBase.SetBit(ref bits[0], 7, true);
+                fixed (void* ptr = &position.x)
+                    strem.Write(ptr, 12);
+            }
+            if (direction != Vector3.zero)
+            {
+                NetConvertBase.SetBit(ref bits[0], 8, true);
+                fixed (void* ptr = &direction.x)
+                    strem.Write(ptr, 12);
+            }
+            if (rotation != Quaternion.zero)
+            {
+                NetConvertBase.SetBit(ref bits[1], 1, true);
+                fixed (void* ptr = &rotation.x)
+                    strem.Write(ptr, 16);
+            }
+            if (index != 0)
+            {
+                NetConvertBase.SetBit(ref bits[1], 2, true);
+                strem.WriteValue(index);
+            }
+            if (index1 != 0)
+            {
+                NetConvertBase.SetBit(ref bits[1], 3, true);
+                strem.WriteValue(index1);
+            }
+            if (index2 != 0)
+            {
+                NetConvertBase.SetBit(ref bits[1], 4, true);
+                strem.WriteValue(index2);
+            }
+            if (health != 0)
+            {
+                NetConvertBase.SetBit(ref bits[1], 5, true);
+                strem.WriteValue(health);
+            }
+            if (buffer == null)
+                buffer = new byte[0];
+            strem.WriteArray(buffer);
+            int pos1 = strem.Position;
+            strem.Position = pos;
+            strem.Write(bits, 0, 2);
+            strem.Position = pos1;
+        }
+
+        public void Read(Segment strem)
+        {
+            byte[] bits = strem.Read(2);
+            if(NetConvertBase.GetBit(bits[0], 1))
+                cmd = strem.ReadValue<byte>();
+            if (NetConvertBase.GetBit(bits[0], 2))
+                cmd1 = strem.ReadValue<byte>();
+            if (NetConvertBase.GetBit(bits[0], 3))
+                cmd2 = strem.ReadValue<byte>();
+            if (NetConvertBase.GetBit(bits[0], 4))
+                name = strem.ReadValue<string>();
+            if (NetConvertBase.GetBit(bits[0], 5))
+                name1 = strem.ReadValue<string>();
+            if (NetConvertBase.GetBit(bits[0], 6))
+                name2 = strem.ReadValue<string>();
+            if (NetConvertBase.GetBit(bits[0], 7))
+            {
+                position.x = strem.ReadValue<float>();
+                position.y = strem.ReadValue<float>();
+                position.z = strem.ReadValue<float>();
+            }
+            if (NetConvertBase.GetBit(bits[0], 8))
+            {
+                direction.x = strem.ReadValue<float>();
+                direction.y = strem.ReadValue<float>();
+                direction.z = strem.ReadValue<float>();
+            }
+            if (NetConvertBase.GetBit(bits[1], 1))
+            {
+                rotation.x = strem.ReadValue<float>();
+                rotation.y = strem.ReadValue<float>();
+                rotation.z = strem.ReadValue<float>();
+                rotation.w = strem.ReadValue<float>();
+            }
+            if (NetConvertBase.GetBit(bits[1], 2))
+                index = strem.ReadValue<int>();
+            if (NetConvertBase.GetBit(bits[1], 3))
+                index1 = strem.ReadValue<int>();
+            if (NetConvertBase.GetBit(bits[1], 4))
+                index2 = strem.ReadValue<int>();
+            if (NetConvertBase.GetBit(bits[1], 5))
+                health = strem.ReadValue<float>();
+            buffer = strem.ReadArray<byte>();
         }
 
         /// <summary>
