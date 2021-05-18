@@ -195,6 +195,8 @@ namespace Net.Share
                     return WriteValue(value1);
                 case string value1:
                     return WriteValue(value1);
+                case Enum value1:
+                    return WriteValue((ulong)value1.GetHashCode());
             }
             return 0;
         }
@@ -239,7 +241,8 @@ namespace Net.Share
         public T ReadValue<T>() 
         {
             object value = null;
-            switch (Type.GetTypeCode(typeof(T))) 
+            var type = typeof(T);
+            switch (Type.GetTypeCode(type)) 
             {
                 case TypeCode.Byte:
                     value = Buffer[Position++];

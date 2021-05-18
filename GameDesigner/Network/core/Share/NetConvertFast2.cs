@@ -236,6 +236,7 @@
             finally
             {
                 stream.Count = stream.Position;
+                stream.Position = 0;
             }
             return stream;
         }

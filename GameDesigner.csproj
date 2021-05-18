@@ -867,6 +867,8 @@
     <None Include="GameDesigner\Network\dotNetty~\Plugins\Linux\linux-arm\libuv.so" />
     <None Include="GameDesigner\Network\dotNetty~\Plugins\Linux\linux-x64\libuv.so" />
     <None Include="GameDesigner\Network\dotNetty~\Plugins\macOS\libuv.dylib" />
+    <None Include="GameDesigner\Network\Editor.meta" />
+    <None Include="GameDesigner\Network\Editor\Fast2BuildTool.cs.meta" />
     <None Include="GameDesigner\Network\enet.meta" />
     <None Include="GameDesigner\Network\enet\Client.meta" />
     <None Include="GameDesigner\Network\enet\Client\ENetClient.cs.meta" />
@@ -1856,6 +1858,7 @@
     <Compile Include="GameDesigner\Network\dotNetty~\Client\DotNettyClient.cs" />
     <Compile Include="GameDesigner\Network\dotNetty~\Server\DNPlayer.cs" />
     <Compile Include="GameDesigner\Network\dotNetty~\Server\DotNettyServer.cs" />
+    <Compile Include="GameDesigner\Network\Editor\Fast2BuildTool.cs" />
     <Compile Include="GameDesigner\Network\enet\Client\ENetClient.cs" />
     <Compile Include="GameDesigner\Network\enet\ENet\ENet.cs" />
     <Compile Include="GameDesigner\Network\enet\Server\ENetServer.cs" />
