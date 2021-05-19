@@ -956,6 +956,7 @@
             finally 
             {
                 stream.Count = stream.Position;
+                stream.Position = 0;
             }
             return stream;
         }
@@ -1106,7 +1107,7 @@
 #endif
             if (fpType.IsArray)
             {
-                Type itemType = fpType.GetInterface("IList`1");
+                Type itemType = fpType.GetInterface("IList`1").GenericTypeArguments[0];
 #if SERVICE
                 if (isClassField)
                 {
