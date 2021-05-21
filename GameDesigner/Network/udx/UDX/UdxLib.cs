@@ -1,11 +1,7 @@
-﻿using Net.Client;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Udx
 {
@@ -53,7 +49,7 @@ namespace Udx
 		public const string nativeLibrary = "__Internal";
 #elif UNITY_ANDROID && !UNITY_EDITOR//宏编译 在安卓编译就是这里
 		public const string nativeLibrary = "udxapi";
-#else //在unity编辑器
+#else //在win, unity编辑器
         public const string nativeLibrary = "FastUdxApi.dll";
 #endif
         public const int AUDIOFRAME_A = 0;//音频帧
