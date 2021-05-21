@@ -235,7 +235,7 @@
                 if (size < 0 | size > StackBufferSize)//如果出现解析的数据包大小有问题，则不处理
                 {
                     client.stack = 0;
-                    Debug.LogError($"数据错乱: size:{size}");
+                    Debug.LogError($"数据错乱或数据量太大: size:{size}， 如果想传输大数据，请设置StackBufferSize属性");
                     return;
                 }
                 if (index + frame + size <= count)

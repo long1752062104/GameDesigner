@@ -381,6 +381,10 @@ namespace Net.Client
         /// 是以太网? 此属性控制组包发送时,执行一次能把n个数据包组合在一起, 然后一次发送, 全由数据包大小决定. 如果此属性是以太网(true), 则根据mut来判断, 否则是局域网, 固定值50000字节
         /// </summary>
         public bool IsEthernet { get; set; }
+        /// <summary>
+        /// 组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
+        /// </summary>
+        public int PackageLength { get; set; } = 1000;
 
         internal string persistentDataPath;
         private readonly MyDictionary<uint, FrameList> revdFrames = new MyDictionary<uint, FrameList>();
@@ -415,7 +419,7 @@ namespace Net.Client
 
         public List<RPCMethod> RPCs { get { return Rpcs; } set { Rpcs = value; } }
         public MyDictionary<string, List<RPCMethod>> RPCsDic { get { return RpcsDic; } set { RpcsDic = value; } }
-
+        
         /// <summary>
         /// 添加网络Rpc
         /// </summary>
@@ -1272,6 +1276,48 @@ namespace Net.Client
             SendRTDataHandle();
         }
 
+        protected virtual void WriteDataHead(Segment stream)
+        {
+            int crcIndex = RandomHelper.Range(0, 256);
+            byte crcCode = CRCCode[crcIndex];
+            stream.Position += 4;//size
+            stream.WriteByte((byte)crcIndex);
+            stream.WriteByte(crcCode);
+        }
+
+        protected virtual void WriteDataBody(ref Segment stream, QueueSafe<RPCModel> rPCModels, int count, bool reliable)
+        {
+            int index = 0;
+            for (int i = 0; i < count; i++)
+            {
+                if (!rPCModels.TryDequeue(out RPCModel rPCModel))
+                    continue;
+                if (rPCModel.kernel & rPCModel.serialize)
+                    rPCModel.buffer = OnSerializeRPC(rPCModel);
+                int len = stream.Count + rPCModel.buffer.Length + frame;
+                if (len > BufferPool.Size)
+                {
+                    var stream2 = BufferPool.Take(len);
+                    stream2.Write(stream, 0, stream.Count);
+                    BufferPool.Push(stream);
+                    stream = stream2;
+                }
+                if ((len >= (IsEthernet ? MTU : 50000) | ++index >= PackageLength) & !reliable)//这里的判断是第二次for以上生效
+                {
+                    byte[] buffer = SendData(stream);
+                    SendByteData(buffer, reliable);
+                    index = 0;
+                    stream.SetPositionLength(frame);
+                }
+                stream.WriteByte((byte)(rPCModel.kernel ? 68 : 74));
+                stream.WriteByte(rPCModel.cmd);
+                stream.Write(BitConverter.GetBytes(rPCModel.buffer.Length), 0, 4);
+                stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
+                if (rPCModel.bigData)
+                    break;
+            }
+        }
+
         /// <summary>
         /// 发送处理
         /// </summary>
@@ -1280,60 +1326,26 @@ namespace Net.Client
             int count = rPCModels.Count;
             if (count <= 0)
                 return;
-            var segment = BufferPool.Take();
-            using (MemoryStream stream = new MemoryStream(segment))
-            {
-                stream.SetLength(0);
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCCode[crcIndex];
-                stream.Write(new byte[4], 0, 4);
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-                int index = 0;
-                for (int i = 0; i < count; i++)
-                {
-                    if (!rPCModels.TryDequeue(out RPCModel rPCModel))
-                        continue;
-                    if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRPC(rPCModel);
-                    if (stream.Length + rPCModel.buffer.Length + frame > BufferPool.Size)
-                    {
-                        BufferPool.Push(segment);
-                        NDebug.LogError($"内存已经超出范围({stream.Length + rPCModel.buffer.Length + frame}/{BufferPool.Size}), 如果需要发送大数据, 请设置BufferPool.Size的值!");
-                        return;
-                    }
-                    if (stream.Length + rPCModel.buffer.Length + frame >= (IsEthernet ? MTU : 50000) | index++ > 1000)
-                    {
-                        byte[] buffer = SendData(stream);
-                        SendByteData(buffer, reliable);
-                        index = 0;
-                        stream.SetLength(frame);
-                    }
-                    stream.WriteByte((byte)(rPCModel.kernel ? 68 : 74));
-                    stream.WriteByte(rPCModel.cmd);
-                    stream.Write(BitConverter.GetBytes(rPCModel.buffer.Length), 0, 4);
-                    stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
-                    if (rPCModel.bigData)
-                        break;
-                }
-                byte[] buffer1 = SendData(stream);
-                SendByteData(buffer1, reliable);
-            }
-            BufferPool.Push(segment);
+            var stream = BufferPool.Take();
+            WriteDataHead(stream);
+            WriteDataBody(ref stream, rPCModels, count, reliable);
+            byte[] buffer = SendData(stream);
+            SendByteData(buffer, reliable);
+            BufferPool.Push(stream);
         }
 
-        protected virtual byte[] SendData(MemoryStream stream)
+        protected virtual byte[] SendData(Segment stream)
         {
-            if (ByteCompression & stream.Length > 1000)
+            if (ByteCompression & stream.Count > 1000)
             {
-                int oldlen = (int)stream.Length;
+                int oldlen = stream.Count;
                 byte[] array = new byte[oldlen - frame];
-                Buffer.BlockCopy(stream.GetBuffer(), frame, array, 0, array.Length);
+                Buffer.BlockCopy(stream.Buffer, frame, array, 0, array.Length);
                 byte[] buffer = UnZipHelper.Compress(array);
                 stream.Position = 0;
                 int len = buffer.Length;
                 stream.Write(BitConverter.GetBytes(len), 0, 4);
-                stream.SetLength(frame);
+                stream.SetPositionLength(frame);
                 stream.Position = frame;
                 stream.Write(buffer, 0, len);
                 buffer = stream.ToArray();
@@ -1342,7 +1354,7 @@ namespace Net.Client
             else
             {
                 stream.Position = 0;
-                int len = (int)stream.Length - frame;
+                int len = stream.Count - frame;
                 stream.Write(BitConverter.GetBytes(len), 0, 4);
                 stream.Position = len + frame;
                 return stream.ToArray();
@@ -1352,83 +1364,49 @@ namespace Net.Client
         protected virtual void SendRTDataHandle()
         {
             if (RTOMode == RTOMode.Fixed)
-                currRto = RTO;//一秒最快发送50次 rto (重传超时时间) 如果网络拥堵, 别耽误事, 赶紧重传
+                currRto = RTO;
             int rtcount = sendRTList.Values.Count;
             if ((rtcount > 0 & Seqencing) | (rtcount > 0 & sendRTListCount > 5) | rtcount > 100)
                 goto JUMP;
-            int count = rtRPCModels.Count;//优化
+            int count = rtRPCModels.Count;
             if (count == 0 & rtcount > 0)
                 goto JUMP;
             if (count == 0)
                 return;
             if (count > 1000)
                 count = 1000;
-            int len;
-            var segment = BufferPool.Take();
-            using (MemoryStream stream1 = new MemoryStream(segment))
-            {
-                stream1.SetLength(0);
-                for (int i = 0; i < count; i++)
-                {
-                    if (!rtRPCModels.TryDequeue(out RPCModel rPCModel))
-                        continue;
-                    if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRPC(rPCModel);
-                    if (stream1.Length + rPCModel.buffer.Length + frame > BufferPool.Size)
-                    {
-                        BufferPool.Push(segment);
-                        NDebug.LogError($"内存已经超出范围({stream1.Length + rPCModel.buffer.Length + frame}/{BufferPool.Size}), 如果需要发送大数据, 请设置BufferPool.Size的值!");
-                        return;
-                    }
-                    stream1.WriteByte((byte)(rPCModel.kernel ? 68 : 74));
-                    stream1.WriteByte(rPCModel.cmd);
-                    stream1.Write(BitConverter.GetBytes(rPCModel.buffer.Length), 0, 4);
-                    stream1.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
-                    if (rPCModel.bigData)
-                        break;
-                }
-                len = (int)stream1.Position;
-            }
+            var stream = BufferPool.Take();
+            WriteDataBody(ref stream, rtRPCModels, count, true);
+            int len = stream.Position;
             int index = 0;
             ushort dataIndex = 0;
             float dataCount = (float)len / MTU;
             var rtDic = new MyDictionary<ushort, RTBuffer>();
             sendRTList.TryAdd(sendReliableFrame, rtDic);
-            var segment1 = BufferPool.Take();
-            using (MemoryStream stream = new MemoryStream(segment1))
+            var stream1 = BufferPool.Take();
+            WriteDataHead(stream1);
+            stream1.WriteByte(74);
+            stream1.WriteByte(NetCmd.ReliableTransport);
+            while (index < len)
             {
-                while (index < len)
-                {
-                    int count1 = MTU;
-                    if (index + count1 >= len)
-                        count1 = len - index;
-                    stream.SetLength(0);
-                    int crcIndex = RandomHelper.Range(0, 256);
-                    byte crcCode = CRCCode[crcIndex];
-                    stream.Write(new byte[4], 0, 4);
-                    stream.WriteByte((byte)crcIndex);
-                    stream.WriteByte(crcCode);
-
-                    stream.WriteByte(74);
-                    stream.WriteByte(NetCmd.ReliableTransport);
-                    stream.Write(BitConverter.GetBytes(count1 + 16), 0, 4);
-
-                    stream.Write(BitConverter.GetBytes(dataIndex), 0, 2);
-                    stream.Write(BitConverter.GetBytes((ushort)Math.Ceiling(dataCount)), 0, 2);
-                    stream.Write(BitConverter.GetBytes(count1), 0, 4);
-                    stream.Write(BitConverter.GetBytes(len), 0, 4);
-                    stream.Write(BitConverter.GetBytes(sendReliableFrame), 0, 4);
-                    stream.Write(segment, index, count1);
-
-                    byte[] buffer2 = SendData(stream);
-                    rtDic.Add(dataIndex, new RTBuffer(buffer2));
-
-                    index += MTU;
-                    dataIndex++;
-                }
+                int count1 = MTU;
+                if (index + count1 >= len)
+                    count1 = len - index;
+                stream1.Position = 8;
+                stream1.Write(BitConverter.GetBytes(count1 + 16), 0, 4);
+                stream1.Write(BitConverter.GetBytes(dataIndex), 0, 2);
+                stream1.Write(BitConverter.GetBytes((ushort)Math.Ceiling(dataCount)), 0, 2);
+                stream1.Write(BitConverter.GetBytes(count1), 0, 4);
+                stream1.Write(BitConverter.GetBytes(len), 0, 4);
+                stream1.Write(BitConverter.GetBytes(sendReliableFrame), 0, 4);
+                stream1.Write(stream, index, count1);
+                byte[] buffer = SendData(stream1);
+                rtDic.Add(dataIndex, new RTBuffer(buffer));
+                index += MTU;
+                dataIndex++;
             }
-            BufferPool.Push(segment);
-            BufferPool.Push(segment1);
+            BufferPool.Push(stream);
+            BufferPool.Push(stream1);
             sendRTListCount = rtDic.Count;
             sendReliableFrame++;
         JUMP:
@@ -1452,12 +1430,12 @@ namespace Net.Client
             {
                 foreach (var list in rtlist)
                 {
-                    RTBuffer buffer3 = list.Value;
-                    if (DateTime.Now < buffer3.time)
+                    RTBuffer rtb = list.Value;
+                    if (DateTime.Now < rtb.time)
                         continue;
-                    buffer3.time = DateTime.Now.AddMilliseconds(currRto);
-                    bytesLen += buffer3.buffer.Length;
-                    SendByteData(buffer3.buffer, true);
+                    rtb.time = DateTime.Now.AddMilliseconds(currRto);
+                    bytesLen += rtb.buffer.Length;
+                    SendByteData(rtb.buffer, true);
                     if (bytesLen > MTPS / 1000)//一秒最大发送1m数据, 这里会有可能每秒执行1000次
                         return;
                 }
@@ -1633,12 +1611,10 @@ namespace Net.Client
                 byte cmd1 = buffer[index];
                 index++;
                 int dataCount = BitConverter.ToInt32(buffer, index);
-                byte[] buffer1 = new byte[dataCount];
                 index += 4;
-                if (index + dataCount <= count)
-                    Buffer.BlockCopy(buffer, index, buffer1, 0, dataCount);
-                else break;
-                RPCModel rpc = new RPCModel(cmd1, buffer1, kernel);
+                if (index + dataCount > count)
+                    break;
+                RPCModel rpc = new RPCModel(cmd1, kernel, buffer, index, dataCount);
                 if (kernel)
                 {
                     FuncData func = OnDeserializeRPC(buffer, index, dataCount);

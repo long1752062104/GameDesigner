@@ -909,8 +909,6 @@
     <None Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server.meta" />
     <None Include="GameDesigner\Network\gudp\Server\NetworkServer.cs.meta" />
-    <None Include="GameDesigner\Network\gudp\Server\RawPlayer.cs.meta" />
-    <None Include="GameDesigner\Network\gudp\Server\RawServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\TcpServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\TcpServerIOCP.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\UdpServer.cs.meta" />
@@ -1869,8 +1867,6 @@
     <Compile Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs" />
     <Compile Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\NetworkServer.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Server\RawPlayer.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Server\RawServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\TcpServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\TcpServerIOCP.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\UdpServer.cs" />

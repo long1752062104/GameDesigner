@@ -27,7 +27,7 @@
             output = new outputCallback(Output);
             IntPtr outputPtr = Marshal.GetFunctionPointerForDelegate(output);
             ikcp_setoutput(kcp, outputPtr);
-            ikcp_wndsize(kcp, 128, 128);
+            ikcp_wndsize(kcp, 1024, 1024);
             ikcp_nodelay(kcp, 1, 10, 2, 1);
         }
 
@@ -109,6 +109,12 @@
         protected override void SendRTDataHandle()
         {
             SendDataHandle(rtRPCModels, true);
+        }
+
+        public override void Close(bool await = true)
+        {
+            base.Close(await);
+            addressBuffer = null;
         }
 
         private class KcpCallback

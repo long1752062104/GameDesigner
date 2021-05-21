@@ -160,55 +160,27 @@ namespace Net.Client
             int count = rPCModels.Count;
             if (count <= 0)
                 return;
-            var segment = BufferPool.Take();
-            using (MemoryStream stream = new MemoryStream(segment))
-            {
-                stream.SetLength(0);
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCCode[crcIndex];
-                stream.Write(new byte[4], 0, 4);
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-                stream.Write(BitConverter.GetBytes(UID), 0, 4);//与其他协议不同的是, 双协议需要uid
-                int index = 0;
-                for (int i = 0; i < count; i++)
-                {
-                    if (!rPCModels.TryDequeue(out RPCModel rPCModel))
-                        continue;
-                    if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRPC(rPCModel);
-                    stream.WriteByte((byte)(rPCModel.kernel ? 68 : 74));
-                    stream.WriteByte(rPCModel.cmd);
-                    stream.Write(BitConverter.GetBytes(rPCModel.buffer.Length), 0, 4);
-                    stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
-                    if (stream.Length + rPCModel.buffer.Length >= MTU | index++ > 1000)
-                    {
-                        byte[] buffer = SendData(stream);
-                        SendByteData(buffer, reliable);
-                        index = 0;
-                        stream.SetLength(frame);
-                    }
-                    if (rPCModel.bigData)
-                        break;
-                }
-                byte[] buffer1 = SendData(stream);
-                SendByteData(buffer1, reliable);
-            }
-            BufferPool.Push(segment);
+            var stream = BufferPool.Take();
+            WriteDataHead(stream);
+            stream.Write(BitConverter.GetBytes(UID), 0, 4);//与其他协议不同的是, 双协议需要uid
+            WriteDataBody(ref stream, rPCModels, count, reliable);
+            byte[] buffer = SendData(stream);
+            SendByteData(buffer, reliable);
+            BufferPool.Push(stream);
         }
 
-        protected override byte[] SendData(MemoryStream stream)
+        protected override byte[] SendData(Segment stream)
         {
-            if (ByteCompression & stream.Length > 1000)
+            if (ByteCompression & stream.Count > 1000)
             {
-                int oldlen = (int)stream.Length;
+                int oldlen = stream.Count;
                 byte[] array = new byte[oldlen - frame];
-                Buffer.BlockCopy(stream.GetBuffer(), frame, array, 0, array.Length);
+                Buffer.BlockCopy(stream.Buffer, frame, array, 0, array.Length);
                 byte[] buffer = UnZipHelper.Compress(array);
                 stream.Position = 0;
                 int len = buffer.Length;
                 stream.Write(BitConverter.GetBytes(len), 0, 4);
-                stream.SetLength(frame);
+                stream.SetPositionLength(frame);
                 stream.Position = frame;
                 stream.Write(buffer, 0, len);
                 buffer = stream.ToArray();
@@ -217,7 +189,7 @@ namespace Net.Client
             else
             {
                 stream.Position = 0;
-                int len = (int)stream.Length - frame;
+                int len = stream.Count - frame;
                 stream.Write(BitConverter.GetBytes(len), 0, 4);
                 stream.Position = len + frame;
                 return stream.ToArray();

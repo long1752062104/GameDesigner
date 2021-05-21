@@ -177,47 +177,6 @@
             SendDataHandle(rtRPCModels, true);
         }
 
-        protected override void SendDataHandle(QueueSafe<RPCModel> rPCModels, bool reliable)
-        {
-            int count = rPCModels.Count;
-            if (count <= 0)
-                return;
-            var segment = BufferPool.Take();
-            using (MemoryStream stream = new MemoryStream(segment))
-            {
-                stream.SetLength(0);
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCCode[crcIndex];
-                stream.Write(new byte[4], 0, 4);
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-                int index = 0;
-                for (int i = 0; i < count; i++)
-                {
-                    if (!rPCModels.TryDequeue(out RPCModel rPCModel))
-                        continue;
-                    if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRPC(rPCModel);
-                    stream.WriteByte((byte)(rPCModel.kernel ? 68 : 74));
-                    stream.WriteByte(rPCModel.cmd);
-                    stream.Write(BitConverter.GetBytes(rPCModel.buffer.Length), 0, 4);
-                    stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
-                    if (index++ > 1000)
-                    {
-                        byte[] buffer = SendData(stream);
-                        SendByteData(buffer, reliable);
-                        index = 0;
-                        stream.SetLength(frame);
-                    }
-                    if (rPCModel.bigData)
-                        break;
-                }
-                byte[] buffer1 = SendData(stream);
-                SendByteData(buffer1, reliable);
-            }
-            BufferPool.Push(segment);
-        }
-
         protected unsafe override void SendByteData(byte[] buffer, bool reliable)
         {
             if (ClientPtr == IntPtr.Zero)

@@ -150,7 +150,7 @@
                         if (peers.TryGetValue(cli, out Player client1))
                         {
                             client1.heart = 0;
-                            var buffer = BufferPool.Take();
+                            var buffer = BufferPool.Take(len);
                             Marshal.Copy(pData, buffer, 0, len);
                             receiveCount += len;
                             receiveAmount++;
@@ -179,54 +179,6 @@
         protected override void SendRTDataHandle(Player client, QueueSafe<RPCModel> rtRPCModels)
         {
             SendDataHandle(client, rtRPCModels, true);
-        }
-
-        protected override void SendDataHandle(Player client, QueueSafe<RPCModel> rPCModels, bool reliable)
-        {
-            int count = rPCModels.Count;//源码中Count执行也不少, 所以优化一下   这里已经取出要处理的长度
-            if (count <= 0)
-                return;
-            var segment = BufferPool.Take();
-            using (MemoryStream stream = new MemoryStream(segment))
-            {
-                stream.SetLength(0);
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCCode[crcIndex];
-                stream.Write(new byte[4], 0, 4);
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-                int index = 0;
-                for (int i = 0; i < count; i++)
-                {
-                    if (!rPCModels.TryDequeue(out RPCModel rPCModel))
-                        continue;
-                    if (rPCModel.kernel & rPCModel.serialize)
-                        rPCModel.buffer = OnSerializeRpc(rPCModel);
-                    int num = (int)stream.Length + rPCModel.buffer.Length + frame;
-                    if (num > BufferPool.Size)
-                    {
-                        BufferPool.Push(segment);
-                        Debug.LogError($"内存已经超出范围({num}/{BufferPool.Size}), 如果需要发送大数据, 请设置BufferPool.Size的值!");
-                        return;
-                    }
-                    stream.WriteByte((byte)(rPCModel.kernel ? 68 : 74));
-                    stream.WriteByte(rPCModel.cmd);
-                    stream.Write(BitConverter.GetBytes(rPCModel.buffer.Length), 0, 4);
-                    stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
-                    if (++index >= 1000)
-                    {
-                        byte[] buffer = SendData(client, stream);
-                        SendByteData(client, buffer, reliable);
-                        index = 0;
-                        stream.SetLength(0);
-                    }
-                    if (rPCModel.bigData)
-                        break;
-                }
-                byte[] buffer1 = SendData(client, stream);
-                SendByteData(client, buffer1, reliable);
-            }
-            BufferPool.Push(segment);
         }
 
         protected unsafe override void SendByteData(Player client, byte[] buffer, bool reliable)

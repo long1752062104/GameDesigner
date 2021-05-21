@@ -41,7 +41,11 @@
         /// <summary>
         /// 玩家rpc
         /// </summary>
-        public Dictionary<string, RPCMethod> Rpcs { get; set; } = new Dictionary<string, RPCMethod>();
+        public MyDictionary<string, RPCMethod> Rpcs { get; set; } = new MyDictionary<string, RPCMethod>();
+        /// <summary>
+        /// 远程方法遮罩
+        /// </summary>
+        private readonly MyDictionary<ushort, string> RpcMaskDic = new MyDictionary<ushort, string>();
         /// <summary>
         /// 临时客户端持续时间: (内核使用):
         /// 未知客户端连接服务器, 长时间未登录账号, 未知客户端临时内存对此客户端回收, 并强行断开此客户端连接
@@ -282,7 +286,13 @@
         /// <param name="model"></param>
         public virtual void OnRpcExecute(RPCModel model)
         {
-            RPCMethod rpc = Rpcs[model.func];
+            if (model.methodMask != 0)
+                RpcMaskDic.TryGetValue(model.methodMask, out model.func);
+            if (!Rpcs.TryGetValue(model.func, out RPCMethod rpc))
+            {
+                NDebug.LogWarning($"没有找到:{model.func}的Rpc方法,请使用netPlayer.AddRpcHandle方法注册!");
+                return;
+            }
             rpc.Invoke(model.pars);
         }
         #endregion
@@ -332,16 +342,18 @@
         /// <param name="target"></param>
         public void AddRpcHandle(object target)
         {
-            List<RPCMethod> rpcs = NetBehaviour<NetPlayer, NetScene<NetPlayer>>.GetRpcs(target);
-            foreach (RPCMethod rpc in rpcs)
+            foreach (MethodInfo info in target.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                if (!Rpcs.ContainsKey(rpc.Name))
+                RPCFun rpc = info.GetCustomAttribute<RPCFun>();
+                if (rpc != null)
                 {
-                    Rpcs.Add(rpc.Name, rpc);
-                }
-                else
-                {
-                    NDebug.LogWarning($"Rpc函数冲突(同名): {rpc.Name}, 请修改函数名称! Rpc函数名是唯一的...");
+                    RPCMethod item = new RPCMethod(target, info, rpc.cmd);
+                    if (rpc.mask != 0)
+                        RpcMaskDic.Add(rpc.mask, info.Name);
+                    if (!Rpcs.ContainsKey(item.method.Name))
+                        Rpcs.Add(item.method.Name, item);
+                    else
+                        NDebug.LogWarning($"Rpc函数冲突(同名): {item.method.Name}, 请修改函数名称! Rpc函数名是唯一的...");
                 }
             }
         }

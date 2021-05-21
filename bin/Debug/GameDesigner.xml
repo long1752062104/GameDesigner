@@ -3079,6 +3079,11 @@
             是以太网? 此属性控制组包发送时,执行一次能把n个数据包组合在一起, 然后一次发送, 全由数据包大小决定. 如果此属性是以太网(true), 则根据mut来判断, 否则是局域网, 固定值50000字节
             </summary>
         </member>
+        <member name="P:Net.Client.ClientBase.PackageLength">
+            <summary>
+            组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
+            </summary>
+        </member>
         <member name="M:Net.Client.ClientBase.#ctor">
             <summary>
             构造函数
@@ -4413,6 +4418,11 @@
             玩家rpc
             </summary>
         </member>
+        <member name="F:Net.Server.NetPlayer.RpcMaskDic">
+            <summary>
+            远程方法遮罩
+            </summary>
+        </member>
         <member name="P:Net.Server.NetPlayer.LastTime">
             <summary>
             临时客户端持续时间: (内核使用):
@@ -5069,6 +5079,11 @@
             是以太网? 此属性控制组包发送时,执行一次能把n个数据包组合在一起, 然后一次发送, 全由数据包大小决定. 如果此属性是以太网(true), 则根据mut来判断, 否则是局域网, 固定值50000字节
             </summary>
         </member>
+        <member name="P:Net.Server.ServerBase`2.PackageLength">
+            <summary>
+            组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
+            </summary>
+        </member>
         <member name="P:Net.Server.ServerBase`2.OnStartingHandle">
             <summary>
             开始运行服务器事件
@@ -5121,7 +5136,7 @@
         </member>
         <member name="P:Net.Server.ServerBase`2.Log">
             <summary>
-            输出日志, 这里是输出全部日志(提示,警告,错误等信息). 如果想只输出指定的日志, 请使用NDebug类进行输出
+            输出日志, 这里是输出全部日志(提示,警告,错误等信息). 如果想只输出指定的日志, 请使用NDebug类进行监听
             </summary>
         </member>
         <member name="F:Net.Server.ServerBase`2.OnPingCallback">
@@ -5851,19 +5866,6 @@
             <summary>
             tcp服务器套接字
             </summary>
-        </member>
-        <member name="T:Net.Server.RawServer`2">
-            <summary>
-            原始Udp服务器, 内部处理了IP头部
-            <para>Player:当有客户端连接服务器就会创建一个Player对象出来, Player对象和XXXClient是对等端, 每当有数据处理都会通知Player对象. </para>
-            <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
-            </summary>
-        </member>
-        <member name="M:Net.Server.RawServer`2.Start(System.UInt16)">
-            <summary>
-            启动服务器
-            </summary>
-            <param name="port">端口</param>
         </member>
         <member name="T:Net.Server.TcpServer`2">
             <summary>

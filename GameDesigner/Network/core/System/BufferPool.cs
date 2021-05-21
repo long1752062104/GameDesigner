@@ -65,7 +65,7 @@ namespace Net.Share
             Buffer = buffer;
             Index = index;
             Count = count;
-            length = count;
+            length = buffer.Length;
             Position = index;
             isDespose = !isRecovery;//如果不回收，则已经释放状态，不允许压入数组池
             this.isRecovery = isRecovery;
@@ -653,6 +653,19 @@ namespace Net.Share
             }
             return array;
         }
+
+        public void SetLength(int length)
+        {
+            if (Position > length)
+                Position = length;
+            Count = length;
+        }
+
+        public void SetPositionLength(int length)
+        {
+            Position = length;
+            Count = length;
+        }
     }
 
     /// <summary>
@@ -743,17 +756,16 @@ namespace Net.Share
                     goto J;
                 }
             }
-            J: var stack = STACKS[tableInx];
-            if (stack.TryPop(out Segment segment)) 
-            {
-                segment.isDespose = false;
-                segment.Index = 0;
-                segment.Count = 0;
-                segment.Position = 0;
-                segment.referenceCount++;
-                return segment;
-            }
-            return new Segment(new byte[size]);
+        J:  var stack = STACKS[tableInx];
+            if (stack.TryPop(out Segment segment))
+                goto J1;
+            segment = new Segment(new byte[size], 0, size);
+        J1: segment.isDespose = false;
+            segment.Index = 0;
+            segment.Count = 0;
+            segment.Position = 0;
+            segment.referenceCount++;
+            return segment;
         }
 
         /// <summary>
