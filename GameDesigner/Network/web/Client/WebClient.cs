@@ -147,7 +147,7 @@
 
         protected override void SendRTDataHandle()
         {
-            SendDataHandle(rtRPCModels, false);
+            SendDataHandle(rtRPCModels, true);
         }
 
         protected override void SendByteData(byte[] buffer, bool reliable)

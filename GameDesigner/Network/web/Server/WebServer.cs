@@ -1,18 +1,14 @@
 ﻿namespace Net.Server
 {
     using Fleck;
-    using Net.Event;
     using Net.Share;
     using Newtonsoft.Json;
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Net;
     using System.Net.Sockets;
-    using System.Reflection;
     using System.Text;
     using System.Threading;
-    using System.Threading.Tasks;
     using Debug = Event.NDebug;
 
     /// <summary>
@@ -22,7 +18,7 @@
     /// <para>Player:当有客户端连接服务器就会创建一个Player对象出来, Player对象和XXXClient是对等端, 每当有数据处理都会通知Player对象. </para>
     /// <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
     /// </summary>
-    [Obsolete("遇到问题,群里说下,进行修复...", false)]
+    [Obsolete("尚未实测!遇到问题群里说下，给你解决!", false)]
     public class WebServer<Player, Scene> : ServerBase<Player, Scene> where Player : WebPlayer, new() where Scene : NetScene<Player>, new()
     {
         /// <summary>
@@ -298,6 +294,18 @@
                     Debug.LogError("发送异常:" + ex);
                 }
             }
+        }
+
+        protected override void SendByteData(Player client, byte[] buffer, bool reliable)
+        {
+            if (client.sendDataBeProcessed.Count >= 268435456)//最大只能处理每秒256m数据
+            {
+                Debug.LogError("发送缓冲列表已经超出限制!");
+                return;
+            }
+            if (buffer.Length == frame)//解决长度==6的问题(没有数据)
+                return;
+            client.sendDataBeProcessed.Enqueue(new SendDataBuffer(client, buffer));
         }
 
         protected override void SceneUpdateHandle()
