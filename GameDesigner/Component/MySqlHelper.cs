@@ -10,8 +10,8 @@ namespace Net.Component
     /// </summary>
     public static class MySqlHelper
     {
-        private static MySqlConnection conn = null;
-        private static MySqlCommand cmd = null;
+        private static readonly MySqlConnection conn = null;
+        private static readonly MySqlCommand cmd = new MySqlCommand();
         private static MySqlDataReader sdr;
         private static MySqlDataAdapter sda = null;
 
@@ -28,15 +28,12 @@ namespace Net.Component
         /// 执行不带参数的增删改SQL语句或存储过程
         /// </summary>
         /// <param name="cmdText">增删改SQL语句或存储过程的字符串</param>
-        /// <param name="ct">命令类型</param>
         /// <returns>受影响的函数</returns>
         public static int ExecuteNonQuery(string cmdText)
         {
-            int res;
-            using (cmd = new MySqlCommand(cmdText, conn))
-            {
-                res = cmd.ExecuteNonQuery();
-            }
+            cmd.CommandText = cmdText;
+            cmd.Connection = conn;
+            int res = cmd.ExecuteNonQuery();
             return res;
         }
 
@@ -45,17 +42,13 @@ namespace Net.Component
         /// </summary>
         /// <param name="cmdText">增删改SQL语句或存储过程的字符串</param>
         /// <param name="paras">往存储过程或SQL中赋的参数集合</param>
-        /// <param name="ct">命令类型</param>
         /// <returns>受影响的函数</returns>
-        public static int ExecuteNonQuery(string cmdText, MySqlParameter[] paras, CommandType ct)
+        public static int ExecuteNonQuery(string cmdText, MySqlParameter[] paras)
         {
-            int res;
-            using (cmd = new MySqlCommand(cmdText, conn))
-            {
-                cmd.CommandType = ct;
-                cmd.Parameters.AddRange(paras);
-                res = cmd.ExecuteNonQuery();
-            }
+            cmd.CommandText = cmdText;
+            cmd.Connection = conn; 
+            cmd.Parameters.AddRange(paras);
+            int res = cmd.ExecuteNonQuery();
             return res;
         }
 
@@ -63,14 +56,13 @@ namespace Net.Component
         /// 执行不带参数的查询SQL语句或存储过程
         /// </summary>
         /// <param name="cmdText">查询SQL语句或存储过程的字符串</param>
-        /// <param name="ct">命令类型</param>
         /// <returns>查询到的DataTable对象</returns>
-        public static DataTable ExecuteQuery(string cmdText, CommandType ct)
+        public static DataTable ExecuteQuery(string cmdText)
         {
             DataTable dt = new DataTable();
-            cmd = new MySqlCommand(cmdText, conn);
-            cmd.CommandType = ct;
-            using (sdr = cmd.ExecuteReader(CommandBehavior.CloseConnection))
+            cmd.CommandText = cmdText;
+            cmd.Connection = conn;
+            using (sdr = cmd.ExecuteReader())
             {
                 dt.Load(sdr);
             }
@@ -82,13 +74,12 @@ namespace Net.Component
         /// </summary>
         /// <param name="cmdText">查询SQL语句或存储过程的字符串</param>
         /// <param name="paras">参数集合</param>
-        /// <param name="ct">命令类型</param>
         /// <returns></returns>
-        public static DataTable ExecuteQuery(string cmdText, MySqlParameter[] paras, CommandType ct)
+        public static DataTable ExecuteQuery(string cmdText, MySqlParameter[] paras)
         {
             DataTable dt = new DataTable();
-            cmd = new MySqlCommand(cmdText, conn);
-            cmd.CommandType = ct;
+            cmd.CommandText = cmdText;
+            cmd.Connection = conn;
             cmd.Parameters.AddRange(paras);
             using (sdr = cmd.ExecuteReader(CommandBehavior.CloseConnection))
             {
