@@ -1133,14 +1133,14 @@ namespace Net.Server
 
         protected void InvokeRevdRTProgress(Player client, int currValue, int dataCount)
         {
-            float bfb = (1f - (currValue / (float)dataCount)) * 100f;
+            float bfb = currValue / (float)dataCount * 100f;
             RTProgress progress = new RTProgress(bfb, RTState.Sending);
             OnRevdRTProgressHandle(client, progress);
         }
 
         protected void InvokeSendRTProgress(Player client, int currValue, int dataCount)
         {
-            float bfb = (1f - (currValue / (float)dataCount)) * 100f;
+            float bfb = currValue / (float)dataCount * 100f;
             RTProgress progress = new RTProgress(bfb, RTState.Sending);
             OnSendRTProgressHandle(client, progress);
         }

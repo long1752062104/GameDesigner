@@ -2,7 +2,6 @@
 {
     using Net.Share;
     using System;
-    using System.Collections.Concurrent;
     using System.Reflection;
     using System.Threading;
 
@@ -74,10 +73,7 @@
                         errorQueue.Enqueue(ex.Message);
                     }
                 }
-            })
-            {
-                Name = "Log"
-            };
+            }){ Name = "Log" };
             thread.Start();
         }
 

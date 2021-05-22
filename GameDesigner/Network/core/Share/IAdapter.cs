@@ -10,7 +10,7 @@ namespace Net.Share
     }
 
     /// <summary>
-    /// 通用适配器
+    /// 基础适配器接口
     /// </summary>
     public interface IAdapter
     {
