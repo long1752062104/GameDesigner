@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿#if !UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -12,18 +12,6 @@ public class Fast2BuildTools : EditorWindow
     private string bindTypeName = "BindingEntry";
     private string methodName = "GetBindTypes";
     private string savePath;
-
-    internal class Member
-    {
-        internal string Name;
-        internal bool IsPrimitive;
-        internal bool IsEnum;
-        internal bool IsArray;
-        internal bool IsGenericType;
-        internal Type Type;
-        internal TypeCode TypeCode;
-        internal Type ItemType;
-    }
 
     [MenuItem("GameDesigner/Network/Fast2BuildTool")]
     static void ShowWindow()
@@ -67,9 +55,9 @@ public class Fast2BuildTools : EditorWindow
             IList<Type> list = (IList<Type>)method.Invoke(null, null);
             foreach (var type in list)
             {
-                Build(type);
-                BuildArray(type);
-                BuildGeneric(type);
+                Fast2BuildToolMethod.Build(type, savePath);
+                Fast2BuildToolMethod.BuildArray(type, savePath);
+                Fast2BuildToolMethod.BuildGeneric(type, savePath);
             }
             Debug.Log("生成完成.");
             AssetDatabase.Refresh();
@@ -77,7 +65,36 @@ public class Fast2BuildTools : EditorWindow
         EditorGUILayout.HelpBox("指定主入口类型和调用入口方法，然后选择生成代码文件夹路径，最后点击生成。绑定入口案例:请看Net.Binding.BindingEntry类的GetBindTypes方法", MessageType.Info);
     }
 
-    private void Build(Type type)
+    void Save()
+    {
+        Data data = new Data() { savepath = savePath };
+        var jsonstr = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+        var path = Directory.GetCurrentDirectory() + "data.txt";
+        File.WriteAllText(path, jsonstr);
+    }
+
+    internal class Data
+    {
+        public string savepath;
+    }
+}
+#endif
+
+public static class Fast2BuildToolMethod 
+{
+    private class Member
+    {
+        internal string Name;
+        internal bool IsPrimitive;
+        internal bool IsEnum;
+        internal bool IsArray;
+        internal bool IsGenericType;
+        internal Type Type;
+        internal TypeCode TypeCode;
+        internal Type ItemType;
+    }
+
+    public static void Build(Type type, string savePath)
     {
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace);
@@ -169,11 +186,11 @@ public class Fast2BuildTools : EditorWindow
             {
                 if (typecode == TypeCode.String)
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (!string.IsNullOrEmpty(value.{members[i].Name}))");
-                else if(typecode == TypeCode.Boolean)
+                else if (typecode == TypeCode.Boolean)
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != false)");
-                else if(typecode == TypeCode.DateTime)
+                else if (typecode == TypeCode.DateTime)
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != default)");
-                else 
+                else
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != 0)");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
@@ -237,7 +254,7 @@ public class Fast2BuildTools : EditorWindow
             if (typecode != TypeCode.Object)
             {
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
-                if(members[i].IsEnum)
+                if (members[i].IsEnum)
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = strem.ReadValue<{members[i].Type.FullName}>();");
                 else
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = strem.ReadValue<{members[i].Type.Name}>();");
@@ -282,7 +299,7 @@ public class Fast2BuildTools : EditorWindow
         File.WriteAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
 
-    private void BuildArray(Type type)
+    public static void BuildArray(Type type, string savePath)
     {
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace);
@@ -320,7 +337,7 @@ public class Fast2BuildTools : EditorWindow
         File.AppendAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
 
-    private void BuildGeneric(Type type)
+    public static void BuildGeneric(Type type, string savePath)
     {
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace);
@@ -357,18 +374,4 @@ public class Fast2BuildTools : EditorWindow
         if (hasns) str.AppendLine("}");
         File.AppendAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
-
-    void Save()
-    {
-        Data data = new Data() { savepath = savePath };
-        var jsonstr = Newtonsoft.Json.JsonConvert.SerializeObject(data);
-        var path = Directory.GetCurrentDirectory() + "data.txt";
-        File.WriteAllText(path, jsonstr);
-    }
-
-    internal class Data
-    {
-        public string savepath;
-    }
 }
-#endif

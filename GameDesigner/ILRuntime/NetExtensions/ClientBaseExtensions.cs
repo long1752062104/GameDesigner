@@ -1,4 +1,5 @@
-﻿using ILRuntime.Runtime.Intepreter;
+﻿#if !CLOSE_ILR
+using ILRuntime.Runtime.Intepreter;
 using Net.Share;
 using System.Collections.Generic;
 using System.Reflection;
@@ -56,3 +57,4 @@ namespace Net.Client
         }
     }
 }
+#endif

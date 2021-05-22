@@ -97,7 +97,7 @@ namespace Newtonsoft.Json.Serialization
         {
             if (_sharedCache)
             {
-                return DefaultContractResolver._sharedState;
+                return _sharedState;
             }
             return _instanceState;
         }
@@ -117,12 +117,12 @@ namespace Newtonsoft.Json.Serialization
             type = Net.Share.ObjectExtensions.GetType(type);
 #endif
             DefaultContractResolverState state = GetState();
-            ResolverContractKey key = new ResolverContractKey(base.GetType(), type);
+            ResolverContractKey key = new ResolverContractKey(GetType(), type);
             Dictionary<ResolverContractKey, JsonContract> contractCache = state.ContractCache;
             if (contractCache == null || !contractCache.TryGetValue(key, out JsonContract jsonContract))
             {
                 jsonContract = CreateContract(type);
-                object typeContractCacheLock = DefaultContractResolver.TypeContractCacheLock;
+                object typeContractCacheLock = TypeContractCacheLock;
                 lock (typeContractCacheLock)
                 {
                     contractCache = state.ContractCache;
@@ -249,7 +249,7 @@ namespace Newtonsoft.Json.Serialization
             MemberInfo extensionDataMemberForType = GetExtensionDataMemberForType(jsonObjectContract.NonNullableUnderlyingType);
             if (extensionDataMemberForType != null)
             {
-                DefaultContractResolver.SetExtensionDataDelegates(jsonObjectContract, extensionDataMemberForType);
+                SetExtensionDataDelegates(jsonObjectContract, extensionDataMemberForType);
             }
             return jsonObjectContract;
         }
@@ -347,11 +347,11 @@ namespace Newtonsoft.Json.Serialization
             }
             if (attribute.WriteData)
             {
-                ConstructorInfo method2 = typeof(DefaultContractResolver.EnumerableDictionaryWrapper<,>).MakeGenericType(new Type[]
+                ConstructorInfo method2 = typeof(EnumerableDictionaryWrapper<,>).MakeGenericType(new Type[]
                 {
                     type2,
                     type3
-                }).GetConstructors().First<ConstructorInfo>();
+                }).GetConstructors().First();
                 ObjectConstructor<object> createEnumerableWrapper = JsonTypeReflector.ReflectionDelegateFactory.CreateParameterizedConstructor(method2);
                 ExtensionDataGetter extensionDataGetter = delegate (object o)
                 {
