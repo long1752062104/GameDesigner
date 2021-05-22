@@ -1023,7 +1023,6 @@
     <None Include="GameDesigner\Network\web\Server\WebPlayer.cs.meta" />
     <None Include="GameDesigner\Network\web\Server\WebServer.cs.meta" />
     <None Include="GameDesigner\Network\web\使用说明.txt.meta" />
-    <None Include="GameDesigner\README.md" />
     <None Include="GameDesigner\README.md.meta" />
     <None Include="GameDesigner\Serialize.meta" />
     <None Include="GameDesigner\Serialize\Newtonsoft.Json.meta" />
