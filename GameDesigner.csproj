@@ -2284,8 +2284,7 @@
     <Content Include="GameDesigner\Network\web\Plugins\SuperSocket.ClientEngine.dll" />
     <Content Include="GameDesigner\Network\web\Plugins\WebSocket4Net.dll" />
     <Content Include="GameDesigner\Network\web\使用说明.txt" />
-    <Content Include="GameDesigner\pay.png" />
-    <Content Include="GameDesigner\pay1.png" />
+    <Content Include="GameDesigner\pay.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
