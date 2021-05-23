@@ -1,11 +1,11 @@
-﻿#if !UNITY_EDITOR
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-using System.IO;
-using System;
+﻿using System;
 using System.Reflection;
 using System.Text;
+using System.IO;
+using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEngine;
+using UnityEditor;
 
 public class Fast2BuildTools : EditorWindow
 {

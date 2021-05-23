@@ -725,7 +725,7 @@ namespace Net.Client
         }
 
         //状态处理
-        private void StateHandle()
+        protected void StateHandle()
         {
             if (connectState == ConnectState.None)
                 return;
@@ -896,7 +896,9 @@ namespace Net.Client
                     try
                     {
                         byte[] buffer = new byte[1024];
+                        Client.ReceiveTimeout = 5000;
                         int count = Client.Receive(buffer);
+                        Client.ReceiveTimeout = 0;
                         isDone = true;
                         if (buffer[7] == NetCmd.BlockConnection)
                         {

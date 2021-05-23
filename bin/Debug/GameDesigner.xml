@@ -5854,6 +5854,19 @@
             tcp服务器套接字
             </summary>
         </member>
+        <member name="T:Net.Server.RawServer`2">
+            <summary>
+            原始Udp服务器, 内部处理了IP头部
+            <para>Player:当有客户端连接服务器就会创建一个Player对象出来, Player对象和XXXClient是对等端, 每当有数据处理都会通知Player对象. </para>
+            <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
+            </summary>
+        </member>
+        <member name="M:Net.Server.RawServer`2.Start(System.UInt16)">
+            <summary>
+            启动服务器
+            </summary>
+            <param name="port">端口</param>
+        </member>
         <member name="T:Net.Server.TcpServer`2">
             <summary>
             TCP服务器类型

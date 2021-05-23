@@ -15,6 +15,7 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -775,6 +776,8 @@
     <None Include="GameDesigner\LockStep\TrueSync\Unity\Editor\TSVectorDrawer.cs.meta" />
     <None Include="GameDesigner\LockStep\TrueSync\Unity\TSTransform.cs.meta" />
     <None Include="GameDesigner\MVC.meta" />
+    <None Include="GameDesigner\MVC\Control.meta" />
+    <None Include="GameDesigner\MVC\Control\GameInit.cs.meta" />
     <None Include="GameDesigner\MVC\View.meta" />
     <None Include="GameDesigner\MVC\View\Editor.meta" />
     <None Include="GameDesigner\MVC\View\Editor\AssetBundleWindow.cs.meta" />
@@ -932,6 +935,7 @@
     <None Include="GameDesigner\Network\gudp.meta" />
     <None Include="GameDesigner\Network\gudp\Client.meta" />
     <None Include="GameDesigner\Network\gudp\Client\NetworkClient.cs.meta" />
+    <None Include="GameDesigner\Network\gudp\Client\RawClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Client\TcpClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Client\UdpClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Helper.meta" />
@@ -939,6 +943,8 @@
     <None Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server.meta" />
     <None Include="GameDesigner\Network\gudp\Server\NetworkServer.cs.meta" />
+    <None Include="GameDesigner\Network\gudp\Server\RawPlayer.cs.meta" />
+    <None Include="GameDesigner\Network\gudp\Server\RawServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\TcpServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\TcpServerIOCP.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\UdpServer.cs.meta" />
@@ -1023,7 +1029,7 @@
     <None Include="GameDesigner\Network\web\Server\WebPlayer.cs.meta" />
     <None Include="GameDesigner\Network\web\Server\WebServer.cs.meta" />
     <None Include="GameDesigner\Network\web\使用说明.txt.meta" />
-    <None Include="GameDesigner\README.md.meta" />
+    <None Include="GameDesigner\pay.jpg.meta" />
     <None Include="GameDesigner\Serialize.meta" />
     <None Include="GameDesigner\Serialize\Newtonsoft.Json.meta" />
     <None Include="GameDesigner\Serialize\Newtonsoft.Json\Bson.meta" />
@@ -1334,6 +1340,57 @@
     <None Include="GameDesigner\StateMachine\TransitionBehaviour.cs.meta" />
     <None Include="GameDesigner\StateMachine\TransitionModel.cs.meta" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameDesigner\Editor\Resources\11000503.png" />
+    <Content Include="GameDesigner\Editor\Resources\11000826.png" />
+    <Content Include="GameDesigner\Editor\Resources\1466603769212801.jpg" />
+    <Content Include="GameDesigner\Editor\Resources\55m58PICE49_1024.png" />
+    <Content Include="GameDesigner\Editor\Resources\6631355837747161596.png" />
+    <Content Include="GameDesigner\Editor\Resources\ai.png" />
+    <Content Include="GameDesigner\Editor\Resources\Foldout_BG.png" />
+    <Content Include="GameDesigner\Editor\Resources\hotfix.txt" />
+    <Content Include="GameDesigner\Editor\Resources\Icon_Csh.png" />
+    <Content Include="GameDesigner\Editor\Resources\InfoWindow.png" />
+    <Content Include="GameDesigner\Editor\Resources\new_Add.png" />
+    <Content Include="GameDesigner\Editor\Resources\RadioButton_Off.png" />
+    <Content Include="GameDesigner\Editor\Resources\SeqNode.png" />
+    <Content Include="GameDesigner\Editor\Resources\server_list_bg.png" />
+    <Content Include="GameDesigner\Editor\Resources\server_list_bg1.png" />
+    <Content Include="GameDesigner\Editor\Resources\state.jpg" />
+    <Content Include="GameDesigner\Editor\Resources\stateStyle.png" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.xml" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.xml" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Common.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Common.xml" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Handlers.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Handlers.xml" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.Libuv.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.Libuv.xml" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.xml" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\System.Runtime.InteropServices.RuntimeInformation.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-arm\libuv.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-x64\libuv.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-x86\libuv.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\使用说明.txt" />
+    <Content Include="GameDesigner\Network\enet\Plugins\ENetX64.dll" />
+    <Content Include="GameDesigner\Network\enet\Plugins\ENetX86.dll" />
+    <Content Include="GameDesigner\Network\enet\Plugins\Windows\enet.dll" />
+    <Content Include="GameDesigner\Network\enet\使用说明.txt" />
+    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x64\kcp.dll" />
+    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x64\kcp.pdb" />
+    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x86\kcp.dll" />
+    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x86\kcp.pdb" />
+    <Content Include="GameDesigner\Network\kcp\使用说明.txt" />
+    <Content Include="GameDesigner\Network\udx\Plugins\Windows\FastUdxApi.dll" />
+    <Content Include="GameDesigner\Network\udx\使用说明.txt" />
+    <Content Include="GameDesigner\Network\web\Plugins\SuperSocket.ClientEngine.dll" />
+    <Content Include="GameDesigner\Network\web\Plugins\WebSocket4Net.dll" />
+    <Content Include="GameDesigner\Network\web\使用说明.txt" />
+    <Content Include="GameDesigner\pay.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameDesigner\Blueprint\Blueprint.cs" />
@@ -1778,6 +1835,7 @@
     <Compile Include="GameDesigner\LockStep\TrueSync\Unity\Editor\TSVector2Drawer.cs" />
     <Compile Include="GameDesigner\LockStep\TrueSync\Unity\Editor\TSVectorDrawer.cs" />
     <Compile Include="GameDesigner\LockStep\TrueSync\Unity\TSTransform.cs" />
+    <Compile Include="GameDesigner\MVC\Control\GameInit.cs" />
     <Compile Include="GameDesigner\MVC\View\Editor\AssetBundleWindow.cs" />
     <Compile Include="GameDesigner\MVC\View\Editor\FieldCollectionEdit.cs" />
     <Compile Include="GameDesigner\MVC\View\FieldCollection.cs" />
@@ -1891,11 +1949,14 @@
     <Compile Include="GameDesigner\Network\enet\Server\ENetServer.cs" />
     <Compile Include="GameDesigner\Network\enet\Server\NetPeer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Client\NetworkClient.cs" />
+    <Compile Include="GameDesigner\Network\gudp\Client\RawClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Client\TcpClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Client\UdpClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs" />
     <Compile Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\NetworkServer.cs" />
+    <Compile Include="GameDesigner\Network\gudp\Server\RawPlayer.cs" />
+    <Compile Include="GameDesigner\Network\gudp\Server\RawServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\TcpServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\TcpServerIOCP.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\UdpServer.cs" />
@@ -2233,57 +2294,6 @@
     <Compile Include="GameDesigner\StateMachine\Transition.cs" />
     <Compile Include="GameDesigner\StateMachine\TransitionBehaviour.cs" />
     <Compile Include="GameDesigner\StateMachine\TransitionModel.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="GameDesigner\Editor\Resources\11000503.png" />
-    <Content Include="GameDesigner\Editor\Resources\11000826.png" />
-    <Content Include="GameDesigner\Editor\Resources\1466603769212801.jpg" />
-    <Content Include="GameDesigner\Editor\Resources\55m58PICE49_1024.png" />
-    <Content Include="GameDesigner\Editor\Resources\6631355837747161596.png" />
-    <Content Include="GameDesigner\Editor\Resources\ai.png" />
-    <Content Include="GameDesigner\Editor\Resources\Foldout_BG.png" />
-    <Content Include="GameDesigner\Editor\Resources\hotfix.txt" />
-    <Content Include="GameDesigner\Editor\Resources\Icon_Csh.png" />
-    <Content Include="GameDesigner\Editor\Resources\InfoWindow.png" />
-    <Content Include="GameDesigner\Editor\Resources\new_Add.png" />
-    <Content Include="GameDesigner\Editor\Resources\RadioButton_Off.png" />
-    <Content Include="GameDesigner\Editor\Resources\SeqNode.png" />
-    <Content Include="GameDesigner\Editor\Resources\server_list_bg.png" />
-    <Content Include="GameDesigner\Editor\Resources\server_list_bg1.png" />
-    <Content Include="GameDesigner\Editor\Resources\state.jpg" />
-    <Content Include="GameDesigner\Editor\Resources\stateStyle.png" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.xml" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.xml" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Common.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Common.xml" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Handlers.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Handlers.xml" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.Libuv.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.Libuv.xml" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.xml" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\System.Runtime.InteropServices.RuntimeInformation.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-arm\libuv.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-x64\libuv.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-x86\libuv.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\使用说明.txt" />
-    <Content Include="GameDesigner\Network\enet\Plugins\ENetX64.dll" />
-    <Content Include="GameDesigner\Network\enet\Plugins\ENetX86.dll" />
-    <Content Include="GameDesigner\Network\enet\Plugins\Windows\enet.dll" />
-    <Content Include="GameDesigner\Network\enet\使用说明.txt" />
-    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x64\kcp.dll" />
-    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x64\kcp.pdb" />
-    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x86\kcp.dll" />
-    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x86\kcp.pdb" />
-    <Content Include="GameDesigner\Network\kcp\使用说明.txt" />
-    <Content Include="GameDesigner\Network\udx\Plugins\Windows\FastUdxApi.dll" />
-    <Content Include="GameDesigner\Network\udx\使用说明.txt" />
-    <Content Include="GameDesigner\Network\web\Plugins\SuperSocket.ClientEngine.dll" />
-    <Content Include="GameDesigner\Network\web\Plugins\WebSocket4Net.dll" />
-    <Content Include="GameDesigner\Network\web\使用说明.txt" />
-    <Content Include="GameDesigner\pay.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

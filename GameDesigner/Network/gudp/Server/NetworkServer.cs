@@ -412,9 +412,9 @@
 
         protected override byte[] SendData(Segment stream)
         {
-            if (ByteCompression & stream.Length > 1000)
+            if (ByteCompression & stream.Count > 1000)
             {
-                int oldlen = stream.Length;
+                int oldlen = stream.Count;
                 byte[] array = new byte[oldlen - frame];
                 Buffer.BlockCopy(stream.Buffer, frame, array, 0, array.Length);
                 byte[] buffer = UnZipHelper.Compress(array);
@@ -430,7 +430,7 @@
             else
             {
                 stream.Position = 0;
-                int len = stream.Length - frame;
+                int len = stream.Count - frame;
                 stream.Write(BitConverter.GetBytes(len), 0, 4);
                 stream.Position = len + frame;
                 return stream.ToArray();
