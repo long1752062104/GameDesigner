@@ -366,6 +366,10 @@
     <None Include="GameDesigner\ILRuntime\CLR\TypeSystem\IType.cs.meta" />
     <None Include="GameDesigner\ILRuntime\CLR\Utils.meta" />
     <None Include="GameDesigner\ILRuntime\CLR\Utils\Extensions.cs.meta" />
+    <None Include="GameDesigner\ILRuntime\Editor.meta" />
+    <None Include="GameDesigner\ILRuntime\Editor\ILRuntimeCLRBinding.cs.meta" />
+    <None Include="GameDesigner\ILRuntime\Editor\ILRuntimeCrossBinding.cs.meta" />
+    <None Include="GameDesigner\ILRuntime\Editor\ILRuntimeMenu.cs.meta" />
     <None Include="GameDesigner\ILRuntime\Mono.Cecil.meta" />
     <None Include="GameDesigner\ILRuntime\Mono.Cecil\Mono.Cecil.Cil.meta" />
     <None Include="GameDesigner\ILRuntime\Mono.Cecil\Mono.Cecil.Cil\Code.cs.meta" />
@@ -1501,6 +1505,9 @@
     <Compile Include="GameDesigner\ILRuntime\CLR\TypeSystem\ILType.cs" />
     <Compile Include="GameDesigner\ILRuntime\CLR\TypeSystem\IType.cs" />
     <Compile Include="GameDesigner\ILRuntime\CLR\Utils\Extensions.cs" />
+    <Compile Include="GameDesigner\ILRuntime\Editor\ILRuntimeCLRBinding.cs" />
+    <Compile Include="GameDesigner\ILRuntime\Editor\ILRuntimeCrossBinding.cs" />
+    <Compile Include="GameDesigner\ILRuntime\Editor\ILRuntimeMenu.cs" />
     <Compile Include="GameDesigner\ILRuntime\Mono.Cecil\Mono.Cecil.Cil\Code.cs" />
     <Compile Include="GameDesigner\ILRuntime\Mono.Cecil\Mono.Cecil.Cil\CodeReader.cs" />
     <Compile Include="GameDesigner\ILRuntime\Mono.Cecil\Mono.Cecil.Cil\CodeWriter.cs" />

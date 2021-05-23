@@ -1,7 +1,7 @@
-﻿using System;
+﻿using System.IO;
+using System;
 using System.Reflection;
 using System.Text;
-using System.IO;
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEngine;
