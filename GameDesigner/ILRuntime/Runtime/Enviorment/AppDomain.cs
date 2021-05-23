@@ -180,7 +180,16 @@ namespace ILRuntime.Runtime.Enviorment
                 return dele;
             });
 
-            RegisterCrossBindingAdaptor(new Adapters.AttributeAdapter());
+            var types = GetType().Assembly.GetTypes();
+            foreach (var type in types)
+            {
+                if (type.IsSubclassOf(typeof(CrossBindingAdaptor)))
+                {
+                    RegisterCrossBindingAdaptor((CrossBindingAdaptor)Activator.CreateInstance(type));
+                }
+            }
+
+            //RegisterCrossBindingAdaptor(new Adapters.AttributeAdapter());
 
             debugService = new Debugger.DebugService(this);
         }

@@ -7,6 +7,7 @@ namespace MVC.Control
     using System;
     using AppDomain = ILRuntime.Runtime.Enviorment.AppDomain;
     using ILRuntime.Runtime.CLRBinding;
+    using ILRuntime.Runtime.Enviorment;
 
     public class GameInit : MonoBehaviour
     {
