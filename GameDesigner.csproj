@@ -255,6 +255,7 @@
     <None Include="GameDesigner\Component\Client\MessageBox.cs.meta" />
     <None Include="GameDesigner\Component\Client\NetConvertFastProcess.cs.meta" />
     <None Include="GameDesigner\Component\Client\Register.cs.meta" />
+    <None Include="GameDesigner\Component\Client\SerializeAdapter.cs.meta" />
     <None Include="GameDesigner\Component\Client\SingleCase.cs.meta" />
     <None Include="GameDesigner\Component\Client\SingleCasePanel.cs.meta" />
     <None Include="GameDesigner\Component\Client\UIPanelInit.cs.meta" />
@@ -1443,6 +1444,7 @@
     <Compile Include="GameDesigner\Component\Client\MessageBox.cs" />
     <Compile Include="GameDesigner\Component\Client\NetConvertFastProcess.cs" />
     <Compile Include="GameDesigner\Component\Client\Register.cs" />
+    <Compile Include="GameDesigner\Component\Client\SerializeAdapter.cs" />
     <Compile Include="GameDesigner\Component\Client\SingleCase.cs" />
     <Compile Include="GameDesigner\Component\Client\SingleCasePanel.cs" />
     <Compile Include="GameDesigner\Component\Client\UIPanelInit.cs" />

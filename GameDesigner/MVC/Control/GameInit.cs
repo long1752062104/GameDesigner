@@ -7,7 +7,6 @@ namespace MVC.Control
     using System;
     using AppDomain = ILRuntime.Runtime.Enviorment.AppDomain;
     using ILRuntime.Runtime.CLRBinding;
-    using ILRuntime.Runtime.Enviorment;
 
     public class GameInit : MonoBehaviour
     {
@@ -22,12 +21,15 @@ namespace MVC.Control
         void Start()
         {
             appdomain = new AppDomain();
-#if !UNITY_EDITOR
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
             dllPath = Application.persistentDataPath + "/Hotfix.dll";
             pdbPath = Application.persistentDataPath + "/Hotfix.pdb";
+#elif !UNITY_EDITOR
+            dllPath = Application.streamingAssetsPath + "/Hotfix.dll";
+            pdbPath = Application.streamingAssetsPath + "/Hotfix.pdb";
 #endif
             if (File.Exists(dllPath))
-                dllStream = new MemoryStream(File.ReadAllBytes(dllPath));
+                 dllStream = new MemoryStream(File.ReadAllBytes(dllPath));
             if (File.Exists(pdbPath))
                 pdbStream = new MemoryStream(File.ReadAllBytes(pdbPath));
             appdomain.LoadAssembly(dllStream, pdbStream, new ILRuntime.Mono.Cecil.Pdb.PdbReaderProvider());

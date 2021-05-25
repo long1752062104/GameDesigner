@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -16,7 +17,7 @@ public class ILRuntimeCrossBinding : EditorWindow
         GetWindow<ILRuntimeCrossBinding>().Show();
     }
 
-    private readonly List<string> typeNames = new List<string>();
+    private List<string> typeNames = new List<string>();
     private bool selectType;
     private string search = "", search1 = "";
     private DateTime searchTime;
@@ -35,6 +36,7 @@ public class ILRuntimeCrossBinding : EditorWindow
                 types1.Add(str);
         }
         types = types1.ToArray();
+        LoadData();
     }
 
     private void OnGUI()
@@ -49,6 +51,7 @@ public class ILRuntimeCrossBinding : EditorWindow
                 if (GUILayout.Button(type1))
                 {
                     typeNames.Remove(type1);
+                    SaveData();
                     return;
                 }
             }
@@ -71,6 +74,7 @@ public class ILRuntimeCrossBinding : EditorWindow
                 {
                     if (!typeNames.Contains(type1))
                         typeNames.Add(type1);
+                    SaveData();
                     return;
                 }
             }
@@ -81,7 +85,9 @@ public class ILRuntimeCrossBinding : EditorWindow
             foreach (var type1 in typeNames)
             {
                 var fn = type1.Replace(".", "_");
-                using (System.IO.StreamWriter sw = new System.IO.StreamWriter($"Assets/Scripts/Generated/{fn}_Adapter.cs"))
+                if (!Directory.Exists("Assets/Scripts/Generated/"))
+                    Directory.CreateDirectory("Assets/Scripts/Generated/");
+                using (StreamWriter sw = new StreamWriter($"Assets/Scripts/Generated/{fn}_Adapter.cs"))
                 {
                     Type type = Net.Share.NetConvertOld.GetType(type1);
                     sw.WriteLine(ILRuntime.Runtime.Enviorment.CrossBindingCodeGenerator.GenerateCrossBindingAdapterCode(type, "ILRuntime.Runtime.Generated"));
@@ -89,6 +95,22 @@ public class ILRuntimeCrossBinding : EditorWindow
             }
             AssetDatabase.Refresh();
         }
+    }
+
+    void LoadData()
+    {
+        if (File.Exists(Application.dataPath.Replace("Assets", "") + "ilrdata1.txt"))
+        {
+            var fcdata = File.ReadAllText(Application.dataPath.Replace("Assets", "") + "ilrdata1.txt");
+            typeNames = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(fcdata);
+        }
+    }
+
+    void SaveData()
+    {
+        var path = Application.dataPath.Replace("Assets", "") + "ilrdata1.txt";
+        var jsonstr = Newtonsoft.Json.JsonConvert.SerializeObject(typeNames);
+        File.WriteAllText(path, jsonstr);
     }
 }
 #endif

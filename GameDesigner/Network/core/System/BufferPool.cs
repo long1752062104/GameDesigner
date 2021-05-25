@@ -202,7 +202,7 @@ namespace Net.Share
         }
         public int WriteValue(long value)
         {
-            if (value > 0)
+            if (value >= 0)
             {
                 if (value < byte.MaxValue)
                     return WriteValue((ulong)(byte)value);
