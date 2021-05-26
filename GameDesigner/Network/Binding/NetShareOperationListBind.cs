@@ -41,7 +41,7 @@ namespace Binding
 				value.frame = strem.ReadValue<UInt32>();
 			if(NetConvertBase.GetBit(bits[0], 2))
 			{
-				var count = strem.ReadValue<uint>();
+				var count = strem.ReadValue<int>();
 				value.operations = new Net.Share.Operation[count];
 				if (count == 0) goto JMP;
 				NetShareOperationBind bind = new NetShareOperationBind();

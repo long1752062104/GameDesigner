@@ -172,19 +172,19 @@ namespace Net.Share
                     WriteByte((byte)(value1 ? 1 : 0));
                     return 1;
                 case short value1:
-                    return WriteValue((long)value1);
+                    return WriteValue((ulong)(ushort)value1);
                 case ushort value1:
                     return WriteValue((ulong)value1);
                 case char value1:
                     return WriteValue((ulong)value1);
                 case int value1:
-                    return WriteValue((long)value1);
+                    return WriteValue((ulong)(uint)value1);//为什么转uint? 因为-1xx时数据非常庞大
                 case uint value1:
                     return WriteValue((ulong)value1);
                 case float value1:
                     return WriteValue(value1);
                 case long value1:
-                    return WriteValue(value1);
+                    return WriteValue((ulong)value1);
                 case ulong value1:
                     return WriteValue(value1);
                 case double value1:
@@ -196,33 +196,10 @@ namespace Net.Share
                 case string value1:
                     return WriteValue(value1);
                 case Enum value1:
-                    return WriteValue((ulong)value1.GetHashCode());
+                    return WriteValue((ulong)(uint)value1.GetHashCode());
             }
             return 0;
         }
-        public int WriteValue(long value)
-        {
-            if (value >= 0)
-            {
-                if (value < byte.MaxValue)
-                    return WriteValue((ulong)(byte)value);
-                else if (value < ushort.MaxValue)
-                    return WriteValue((ulong)(ushort)value);
-                else if (value < uint.MaxValue)
-                    return WriteValue((ulong)(uint)value);
-            }
-            else
-            {
-                if (value > sbyte.MinValue)
-                    return WriteValue((ulong)(byte)value);
-                else if (value > short.MinValue)
-                    return WriteValue((ulong)(ushort)value);
-                else if (value > int.MinValue)
-                    return WriteValue((ulong)(uint)value);
-            }
-            return WriteValue((ulong)value);
-        }
-
         public unsafe int WriteValue(ulong value)
         {
             if (value == 0)
@@ -254,7 +231,7 @@ namespace Net.Share
                     value = Buffer[Position++] == 1;
                     break;
                 case TypeCode.Int16:
-                    value = (short)ReadInt64();
+                    value = (short)ReadUInt64();
                     break;
                 case TypeCode.UInt16:
                     value = (ushort)ReadUInt64();
@@ -263,7 +240,7 @@ namespace Net.Share
                     value = (char)ReadUInt64();
                     break;
                 case TypeCode.Int32:
-                    value = (int)ReadInt64();
+                    value = (int)ReadUInt64();
                     break;
                 case TypeCode.UInt32:
                     value = (uint)ReadUInt64();
@@ -272,7 +249,7 @@ namespace Net.Share
                     value = ReadFloat();
                     break;
                 case TypeCode.Int64:
-                    value = ReadInt64();
+                    value = (long)ReadUInt64();
                     break;
                 case TypeCode.UInt64:
                     value = ReadUInt64();
@@ -291,17 +268,6 @@ namespace Net.Share
                     break;
             }
             return (T)value;
-        }
-        public long ReadInt64()
-        {
-            ulong value = ReadUInt64();
-            if (value < byte.MaxValue)
-                return (sbyte)value;
-            else if (value < ushort.MaxValue)
-                return (short)value;
-            else if (value < uint.MaxValue)
-                return (int)value;
-            return (long)ReadUInt64();
         }
         public unsafe ulong ReadUInt64()
         {
