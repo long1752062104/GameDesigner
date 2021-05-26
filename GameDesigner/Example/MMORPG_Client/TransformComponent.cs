@@ -5,20 +5,38 @@ namespace Net.Component.Client
     using Net.Share;
     using UnityEngine;
 
+    public enum SyncMode 
+    {
+        Control,
+        Local,
+        Synchronized
+    }
+
     public class TransformComponent : MonoBehaviour
     {
         internal static int Identity = 0;
         private Net.Vector3 position;
         private Net.Quaternion rotation;
         private Net.Vector3 localScale;
+        public SyncMode syncMode = SyncMode.Control;
+        [DisplayOnly]
+        public SyncMode mode = SyncMode.Synchronized;
         [DisplayOnly]
         public int identity = -1;//自身id
         private float sendTime;
 
-        private void Awake()
+        void Start()
         {
-            if (!ClientManager.Instance.control)
-                return;
+            mode = syncMode;
+            switch (mode)
+            {
+                case SyncMode.Control:
+                    if (!ClientManager.Instance.control)
+                        return;
+                    break;
+                case SyncMode.Synchronized:
+                    return;
+            }
             var sm = FindObjectOfType<SceneManager>();
             if (sm == null)
             {
@@ -35,8 +53,15 @@ namespace Net.Component.Client
         // Update is called once per frame
         void Update()
         {
-            if (!ClientManager.Instance.control)
-                return;
+            switch (mode) 
+            {
+                case SyncMode.Control:
+                    if (!ClientManager.Instance.control)
+                        return;
+                    break;
+                case SyncMode.Synchronized:
+                    return;
+            }
             if (Time.time > sendTime)
             {
                 if (transform.position != position | transform.rotation != rotation | transform.localScale != localScale) 
@@ -54,8 +79,15 @@ namespace Net.Component.Client
         {
             if (ClientManager.Instance == null)
                 return;
-            if (!ClientManager.Instance.control)
-                return;
+            switch (mode)
+            {
+                case SyncMode.Control:
+                    if (!ClientManager.Instance.control)
+                        return;
+                    break;
+                case SyncMode.Synchronized:
+                    return;
+            }
             ClientManager.AddOperation(new Operation(Command.Destroy) { index = identity });
         }
     }

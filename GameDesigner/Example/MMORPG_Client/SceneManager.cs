@@ -108,18 +108,19 @@ namespace Net.Component.MMORPG_Client
 
         void TransformSync(Operation opt)
         {
-            if (!transforms.ContainsKey(opt.index))
+            if (!transforms.TryGetValue(opt.index, out TransformComponent t))
             {
-                var t = Instantiate(demo, opt.position, opt.rotation);
+                t = Instantiate(demo, opt.position, opt.rotation);
+                t.syncMode = SyncMode.Synchronized;
                 t.identity = opt.index;
                 transforms.Add(opt.index, t);
+                TransformComponent.Identity++;
             }
-            if (ClientManager.Instance.control)
+            if (t.mode != SyncMode.Synchronized)
                 return;
-            var p = transforms[opt.index];
-            p.transform.position = opt.position;
-            p.transform.rotation = opt.rotation;
-            p.transform.localScale = opt.direction;
+            t.transform.position = opt.position;
+            t.transform.rotation = opt.rotation;
+            t.transform.localScale = opt.direction;
         }
 
         void EnemySwitchState(Operation opt)
