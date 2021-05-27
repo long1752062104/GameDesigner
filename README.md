@@ -6,4 +6,4 @@
 ## 支持本项目
 您的支持就是我不懈努力的动力。打赏时请一定留下您的称呼
 
-<img src="https://gitee.com/LongXiongStudio/GameDesigner/raw/master/GameDesigner/pay.jpg" width = "600" height = "400" alt="图片名称" align=center />
+<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/GameDesigner/pay.jpg" width = "600" height = "400" alt="图片名称" align=center />
