@@ -18,8 +18,14 @@ namespace ECS
         private readonly ArrayPool<Entity> entities = new ArrayPool<Entity>();
         private bool isDispose;
 
-        internal void AddEntity(Entity entity)
+        /// <summary>
+        /// 添加实体
+        /// </summary>
+        /// <param name="entity"></param>
+        public void AddEntity(Entity entity)
         {
+            entity.system = this;
+            entity.Awake();
             entities.Add(entity);
         }
 
@@ -86,8 +92,6 @@ namespace ECS
         {
             T entity = Take<T>();
             AddEntity(entity);
-            entity.system = this;
-            entity.Awake();
             return entity;
         }
 
@@ -99,8 +103,6 @@ namespace ECS
         public T Create<T>(T entity) where T : Entity, new()
         {
             AddEntity(entity);
-            entity.system = this;
-            entity.Awake();
             return entity;
         }
 

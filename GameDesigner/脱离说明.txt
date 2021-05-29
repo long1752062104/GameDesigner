@@ -1,0 +1,13 @@
+gdnet框架内置, ecs, mvc, 蓝图, 状态机, 网络等模块
+
+不需要的模块可以删除掉, 删除如下:
+
+1.状态机和蓝图是关联的, 要删除状态机或蓝图, 要把3个文件夹删除: StateMachine, Blueprint, Editor文件夹
+
+2.mvc, ecs模块完全脱离, 不用哪个直接删除即可
+
+3.案例文件夹: Example案例文件夹, LockStep帧同步案例文件夹完全脱离, 不用的直接删除
+
+4.Network模块: Network文件夹里面的各种协议完全脱离, dotNetty~, enet, gudp, kcp, udx, web这些文件夹都可以删除,只保留你使用的协议即可
+
+5.如果不使用Network模块, 要删除Network, Serialize, ILRuntime三个文件夹

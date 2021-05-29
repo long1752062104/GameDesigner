@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ECS
+﻿namespace ECS
 {
     /// <summary>
     /// ecs组件更新接口, 减少组件for循环开销

@@ -42,15 +42,15 @@
 
         protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
-            try
+            return Task.Run(() =>
             {
-                Client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);//创建套接字
-                this.localPort = localPort;
-                Client.NoDelay = true;
-                if (localPort != -1) 
-                    Client.Bind(new IPEndPoint(IPAddress.Any, localPort));
                 try
                 {
+                    Client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    this.localPort = localPort;
+                    Client.NoDelay = true;
+                    if (localPort != -1)
+                        Client.Bind(new IPEndPoint(IPAddress.Any, localPort));
                     Client.Connect(host, port);
                     StartupThread();
                     DateTime time = DateTime.Now.AddSeconds(5);
@@ -59,22 +59,16 @@
                             throw new Exception("uid赋值失败!");
                     stackStreamName = persistentDataPath + "/c" + UID + ".stream";
                     StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    InvokeContext(()=> { result(true); });
+                    InvokeContext(() => { result(true); });
                 }
-                catch
+                catch(Exception ex)
                 {
+                    NDebug.LogError("连接错误:" + ex);
                     Client?.Close();
                     Client = null;
                     InvokeContext(() => { result(false); });
                 }
-                return Task.Delay(1);
-            }
-            catch (Exception ex)
-            {
-                NDebug.Log("连接错误:" + ex.ToString());
-                InvokeContext(() => { result(false); });
-                return Task.Delay(1);
-            }
+            });
         }
 
         protected override void HeartHandle()
@@ -304,9 +298,11 @@
                 this.localPort = localPort;
                 Client.Connect(host, port);
                 Client.Blocking = false;
+                Client.NoDelay = true;
                 SendByteData(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.Connect, 0, 0, 0, 0 }, false);
                 Connected = true;
-                fileStreamName = Path.GetTempFileName();
+                stackStreamName = Path.GetTempFileName();
+                StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                 return null;
             }
             protected override void StartupThread() { }

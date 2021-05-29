@@ -305,17 +305,10 @@ D:\GameDesigner\obj\Debug\GameDesigner.csproj.CopyComplete
 D:\GameDesigner\obj\Debug\GameDesigner.dll
 D:\GameDesigner\obj\Debug\GameDesigner.pdb
 D:\GameDesigner\bin\Debug\BouncyCastle.Crypto.dll
-D:\GameDesigner\bin\Debug\Google.Protobuf.dll
 D:\GameDesigner\bin\Debug\K4os.Compression.LZ4.dll
 D:\GameDesigner\bin\Debug\K4os.Compression.LZ4.Streams.dll
 D:\GameDesigner\bin\Debug\K4os.Hash.xxHash.dll
-D:\GameDesigner\bin\Debug\MySql.Data.dll
-D:\GameDesigner\bin\Debug\Ubiety.Dns.Core.dll
-D:\GameDesigner\bin\Debug\Zstandard.Net.dll
-D:\GameDesigner\bin\Debug\Google.Protobuf.pdb
-D:\GameDesigner\bin\Debug\Google.Protobuf.xml
 D:\GameDesigner\bin\Debug\K4os.Compression.LZ4.xml
 D:\GameDesigner\bin\Debug\K4os.Compression.LZ4.Streams.xml
 D:\GameDesigner\bin\Debug\K4os.Hash.xxHash.xml
-D:\GameDesigner\bin\Debug\MySql.Data.xml
 D:\GameDesigner\obj\Debug\GameDesigner.csprojAssemblyReference.cache

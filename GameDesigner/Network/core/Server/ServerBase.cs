@@ -359,7 +359,14 @@ namespace Net.Server
         /// </summary>
         /// <param name="remotePoint"></param>
         /// <returns></returns>
-        //public Player this[EndPoint remotePoint] => Clients[remotePoint];
+        public Player this[EndPoint remotePoint] => AllClients[remotePoint];
+
+        /// <summary>
+        /// uid索引
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public Player this[int uid] => UIDClients[uid];
 
         /// <summary>
         /// 场景索引
@@ -374,16 +381,6 @@ namespace Net.Server
         /// <returns></returns>
         public List<Player> GetClients()
         {
-            return GetClients(this);
-        }
-
-        /// <summary>
-        /// 获得所有在线的客户端对象
-        /// </summary>
-        /// <returns></returns>
-        public List<Player> GetClients(IServerHandle<Player, Scene> server)
-        {
-            //return new List<Player>(server.Clients.Values);
             List<Player> players = new List<Player>();
             foreach (Player p in AllClients.Values)
                 if (p.login)
@@ -562,9 +559,9 @@ namespace Net.Server
             if (Instance == null)
                 Instance = this;
             OnAddRpcHandle(this, true);
-            Server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);//---UDP协议
-            IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);//IP端口设置
-            Server.Bind(ip);//绑定UDP IP端口
+            Server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);
+            Server.Bind(ip);
 #if !UNITY_ANDROID//在安卓启动服务器时忽略此错误
             uint IOC_IN = 0x80000000;
             uint IOC_VENDOR = 0x18000000;

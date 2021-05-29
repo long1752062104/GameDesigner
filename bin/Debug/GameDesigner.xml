@@ -5186,6 +5186,20 @@
             构造网络服务器函数
             </summary>
         </member>
+        <member name="P:Net.Server.ServerBase`2.Item(System.Net.EndPoint)">
+            <summary>
+            玩家索引
+            </summary>
+            <param name="remotePoint"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.Item(System.Int32)">
+            <summary>
+            uid索引
+            </summary>
+            <param name="uid"></param>
+            <returns></returns>
+        </member>
         <member name="P:Net.Server.ServerBase`2.Item(System.String)">
             <summary>
             场景索引
@@ -5194,12 +5208,6 @@
             <returns></returns>
         </member>
         <member name="M:Net.Server.ServerBase`2.GetClients">
-            <summary>
-            获得所有在线的客户端对象
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Server.ServerBase`2.GetClients(Net.Share.IServerHandle{`0,`1})">
             <summary>
             获得所有在线的客户端对象
             </summary>
@@ -8238,7 +8246,7 @@
         </member>
         <member name="P:Net.Share.RPCModel.Buffer">
             <summary>
-            数据缓冲器
+            数据缓冲器(正确的数据段)
             </summary>
         </member>
         <member name="F:Net.Share.RPCModel.func">
@@ -8937,7 +8945,7 @@
         </member>
         <member name="T:ECS.Component">
             <summary>
-            ECS构架可以将此组件从Entity上移除这个组件并丢入对象池，给其他此刻需要此组件的Entity使用，因此可以节省大量的内存， 这也是ECS的特性可以大量重复使用Compoent
+            ECS构架可以将此组件从Entity上移除这个组件并丢入对象池，给其他此刻需要此组件的Entity使用，因此可以节省大量的内存反复创建和释放， 这也是ECS的特性可以大量重复使用Compoent
             </summary>
         </member>
         <member name="T:ECS.Entity">
@@ -8973,6 +8981,12 @@
             <summary>
             system的单例对象
             </summary>
+        </member>
+        <member name="M:ECS.GSystem.AddEntity(ECS.Entity)">
+            <summary>
+            添加实体
+            </summary>
+            <param name="entity"></param>
         </member>
         <member name="M:ECS.GSystem.Take``1">
             <summary>
@@ -9015,6 +9029,11 @@
         <member name="M:ECS.IUpdate.Update">
             <summary>
             每帧更新
+            </summary>
+        </member>
+        <member name="T:ECS.UpdateComponent">
+            <summary>
+            热更层借助此组件进行更新, ilr不支持多继承, 接口继承
             </summary>
         </member>
         <member name="M:ILRuntime.CLR.TypeSystem.ILType.#ctor(ILRuntime.Mono.Cecil.TypeReference,ILRuntime.Runtime.Enviorment.AppDomain)">

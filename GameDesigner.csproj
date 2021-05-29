@@ -66,9 +66,6 @@
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\DotNetty.Transport.Libuv.0.6.0\lib\net45\DotNetty.Transport.Libuv.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Google.Protobuf, Version=3.14.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\Google.Protobuf.3.14.0\lib\net45\Google.Protobuf.dll</HintPath>
-    </Reference>
     <Reference Include="K4os.Compression.LZ4, Version=1.1.11.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d, processorArchitecture=MSIL">
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\K4os.Compression.LZ4.1.1.11\lib\net46\K4os.Compression.LZ4.dll</HintPath>
     </Reference>
@@ -90,9 +87,6 @@
     </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data, Version=8.0.25.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\MySql.Data.8.0.25\lib\net452\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="SuperSocket.ClientEngine, Version=0.10.0.0, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -180,9 +174,6 @@
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\System.Xml.ReaderWriter.4.3.0\lib\net46\System.Xml.ReaderWriter.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Serialization" />
-    <Reference Include="Ubiety.Dns.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\MySql.Data.8.0.25\lib\net452\Ubiety.Dns.Core.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\UnityEditor.dll</HintPath>
@@ -194,9 +185,6 @@
     <Reference Include="WebSocket4Net, Version=0.15.2.11, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>GameDesigner\Plugins\WebSocket4Net.dll</HintPath>
-    </Reference>
-    <Reference Include="Zstandard.Net, Version=1.1.7.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\MySql.Data.8.0.25\lib\net452\Zstandard.Net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -345,7 +333,7 @@
     <None Include="GameDesigner\Example\MMORPG_Client\State\EnemyMoveState.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Client\State\IdleState.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Client\State\MoveState.cs.meta" />
-    <None Include="GameDesigner\Example\MMORPG_Client\TransformComponent.cs.meta" />
+    <None Include="GameDesigner\Component\Client\TransformComponent.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Server.meta" />
     <None Include="GameDesigner\Example\MMORPG_Server\DBComponent.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Server\PlayerComponent.cs.meta" />
@@ -964,10 +952,8 @@
     <None Include="GameDesigner\Network\kcp\Plugins\Windows.meta" />
     <None Include="GameDesigner\Network\kcp\Plugins\Windows\x64.meta" />
     <None Include="GameDesigner\Network\kcp\Plugins\Windows\x64\kcp.dll.meta" />
-    <None Include="GameDesigner\Network\kcp\Plugins\Windows\x64\kcp.pdb.meta" />
     <None Include="GameDesigner\Network\kcp\Plugins\Windows\x86.meta" />
     <None Include="GameDesigner\Network\kcp\Plugins\Windows\x86\kcp.dll.meta" />
-    <None Include="GameDesigner\Network\kcp\Plugins\Windows\x86\kcp.pdb.meta" />
     <None Include="GameDesigner\Network\kcp\Server.meta" />
     <None Include="GameDesigner\Network\kcp\Server\KcpPlayer.cs.meta" />
     <None Include="GameDesigner\Network\kcp\Server\KcpServer.cs.meta" />
@@ -1387,9 +1373,7 @@
     <Content Include="GameDesigner\Network\enet\Plugins\Windows\enet.dll" />
     <Content Include="GameDesigner\Network\enet\使用说明.txt" />
     <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x64\kcp.dll" />
-    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x64\kcp.pdb" />
     <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x86\kcp.dll" />
-    <Content Include="GameDesigner\Network\kcp\Plugins\Windows\x86\kcp.pdb" />
     <Content Include="GameDesigner\Network\kcp\使用说明.txt" />
     <Content Include="GameDesigner\Network\udx\Plugins\Windows\FastUdxApi.dll" />
     <Content Include="GameDesigner\Network\udx\使用说明.txt" />
@@ -1494,7 +1478,7 @@
     <Compile Include="GameDesigner\Example\MMORPG_Client\State\EnemyMoveState.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Client\State\IdleState.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Client\State\MoveState.cs" />
-    <Compile Include="GameDesigner\Example\MMORPG_Client\TransformComponent.cs" />
+    <Compile Include="GameDesigner\Component\Client\TransformComponent.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Server\DBComponent.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Server\PlayerComponent.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Server\SceneComponent.cs" />

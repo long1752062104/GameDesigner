@@ -19,7 +19,7 @@
         public byte[] buffer;
         public int index, count;
         /// <summary>
-        /// 数据缓冲器
+        /// 数据缓冲器(正确的数据段)
         /// </summary>
         public byte[] Buffer
         {

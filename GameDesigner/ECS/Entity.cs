@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ECS
 {
@@ -65,6 +66,16 @@ namespace ECS
             return null;
         }
 
+        public Component GetComponent(Type comType)
+        {
+            for (int i = 0; i < components.Count; i++)
+            {
+                if (components[i].GetType() == comType)
+                    return components[i];
+            }
+            return null;
+        }
+
         public T[] GetComponents<T>() where T : Component
         {
             List<T> ts = new List<T>();
@@ -72,6 +83,17 @@ namespace ECS
             {
                 if (components[i] is T t)
                     ts.Add(t);
+            }
+            return ts.ToArray();
+        }
+
+        public Component[] GetComponents(Type comType)
+        {
+            List<Component> ts = new List<Component>();
+            for (int i = 0; i < components.Count; i++)
+            {
+                if (components[i].GetType() == comType)
+                    ts.Add(components[i]);
             }
             return ts.ToArray();
         }
