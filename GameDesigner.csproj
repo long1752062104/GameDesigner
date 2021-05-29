@@ -1381,7 +1381,7 @@
     <Content Include="GameDesigner\Network\web\Plugins\WebSocket4Net.dll" />
     <Content Include="GameDesigner\Network\web\使用说明.txt" />
     <Content Include="GameDesigner\pay.jpg" />
-    <Content Include="GameDesigner\脱离说明.txt" />
+    <Content Include="GameDesigner\删减说明.txt" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameDesigner\Blueprint\Blueprint.cs" />
