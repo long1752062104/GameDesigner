@@ -246,6 +246,7 @@
     <None Include="GameDesigner\Component\Client\SerializeAdapter.cs.meta" />
     <None Include="GameDesigner\Component\Client\SingleCase.cs.meta" />
     <None Include="GameDesigner\Component\Client\SingleCasePanel.cs.meta" />
+    <None Include="GameDesigner\Component\Client\TransformComponent.cs.meta" />
     <None Include="GameDesigner\Component\Client\UIPanelInit.cs.meta" />
     <None Include="GameDesigner\Component\Client\UnityThread.cs.meta" />
     <None Include="GameDesigner\Component\Clone.cs.meta" />
@@ -317,6 +318,8 @@
     <None Include="GameDesigner\Editor\StateManagerEditor.cs.meta" />
     <None Include="GameDesigner\Editor\TransitionInspector.cs.meta" />
     <None Include="GameDesigner\Example.meta" />
+    <None Include="GameDesigner\Example\Example1~\ConsoleApp1.exe.config" />
+    <None Include="GameDesigner\Example\Example1~\GameDesigner.dll.config" />
     <None Include="GameDesigner\Example\MMORPG_Client.meta" />
     <None Include="GameDesigner\Example\MMORPG_Client\Actor.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Client\ARPGcamera.cs.meta" />
@@ -333,7 +336,6 @@
     <None Include="GameDesigner\Example\MMORPG_Client\State\EnemyMoveState.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Client\State\IdleState.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Client\State\MoveState.cs.meta" />
-    <None Include="GameDesigner\Component\Client\TransformComponent.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Server.meta" />
     <None Include="GameDesigner\Example\MMORPG_Server\DBComponent.cs.meta" />
     <None Include="GameDesigner\Example\MMORPG_Server\PlayerComponent.cs.meta" />
@@ -896,6 +898,7 @@
     <None Include="GameDesigner\Network\dotNetty~\Plugins\macOS\libuv.dylib" />
     <None Include="GameDesigner\Network\Editor.meta" />
     <None Include="GameDesigner\Network\Editor\Fast2BuildTool.cs.meta" />
+    <None Include="GameDesigner\Network\Editor\ServiceTools.cs.meta" />
     <None Include="GameDesigner\Network\enet.meta" />
     <None Include="GameDesigner\Network\enet\Client.meta" />
     <None Include="GameDesigner\Network\enet\Client\ENetClient.cs.meta" />
@@ -1331,6 +1334,7 @@
     <None Include="GameDesigner\StateMachine\Transition.cs.meta" />
     <None Include="GameDesigner\StateMachine\TransitionBehaviour.cs.meta" />
     <None Include="GameDesigner\StateMachine\TransitionModel.cs.meta" />
+    <None Include="GameDesigner\删减说明.txt.meta" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -1351,6 +1355,11 @@
     <Content Include="GameDesigner\Editor\Resources\server_list_bg1.png" />
     <Content Include="GameDesigner\Editor\Resources\state.jpg" />
     <Content Include="GameDesigner\Editor\Resources\stateStyle.png" />
+    <Content Include="GameDesigner\Example\Example1~\ConsoleApp1.exe" />
+    <Content Include="GameDesigner\Example\Example1~\ConsoleApp1.pdb" />
+    <Content Include="GameDesigner\Example\Example1~\GameDesigner.dll" />
+    <Content Include="GameDesigner\Example\Example1~\GameDesigner.pdb" />
+    <Content Include="GameDesigner\Example\Example1~\GameDesigner.xml" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.xml" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.dll" />
@@ -1432,6 +1441,7 @@
     <Compile Include="GameDesigner\Component\Client\SerializeAdapter.cs" />
     <Compile Include="GameDesigner\Component\Client\SingleCase.cs" />
     <Compile Include="GameDesigner\Component\Client\SingleCasePanel.cs" />
+    <Compile Include="GameDesigner\Component\Client\TransformComponent.cs" />
     <Compile Include="GameDesigner\Component\Client\UIPanelInit.cs" />
     <Compile Include="GameDesigner\Component\Client\UnityThread.cs" />
     <Compile Include="GameDesigner\Component\Clone.cs" />
@@ -1479,7 +1489,6 @@
     <Compile Include="GameDesigner\Example\MMORPG_Client\State\EnemyMoveState.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Client\State\IdleState.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Client\State\MoveState.cs" />
-    <Compile Include="GameDesigner\Component\Client\TransformComponent.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Server\DBComponent.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Server\PlayerComponent.cs" />
     <Compile Include="GameDesigner\Example\MMORPG_Server\SceneComponent.cs" />
@@ -1940,6 +1949,7 @@
     <Compile Include="GameDesigner\Network\dotNetty~\Server\DNPlayer.cs" />
     <Compile Include="GameDesigner\Network\dotNetty~\Server\DotNettyServer.cs" />
     <Compile Include="GameDesigner\Network\Editor\Fast2BuildTool.cs" />
+    <Compile Include="GameDesigner\Network\Editor\ServiceTools.cs" />
     <Compile Include="GameDesigner\Network\enet\Client\ENetClient.cs" />
     <Compile Include="GameDesigner\Network\enet\ENet\ENet.cs" />
     <Compile Include="GameDesigner\Network\enet\Server\ENetServer.cs" />

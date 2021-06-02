@@ -311,3 +311,4 @@ D:\GameDesigner\bin\Debug\K4os.Hash.xxHash.dll
 D:\GameDesigner\bin\Debug\K4os.Compression.LZ4.xml
 D:\GameDesigner\bin\Debug\K4os.Compression.LZ4.Streams.xml
 D:\GameDesigner\bin\Debug\K4os.Hash.xxHash.xml
+D:\GameDesigner\obj\Debug\GameDesigner.csprojAssemblyReference.cache

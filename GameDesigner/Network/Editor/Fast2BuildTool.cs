@@ -12,6 +12,8 @@ public class Fast2BuildTools : EditorWindow
     private string bindTypeName = "BindingEntry";
     private string methodName = "GetBindTypes";
     private string savePath;
+    private string bindTypeName1;
+    private string methodName1;
 
     [MenuItem("GameDesigner/Network/Fast2BuildTool")]
     static void ShowWindow()
@@ -23,11 +25,13 @@ public class Fast2BuildTools : EditorWindow
 
     private void OnEnable()
     {
-        var path = Directory.GetCurrentDirectory() + "data.txt";
+        var path = Application.dataPath.Replace("Assets", "") + "data.txt";
         if (File.Exists(path))
         {
             var jsonStr = File.ReadAllText(path);
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Data>(jsonStr);
+            bindTypeName = data.typeName;
+            methodName = data.methodName;
             savePath = data.savepath;
         }
     }
@@ -36,6 +40,12 @@ public class Fast2BuildTools : EditorWindow
     {
         bindTypeName = EditorGUILayout.TextField("入口类型:", bindTypeName);
         methodName = EditorGUILayout.TextField("入口方法:", methodName);
+        if (bindTypeName != bindTypeName1 | methodName != methodName1)
+        {
+            bindTypeName1 = bindTypeName;
+            methodName1 = methodName;
+            Save();
+        }
         GUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("保存路径:", savePath);
         if (GUILayout.Button("选择路径", GUILayout.Width(100)))
@@ -67,14 +77,16 @@ public class Fast2BuildTools : EditorWindow
 
     void Save()
     {
-        Data data = new Data() { savepath = savePath };
+        Data data = new Data() { typeName = bindTypeName, methodName = methodName, savepath = savePath };
         var jsonstr = Newtonsoft.Json.JsonConvert.SerializeObject(data);
-        var path = Directory.GetCurrentDirectory() + "data.txt";
+        var path = Application.dataPath.Replace("Assets", "") + "data.txt";
         File.WriteAllText(path, jsonstr);
     }
 
     internal class Data
     {
+        public string typeName;
+        public string methodName;
         public string savepath;
     }
 }
@@ -102,8 +114,7 @@ public static class Fast2BuildToolMethod
         str.AppendLine("using System.Collections.Generic;");
         str.AppendLine("using Net.Share;");
         str.AppendLine("");
-        str.AppendLine(hasns ? $"namespace Binding" : "");
-        str.AppendLine("{");
+        str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
         var className = type.FullName.Replace(".", "");
         str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}Bind : ISerialize<{type.FullName}>");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
@@ -112,6 +123,8 @@ public static class Fast2BuildToolMethod
         List<Member> members = new List<Member>();
         foreach (var field in fields)
         {
+            if (field.GetCustomAttribute<NonSerializedAttribute>() != null)
+                continue;
             var member = new Member()
             {
                 IsArray = field.FieldType.IsArray,
@@ -141,6 +154,8 @@ public static class Fast2BuildToolMethod
         }
         foreach (var property in properties)
         {
+            if (property.GetCustomAttribute<NonSerializedAttribute>() != null)
+                continue;
             if (!property.CanRead | !property.CanWrite)
                 continue;
             if (property.GetIndexParameters().Length > 0)
@@ -304,8 +319,7 @@ public static class Fast2BuildToolMethod
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace);
         str.AppendLine("");
-        str.AppendLine(hasns ? $"namespace Binding" : "");
-        str.AppendLine("{");
+        str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
         var className = type.FullName.Replace(".", "");
         str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}ArrayBind : ISerialize<{type.FullName}[]>");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
@@ -342,8 +356,7 @@ public static class Fast2BuildToolMethod
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace);
         str.AppendLine("");
-        str.AppendLine(hasns ? $"namespace Binding" : "");
-        str.AppendLine("{");
+        str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
         var className = type.FullName.Replace(".", "");
         str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}GenericBind : ISerialize<List<{type.FullName}>>");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
