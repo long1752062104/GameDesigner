@@ -19,7 +19,7 @@ public class ServiceTools : EditorWindow
     Protocol protocol = Protocol.udp;
     private void OnGUI()
     {
-        protocol = (Protocol)EditorGUILayout.EnumFlagsField("选择协议", protocol);
+        protocol = (Protocol)EditorGUILayout.EnumPopup("选择协议", protocol) ;
         if (GUILayout.Button("启动服务器", GUILayout.Height(30)))
         {
             var exe = Application.dataPath + "/GameDesigner/Example/Example1~/ConsoleApp1.exe";
