@@ -7,9 +7,10 @@ namespace Net.Component.Client
 
     public enum SyncMode 
     {
-        Control,
         Local,
-        Synchronized
+        Control,
+        Synchronized,
+        SynchronizedAll
     }
 
     public class TransformComponent : MonoBehaviour
@@ -23,18 +24,16 @@ namespace Net.Component.Client
         public SyncMode mode = SyncMode.Synchronized;
         [DisplayOnly]
         public int identity = -1;//自身id
-        private float sendTime;
+        internal float sendTime;
+        public float interval = 0.5f;
 
         void Start()
         {
             mode = syncMode;
             switch (mode)
             {
-                case SyncMode.Control:
-                    if (!ClientManager.Instance.control)
-                        return;
-                    break;
                 case SyncMode.Synchronized:
+                case SyncMode.SynchronizedAll:
                     return;
             }
             var sm = FindObjectOfType<SceneManager>();
@@ -53,15 +52,8 @@ namespace Net.Component.Client
         // Update is called once per frame
         void Update()
         {
-            switch (mode) 
-            {
-                case SyncMode.Control:
-                    if (!ClientManager.Instance.control)
-                        return;
-                    break;
-                case SyncMode.Synchronized:
-                    return;
-            }
+            if (mode == SyncMode.Synchronized)
+                return;
             if (Time.time > sendTime)
             {
                 if (transform.position != position | transform.rotation != rotation | transform.localScale != localScale) 
@@ -69,7 +61,9 @@ namespace Net.Component.Client
                     position = transform.position;
                     rotation = transform.rotation;
                     localScale = transform.localScale;
-                    ClientManager.AddOperation(new Operation(Command.Transform, identity, localScale, position, rotation));
+                    ClientManager.AddOperation(new Operation(Command.Transform, identity, localScale, position, rotation) {
+                        cmd1 = (byte)mode, index1 = ClientManager.UID
+                    });
                 }
                 sendTime = Time.time + (1f / 30f);
             }

@@ -72,6 +72,10 @@ namespace Net.Component.Client
         /// 客户端唯一标识
         /// </summary>
         public static string Identify { get { return Instance.client.Identify; } }
+        /// <summary>
+        /// 客户端唯一标识
+        /// </summary>
+        public static int UID { get { return Instance.client.UID; } }
 
         void Awake()
         {

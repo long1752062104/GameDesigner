@@ -5,6 +5,7 @@ namespace Net.Component.MMORPG_Client
     using Net.Component.Client;
     using Net.Share;
     using System.Collections.Generic;
+    using UnityEngine;
 
     /// <summary>
     /// 场景管理组件, 这个组件负责 同步玩家操作, 玩家退出游戏移除物体对象, 怪物网络行为同步, 攻击同步等
@@ -111,13 +112,18 @@ namespace Net.Component.MMORPG_Client
             if (!transforms.TryGetValue(opt.index, out TransformComponent t))
             {
                 t = Instantiate(demo, opt.position, opt.rotation);
-                t.syncMode = SyncMode.Synchronized;
+                SyncMode mode = (SyncMode)opt.cmd1;
+                if(mode == SyncMode.Control)
+                    t.syncMode = SyncMode.SynchronizedAll;
+                else
+                    t.syncMode = SyncMode.Synchronized;
                 t.identity = opt.index;
                 transforms.Add(opt.index, t);
                 TransformComponent.Identity++;
             }
-            if (t.mode != SyncMode.Synchronized)
+            if (ClientManager.UID == opt.index1)
                 return;
+            t.sendTime = Time.time + t.interval;
             t.transform.position = opt.position;
             t.transform.rotation = opt.rotation;
             t.transform.localScale = opt.direction;
