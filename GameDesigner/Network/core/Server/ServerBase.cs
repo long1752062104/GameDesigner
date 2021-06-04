@@ -771,9 +771,6 @@ namespace Net.Server
             }
         }
 
-        /// <summary>
-        /// udp数据处理线程
-        /// </summary>
         protected virtual void DataHandle(Player client, Segment buffer, int index, int count)
         {
             int size = BitConverter.ToInt32(buffer, index + 0);

@@ -5339,11 +5339,6 @@
             Udp开始接收数据
             </summary>
         </member>
-        <member name="M:Net.Server.ServerBase`2.DataHandle(`0,Net.Share.Segment,System.Int32,System.Int32)">
-            <summary>
-            udp数据处理线程
-            </summary>
-        </member>
         <member name="M:Net.Server.ServerBase`2.OnExceededNumber(System.Net.EndPoint)">
             <summary>
             当服务器连接人数溢出时调用

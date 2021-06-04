@@ -24,7 +24,7 @@ namespace MVC.Control
 #if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
             dllPath = Application.persistentDataPath + "/Hotfix.dll";
             pdbPath = Application.persistentDataPath + "/Hotfix.pdb";
-#elif !UNITY_EDITOR
+#else
             dllPath = Application.streamingAssetsPath + "/Hotfix.dll";
             pdbPath = Application.streamingAssetsPath + "/Hotfix.pdb";
 #endif
