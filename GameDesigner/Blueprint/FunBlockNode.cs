@@ -7,27 +7,23 @@ namespace GameDesigner
     /// 蓝图功能块节点
     /// </summary>
     [System.Serializable]
-    public class FunBlockNode : MonoBehaviour
+    public class FunBlockNode
     {
         public string tooltip = "请编写你的功能块说明!";
         public Rect rect = new Rect(0, 0, 200, 200);
-        public List<BlueprintNode> nodes = new List<BlueprintNode>();
-        public List<FunBlockNode> funNodes = new List<FunBlockNode>();
+        public List<int> nodes = new List<int>();
+        //public List<FunBlockNode> funNodes = new List<FunBlockNode>();
+        public Blueprint blueprint;
 
         static public FunBlockNode CreateFunctionalBlockNodeInstance(Blueprint designer, Rect rect)
         {
-            FunBlockNode state = new GameObject("FunBlockNode" + designer.functionalBlocks.Count).AddComponent<FunBlockNode>();
-            state.transform.SetParent(designer.transform);
+            FunBlockNode state = new FunBlockNode();
             state.rect = rect;
-            state.nodes.AddRange(designer.selectNodes);
-            foreach (FunBlockNode n in designer.functionalBlocks)
+            state.blueprint = designer;
+            foreach (var node in designer.selectNodes)
             {
-                if (n.rect.Contains(state.rect.position))
-                {
-                    n.funNodes.Add(state);
-                }
+                state.nodes.Add(node.ID);
             }
-            state.funNodes.Add(state);
             return state;
         }
     }

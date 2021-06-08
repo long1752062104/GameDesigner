@@ -10,7 +10,7 @@ namespace GameDesigner
         /// <summary>
         /// 状态机复制组件
         /// </summary>
-        public static Object CopyComponent;
+        public static object CopyComponent;
         /// <summary>
         /// 状态机新型复制组件
         /// </summary>

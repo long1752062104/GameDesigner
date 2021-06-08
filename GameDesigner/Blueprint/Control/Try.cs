@@ -4,7 +4,7 @@ namespace GameDesigner.FlowControls
 {
     public class Try
     {
-        public static void Trys(BlueprintNode tryRuntime)
+        public static void Trys(Node tryRuntime)
         {
             try
             {

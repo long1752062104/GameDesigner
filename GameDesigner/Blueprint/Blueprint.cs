@@ -9,8 +9,8 @@ namespace GameDesigner
 
     public class Blueprint : MonoBehaviour
     {
-        public List<BlueprintNode> methods = new List<BlueprintNode>();
-        public List<BlueprintNode> selectNodes = new List<BlueprintNode>();
+        public List<Node> nodes = new List<Node>();
+        public List<Node> selectNodes = new List<Node>();
         public FunBlockNode selectBlock;
         public List<FunBlockNode> functionalBlocks = new List<FunBlockNode>();
 
@@ -19,7 +19,7 @@ namespace GameDesigner
 
         public Blueprint() { }
 
-        public BlueprintNode selectMethod
+        public Node selectMethod
         {
             get
             {

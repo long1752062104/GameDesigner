@@ -22,16 +22,9 @@ namespace GameDesigner
     /// <summary>
     /// 状态 -- v2017/12/6
     /// </summary>
+    [System.Serializable]
     public sealed class State : IState
     {
-        /// <summary>
-        /// 状态ID
-        /// </summary>
-		public int stateID = 0;
-        /// <summary>
-        /// 下一个状态
-        /// </summary>
-		public State nextState = null;
         /// <summary>
         /// 状态连接集合
         /// </summary>
@@ -44,14 +37,6 @@ namespace GameDesigner
         /// 动作系统 使用为真 , 不使用为假
         /// </summary>
 		public bool actionSystem = false;
-        /// <summary>
-        /// 旧动画系统
-        /// </summary>
-        public Animation anim = null;
-        /// <summary>
-        /// 新动画系统
-        /// </summary>
-        public Animator animator = null;
         /// <summary>
         /// 动画循环?
         /// </summary>
@@ -81,26 +66,23 @@ namespace GameDesigner
         /// </summary>
         public int DstStateID = 0;
 
+        //public int stateIndex;
+
         /// <summary>
         /// 状态动作集合
         /// </summary>
 		public List<StateAction> actions = new List<StateAction>();
-
-        private State() { }
+        
+        public State() { }
 
         /// <summary>
         /// 创建状态
         /// </summary>
 		public static State CreateStateInstance(StateMachine stateMachine, string stateName, Vector2 position)
         {
-            State state = new GameObject(stateName).AddComponent<State>();
-            state.transform.hideFlags = HideFlags.None;
-            state.stateMachine = stateMachine;
+            State state = new State(stateMachine);
             state.name = stateName;
             state.rect.position = position;
-            stateMachine.states.Add(state);
-            state.transform.SetParent(stateMachine.transform);
-            state.actions.Add(new StateAction());
             return state;
         }
 
@@ -110,15 +92,10 @@ namespace GameDesigner
 		public State(StateMachine _stateMachine)
         {
             stateMachine = _stateMachine;
-        }
-
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-		public State(StateMachine _stateMachine, Vector2 position)
-        {
-            stateMachine = _stateMachine;
-            rect.position = position;
+            ID = stateMachine.states.Count;
+            stateMachine.states.Add(this);
+            actions.Add(new StateAction() { stateMachine = stateMachine });
+            stateMachine.UpdateStates();
         }
 
         /// <summary>
@@ -134,19 +111,12 @@ namespace GameDesigner
             }
         }
 
-        void Awake()
-        {
-            enabled = true;
-            anim = stateManager.GetComponent<Animation>();
-            animator = stateManager.GetComponent<Animator>();
-        }
-
-        void OnDestroy()
+        public void OnDestroy()
         {
             foreach (StateAction act in actions) // 当意外状态物体被销毁,删除对象池物体
                 foreach (GameObject go in act.activeObjs)
                     if (go != null)
-                        Destroy(go);
+                        Object.Destroy(go);
         }
 
         /// <summary>
@@ -156,9 +126,9 @@ namespace GameDesigner
         {
             foreach (ActionBehaviour behaviour in Action.behaviours) //当子动作的动画开始进入时调用
                 if (behaviour.Active)
-                    behaviour.OnEnter(Action);
+                    behaviour.RuntimeBehaviour.OnEnter(Action);
             if (animPlayMode == AnimPlayMode.Random)
-                actionIndex = Random.Range(0, actions.Count);
+                actionIndex = Random.Range(0, actions.Count); 
             else
                 actionIndex = (actionIndex < actions.Count - 1) ? actionIndex + 1 : 0;
             Action.eventEnter = false;
@@ -170,14 +140,14 @@ namespace GameDesigner
             switch (stateMachine.animMode)
             {
                 case AnimationMode.Animation:
-                    anim[Action.clipName].speed = animSpeed;
-                    anim.Rewind(Action.clipName);
-                    anim.Play(Action.clipName);
+                    stateMachine.animation[Action.clipName].speed = animSpeed;
+                    stateMachine.animation.Rewind(Action.clipName);
+                    stateMachine.animation.Play(Action.clipName);
                     break;
                 case AnimationMode.Animator:
-                    animator.speed = animSpeed;
-                    animator.Rebind();
-                    animator.Play(Action.clipName);
+                    stateMachine.animator.speed = animSpeed;
+                    stateMachine.animator.Rebind();
+                    stateMachine.animator.Play(Action.clipName);
                     break;
             }
         }
@@ -191,11 +161,11 @@ namespace GameDesigner
             switch (stateMachine.animMode)
             {
                 case AnimationMode.Animation:
-                    Action.animTime = anim[Action.clipName].time / anim[Action.clipName].length * 100;
-                    isPlaying = anim.isPlaying;
+                    Action.animTime = stateMachine.animation[Action.clipName].time / stateMachine.animation[Action.clipName].length * 100;
+                    isPlaying = stateMachine.animation.isPlaying;
                     break;
                 case AnimationMode.Animator:
-                    Action.animTime = animator.GetCurrentAnimatorStateInfo(0).normalizedTime / 1 * 100;
+                    Action.animTime = stateMachine.animator.GetCurrentAnimatorStateInfo(0).normalizedTime / 1 * 100;
                     break;
             }
             if (Action.animTime >= Action.animEventTime & !Action.eventEnter)
@@ -203,7 +173,7 @@ namespace GameDesigner
                 if (Action.effectSpwan != null)
                 {
                     if (Action.activeMode == ActiveMode.Instantiate)
-                        Destroy(InstantiateSpwan(stateManager), Action.spwanTime);
+                        Object.Destroy(InstantiateSpwan(stateManager), Action.spwanTime);
                     else
                     {
                         bool active = false;
@@ -239,7 +209,7 @@ namespace GameDesigner
 
                 foreach (ActionBehaviour behaviour in Action.behaviours) //当子动作的动画事件进入
                     if (behaviour.Active)
-                        behaviour.OnAnimationEvent(Action, Action.animEventTime);
+                        behaviour.RuntimeBehaviour.OnAnimationEvent(Action, Action.animEventTime);
             }
 
             if (Action.animTime >= Action.animTimeMax | !isPlaying)
@@ -253,7 +223,7 @@ namespace GameDesigner
                 {
                     OnExitState();//退出函数
                     OnActionExit();
-                    if (stateMachine.stateIndex == stateID)//如果在动作行为里面有却换状态代码, 则不需要重载函数了, 否则重载当前状态
+                    if (stateMachine.stateID == ID)//如果在动作行为里面有却换状态代码, 则不需要重载函数了, 否则重载当前状态
                         OnEnterState();//重载进入函数
                     return;
                 }
@@ -265,7 +235,7 @@ namespace GameDesigner
 
             foreach (ActionBehaviour behaviour in Action.behaviours)
                 if (behaviour.Active)
-                    behaviour.OnUpdate(Action);
+                    behaviour.RuntimeBehaviour.OnUpdate(Action);
         }
 
         /// <summary>
@@ -295,7 +265,7 @@ namespace GameDesigner
             }
             foreach (ActionBehaviour behaviour in Action.behaviours) // 当实例化技能物体调用
                 if (behaviour.Active)
-                    behaviour.OnInstantiateSpwan(Action, go);
+                    behaviour.RuntimeBehaviour.OnInstantiateSpwan(Action, go);
         }
 
         /// <summary>
@@ -303,7 +273,7 @@ namespace GameDesigner
         /// </summary>
 		private GameObject InstantiateSpwan(StateManager stateManager)
         {
-            GameObject go = (GameObject)Instantiate(Action.effectSpwan);
+            GameObject go = (GameObject)Object.Instantiate(Action.effectSpwan);
             SetPosition(stateManager, go);
             return go;
         }
@@ -320,7 +290,7 @@ namespace GameDesigner
             }
             foreach (ActionBehaviour behaviour in Action.behaviours) //当子动作结束
                 if (behaviour.Active)
-                    behaviour.OnExit(Action);
+                    behaviour.RuntimeBehaviour.OnExit(Action);
             Action.eventEnter = false;
         }
 
@@ -331,7 +301,7 @@ namespace GameDesigner
         {
             foreach (StateBehaviour behaviour in behaviours) //当子动作停止
                 if (behaviour.Active)
-                    behaviour.OnActionExit(this);
+                    behaviour.RuntimeBehaviour.OnActionExit(this);
         }
 
         /// <summary>
@@ -341,10 +311,10 @@ namespace GameDesigner
         {
             foreach (StateBehaviour behaviour in behaviours) //当子动作停止
                 if (behaviour.Active)
-                    behaviour.OnStop(this);
+                    behaviour.RuntimeBehaviour.OnStop(this);
             foreach (ActionBehaviour behaviour in Action.behaviours) //当子动作停止
                 if (behaviour.Active)
-                    behaviour.OnStop(Action);
+                    behaviour.RuntimeBehaviour.OnStop(Action);
         }
     }
 }

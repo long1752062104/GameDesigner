@@ -1,4 +1,4 @@
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace MVC.View
 {
     using UnityEngine;

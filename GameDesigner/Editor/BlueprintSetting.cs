@@ -542,9 +542,6 @@ public class BlueprintSetting : ScriptableObject
     public ScriptableObject GraphEditor = null;
     public ScriptableObject BlueprintEditor = null;
 #endif
-    public GameDesigner.SelectObjMode selectObjMode = GameDesigner.SelectObjMode.SelectionStateManager;
-    public HideFlags StateHideFlags = HideFlags.None;
-    public HideFlags StateMachineHideFlags = HideFlags.None;
     public PluginLanguage language = PluginLanguage.Chinese;
     public string[] LANGUAGE = new string[120];
 }

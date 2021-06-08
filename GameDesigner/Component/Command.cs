@@ -53,15 +53,11 @@
         /// TransformComponent组件被销毁指令
         /// </summary>
         public const byte Destroy = 41;
-        /// <summary>
-        /// 所有组件属性都可以同步
-        /// </summary>
-        public const byte PropertySync = 42;
 
-        public const byte EnemyDeath = 43;
+        public const byte EnemyDeath = 42;
 
-        public const byte PlayerDeath = 44;
+        public const byte PlayerDeath = 43;
 
-        public const byte EnemyDamage = 45;
+        public const byte EnemyDamage = 44;
     }
 }

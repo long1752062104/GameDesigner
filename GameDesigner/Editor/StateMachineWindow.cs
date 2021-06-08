@@ -7,15 +7,13 @@ namespace GameDesigner
 {
     public class StateMachineWindow : GraphEditor
     {
-        public static StateMachine stateMachine = null;//状态管理器是通过Editor编辑器脚本自动赋值给此对象的
+        public static StateMachine stateMachine;
         public static StateMachineWindow Instance
         {
             get
             {
                 if (BlueprintGUILayout.Instance.GraphEditor == null)
-                {
                     BlueprintGUILayout.Instance.GraphEditor = GetWindow<StateMachineWindow>(BlueprintGUILayout.Instance.LANGUAGE[84], true);
-                }
                 return BlueprintGUILayout.Instance.GraphEditor as StateMachineWindow;
             }
         }
@@ -25,28 +23,31 @@ namespace GameDesigner
         {
             BlueprintGUILayout.Instance.GraphEditor = GetWindow<StateMachineWindow>(BlueprintGUILayout.Instance.LANGUAGE[84], true);
         }
+        public static void Init(StateMachine stateMachine)
+        {
+            BlueprintGUILayout.Instance.GraphEditor = GetWindow<StateMachineWindow>(BlueprintGUILayout.Instance.LANGUAGE[84], true);
+            StateMachineWindow.stateMachine = stateMachine;
+        }
 
         void OnGUI()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Button(new GUIContent(stateMachine ? stateMachine.name : "NoStateMachineSelected !", BlueprintGUILayout.Instance.stateMachineImage), GUI.skin.GetStyle("GUIEditor.BreadcrumbLeft"), GUILayout.Width(180));
+            GUILayout.Button(new GUIContent(stateMachine ? stateMachine.name : "None", BlueprintGUILayout.Instance.stateMachineImage), GUI.skin.GetStyle("GUIEditor.BreadcrumbLeft"), GUILayout.Width(150));
+            EditorGUILayout.ToggleLeft("固定", true, GUILayout.Width(50));
             stateMachine = (StateMachine)EditorGUILayout.ObjectField(GUIContent.none, stateMachine, typeof(StateMachine), true, GUILayout.Width(150));
             GUILayout.FlexibleSpace();
             GUILayout.Space(10);
-            if (GUILayout.Button(BlueprintGUILayout.Instance.LANGUAGE[85], GUI.skin.GetStyle("GUIEditor.BreadcrumbLeft"), GUILayout.Width(50)))
+            if (GUILayout.Button(BlueprintGUILayout.Instance.LANGUAGE[85], GUILayout.Width(50)))
             {
                 if (stateMachine == null)
                     return;
                 if (stateMachine.states.Count > 0)
-                {
-                    UpdateScrollPosition(stateMachine.states[0].rect.position - new Vector2(position.size.x / 2 - 75, position.size.y / 2 - 15)); //  更新滑动矩阵
-                }
+                    UpdateScrollPosition(stateMachine.states[0].rect.position - new Vector2(position.size.x / 2 - 75, position.size.y / 2 - 15)); //更新滑动矩阵
                 else
-                    UpdateScrollPosition(Center); //  归位到矩形的中心
+                    UpdateScrollPosition(Center); //归位到矩形的中心
             }
             GUILayout.Space(10);
             GUILayout.EndHorizontal();
-
             ZoomableAreaBegin(new Rect(0f, 0f, scaledCanvasSize.width, scaledCanvasSize.height + 21), scale, false);
             BeginWindow();
             if (stateMachine)
@@ -95,25 +96,26 @@ namespace GameDesigner
             }
         }
 
+        internal static Transition selectTransition;
+
         /// <summary>
         /// 绘制状态(状态的层,状态窗口举行)
         /// </summary>
         protected void DrawStates()
         {
-            stateMachine.gameObject.hideFlags = BlueprintGUILayout.Instance.StateMachineHideFlags;
             foreach (var state in stateMachine.states)
             {
-                state.gameObject.hideFlags = BlueprintGUILayout.Instance.StateHideFlags;
                 DrawLineStatePosToMousePosTransition(state);
                 foreach (var t in state.transitions)
                 {
-                    if (stateMachine.selectTransition == t)
+                    if (selectTransition == t)
                     {
                         DrawConnection(state.rect.center, t.nextState.rect.center, Color.green, 1, true);
                         if (Event.current.keyCode == KeyCode.Delete)
                         {
                             state.transitions.Remove(t);
-                            Undo.DestroyObjectImmediate(t.gameObject);
+                            for (int i = 0; i < state.transitions.Count; i++)
+                                state.transitions[i].ID = i;
                             return;
                         }
                         ClickTransition(state, t);
@@ -128,24 +130,15 @@ namespace GameDesigner
                 {
                     if (Event.current.control)
                         stateMachine.selectState = state;
-                    else if (!stateMachine.selectStates.Contains(state))
+                    else if (!stateMachine.selectStates.Contains(state.ID))
                     {
-                        stateMachine.selectStates = new List<State>();
-                        stateMachine.selectStates.Add(state);
+                        stateMachine.selectStates = new List<int>();
+                        stateMachine.selectStates.Add(state.ID);
                     }
-                    stateMachine.selectTransition = state.transitions.Count > 0 ? state.transitions[0] : null;
-                    switch (BlueprintGUILayout.Instance.selectObjMode)
-                    {
-                        case SelectObjMode.SelectionStateManager:
-                            Selection.activeObject = stateMachine.stateManager;
-                            break;
-                        case SelectObjMode.SelectionStateMachine:
-                            Selection.activeObject = stateMachine;
-                            break;
-                        case SelectObjMode.SelectionStateObject:
-                            Selection.activeObject = state;
-                            break;
-                    }
+                    if (state.transitions.Count == 0)
+                        selectTransition = null;
+                    else
+                        selectTransition = state.transitions[0];
                 }
                 else if (state.rect.Contains(mousePosition) & currentType == EventType.MouseDown & currentEvent.button == 1)
                 {
@@ -162,11 +155,11 @@ namespace GameDesigner
             {
                 if (state == stateMachine.defaultState & stateMachine.selectState == stateMachine.defaultState)
                     DragStateBoxPosition(state.rect, state.name, StateMachineSetting.Instance.defaultAndSelectStyle);
-                else if (state == stateMachine.defaultState & state.stateID == stateMachine.stateIndex)
+                else if (state == stateMachine.defaultState & state.ID == stateMachine.stateID)
                     DragStateBoxPosition(state.rect, state.name, StateMachineSetting.Instance.defaultAndRuntimeIndexStyle);
                 else if (state == stateMachine.defaultState)
                     DragStateBoxPosition(state.rect, state.name, StateMachineSetting.Instance.stateInDefaultStyle);
-                else if (stateMachine.stateIndex == state.stateID)
+                else if (stateMachine.stateID == state.ID)
                     DragStateBoxPosition(state.rect, state.name, StateMachineSetting.Instance.indexInRuntimeStyle);
                 else if (state == stateMachine.selectState)
                     DragStateBoxPosition(state.rect, state.name, StateMachineSetting.Instance.selectStateStyle);
@@ -183,12 +176,8 @@ namespace GameDesigner
         {
             for (int i = 0; i < stateMachine.selectStates.Count; i++)
             {
-                if (stateMachine.selectStates[i] == null)
-                {
-                    stateMachine.selectStates.RemoveAt(i);
-                    continue;
-                }
-                DragStateBoxPosition(stateMachine.selectStates[i].rect, stateMachine.selectStates[i].name, StateMachineSetting.Instance.selectStateStyle);
+                var state = stateMachine.states[stateMachine.selectStates[i]];
+                DragStateBoxPosition(state.rect, state.name, StateMachineSetting.Instance.selectStateStyle);
             }
 
             switch (currentType)
@@ -218,7 +207,7 @@ namespace GameDesigner
             switch (mode)
             {
                 case SelectMode.dragState:
-                    if (stateMachine.selectState)
+                    if (stateMachine.selectState!=null)
                         DragStateBoxPosition(stateMachine.selectState.rect, stateMachine.selectState.name, StateMachineSetting.Instance.selectStateStyle);
                     break;
                 case SelectMode.selectState:
@@ -235,12 +224,12 @@ namespace GameDesigner
                 Rect rect = stateMachine.states[i].rect;
                 if (rect.xMax < r.x || rect.x > r.xMax || rect.yMax < r.y || rect.y > r.yMax)
                 {
-                    stateMachine.selectStates.Remove(stateMachine.states[i]);
+                    stateMachine.selectStates.Remove(stateMachine.states[i].ID);
                     continue;
                 }
-                if (!stateMachine.selectStates.Contains(stateMachine.states[i]))
+                if (!stateMachine.selectStates.Contains(stateMachine.states[i].ID))
                 {
-                    stateMachine.selectStates.Add(stateMachine.states[i]);
+                    stateMachine.selectStates.Add(stateMachine.states[i].ID);
                 }
                 DragStateBoxPosition(stateMachine.states[i].rect, stateMachine.states[i].name, StateMachineSetting.Instance.selectStateStyle);
             }
@@ -251,12 +240,12 @@ namespace GameDesigner
             Rect rect = new Rect(start.x, start.y, end.x - start.x, end.y - start.y);
             if (rect.width < 0f)
             {
-                rect.x = rect.x + rect.width;
+                rect.x += rect.width;
                 rect.width = -rect.width;
             }
             if (rect.height < 0f)
             {
-                rect.y = rect.y + rect.height;
+                rect.y += rect.height;
                 rect.height = -rect.height;
             }
             return rect;
@@ -270,34 +259,21 @@ namespace GameDesigner
         {
             if (state.rect.Contains(mousePosition) | t.nextState.rect.Contains(mousePosition))
                 return;
-
             if (currentType == EventType.MouseDown)
             {
-                bool offset = state.stateID > t.nextState.stateID ? true : false;
+                bool offset = state.ID > t.nextState.ID;
                 Vector3 start = state.rect.center;
                 Vector3 end = t.nextState.rect.center;
                 Vector3 cross = Vector3.Cross((start - end).normalized, Vector3.forward);
                 if (offset)
                 {
-                    start = start + cross * 6;
-                    end = end + cross * 6;
+                    start += cross * 6;
+                    end += cross * 6;
                 }
-                if (HandleUtility.DistanceToLine(start, end) < 8f)
-                {  //返回到线的距离
-                    stateMachine.selectTransition = t;
+                if (HandleUtility.DistanceToLine(start, end) < 8f)//返回到线的距离
+                {
+                    selectTransition = t;
                     stateMachine.selectState = state;
-                    switch (BlueprintGUILayout.Instance.selectObjMode)
-                    {
-                        case SelectObjMode.SelectionStateManager:
-                            Selection.activeObject = stateMachine.stateManager;
-                            break;
-                        case SelectObjMode.SelectionStateMachine:
-                            Selection.activeObject = stateMachine;
-                            break;
-                        case SelectObjMode.SelectionStateObject:
-                            Selection.activeObject = t;
-                            break;
-                    }
                 }
             }
         }
@@ -324,14 +300,13 @@ namespace GameDesigner
                         {
                             foreach (var t in state.transitions)
                             {
-                                if (t.nextState == s)
-                                { // 如果拖动的线包含在自身状态盒矩形内,则不添加连接线
+                                if (t.nextState == s)// 如果拖动的线包含在自身状态盒矩形内,则不添加连接线
+                                { 
                                     state.makeTransition = false;
                                     return;
                                 }
                             }
-                            Transition tran = Transition.CreateTransitionInstance(state, s);
-                            tran.transform.SetParent(state.transform);
+                            Transition.CreateTransitionInstance(state, s);
                             break;
                         }
                     }
@@ -383,27 +358,34 @@ namespace GameDesigner
         /// </summary>
         private void DeletedState()
         {
-            for (int i = 0; i < stateMachine.selectStates.Count; i++)
+            foreach (var state in stateMachine.states)
             {
-                Undo.DestroyObjectImmediate(stateMachine.selectStates[i].gameObject);
-                stateMachine.states.Remove(stateMachine.selectStates[i]);
-            }
-            for (int i = 0; i < stateMachine.states.Count; i++)
-            {
-                stateMachine.states[i].stateID = i;
-                for (int n = 0; n < stateMachine.states[i].transitions.Count; n++)
+                for (int n = 0; n < state.transitions.Count; n++)
                 {
-                    if (stateMachine.states[i].transitions[n] == null)
-                    {
-                        stateMachine.states[i].transitions.RemoveAt(n);
-                    }
-                    else if (stateMachine.states[i].transitions[n].nextState == null)
-                    {//如果这个链接要连接的下一个状态是即将被删除的状态索引，则删除这个链接，因为当删除状态后链接连接到的是一个空的状态
-                        Undo.DestroyObjectImmediate(stateMachine.states[i].transitions[n].gameObject);
-                        stateMachine.states[i].transitions.RemoveAt(n);
-                    }
+                    if (state.transitions[n].nextState == null)
+                        continue;
+                    if (stateMachine.selectStates.Contains(state.transitions[n].nextState.ID))
+                        state.transitions.RemoveAt(n);
                 }
             }
+            List<int> ids = new List<int>();
+            foreach (var i in stateMachine.selectStates)
+                ids.Add(stateMachine.states[i].ID);
+            while (ids.Count > 0)
+            {
+                for (int i = 0; i < stateMachine.states.Count; i++)
+                {
+                    if (stateMachine.states[i].ID == ids[0])
+                    {
+                        stateMachine.states.RemoveAt(i);
+                        break;
+                    }
+                }
+                ids.RemoveAt(0);
+            }
+            stateMachine.UpdateStates();
+            stateMachine.selectStates.Clear();
+            selectTransition = null;
         }
 
         /// <summary>
@@ -425,51 +407,42 @@ namespace GameDesigner
                             return;
                     }
                     GenericMenu menu = new GenericMenu();
-                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[95]), false,
-                        delegate
-                        {
-                            State s = State.CreateStateInstance(stateMachine, BlueprintGUILayout.Instance.LANGUAGE[96] + stateMachine.states.Count, mousePosition);
-                            Undo.RegisterCreatedObjectUndo(s.gameObject, s.name);
-                            for (int i = 0; i < stateMachine.states.Count; ++i)
-                            {
-                                stateMachine.states[i].stateID = i;
-                            }
-                        }
-                    );
+                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[95]), false, ()=> {
+                        State.CreateStateInstance(stateMachine, BlueprintGUILayout.Instance.LANGUAGE[96] + stateMachine.states.Count, mousePosition);
+                    });
                     if (stateMachine.selectState != null)
                     {
-                        menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[97]), false,
-                            delegate
+                        menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[97]), false, ()=>
+                        {
+                            List<State> states = new List<State>();
+                            var seles = stateMachine.selectStates;
+                            State s = Net.Clone.DeepCopy<State>(stateMachine.states[seles[0]]);
+                            s.perID = s.ID;
+                            s.ID = stateMachine.states.Count;
+                            s.rect.center = mousePosition;
+                            stateMachine.states.Add(s);
+                            states.Add(s);
+                            Vector2 dis = stateMachine.states[seles[0]].rect.center - mousePosition;
+                            for (int i = 1; i < stateMachine.selectStates.Count; ++i)
                             {
-                                List<State> states = new List<State>();
-                                State s = Instantiate(stateMachine.selectStates[0], stateMachine.transform);
-                                s.name = stateMachine.selectStates[0].name;
-                                s.rect.center = mousePosition;
-                                stateMachine.states.Add(s);
-                                states.Add(s);
-                                Vector2 dis = stateMachine.selectStates[0].rect.center - mousePosition;
-                                Undo.RegisterCreatedObjectUndo(s.gameObject, s.name);
-                                for (int i = 1; i < stateMachine.selectStates.Count; ++i)
-                                {
-                                    State ss = Instantiate(stateMachine.selectStates[i], stateMachine.transform);
-                                    ss.name = stateMachine.selectStates[i].name;
-                                    ss.rect.position -= dis;
-                                    stateMachine.states.Add(ss);
-                                    states.Add(ss);
-                                    Undo.RegisterCreatedObjectUndo(ss.gameObject, ss.name);
-                                }
-                                foreach (var state in states)
-                                    foreach (var tran in state.transitions)
-                                        foreach (var sta in states)
-                                            if (tran.nextState.stateID == sta.stateID)
-                                                tran.nextState = sta;
-                                for (int i = 0; i < stateMachine.states.Count; ++i)
-                                {
-                                    stateMachine.states[i].stateID = i;
-                                }
-                                stateMachine.selectStates = states;
+                                State ss = Net.Clone.DeepCopy<State>(stateMachine.states[seles[i]]);
+                                ss.perID = ss.ID;
+                                ss.ID = stateMachine.states.Count;
+                                ss.rect.position -= dis;
+                                stateMachine.states.Add(ss);
+                                states.Add(ss);
                             }
-                        );
+                            foreach (var state in states)
+                                foreach (var tran in state.transitions)
+                                    foreach (var sta in states)
+                                        if (tran.nextStateID == sta.perID)
+                                            tran.nextStateID = sta.ID;
+                            stateMachine.UpdateStates();
+                            List<int> list = new List<int>();
+                            for (int i = 0; i < states.Count; ++i)
+                                list.Add(states[i].ID);
+                            stateMachine.selectStates = list;
+                        });
                         menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[98]), false, delegate { DeletedState(); });
                     }
                     menu.AddSeparator("");
@@ -535,15 +508,6 @@ namespace GameDesigner
         }
 
         bool dragState = false;
-
-        /// <summary>
-        /// 拖动状态盒位置
-        /// 参数 dragRect : 拖动矩阵 ， 并且返回拖动后的这个矩阵的值
-        /// 参数 target : 可以传入三种类型对象 ， string , GUIContent , Texture
-        /// 参数 style : 盒子皮肤
-        /// 参数 eventButton : 事件按钮有三个主要的按钮值 ： 0 左键按钮 1 鼠标滑动按钮 2 右键按钮
-        /// </summary>
-
         protected Rect DragStateBoxPosition(Rect dragRect, string name, GUIStyle style = null, int eventButton = 0)
         {
             GUI.Box(dragRect, name, style);
@@ -561,7 +525,7 @@ namespace GameDesigner
                         {
                             foreach (var state in stateMachine.selectStates)
                             {
-                                state.rect.position += Event.current.delta;//拖到状态按钮
+                                stateMachine.states[state].rect.position += Event.current.delta;//拖到状态按钮
                             }
                         }
                         Event.current.Use();

@@ -20,7 +20,7 @@ namespace GameDesigner.FlowControls
         /// 如果控制语句函数---v2017.12.17
         /// </summary>
 
-        static public void IF(bool contition, BlueprintNode True)
+        static public void IF(bool contition, Node True)
         {
             if (contition)
             {
@@ -32,7 +32,7 @@ namespace GameDesigner.FlowControls
         /// 如果控制语句函数---v2017.12.17
         /// </summary>
 
-        static public void IF(bool contition, BlueprintNode True, BlueprintNode False)
+        static public void IF(bool contition, Node True, Node False)
         {
             if (contition)
             {
@@ -48,7 +48,7 @@ namespace GameDesigner.FlowControls
         /// 如果控制语句函数---v2017.12.17
         /// </summary>
 
-        static public void IF(object a, Contition contition, object b, BlueprintNode True)
+        static public void IF(object a, Contition contition, object b, Node True)
         {
             if (Condition(a, contition, b))
             {
@@ -60,7 +60,7 @@ namespace GameDesigner.FlowControls
         /// 如果控制语句函数---v2017.12.17
         /// </summary>
 
-        static public void IF(object a, Contition contition, object b, BlueprintNode True, BlueprintNode False)
+        static public void IF(object a, Contition contition, object b, Node True, Node False)
         {
             if (Condition(a, contition, b))
             {

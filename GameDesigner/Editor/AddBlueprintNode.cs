@@ -355,7 +355,7 @@ namespace GameDesigner
                         GUILayout.Label(new GUIContent(name, BlueprintGUILayout.Instance.cshImage, methods.xmlTexts), "LODSliderRangeSelected");
                     if (Event.current.type == EventType.MouseDown)
                     {
-                        BlueprintNode body = BlueprintNode.CreateBlueprintNodeInstance(designer, methods.name, designer.mousePosition);
+                        Node body = Node.CreateBlueprintNodeInstance(designer, methods.name, designer.mousePosition);
                         SystemType.SetFieldValue(body.method, methods);
                         body.method.Parameters = methods.Parameters;
                         body.method.genericArguments = methods.genericArguments;

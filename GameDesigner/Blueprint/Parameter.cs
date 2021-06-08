@@ -8,7 +8,9 @@
     [System.Serializable]
     public class Parameter
     {
-        public string name = "";
+        public string name;
+        public int preID;
+        public int ID;
         public string parameterTypeName
         {
             get
@@ -100,7 +102,18 @@
 
         public object image = null;
 
-        public BlueprintNode setValue = null;
+        public Blueprint blueprint;
+
+        public int setValueIndex = -1;
+        public Node setValue 
+        {
+            get {
+                if (setValueIndex == -1)
+                    return null;
+                return blueprint.nodes[setValueIndex];
+            }
+            set { setValueIndex = value.ID; }
+        }
         [HideInInspector]
         public bool makeTransition = false;
         [HideInInspector]

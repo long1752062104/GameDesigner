@@ -13,7 +13,7 @@ namespace GameDesigner
     [CustomEditor(typeof(StateManager))]
     public class StateManagerEditor : Editor
     {
-        private StateManager stateManager = null;
+        private static StateManager stateManager = null;
 
         private static DirectoryInfo directoryInfo;
         public static string GetGameDesignerPath
@@ -36,27 +36,34 @@ namespace GameDesigner
         void OnEnable()
         {
             stateManager = target as StateManager;
-            stateManager.animation = stateManager.GetComponent<Animation>();
-            if (stateManager.animation != null)
+            var stateMachine = stateManager.stateMachine;
+            if (stateMachine != null) 
             {
-                if (stateManager.clipNames.Count != AnimationUtility.GetAnimationClips(stateManager.gameObject).Length)
+                if (stateMachine.animation == null)
+                    stateMachine.animation = stateManager.GetComponentInChildren<Animation>();
+                if (stateMachine.animation != null)
                 {
-                    stateManager.clipNames = new List<string>();
-                    foreach (AnimationClip clip in AnimationUtility.GetAnimationClips(stateManager.gameObject))
+                    if (stateMachine.clipNames.Count != AnimationUtility.GetAnimationClips(stateMachine.animation.gameObject).Length)
                     {
-                        stateManager.clipNames.Add(clip.name);
+                        stateMachine.clipNames = new List<string>();
+                        foreach (AnimationClip clip in AnimationUtility.GetAnimationClips(stateMachine.animation.gameObject))
+                        {
+                            stateMachine.clipNames.Add(clip.name);
+                        }
                     }
                 }
-            }
-            stateManager.animator = stateManager.GetComponent<Animator>();
-            if (stateManager.animator != null)
-            {
-                if (stateManager.clipNames.Count != stateManager.animator.runtimeAnimatorController.animationClips.Length)
+                stateMachine.animator = stateManager.GetComponent<Animator>();
+                if (stateMachine.animator == null)
+                    stateMachine.animator = stateManager.GetComponentInChildren<Animator>();
+                if (stateMachine.animator != null)
                 {
-                    stateManager.clipNames = new List<string>();
-                    foreach (AnimationClip clip in stateManager.animator.runtimeAnimatorController.animationClips)
+                    if (stateMachine.clipNames.Count != stateMachine.animator.runtimeAnimatorController.animationClips.Length)
                     {
-                        stateManager.clipNames.Add(clip.name);
+                        stateMachine.clipNames = new List<string>();
+                        foreach (AnimationClip clip in stateMachine.animator.runtimeAnimatorController.animationClips)
+                        {
+                            stateMachine.clipNames.Add(clip.name);
+                        }
                     }
                 }
             }
@@ -65,67 +72,60 @@ namespace GameDesigner
 
         public override void OnInspectorGUI()
         {
+            EditorGUI.BeginChangeCheck();
             stateManager.stateMachine = (StateMachine)EditorGUILayout.ObjectField(BlueprintGUILayout.Instance.LANGUAGE[0], stateManager.stateMachine, typeof(StateMachine), true);
             if (GUILayout.Button(BlueprintSetting.Instance.LANGUAGE[1], GUI.skin.GetStyle("LargeButtonMid"), GUILayout.ExpandWidth(true)))
-                StateMachineWindow.Init();
-            EditorGUILayout.Space();
+                StateMachineWindow.Init(stateManager.stateMachine);
             if (stateManager.stateMachine == null)
                 return;
-            try
+            if (stateManager.stateMachine.selectState != null)
             {
-                if (stateManager.stateMachine.selectState != null)
-                {
-                    DrawState(stateManager.stateMachine.selectState, stateManager);
-                    EditorGUILayout.Space();
-                    for (int i = 0; i < stateManager.stateMachine.selectState.transitions.Count; ++i)
-                    {
-                        DrawTransition(stateManager.stateMachine.selectState.transitions[i]);
-                    }
-                }
-                else if (stateManager.stateMachine.selectTransition != null)
-                {
-                    DrawTransition(stateManager.stateMachine.selectTransition);
-                }
+                DrawState(stateManager.stateMachine.selectState, stateManager);
+                EditorGUILayout.Space();
+                for (int i = 0; i < stateManager.stateMachine.selectState.transitions.Count; ++i)
+                    DrawTransition(stateManager.stateMachine.selectState.transitions[i]);
             }
-            catch { }
+            else if (StateMachineWindow.selectTransition != null)
+            {
+                DrawTransition(StateMachineWindow.selectTransition);
+            }
             EditorGUILayout.Space();
+            if (EditorGUI.EndChangeCheck())
+            {
+                EditorUtility.SetDirty(stateManager.stateMachine);
+            }
             Repaint();
         }
 
         /// <summary>
         /// 绘制状态监视面板属性
         /// </summary>
-        public static void DrawState(State s, StateManager man = null)
+        public static void DrawState(State s, StateManager sm)
         {
-            SerializedObject serializedObject = new SerializedObject(s);
+            SerializedObject serializedObject = new SerializedObject(sm.stateMachine);
+            var serializedProperty = serializedObject.FindProperty("states").GetArrayElementAtIndex(s.ID);
             serializedObject.Update();
             GUILayout.Button(BlueprintGUILayout.Instance.LANGUAGE[2], GUI.skin.GetStyle("dragtabdropwindow"));
             EditorGUILayout.BeginVertical("ProgressBarBack");
-            s.name = EditorGUILayout.TextField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[3], "name"), s.name);
-            EditorGUILayout.IntField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[4], "stateID"), s.stateID);
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("actionSystem"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[5], "actionSystem  专为玩家角色AI其怪物AI所设计的一套AI系统！"), true);
+            EditorGUILayout.PropertyField(serializedProperty.FindPropertyRelative("name"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[3], "name"));
+            EditorGUILayout.IntField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[4], "stateID"), s.ID);
+            EditorGUILayout.PropertyField(serializedProperty.FindPropertyRelative("actionSystem"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[5], "actionSystem  专为玩家角色AI其怪物AI所设计的一套AI系统！"));
             if (s.actionSystem)
             {
-                man.stateMachine.animMode = (AnimationMode)EditorGUILayout.EnumPopup(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[6], "animMode"), man.stateMachine.animMode);
-                if (man.stateMachine.animMode == AnimationMode.Animation)
-                {
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("anim"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[7], "anim"), true);
-                }
+                sm.stateMachine.animMode = (AnimationMode)EditorGUILayout.EnumPopup(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[6], "animMode"), sm.stateMachine.animMode);
+                if (sm.stateMachine.animMode == AnimationMode.Animation)
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("animation"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[7], "animation"));
                 else
-                {
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("animator"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[8], "animator"), true);
-                }
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("animator"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[8], "animator"));
                 s.animPlayMode = (AnimPlayMode)EditorGUILayout.Popup(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[9], "animPlayMode"), (int)s.animPlayMode, new GUIContent[]{
                     new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[10],"Random"),
                     new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[11],"Sequence") }
                 );
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("animSpeed"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[12], "animSpeed"), true);
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("animLoop"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[13], "animLoop"), true);
+                EditorGUILayout.PropertyField(serializedProperty.FindPropertyRelative("animSpeed"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[12], "animSpeed"), true);
+                EditorGUILayout.PropertyField(serializedProperty.FindPropertyRelative("animLoop"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[13], "animLoop"), true);
                 s.isExitState = EditorGUILayout.Toggle(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[14], "isExitState"), s.isExitState);
                 if (s.isExitState)
-                {
-                    s.DstStateID = EditorGUILayout.Popup(BlueprintGUILayout.Instance.LANGUAGE[15], s.DstStateID, Array.ConvertAll(s.transitions.ToArray(), new Converter<Transition, string>(delegate (Transition t) { return t.currState.name + " -> " + t.nextState.name + "   ID:" + t.nextState.stateID; })));
-                }
+                    s.DstStateID = EditorGUILayout.Popup(BlueprintGUILayout.Instance.LANGUAGE[15], s.DstStateID, Array.ConvertAll(s.transitions.ToArray(), new Converter<Transition, string>(delegate (Transition t) { return t.currState.name + " -> " + t.nextState.name + "   ID:" + t.nextState.ID; })));
                 BlueprintGUILayout.BeginStyleVertical(BlueprintGUILayout.Instance.LANGUAGE[16], "ProgressBarBack");
                 EditorGUI.indentLevel = 1;
                 Rect actRect = EditorGUILayout.GetControlRect();
@@ -133,25 +133,23 @@ namespace GameDesigner
 
                 if (GUI.Button(new Rect(new Vector2(actRect.size.x - 40f, actRect.position.y), new Vector2(60, 16)), BlueprintGUILayout.Instance.LANGUAGE[18]))
                 {
-                    s.actions.Add(new StateAction());
+                    s.actions.Add(new StateAction() { stateMachine = s.stateMachine });
                 }
                 if (GUI.Button(new Rect(new Vector2(actRect.size.x - 100, actRect.position.y), new Vector2(60, 16)), BlueprintGUILayout.Instance.LANGUAGE[19]))
                 {
                     if (s.actions.Count > 1)
                     {
-                        foreach (ActionBehaviour behaviour in s.actions[s.actions.Count - 1].behaviours)
-                        {
-                            DestroyImmediate(behaviour.gameObject, true);
-                        }
                         s.actions.RemoveAt(s.actions.Count - 1);
                     }
                 }
 
                 if (s.foldout)
                 {
+                    var actionsProperty = serializedProperty.FindPropertyRelative("actions");
                     EditorGUI.indentLevel = 2;
                     for (int a = 0; a < s.actions.Count; ++a)
                     {
+                        var actionProperty = actionsProperty.GetArrayElementAtIndex(a);
                         StateAction act = s.actions[a];
                         Rect foldoutRect = EditorGUILayout.GetControlRect();
                         act.foldout = EditorGUI.Foldout(foldoutRect, act.foldout, new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[20] + a, "actions[" + a + "]"), true);
@@ -161,10 +159,6 @@ namespace GameDesigner
                             GenericMenu menu = new GenericMenu();
                             menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[21]), false, delegate ()
                             {
-                                foreach (ActionBehaviour behaviour in s.actions[s.actionMenuIndex].behaviours)
-                                {
-                                    DestroyImmediate(behaviour, true);
-                                }
                                 s.actions.RemoveAt(s.actionMenuIndex);
                                 return;
                             });
@@ -172,54 +166,18 @@ namespace GameDesigner
                             {
                                 StateSystem.Component = s.actions[s.actionMenuIndex];
                             });
-                            menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[23]), StateSystem.CopyComponent ? true : false, delegate ()
+                            menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[23]), StateSystem.CopyComponent!=null ? true : false, ()=>
                             {
-                                if (StateSystem.Component != null)
-                                {
-                                    if (StateSystem.Component.GetType() == typeof(StateAction))
-                                    {
-                                        StateAction stateAction = StateSystem.Component as StateAction;
-                                        List<ActionBehaviour> actionBehaviours = new List<ActionBehaviour>();
-                                        foreach (var behaviour in stateAction.behaviours)
-                                        {
-                                            ActionBehaviour actionBehaviour = (ActionBehaviour)s.gameObject.AddComponent(behaviour.GetType());
-                                            actionBehaviours.Add(actionBehaviour);
-                                            SystemType.SetFieldValue(actionBehaviour, behaviour);
-                                        }
-                                        StateAction stateAction1 = new StateAction();
-                                        SystemType.SetFieldValue(stateAction1, stateAction);
-                                        stateAction1.behaviours.AddRange(actionBehaviours);
-                                        s.actions.Add(stateAction1);
-                                    }
-                                }
+                                if (StateSystem.Component is StateAction stateAction)
+                                    s.actions.Add(Net.Clone.DeepCopy<StateAction>(stateAction));
                             });
-                            menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[24]), StateSystem.CopyComponent ? true : false, delegate ()
+                            menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[24]), StateSystem.CopyComponent!=null ? true : false, () =>
                             {
-                                if (StateSystem.Component != null)
+                                if (StateSystem.Component is StateAction stateAction)
                                 {
-                                    if (StateSystem.Component == s.actions[s.actionMenuIndex])
-                                    {//如果要黏贴的动作是复制的动作则返回
+                                    if (stateAction == s.actions[s.actionMenuIndex])//如果要黏贴的动作是复制的动作则返回
                                         return;
-                                    }
-                                    if (StateSystem.Component.GetType().FullName == s.actions[s.actionMenuIndex].GetType().FullName)
-                                    {
-                                        foreach (var behaviour in s.actions[s.actionMenuIndex].behaviours)//删除原先动作脚本,然后即将创建黏贴的脚本
-                                        {
-                                            DestroyImmediate(behaviour, true);
-                                        }
-                                        s.actions[s.actionMenuIndex].behaviours = new List<ActionBehaviour>();
-                                        StateAction stateAction = StateSystem.Component as StateAction;
-                                        List<ActionBehaviour> actionBehaviours = new List<ActionBehaviour>();
-                                        foreach (var behaviour in stateAction.behaviours)
-                                        {
-                                            ActionBehaviour actionBehaviour = (ActionBehaviour)s.gameObject.AddComponent(behaviour.GetType());
-                                            actionBehaviours.Add(actionBehaviour);
-                                            SystemType.SetFieldValue(actionBehaviour, behaviour);
-                                        }
-                                        SystemType.SetFieldValue(s.actions[s.actionMenuIndex], stateAction);
-                                        s.actions[s.actionMenuIndex].behaviours.AddRange(actionBehaviours);
-                                        return;
-                                    }
+                                    s.actions[s.actionMenuIndex] = Net.Clone.DeepCopy<StateAction>(stateAction);
                                 }
                             });
                             menu.ShowAsContext();
@@ -229,56 +187,41 @@ namespace GameDesigner
                             EditorGUI.indentLevel = 3;
                             try
                             {
-                                act.clipIndex = EditorGUILayout.Popup(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[25], "clipIndex"), act.clipIndex, Array.ConvertAll(s.stateMachine.stateManager.clipNames.ToArray(), new Converter<string, GUIContent>(delegate (string input)
-                                {
-                                    return new GUIContent(input);
-                                })));
-                                act.clipName = s.stateManager.clipNames[act.clipIndex];
-                            }
-                            catch { }
-
+                                act.clipIndex = EditorGUILayout.Popup(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[25], "clipIndex"), act.clipIndex, Array.ConvertAll(s.stateMachine.clipNames.ToArray(), new Converter<string, GUIContent>(delegate (string input)
+                                { return new GUIContent(input); })));
+                                act.clipName = s.stateMachine.clipNames[act.clipIndex];
+                            } catch { }
                             s.actions[a].isPlayAudio = EditorGUILayout.Toggle(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[26], "isPlayAudio"), s.actions[a].isPlayAudio);
                             if (s.actions[a].isPlayAudio)
                             {
                                 act.audioModel = (AudioMode)EditorGUILayout.Popup(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[27], "audioModel"), (int)act.audioModel,
-                                    new GUIContent[]{ new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[28],"EnterPlayAudio") ,
-                                        new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[29],"AnimEventPlayAudio") ,
-                                        new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[30],"ExitPlayAudio") }
-                                    );
-                                EditorGUILayout.PropertyField(serializedObject.FindProperty("actions").GetArrayElementAtIndex(a).FindPropertyRelative("audioClips"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[31], "actions"), true);
+                                new GUIContent[]{ new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[28],"EnterPlayAudio") ,
+                                    new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[29],"AnimEventPlayAudio") ,
+                                    new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[30],"ExitPlayAudio") }
+                                );
+                                EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("audioClips"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[31], "audioClips"), true);
                             }
-                            act.animTime = EditorGUILayout.FloatField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[32], "animTime"), act.animTime);
-                            act.animTimeMax = EditorGUILayout.FloatField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[33], "animTimeMax"), act.animTimeMax);
-                            act.animEventTime = EditorGUILayout.FloatField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[34], "animEventTime"), act.animEventTime);
-
-                            act.effectSpwan = EditorGUILayout.ObjectField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[35], "effectSpwan"), act.effectSpwan, typeof(Object), true);
+                            EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("animTime"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[32], "animTime"));
+                            EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("animTimeMax"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[33], "animTimeMax"));
+                            EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("animEventTime"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[34], "animEventTime"));
+                            EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("effectSpwan"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[35], "effectSpwan"));
                             act.activeMode = (ActiveMode)EditorGUILayout.Popup(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[36], "activeModel"), (int)act.activeMode, new GUIContent[]{
                                 new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[37],"Instantiate") ,
                                 new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[38],"SetActive") }
-                                );
+                            );
                             if (act.activeMode == ActiveMode.SetActive)
-                            {
-                                EditorGUILayout.PropertyField(serializedObject.FindProperty("actions").GetArrayElementAtIndex(a).FindPropertyRelative("activeObjs"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[39], "activeObjs"), true);
-                            }
+                                EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("activeObjs"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[39], "activeObjs"), true);
                             act.spwanmode = (SpwanMode)EditorGUILayout.Popup(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[40], "spwanmode"), (int)act.spwanmode, new GUIContent[]{
                                 new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[41],"TransformPoint") ,
                                 new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[42],"SetParent") ,
                                 new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[43],"localPosition") }
                             );
                             if (act.spwanmode != SpwanMode.localPosition)
-                            {
                                 act.parent = EditorGUILayout.ObjectField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[44], "parent"), act.parent, typeof(Transform), true) as Transform;
-                            }
-                            act.effectPostion = EditorGUILayout.Vector3Field(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[45], "effectPostion"), act.effectPostion);
-                            act.spwanTime = EditorGUILayout.FloatField(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[46], "spwanTime"), act.spwanTime);
-
+                            EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("effectPostion"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[45], "effectPostion"));
+                            EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("spwanTime"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[46], "spwanTime"));
                             for (int i = 0; i < act.behaviours.Count; ++i)
                             {
-                                if (act.behaviours[i] == null)
-                                {
-                                    act.behaviours.RemoveAt(i);
-                                    continue;
-                                }
                                 EditorGUILayout.BeginHorizontal();
                                 Rect rect = EditorGUILayout.GetControlRect();
                                 act.behaviours[i].show = EditorGUI.Foldout(new Rect(rect.x, rect.y, 50, rect.height), act.behaviours[i].show, GUIContent.none);
@@ -287,7 +230,6 @@ namespace GameDesigner
                                 if (GUI.Button(new Rect(rect.x + rect.width - 15, rect.y, rect.width, rect.height), GUIContent.none, GUI.skin.GetStyle("ToggleMixed")))
                                 {
                                     act.behaviours[act.behaviourMenuIndex].OnDestroyComponent();
-                                    DestroyImmediate(act.behaviours[i], true);
                                     act.behaviours.RemoveAt(i);
                                     continue;
                                 }
@@ -297,7 +239,6 @@ namespace GameDesigner
                                     menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[47]), false, delegate ()
                                     {
                                         act.behaviours[act.behaviourMenuIndex].OnDestroyComponent();
-                                        DestroyImmediate(act.behaviours[act.behaviourMenuIndex], true);
                                         act.behaviours.RemoveAt(act.behaviourMenuIndex);
                                         return;
                                     });
@@ -305,31 +246,25 @@ namespace GameDesigner
                                     {
                                         StateSystem.CopyComponent = act.behaviours[act.behaviourMenuIndex];
                                     });
-                                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[49]), StateSystem.CopyComponent ? true : false, delegate ()
+                                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[49]), StateSystem.CopyComponent != null ? true : false, delegate ()
                                     {
-                                        if (StateSystem.CopyComponent)
+                                        if (StateSystem.CopyComponent is ActionBehaviour behaviour)
                                         {
-                                            if (StateSystem.CopyComponent.GetType().BaseType == typeof(ActionBehaviour))
-                                            {
-                                                ActionBehaviour ab = (ActionBehaviour)s.gameObject.AddComponent(StateSystem.CopyComponent.GetType());
-                                                act.behaviours.Add(ab);
-                                                SystemType.SetFieldValue(ab, StateSystem.CopyComponent);
-                                            }
+                                            ActionBehaviour ab = (ActionBehaviour)Net.Clone.DeepCopy(behaviour);
+                                            act.behaviours.Add(ab);
                                         }
                                     });
-                                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[50]), StateSystem.CopyComponent ? true : false, delegate ()
+                                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[50]), StateSystem.CopyComponent!=null ? true : false, delegate ()
                                     {
-                                        if (StateSystem.CopyComponent)
+                                        if (StateSystem.CopyComponent is ActionBehaviour behaviour)
                                         {
-                                            if (StateSystem.CopyComponent.GetType().FullName == act.behaviours[act.behaviourMenuIndex].GetType().FullName)
-                                            {
-                                                SystemType.SetFieldValue(act.behaviours[act.behaviourMenuIndex], StateSystem.CopyComponent);
-                                            }
+                                            if (behaviour.name == act.behaviours[act.behaviourMenuIndex].name)
+                                                act.behaviours[act.behaviourMenuIndex] = (ActionBehaviour)Net.Clone.DeepCopy(StateSystem.CopyComponent);
                                         }
                                     });
                                     menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[78]), false, delegate ()
                                     {
-                                        string scriptName = act.behaviours[act.behaviourMenuIndex].GetType().Name;
+                                        string scriptName = act.behaviours[act.behaviourMenuIndex].name;
                                         string[] filePath = Directory.GetFiles(Application.dataPath, scriptName + ".cs", SearchOption.AllDirectories);
                                         if (filePath.Length > 0)
                                         {
@@ -350,32 +285,19 @@ namespace GameDesigner
                                 if (act.behaviours[i].show)
                                 {
                                     EditorGUI.indentLevel = 4;
-                                    EditorGUILayout.ObjectField("Script", act.behaviours[i], typeof(StateAction), true);
-                                    SerializedObject actSerializedObject = new SerializedObject(act.behaviours[i]);
-                                    actSerializedObject.Update();
                                     if (!act.behaviours[i].OnInspectorGUI(s))
-                                    {
-                                        foreach (FieldInfo f in act.behaviours[i].GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
-                                        {
-                                            if (act.behaviours[i].GetType() == f.DeclaringType & !f.IsStatic & f.FieldType.FullName != "System.Object")
-                                                try { EditorGUILayout.PropertyField(actSerializedObject.FindProperty(f.Name), true); } catch { Debug.Log(f.Name + "  " + f.FieldType.FullName); }
-                                        }
-                                    }
-                                    actSerializedObject.ApplyModifiedProperties();
+                                        foreach (var metadata in act.behaviours[i].metadatas)
+                                            PropertyField(metadata);
                                     GUILayout.Space(4);
                                     GUILayout.Box("", BlueprintSetting.Instance.HorSpaceStyle, GUILayout.Height(1), GUILayout.ExpandWidth(true));
                                     GUILayout.Space(4);
                                     EditorGUI.indentLevel = 3;
                                 }
                             }
-
                             Rect r = EditorGUILayout.GetControlRect();
                             Rect rr = new Rect(new Vector2(r.x + (r.size.x / 4f), r.y), new Vector2(r.size.x / 2f, 20));
                             if (GUI.Button(rr, BlueprintGUILayout.Instance.LANGUAGE[51]))
-                            {
                                 act.findBehaviours = true;
-                            }
-
                             if (act.findBehaviours)
                             {
                                 EditorGUILayout.Space();
@@ -386,13 +308,17 @@ namespace GameDesigner
                                     {
                                         if (GUILayout.Button(type.Name))
                                         {
-                                            ActionBehaviour stb = (ActionBehaviour)s.gameObject.AddComponent(type);
+                                            ActionBehaviour stb = (ActionBehaviour)Activator.CreateInstance(type);
+                                            stb.InitMetadatas(act.stateMachine);
+                                            stb.ID = s.ID;
                                             act.behaviours.Add(stb);
                                             act.findBehaviours = false;
                                         }
                                         if (s.compiling & type.Name == act.createScriptName)
                                         {
-                                            ActionBehaviour stb = (ActionBehaviour)s.gameObject.AddComponent(type);
+                                            ActionBehaviour stb = (ActionBehaviour)Activator.CreateInstance(type);
+                                            stb.InitMetadatas(sm.stateMachine);
+                                            stb.ID = s.ID;
                                             act.behaviours.Add(stb);
                                             act.findBehaviours = false;
                                             s.compiling = false;
@@ -414,25 +340,20 @@ namespace GameDesigner
                                     s.compiling = true;
                                 }
                                 if (GUILayout.Button(BlueprintGUILayout.Instance.LANGUAGE[54]))
-                                {
                                     act.findBehaviours = false;
-                                }
                             }
                             EditorGUILayout.Space();
                         }
                         EditorGUI.indentLevel = 2;
                     }
                 }
-
                 BlueprintGUILayout.EndStyleVertical();
             }
-
             EditorGUILayout.Space();
             DrawBehaviours(s);
             EditorGUILayout.Space();
-
-            serializedObject.ApplyModifiedProperties();
             EditorGUILayout.EndVertical();
+            serializedObject.ApplyModifiedProperties();
         }
 
         /// <summary>
@@ -443,67 +364,52 @@ namespace GameDesigner
             GUILayout.Space(10);
             GUILayout.Box("", BlueprintSetting.Instance.HorSpaceStyle, GUILayout.Height(1), GUILayout.ExpandWidth(true));
             GUILayout.Space(5);
-
             for (int i = 0; i < s.behaviours.Count; ++i)
             {
-                if (s.behaviours[i] == null)
-                {
-                    s.behaviours.RemoveAt(i);
-                    continue;
-                }
                 EditorGUI.indentLevel = 1;
                 EditorGUILayout.BeginHorizontal();
                 Rect rect = EditorGUILayout.GetControlRect();
                 s.behaviours[i].show = EditorGUI.Foldout(new Rect(rect.x, rect.y, 20, rect.height), s.behaviours[i].show, GUIContent.none);
                 s.behaviours[i].Active = EditorGUI.ToggleLeft(new Rect(rect.x + 5, rect.y, 30, rect.height), GUIContent.none, s.behaviours[i].Active);
-                EditorGUI.LabelField(new Rect(rect.x + 20, rect.y, rect.width - 15, rect.height), s.behaviours[i].GetType().Name, GUI.skin.GetStyle("BoldLabel"));
+                EditorGUI.LabelField(new Rect(rect.x + 20, rect.y, rect.width - 15, rect.height), s.behaviours[i].name, GUI.skin.GetStyle("BoldLabel"));
                 if (GUI.Button(new Rect(rect.x + rect.width - 15, rect.y, rect.width, rect.height), GUIContent.none, GUI.skin.GetStyle("ToggleMixed")))
                 {
                     s.behaviours[s.behaviourMenuIndex].OnDestroyComponent();
-                    DestroyImmediate(s.behaviours[i], true);
                     s.behaviours.RemoveAt(i);
                     continue;
                 }
                 if (rect.Contains(Event.current.mousePosition) & Event.current.button == 1)
                 {
                     GenericMenu menu = new GenericMenu();
-                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[55]), false, (GenericMenu.MenuFunction)delegate ()
+                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[55]), false, delegate ()
                     {
                         s.behaviours[s.behaviourMenuIndex].OnDestroyComponent();
-                        DestroyImmediate(s.behaviours[s.behaviourMenuIndex], true);
                         s.behaviours.RemoveAt(s.behaviourMenuIndex);
                         return;
                     });
-                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[56]), false, (GenericMenu.MenuFunction)delegate ()
+                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[56]), false, delegate ()
                     {
                         StateSystem.CopyComponent = s.behaviours[s.behaviourMenuIndex];
                     });
-                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[57]), StateSystem.CopyComponent ? true : false, (GenericMenu.MenuFunction)delegate ()
+                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[57]), StateSystem.CopyComponent!=null ? true : false, delegate ()
                     {
-                        if (StateSystem.CopyComponent)
+                        if (StateSystem.CopyComponent is StateBehaviour behaviour)
                         {
-                            if (StateSystem.CopyComponent.GetType().BaseType == typeof(StateBehaviour))
-                            {
-                                StateBehaviour ab = (StateBehaviour)s.gameObject.AddComponent(StateSystem.CopyComponent.GetType());
-                                ab.transform.SetParent(s.transform);
-                                s.behaviours.Add(ab);
-                                SystemType.SetFieldValue(ab, StateSystem.CopyComponent);
-                            }
+                            StateBehaviour ab = (StateBehaviour)Net.Clone.DeepCopy(behaviour);
+                            s.behaviours.Add(ab);
                         }
                     });
-                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[58]), StateSystem.CopyComponent ? true : false, delegate ()
+                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[58]), StateSystem.CopyComponent!=null ? true : false, delegate ()
                     {
-                        if (StateSystem.CopyComponent)
+                        if (StateSystem.CopyComponent is StateBehaviour behaviour)
                         {
-                            if (StateSystem.CopyComponent.GetType().FullName == s.behaviours[s.behaviourMenuIndex].GetType().FullName)
-                            {
-                                SystemType.SetFieldValue(s.behaviours[s.behaviourMenuIndex], StateSystem.CopyComponent);
-                            }
+                            if (behaviour.name == s.behaviours[s.behaviourMenuIndex].name)
+                                s.behaviours[s.behaviourMenuIndex] = (StateBehaviour)Net.Clone.DeepCopy(behaviour);
                         }
                     });
                     menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[79]), false, delegate ()
                     {
-                        string scriptName = s.behaviours[s.behaviourMenuIndex].GetType().Name;
+                        string scriptName = s.behaviours[s.behaviourMenuIndex].name;
                         string[] filePath = Directory.GetFiles(Application.dataPath, scriptName + ".cs", SearchOption.AllDirectories);
                         if (filePath.Length > 0)
                         {
@@ -523,62 +429,15 @@ namespace GameDesigner
                 EditorGUILayout.EndHorizontal();
                 if (s.behaviours[i].show)
                 {
-                    EditorGUILayout.ObjectField("Script", s.behaviours[i], typeof(StateBehaviour), true);
-                    SerializedObject stateSerializedObject = new SerializedObject(s.behaviours[i]);
-                    stateSerializedObject.Update();
+                    EditorGUI.indentLevel = 2;
                     if (!s.behaviours[i].OnInspectorGUI(s))
                     {
-                        foreach (FieldInfo f in s.behaviours[i].GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
+                        foreach (var metadata in s.behaviours[i].metadatas)
                         {
-                            if (s.behaviours[i].GetType() == f.DeclaringType & !f.IsStatic & f.FieldType.FullName != "System.Object")
-                                try { EditorGUILayout.PropertyField(stateSerializedObject.FindProperty(f.Name), true); } catch { Debug.Log(f.Name + "  " + f.FieldType.FullName); }
+                            PropertyField(metadata);
                         }
-                        /*var fields = s.behaviours[i].behaviour.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-                        Net.Loop.For(fields.Length, ii =>
-                        {
-                            var f = fields[ii];
-                            if (s.behaviours[i].behaviour.GetType() == f.DeclaringType & !f.IsStatic & f.FieldType.FullName != "System.Object")
-                            {
-                                try
-                                {
-                                    if (f.FieldType.IsArray)
-                                    {
-                                        var itemType = SystemType.GetType(f.FieldType.FullName.Replace("[]", ""));
-                                        var drawList = typeof(StateManagerEditor).GetMethod("DrawArray", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
-                                        MethodInfo curMethod = drawList.MakeGenericMethod(itemType);
-                                        var obj = curMethod.Invoke(null, new object[] { "", f.Name, rect, f.GetValue(s.behaviours[i].behaviour) });
-                                        f.SetValue(s.behaviours[i].behaviour, obj);
-                                    }
-                                    else if (f.FieldType.IsGenericType)
-                                    {
-                                        var itemType = f.FieldType.GetGenericArguments()[0];
-                                        var drawList = typeof(StateManagerEditor).GetMethod("DrawList", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
-                                        MethodInfo curMethod = drawList.MakeGenericMethod(itemType);
-                                        var obj = curMethod.Invoke(null, new object[] { "", f.Name, rect, f.GetValue(s.behaviours[i].behaviour) });
-                                        f.SetValue(s.behaviours[i].behaviour, obj);
-                                    }
-                                    else if (f.FieldType.GetCustomAttribute<SerializableAttribute>() != null)
-                                    {
-                                        var itemType = f.FieldType;
-                                        var drawList = typeof(StateManagerEditor).GetMethod("DrawEntity", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
-                                        MethodInfo curMethod = drawList.MakeGenericMethod(itemType);
-                                        var obj = curMethod.Invoke(null, new object[] { "", f.Name, rect, f.GetValue(s.behaviours[i].behaviour) });
-                                        f.SetValue(s.behaviours[i].behaviour, obj);
-                                    }
-                                    else if (f.FieldType.IsValueType | f.FieldType.IsEnum | f.FieldType == typeof(string) | f.FieldType.IsSubclassOf(typeof(Object)))
-                                    {
-                                        var obj = BlueprintGUILayout.PropertyField(f.Name, f.GetValue(s.behaviours[i].behaviour), f.FieldType);
-                                        f.SetValue(s.behaviours[i].behaviour, obj);
-                                    }
-                                }
-                                catch
-                                {
-                                    Debug.Log(f.Name + "  " + f.FieldType.FullName);
-                                }
-                            }
-                        });*/
                     }
-                    stateSerializedObject.ApplyModifiedProperties();
+                    EditorGUI.indentLevel = 1;
                     GUILayout.Space(4);
                     GUILayout.Box("", BlueprintSetting.Instance.HorSpaceStyle, GUILayout.Height(1), GUILayout.ExpandWidth(true));
                 }
@@ -601,13 +460,17 @@ namespace GameDesigner
                     {
                         if (GUILayout.Button(type.Name))
                         {
-                            StateBehaviour stb = (StateBehaviour)s.gameObject.AddComponent(type);
+                            StateBehaviour stb = (StateBehaviour)Activator.CreateInstance(type);
+                            stb.InitMetadatas(s.stateMachine);
+                            stb.ID = s.ID;
                             s.behaviours.Add(stb);
                             s.findBehaviours = false;
                         }
                         if (s.compiling & type.Name == s.createScriptName)
                         {
-                            StateBehaviour stb = (StateBehaviour)s.gameObject.AddComponent(type);
+                            StateBehaviour stb = (StateBehaviour)Activator.CreateInstance(type);
+                            stb.InitMetadatas(s.stateMachine);
+                            stb.ID = s.ID;
                             s.behaviours.Add(stb);
                             s.findBehaviours = false;
                             s.compiling = false;
@@ -635,130 +498,116 @@ namespace GameDesigner
             }
         }
 
-        public static T[] DrawArray<T>(string space, string name, Rect rect, T[] array)
+        private static void PropertyField(Metadata metadata)
         {
-            float x = rect.x;
-            rect = EditorGUILayout.GetControlRect();
-            EditorGUI.Foldout(new Rect(x, rect.y, 20, rect.height), true, name);
-            if (array == null)
-                array = new T[0];
-            var len = EditorGUILayout.IntField(space + "   Size", array.Length);
-            if (len != array.Length)
+            if (metadata.type == TypeCode.Byte)
             {
-                List<T> list = new List<T>();
-                Loop.For(len, i =>
-                {
-                    if (i < array.Length)
-                        list.Add(array[i]);
-                    else if (array.Length > 0)
-                        list.Add(array[array.Length - 1]);
-                    else
-                    {
-                        T t = default;
-                        try
-                        {
-                            t = (T)Activator.CreateInstance(typeof(T));
-                        }
-                        catch (Exception) { }
-                        list.Add(t);
-                    }
-                });
-                array = list.ToArray();
+                metadata.value = (byte)EditorGUILayout.IntField(metadata.name, (byte)metadata.value);
             }
-            for (int i = 0; i < array.Length; i++)
+            else if (metadata.type == TypeCode.SByte)
             {
-                array[i] = (T)BlueprintGUILayout.PropertyField(space + "   " + i, array[i], typeof(T));
+                metadata.value = (sbyte)EditorGUILayout.IntField(metadata.name, (sbyte)metadata.value);
+                
             }
-            return array;
-        }
-
-        public static List<T> DrawList<T>(string space, string name, Rect rect, List<T> list)
-        {
-            float x = rect.x;
-            rect = EditorGUILayout.GetControlRect();
-            EditorGUI.Foldout(new Rect(x, rect.y, 20, rect.height), true, name);
-            if (list == null)
-                list = new List<T>();
-            var len = EditorGUILayout.IntField(space + "   Size", list.Count);
-            if (len != list.Count)
+            else if(metadata.type == TypeCode.Boolean)
             {
-                List<T> list1 = new List<T>();
-                Loop.For(len, i =>
-                {
-                    if (i < list.Count)
-                        list1.Add(list[i]);
-                    else if (list.Count > 0)
-                        list1.Add(list[list.Count - 1]);
-                    else
-                    {
-                        T t = default;
-                        try
-                        {
-                            t = (T)Activator.CreateInstance(typeof(T));
-                        }
-                        catch (Exception) { }
-                        list1.Add(t);
-                    }
-                });
-                list = list1;
+                metadata.value = EditorGUILayout.Toggle(metadata.name, (bool)metadata.value);
+                
             }
-            for (int i = 0; i < list.Count; i++)
+            else if (metadata.type == TypeCode.Int16)
             {
-                list[i] = (T)BlueprintGUILayout.PropertyField(space + "   " + i, list[i], typeof(T));
+                metadata.value = (short)EditorGUILayout.IntField(metadata.name, (short)metadata.value);
+                
             }
-            return list;
-        }
-
-        public static T DrawEntity<T>(string space, string name, Rect rect, T entity)
-        {
-            float x = rect.x;
-            rect = EditorGUILayout.GetControlRect();
-            rect.position = new Vector2(x, rect.y);
-            EditorGUI.Foldout(rect, true, name);
-            if (entity == null)
-                return default;
-            foreach (FieldInfo f in entity.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
+            else if (metadata.type == TypeCode.UInt16)
             {
-                if (entity.GetType() == f.DeclaringType & !f.IsStatic & f.FieldType.FullName != "System.Object")
-                {
-                    try
-                    {
-                        if (f.FieldType.IsArray)
-                        {
-                            var itemType = SystemType.GetType(f.FieldType.FullName.Replace("[]", ""));
-                            var drawList = typeof(StateManagerEditor).GetMethod("DrawArray", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
-                            MethodInfo curMethod = drawList.MakeGenericMethod(itemType);
-                            var obj = curMethod.Invoke(null, new object[] { space + "   ", f.Name, new Rect(rect.x + 20, rect.y + 20, rect.width, rect.height), f.GetValue(entity) });
-                            f.SetValue(entity, obj);
-                        }
-                        else if (f.FieldType.IsGenericType)
-                        {
-                            var itemType = f.FieldType.GetGenericArguments()[0];
-                            var drawList = typeof(StateManagerEditor).GetMethod("DrawList", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
-                            MethodInfo curMethod = drawList.MakeGenericMethod(itemType);
-                            var obj = curMethod.Invoke(null, new object[] { space + "   ", f.Name, new Rect(rect.x + 20, rect.y + 20, rect.width, rect.height), f.GetValue(entity) });
-                            f.SetValue(entity, obj);
-                        }
-                        else if (f.FieldType.GetCustomAttribute<SerializableAttribute>() != null)
-                        {
-                            var itemType = f.FieldType;
-                            var drawList = typeof(StateManagerEditor).GetMethod("DrawEntity", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
-                            MethodInfo curMethod = drawList.MakeGenericMethod(itemType);
-                            var obj = curMethod.Invoke(null, new object[] { space + "   ", f.Name, new Rect(rect.x + 20, rect.y + 20, rect.width, rect.height), f.GetValue(entity) });
-                            f.SetValue(entity, obj);
-                        }
-                        else if (f.FieldType.IsValueType | f.FieldType.IsEnum | f.FieldType == typeof(string) | f.FieldType.IsSubclassOf(typeof(Object)))
-                        {
-                            f.SetValue(entity, BlueprintGUILayout.PropertyField(space + "   " + f.Name, f.GetValue(entity), f.FieldType));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Log(f.Name + "  " + ex);
-                    }
-                }
+                metadata.value = (ushort)EditorGUILayout.IntField(metadata.name, (ushort)metadata.value);
+                
             }
-            return entity;
+            else if (metadata.type == TypeCode.Char)
+            {
+                metadata.value = EditorGUILayout.TextField(metadata.name, metadata.value.ToString()).ToCharArray();
+            }
+            else if (metadata.type == TypeCode.Int32)
+            {
+                metadata.value = EditorGUILayout.IntField(metadata.name, (int)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.UInt32)
+            {
+                metadata.value = (uint)EditorGUILayout.IntField(metadata.name, (int)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Single)
+            {
+                metadata.value = EditorGUILayout.FloatField(metadata.name, (float)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Int64)
+            {
+                metadata.value = EditorGUILayout.LongField(metadata.name, (long)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.UInt64)
+            {
+                metadata.value = (ulong)EditorGUILayout.LongField(metadata.name, (long)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Double)
+            {
+                metadata.value = EditorGUILayout.DoubleField(metadata.name, (double)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.String)
+            {
+                metadata.value = EditorGUILayout.TextField(metadata.name, metadata.value.ToString());
+                
+            }
+            else if (metadata.type == TypeCode.Vector2)
+            {
+                metadata.value = EditorGUILayout.Vector2Field(metadata.name, (Vector2)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Vector3)
+            {
+                metadata.value = EditorGUILayout.Vector3Field(metadata.name, (Vector3)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Vector4)
+            {
+                metadata.value = EditorGUILayout.Vector4Field(metadata.name, (Vector4)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Quaternion)
+            {
+                var value = EditorGUILayout.Vector4Field(metadata.name, (Vector4)metadata.value);
+                Quaternion quaternion = new Quaternion(value.x, value.y, value.z, value.w);
+                metadata.value = quaternion;
+            }
+            else if (metadata.type == TypeCode.Rect)
+            {
+                metadata.value = EditorGUILayout.RectField(metadata.name, (Rect)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Char)
+            {
+                metadata.value = EditorGUILayout.ColorField(metadata.name, (Color)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Color32)
+            {
+                metadata.value = EditorGUILayout.ColorField(metadata.name, (Color32)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.AnimationCurve)
+            {
+                metadata.value = EditorGUILayout.CurveField(metadata.name, (AnimationCurve)metadata.value);
+                
+            }
+            else if (metadata.type == TypeCode.Object)
+            {
+                metadata.value = EditorGUILayout.ObjectField(metadata.name, (Object)metadata.value, metadata.Type, true);
+            }
         }
 
         /// <summary>
@@ -812,7 +661,6 @@ namespace GameDesigner
                 if (GUI.Button(new Rect(rect.x + rect.width - 15, rect.y, rect.width, rect.height), GUIContent.none, GUI.skin.GetStyle("ToggleMixed")))
                 {
                     tr.behaviours[tr.behaviourMenuIndex].OnDestroyComponent();
-                    DestroyImmediate(tr.behaviours[i], true);
                     tr.behaviours.RemoveAt(i);
                     continue;
                 }
@@ -822,7 +670,6 @@ namespace GameDesigner
                     menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[69]), false, delegate ()
                     {
                         tr.behaviours[tr.behaviourMenuIndex].OnDestroyComponent();
-                        DestroyImmediate(tr.behaviours[tr.behaviourMenuIndex], true);
                         tr.behaviours.RemoveAt(tr.behaviourMenuIndex);
                         return;
                     });
@@ -830,31 +677,23 @@ namespace GameDesigner
                     {
                         StateSystem.CopyComponent = tr.behaviours[tr.behaviourMenuIndex];
                     });
-                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[71]), StateSystem.CopyComponent ? true : false, delegate ()
+                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[71]), StateSystem.CopyComponent!=null ? true : false, () =>
                     {
-                        if (StateSystem.CopyComponent)
+                        if (StateSystem.CopyComponent is TransitionBehaviour behaviour)
                         {
-                            if (StateSystem.CopyComponent.GetType().BaseType == typeof(TransitionBehaviour))
-                            {
-                                TransitionBehaviour ab = (TransitionBehaviour)tr.gameObject.AddComponent(StateSystem.CopyComponent.GetType());
-                                tr.behaviours.Add(ab);
-                                SystemType.SetFieldValue(ab, StateSystem.CopyComponent);
-                            }
+                            TransitionBehaviour ab = (TransitionBehaviour)Net.Clone.DeepCopy(behaviour);
+                            tr.behaviours.Add(ab);
                         }
                     });
-                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[72]), StateSystem.CopyComponent ? true : false, delegate ()
+                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[72]), StateSystem.CopyComponent!=null ? true : false, ()=>
                     {
-                        if (StateSystem.CopyComponent)
-                        {
-                            if (StateSystem.CopyComponent.GetType().FullName == tr.behaviours[tr.behaviourMenuIndex].GetType().FullName)
-                            {
-                                SystemType.SetFieldValue(tr.behaviours[tr.behaviourMenuIndex], StateSystem.CopyComponent);
-                            }
-                        }
+                        if (StateSystem.CopyComponent is TransitionBehaviour behaviour)
+                            if (behaviour.name == tr.behaviours[tr.behaviourMenuIndex].name)
+                                tr.behaviours[tr.behaviourMenuIndex] = (TransitionBehaviour)Net.Clone.DeepCopy(behaviour);
                     });
-                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[80]), false, delegate ()
+                    menu.AddItem(new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[80]), false, () =>
                     {
-                        string scriptName = tr.behaviours[tr.behaviourMenuIndex].GetType().Name;
+                        string scriptName = tr.behaviours[tr.behaviourMenuIndex].name;
                         string[] filePath = Directory.GetFiles(Application.dataPath, scriptName + ".cs", SearchOption.AllDirectories);
                         if (filePath.Length > 0)
                         {
@@ -874,21 +713,17 @@ namespace GameDesigner
                 EditorGUILayout.EndHorizontal();
                 if (tr.behaviours[i].show)
                 {
-                    EditorGUILayout.ObjectField("Script", tr.behaviours[i], typeof(TransitionBehaviour), true);
-                    SerializedObject trSerialozedObject = new SerializedObject(tr.behaviours[i]);
-                    trSerialozedObject.Update();
+                    EditorGUI.indentLevel = 2;
                     if (!tr.behaviours[i].OnInspectorGUI(tr.currState))
                     {
-                        foreach (FieldInfo f in tr.behaviours[i].GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
+                        foreach (var metadata in tr.behaviours[i].metadatas)
                         {
-                            if (tr.behaviours[i].GetType() == f.DeclaringType & !f.IsStatic & f.FieldType.FullName != "System.Object")
-                                try { EditorGUILayout.PropertyField(trSerialozedObject.FindProperty(f.Name), true); } catch { Debug.Log(f.Name + "  " + f.FieldType.FullName); }
+                            PropertyField(metadata);
                         }
                     }
-                    trSerialozedObject.ApplyModifiedProperties();
+                    EditorGUI.indentLevel = 1;
                     GUILayout.Space(10);
                     GUILayout.Box("", BlueprintSetting.Instance.HorSpaceStyle, GUILayout.Height(1), GUILayout.ExpandWidth(true));
-
                 }
             }
 
@@ -909,13 +744,15 @@ namespace GameDesigner
                 {
                     if (GUILayout.Button(type.Name))
                     {
-                        TransitionBehaviour stb = (TransitionBehaviour)tr.gameObject.AddComponent(type);
+                        TransitionBehaviour stb = (TransitionBehaviour)Activator.CreateInstance(type);
+                        stb.InitMetadatas(tr.stateMachine);
                         tr.behaviours.Add(stb);
                         tr.findBehaviours = false;
                     }
                     if (tr.compiling & type.Name == tr.createScriptName)
                     {
-                        TransitionBehaviour stb = (TransitionBehaviour)tr.gameObject.AddComponent(type);
+                        TransitionBehaviour stb = (TransitionBehaviour)Activator.CreateInstance(type);
+                        stb.InitMetadatas(tr.stateMachine);
                         tr.behaviours.Add(stb);
                         tr.findBehaviours = false;
                         tr.compiling = false;
@@ -953,6 +790,43 @@ namespace GameDesigner
                 str += "  " + p.parameterTypeName + "  " + p.name + "  ";
             }
             return str + ")";
+        }
+
+        [UnityEditor.Callbacks.DidReloadScripts(0)]
+        static void OnScriptReload()
+        {
+            if (stateManager == null)
+                return;
+            foreach (var s in stateManager.stateMachine.states) 
+            {
+                for (int i = 0; i < s.behaviours.Count; i++)
+                {
+                    var type = SystemType.GetType(s.behaviours[i].name);
+                    var metadatas = new List<Metadata>(s.behaviours[i].metadatas);
+                    s.behaviours[i] = (StateBehaviour)Activator.CreateInstance(type);
+                    s.behaviours[i].Reload(type, stateManager.stateMachine, metadatas);
+                }
+                foreach (var t in s.transitions)
+                {
+                    for (int i = 0; i < t.behaviours.Count; i++)
+                    {
+                        var type = SystemType.GetType(t.behaviours[i].name);
+                        var metadatas = new List<Metadata>(t.behaviours[i].metadatas);
+                        t.behaviours[i] = (TransitionBehaviour)Activator.CreateInstance(type);
+                        t.behaviours[i].Reload(type, stateManager.stateMachine, metadatas);
+                    }
+                }
+                foreach (var a in s.actions)
+                {
+                    for (int i = 0; i < a.behaviours.Count; i++)
+                    {
+                        var type = SystemType.GetType(a.behaviours[i].name);
+                        var metadatas = new List<Metadata>(a.behaviours[i].metadatas);
+                        a.behaviours[i] = (ActionBehaviour)Activator.CreateInstance(type);
+                        a.behaviours[i].Reload(type, stateManager.stateMachine, metadatas);
+                    }
+                }
+            }
         }
     }
 

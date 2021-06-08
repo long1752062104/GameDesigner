@@ -55,9 +55,6 @@ public class PluginSettings : EditorWindow
                 BlueprintSetting.Instance.LANGUAGE = File.ReadAllLines(englishPath);
             language = BlueprintSetting.Instance.language;
         }
-        BlueprintSetting.Instance.selectObjMode = (SelectObjMode)EditorGUILayout.EnumPopup(BlueprintSetting.Instance.LANGUAGE[81], BlueprintSetting.Instance.selectObjMode);
-        BlueprintSetting.Instance.StateMachineHideFlags = (HideFlags)EditorGUILayout.EnumPopup(BlueprintSetting.Instance.LANGUAGE[112], BlueprintSetting.Instance.StateMachineHideFlags);
-        BlueprintSetting.Instance.StateHideFlags = (HideFlags)EditorGUILayout.EnumPopup(BlueprintSetting.Instance.LANGUAGE[82], BlueprintSetting.Instance.StateHideFlags);
         BlueprintSetting.Instance.language = (PluginLanguage)EditorGUILayout.EnumPopup(BlueprintSetting.Instance.LANGUAGE[83], BlueprintSetting.Instance.language);
     }
 }

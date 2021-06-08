@@ -56,6 +56,11 @@ public class Fast2BuildTools : EditorWindow
         GUILayout.EndHorizontal();
         if (GUILayout.Button("生成序列化代码", GUILayout.Height(30)))
         {
+            if (string.IsNullOrEmpty(savePath)) 
+            {
+                EditorUtility.DisplayDialog("提示", "请选择生成脚本路径!", "确定");
+                return;
+            }
             var assembly = Assembly.GetAssembly(typeof(Net.Binding.BindingEntry));
             Debug.Log(assembly);
             var bindType = assembly.GetType(bindTypeName);

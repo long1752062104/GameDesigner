@@ -188,7 +188,7 @@ namespace GameDesigner
             {
                 Method info = new Method(ms.Name, ms.ReturnType.FullName, type.FullName);
                 if (ms.IsGenericMethod)
-                { //T无参方法
+                {   //T无参方法
                     foreach (System.Type t in ms.GetGenericArguments())
                     {
                         info.genericArguments.Add(new Parameter(t.Name, "System.Type", typeof(System.Type), 0));

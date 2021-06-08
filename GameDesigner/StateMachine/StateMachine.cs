@@ -4,29 +4,6 @@ using UnityEngine;
 namespace GameDesigner
 {
     /// <summary>
-    /// 编辑器选择状态物体模式
-    /// </summary>
-	public enum SelectObjMode
-    {
-        /// <summary>
-        /// 不进行如何物体选择
-        /// </summary>
-		Null,
-        /// <summary>
-        /// 选择为状态管理物体
-        /// </summary>
-		SelectionStateManager,
-        /// <summary>
-        /// 选择为状态机物体
-        /// </summary>
-		SelectionStateMachine,
-        /// <summary>
-        /// 选择为状态物体
-        /// </summary>
-		SelectionStateObject,
-    }
-
-    /// <summary>
     /// 状态机 v2017/12/6
     /// </summary>
     public class StateMachine : MonoBehaviour
@@ -34,11 +11,11 @@ namespace GameDesigner
         /// <summary>
         /// 默认状态ID
         /// </summary>
-		public int defaulStateID = 0;
+		public int defaulID = 0;
         /// <summary>
         /// 当前运行的状态索引
         /// </summary>
-		public int stateIndex = 0;
+		public int stateID = 0;
         /// <summary>
         /// 所有状态
         /// </summary>
@@ -46,15 +23,23 @@ namespace GameDesigner
         /// <summary>
         /// 选中的状态,可以多选
         /// </summary>
-		public List<State> selectStates = new List<State>();
-        /// <summary>
-        /// 选中的连接线,可以多选
-        /// </summary>
-		public List<Transition> selectTransitions = new List<Transition>();
+		public List<int> selectStates = new List<int>();
         /// <summary>
         /// 动画选择模式
         /// </summary>
         public AnimationMode animMode = AnimationMode.Animation;
+        /// <summary>
+        /// 旧版动画组件
+        /// </summary>
+		public new Animation animation = null;
+        /// <summary>
+        /// 新版动画组件
+        /// </summary>
+        public Animator animator = null;
+        /// <summary>
+        /// 动画剪辑
+        /// </summary>
+        public List<string> clipNames = new List<string>();
 
         /// <summary>
         /// 以状态ID取出状态对象
@@ -76,11 +61,11 @@ namespace GameDesigner
         {
             get
             {
-                if (defaulStateID < states.Count)
-                    return states[defaulStateID];
+                if (defaulID < states.Count)
+                    return states[defaulID];
                 return null;
             }
-            set { defaulStateID = value.stateID; }
+            set { defaulID = value.ID; }
         }
 
         /// <summary>
@@ -90,7 +75,7 @@ namespace GameDesigner
         {
             get
             {
-                return states[stateIndex];
+                return states[stateID];
             }
         }
 
@@ -102,35 +87,13 @@ namespace GameDesigner
             get
             {
                 if (selectStates.Count > 0)
-                    return selectStates[0];
+                    return states[selectStates[0]];
                 return null;
             }
             set
             {
-                if (!selectStates.Contains(value) & value != null)
-                {
-                    selectStates.Add(value);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 选择的连接线
-        /// </summary>
-		public Transition selectTransition
-        {
-            get
-            {
-                if (selectTransitions.Count > 0)
-                    return selectTransitions[0];
-                return null;
-            }
-            set
-            {
-                if (selectTransitions.Count > 0)
-                    selectTransitions[0] = value;
-                else
-                    selectTransitions.Add(value);
+                if (!selectStates.Contains(value.ID))
+                    selectStates.Add(value.ID);
             }
         }
 
@@ -144,9 +107,7 @@ namespace GameDesigner
             get
             {
                 if (_stateManager == null)
-                {
                     _stateManager = transform.GetComponentInParent<StateManager>();
-                }
                 return _stateManager;
             }
             set { _stateManager = value; }
@@ -157,11 +118,43 @@ namespace GameDesigner
         /// </summary>
         /// <param name="name">状态机名称</param>
         /// <returns></returns>
-        public static StateMachine CreateStateMachineInstance(string name = "MyStateMachine")
+        public static StateMachine CreateStateMachineInstance(string name = "machine")
         {
             StateMachine stateMachine = new GameObject(name).AddComponent<StateMachine>();
             stateMachine.name = name;
             return stateMachine;
+        }
+
+        public void UpdateStates()
+        {
+            for (int i = 0; i < states.Count; i++)
+            {
+                int id = states[i].ID;
+                foreach (var state1 in states)
+                {
+                    foreach (var transition in state1.transitions)
+                    {
+                        if (transition.currStateID == id)
+                            transition.currStateID = i;
+                        if (transition.nextStateID == id)
+                            transition.nextStateID = i;
+                    }
+                    foreach (var behaviour in state1.behaviours)
+                    {
+                        if (behaviour.ID == id)
+                            behaviour.ID = i;
+                    }
+                    foreach (var action in state1.actions)
+                    {
+                        foreach (var behaviour in action.behaviours)
+                        {
+                            if (behaviour.ID == id)
+                                behaviour.ID = i;
+                        }
+                    }
+                }
+                states[i].ID = i;
+            }
         }
     }
 }

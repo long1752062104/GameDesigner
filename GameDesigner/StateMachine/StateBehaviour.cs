@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 
 namespace GameDesigner
@@ -6,12 +6,13 @@ namespace GameDesigner
     /// <summary>
     /// 状态行为脚本 v2017/12/6 - 2020.6.7
     /// </summary>
-    public abstract class StateBehaviour : IBehaviour
+    [Serializable]
+    public class StateBehaviour : IBehaviour
     {
         /// <summary>
         /// 状态管理器转换组建
         /// </summary>
-        public new Transform transform { get { return stateManager.transform; } }
+        public Transform transform { get { return stateManager.transform; } }
 
         /// <summary>
         /// 当状态进入时
@@ -45,5 +46,30 @@ namespace GameDesigner
         /// </summary>
         /// <param name="state"></param>
         public virtual void OnActionExit(State state) { }
+
+        private StateBehaviour runtimeBehaviour;
+        public StateBehaviour RuntimeBehaviour
+        {
+            get
+            {
+                if (runtimeBehaviour == null)
+                {
+                    var type = SystemType.GetType(name);
+                    runtimeBehaviour = (StateBehaviour)Activator.CreateInstance(type);
+                    runtimeBehaviour.stateMachine = stateMachine;
+                    runtimeBehaviour.Active = Active;
+                    runtimeBehaviour.ID = ID;
+                    runtimeBehaviour.name = name; 
+                    foreach (var metadata in metadatas)
+                    {
+                        var field = type.GetField(metadata.name);
+                        metadata.field = field;
+                        metadata.target = runtimeBehaviour;
+                        field.SetValue(runtimeBehaviour, metadata.Read());
+                    }
+                }
+                return runtimeBehaviour;
+            }
+        }
     }
 }

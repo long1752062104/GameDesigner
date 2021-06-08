@@ -38,7 +38,7 @@ namespace ProtoBuf
             object obj = TryGetUninitializedObjectWithFormatterServices(type);
             if (obj != null) return obj;
 #endif
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE && !(WINRT || PHONE8 || COREFX)
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE && !(WINRT || PHONE8 || COREFX)
             return System.Runtime.Serialization.FormatterServices.GetUninitializedObject(type);
 #else
             throw new NotSupportedException("Constructor-skipping is not supported on this platform");

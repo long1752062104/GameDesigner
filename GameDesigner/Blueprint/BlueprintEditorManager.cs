@@ -8,14 +8,14 @@ namespace GameDesigner
     public class BlueprintEditorManager : GameDesigner.Blueprint
     {
         [HideInInspector]
-        public BlueprintNode _onGUI = null;
-        public BlueprintNode onGUI
+        public Node _onGUI = null;
+        public Node onGUI
         {
             get
             {
                 if (_onGUI == null)
                 {
-                    _onGUI = BlueprintNode.CreateFunctionBody(this, GetType(), "OnGUI", "EditorWindow", "当编辑器GUI");
+                    _onGUI = Node.CreateFunctionBody(this, GetType(), "OnGUI", "EditorWindow", "当编辑器GUI");
                 }
                 return _onGUI;
             }

@@ -7,7 +7,7 @@ namespace GameDesigner
     public class StateBehaviourInspector : Editor
     {
 
-        static public StateBehaviour behaviour;
+        public static StateBehaviour behaviour;
 
         public override void OnInspectorGUI()
         {

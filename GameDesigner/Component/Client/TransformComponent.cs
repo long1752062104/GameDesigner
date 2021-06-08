@@ -1,7 +1,7 @@
-﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Net.Component.Client
 {
-    using Net.Component.MMORPG_Client;
+    using Net.Example;
     using Net.Share;
     using UnityEngine;
 
@@ -26,6 +26,8 @@ namespace Net.Component.Client
         public int identity = -1;//自身id
         internal float sendTime;
         public float interval = 0.5f;
+        internal Net.Vector3 netPosition;
+        internal Net.Quaternion netRotation;
 
         void Start()
         {
@@ -53,8 +55,12 @@ namespace Net.Component.Client
         void Update()
         {
             if (mode == SyncMode.Synchronized)
-                return;
-            if (Time.time > sendTime)
+            {
+                transform.position = Vector3.Lerp(transform.position, netPosition, 0.3f);
+                if(netRotation != Net.Quaternion.identity)
+                    transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, 0.3f);
+            }
+            else if (Time.time > sendTime)
             {
                 if (transform.position != position | transform.rotation != rotation | transform.localScale != localScale) 
                 {
@@ -75,11 +81,8 @@ namespace Net.Component.Client
                 return;
             switch (mode)
             {
-                case SyncMode.Control:
-                    if (!ClientManager.Instance.control)
-                        return;
-                    break;
                 case SyncMode.Synchronized:
+                case SyncMode.SynchronizedAll:
                     return;
             }
             ClientManager.AddOperation(new Operation(Command.Destroy) { index = identity });

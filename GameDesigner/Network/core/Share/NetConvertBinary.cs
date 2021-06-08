@@ -66,6 +66,7 @@
             AddBaseType<DateTime>();
             AddBaseType<decimal>();
             AddBaseType<DBNull>();
+            AddBaseType<Type>();
             //基础序列化数组
             AddBaseType<short[]>();
             AddBaseType<int[]>();
@@ -691,7 +692,7 @@
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="array"></param>
-        private unsafe static void WriteArray(Segment stream, IList array, Type itemType, bool recordType)
+        private unsafe static void WriteArray(Segment stream, IList array, Type itemType, bool recordType, bool ignore)
         {
             int len = array.Count;
             if (len == 0)
@@ -740,9 +741,9 @@
                     {
                         Type type = arr1.GetType();
                         stream.Write(BitConverter.GetBytes(TypeToIndex(type)), 0, 2);
-                        WriteObject(stream, type, arr1, recordType);
+                        WriteObject(stream, type, arr1, recordType, ignore);
                     }    
-                    else WriteObject(stream, itemType, arr1, recordType);
+                    else WriteObject(stream, itemType, arr1, recordType, ignore);
                 }
                 int strLen = stream.Position;
                 stream.Position = strPos;
@@ -757,7 +758,7 @@
         /// <param name="buffer"></param>
         /// <param name="index"></param>
         /// <param name="array"></param>
-        private unsafe static void ReadArray(byte[] buffer, ref int index, ref IList array, Type itemType, bool recordType)
+        private unsafe static void ReadArray(byte[] buffer, ref int index, ref IList array, Type itemType, bool recordType, bool ignore)
         {
             if (itemType.IsPrimitive)
             {
@@ -803,14 +804,14 @@
                     {
                         Type type = IndexToType(BitConverter.ToUInt16(buffer, index));
                         index += 2;
-                        array[i] = ReadObject(buffer, ref index, type, recordType);
+                        array[i] = ReadObject(buffer, ref index, type, recordType, ignore);
                     }
-                    else array[i] = ReadObject(buffer, ref index, itemType, recordType);
+                    else array[i] = ReadObject(buffer, ref index, itemType, recordType, ignore);
                 }
             }
         }
 
-        public new static byte[] Serialize(string func, params object[] pars)
+        public static byte[] Serialize(string func, params object[] pars)
         {
             var stream = BufferPool.Take();
             byte[] buffer1 = new byte[0];
@@ -824,7 +825,7 @@
                     Type type = obj.GetType();
                     byte[] typeBytes = BitConverter.GetBytes(TypeToIndex(type));
                     stream.Write(typeBytes, 0, 2);
-                    WriteObject(stream, type, obj, false);
+                    WriteObject(stream, type, obj, false, false);
                 }
                 buffer1 = stream.ToArray();
             }
@@ -860,7 +861,7 @@
                     Type type = obj.GetType();
                     byte[] typeBytes = BitConverter.GetBytes(TypeToIndex(type));
                     stream.Write(typeBytes, 0, 2);
-                    WriteObject(stream, type, obj, false);
+                    WriteObject(stream, type, obj, false, false);
                 }
                 buffer1 = stream.ToArray();
             }
@@ -880,7 +881,7 @@
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static byte[] SerializeComplex(object obj, bool recordType = false)
+        public static byte[] SerializeComplex(object obj, bool recordType = false, bool ignore = false)
         {
             var stream = BufferPool.Take();
             byte[] buffer1 = new byte[0];
@@ -891,7 +892,7 @@
                 Type type = obj.GetType();
                 byte[] typeBytes = BitConverter.GetBytes(TypeToIndex(type));
                 stream.Write(typeBytes, 0, 2);
-                WriteObject(stream, type, obj, recordType);
+                WriteObject(stream, type, obj, recordType, ignore);
                 buffer1 = stream.ToArray();
             }
             catch (Exception ex)
@@ -911,7 +912,7 @@
         /// <param name="obj"></param>
         /// <param name="recordType"></param>
         /// <returns></returns>
-        public static Segment Serialize(object obj, bool recordType = false)
+        public static Segment Serialize(object obj, bool recordType = false, bool ignore = false)
         {
             var stream = BufferPool.Take();
             try
@@ -921,7 +922,7 @@
                 Type type = obj.GetType();
                 byte[] typeBytes = BitConverter.GetBytes(TypeToIndex(type));
                 stream.Write(typeBytes, 0, 2);
-                WriteObject(stream, type, obj, recordType);
+                WriteObject(stream, type, obj, recordType, ignore);
             }
             catch (Exception ex)
             {
@@ -939,7 +940,7 @@
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static Segment SerializeObject<T>(T obj, bool recordType = false)
+        public static Segment SerializeObject<T>(T obj, bool recordType = false, bool ignore = false)
         {
             var stream = BufferPool.Take();
             try
@@ -947,7 +948,7 @@
                 if (obj == null)
                     return stream;
                 Type type = obj.GetType();
-                WriteObject(stream, type, obj, recordType);
+                WriteObject(stream, type, obj, recordType, ignore);
             }
             catch (Exception ex)
             {
@@ -1057,11 +1058,27 @@
                         {
                             var field = member as FieldInfo;
                             var fType = field.FieldType;
+                            if (fType == typeof(Type) | fType == typeof(object))
+                                continue;
+                            var constructors = fType.GetConstructors();
+                            bool hasConstructor = false;
+                            foreach (var constructor in constructors)
+                            {
+                                if (constructor.GetParameters().Length == 0)
+                                {
+                                    hasConstructor = true;
+                                    break;
+                                }
+                            }
+                            var code = Type.GetTypeCode(fType);
+                            if (!hasConstructor & code == TypeCode.Object & !fType.IsValueType)//string问题
+                                continue;
                             member1 = GetFPMember(type, fType, field.Name, true);
 #if !SERVICE
-                            var fi = member as FieldInfo;
-                            member1.getValue = fi.GetValue;
-                            member1.setValue = fi.SetValue;
+                            if (fType.IsSubclassOf(typeof(UnityEngine.Object)) | fType == typeof(UnityEngine.Object))
+                                continue;
+                            member1.getValue = field.GetValue;
+                            member1.setValue = field.SetValue;
 #endif
                             members1.Add(member1);
                         }
@@ -1073,8 +1090,25 @@
                             if (property.GetIndexParameters().Length > 0)
                                 continue;
                             var pType = property.PropertyType;
+                            if (pType == typeof(Type) | pType == typeof(object))
+                                continue;
+                            var constructors = pType.GetConstructors();
+                            bool hasConstructor = false;
+                            foreach (var constructor in constructors)
+                            {
+                                if (constructor.GetParameters().Length == 0)
+                                {
+                                    hasConstructor = true;
+                                    break;
+                                }
+                            }
+                            var code = Type.GetTypeCode(pType);
+                            if (!hasConstructor & code == TypeCode.Object & !pType.IsValueType)//string问题
+                                continue;
                             member1 = GetFPMember(type, pType, property.Name, true);
 #if !SERVICE
+                            if (pType.IsSubclassOf(typeof(UnityEngine.Object)) | pType == typeof(UnityEngine.Object))
+                                continue;
                             member1.getValue = property.GetValue;
                             member1.setValue = property.SetValue;
 #endif
@@ -1177,7 +1211,7 @@
         /// <param name="stream"></param>
         /// <param name="type"></param>
         /// <param name="target"></param>
-        private static void WriteObject<T>(Segment stream, Type type, T target, bool recordType)
+        private static void WriteObject<T>(Segment stream, Type type, T target, bool recordType, bool ignore)
         {
             var members = GetMembers(type);
             var bitLen = ((members.Length - 1) / 8) + 1;
@@ -1213,7 +1247,7 @@
                         if (array.Count == 0)
                             continue;
                         SetBit(ref bits[bitPos], bitInx1 + 1, true);
-                        WriteArray(stream, array, member.ItemType, recordType);
+                        WriteArray(stream, array, member.ItemType, recordType, ignore);
                     }
                     else
                     {
@@ -1225,14 +1259,14 @@
                         Array values = Array.CreateInstance(member.ValueType, array.Count);
                         array.Keys.CopyTo(keys, 0);
                         array.Values.CopyTo(values, 0);
-                        WriteArray(stream, keys, member.KeyType, recordType);
-                        WriteArray(stream, values, member.ValueType, recordType);
+                        WriteArray(stream, keys, member.KeyType, recordType, ignore);
+                        WriteArray(stream, values, member.ValueType, recordType, ignore);
                     }
                 }
-                else if (networkType1s.ContainsKey(member.Type))
+                else if (networkType1s.ContainsKey(member.Type) | ignore)
                 {
                     SetBit(ref bits[bitPos], bitInx1 + 1, true);
-                    WriteObject(stream, member.Type, value, recordType);
+                    WriteObject(stream, member.Type, value, recordType, ignore);
                 }
                 else throw new Exception($"你没有标记此类[{member.Type}]为可序列化! 请使用NetConvertBinary.AddNetworkType<T>()方法进行添加此类为可序列化类型!");
             }
@@ -1242,7 +1276,7 @@
             stream.Position = strLen;
         }
 
-        public static FuncData Deserialize(byte[] buffer, int index, int count)
+        public static FuncData Deserialize(byte[] buffer, int index, int count, bool ignore = false)
         {
             FuncData obj = default;
             try
@@ -1257,7 +1291,7 @@
                     if (type == null)
                         break;
                     index += 2;
-                    var obj1 = ReadObject(buffer, ref index, type, false);
+                    var obj1 = ReadObject(buffer, ref index, type, false, ignore);
                     list.Add(obj1);
                 }
                 obj.pars = list.ToArray();
@@ -1270,7 +1304,7 @@
             return obj;
         }
 
-        public static FuncData DeserializeModel(byte[] buffer, int index, int count)
+        public static FuncData DeserializeModel(byte[] buffer, int index, int count, bool ignore = false)
         {
             FuncData obj = default;
             try
@@ -1288,7 +1322,7 @@
                     if (type == null)
                         break;
                     index += 2;
-                    var obj1 = ReadObject(buffer, ref index, type, false);
+                    var obj1 = ReadObject(buffer, ref index, type, false, ignore);
                     list.Add(obj1);
                 }
                 obj.pars = list.ToArray();
@@ -1301,7 +1335,7 @@
             return obj;
         }
 
-        public static T DeserializeObject<T>(Segment segment, bool recordType = false)
+        public static T DeserializeObject<T>(Segment segment, bool recordType = false, bool ignore = false)
         {
             T obj = default;
             int index = segment.Index;
@@ -1309,19 +1343,19 @@
             while (index < count)
             {
                 Type type = typeof(T);
-                obj = (T)ReadObject(segment.Buffer, ref index, type, recordType);
+                obj = (T)ReadObject(segment.Buffer, ref index, type, recordType, ignore);
             }
             BufferPool.Push(segment);
             return obj;
         }
 
-        public static T DeserializeObject<T>(byte[] buffer, int index, int count, bool recordType = false)
+        public static T DeserializeObject<T>(byte[] buffer, int index, int count, bool recordType = false, bool ignore = false)
         {
             T obj = default;
             while (index < count)
             {
                 Type type = typeof(T);
-                obj = (T)ReadObject(buffer, ref index, type, recordType);
+                obj = (T)ReadObject(buffer, ref index, type, recordType, ignore);
             }
             return obj;
         }
@@ -1332,7 +1366,7 @@
         /// <param name="buffer"></param>
         /// <param name="index"></param>
         /// <param name="count"></param>
-        public static object DeserializeComplex(byte[] buffer, int index, int count, bool recordType = false)
+        public static object DeserializeComplex(byte[] buffer, int index, int count, bool recordType = false, bool ignore = false)
         {
             object obj = null;
             while (index < count)
@@ -1341,12 +1375,12 @@
                 if (type == null)
                     break;
                 index += 2;
-                obj = ReadObject(buffer, ref index, type, recordType);
+                obj = ReadObject(buffer, ref index, type, recordType, ignore);
             }
             return obj;
         }
 
-        public static object Deserialize(Segment segment)
+        public static object Deserialize(Segment segment, bool ignore = false)
         {
             object obj = null;
             int index = segment.Index;
@@ -1357,7 +1391,7 @@
                 if (type == null)
                     break;
                 index += 2;
-                obj = ReadObject(segment.Buffer, ref index, type, false);
+                obj = ReadObject(segment.Buffer, ref index, type, false, ignore);
             }
             BufferPool.Push(segment);
             return obj;
@@ -1370,7 +1404,7 @@
         /// <param name="index"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        private static object ReadObject(byte[] buffer, ref int index, Type type, bool recordType)
+        private static object ReadObject(byte[] buffer, ref int index, Type type, bool recordType, bool ignore)
         {
             object obj;
             if (type == typeof(string)) obj = string.Empty;
@@ -1400,7 +1434,7 @@
                 {
                     int arrCount = (int)ReadValue(TypeCode.Int32, buffer, ref index);
                     IList array = (IList)Activator.CreateInstance(member.Type, arrCount);
-                    ReadArray(buffer, ref index, ref array, member.ItemType, recordType);
+                    ReadArray(buffer, ref index, ref array, member.ItemType, recordType, ignore);
                     member.SetValue(ref obj, array);
                 }
                 else if (member.IsGenericType)
@@ -1410,26 +1444,26 @@
                         int arrCount = (int)ReadValue(TypeCode.Int32, buffer, ref index);
                         var array1 = Array.CreateInstance(member.ItemType, arrCount);
                         IList array = (IList)Activator.CreateInstance(member.Type, array1);
-                        ReadArray(buffer, ref index, ref array, member.ItemType, recordType);
+                        ReadArray(buffer, ref index, ref array, member.ItemType, recordType, ignore);
                         member.SetValue(ref obj, array);
                     }
                     else
                     {
                         int arrCount = (int)ReadValue(TypeCode.Int32, buffer, ref index);
                         IList array = Array.CreateInstance(member.KeyType, arrCount);
-                        ReadArray(buffer, ref index, ref array, member.KeyType, recordType);
+                        ReadArray(buffer, ref index, ref array, member.KeyType, recordType, ignore);
                         arrCount = (int)ReadValue(TypeCode.Int32, buffer, ref index);
                         IList array1 = Array.CreateInstance(member.ValueType, arrCount);
-                        ReadArray(buffer, ref index, ref array1, member.ValueType, recordType);
+                        ReadArray(buffer, ref index, ref array1, member.ValueType, recordType, ignore);
                         IDictionary dictionary = (IDictionary)Activator.CreateInstance(member.Type);
                         for (int a = 0; a < arrCount; a++)
                             dictionary.Add(array[a], array1[a]);
                         member.SetValue(ref obj, dictionary);
                     }
                 }
-                else if (networkType1s.ContainsKey(member.Type))//如果是序列化类型
+                else if (networkType1s.ContainsKey(member.Type) | ignore)//如果是序列化类型
                 {
-                    member.SetValue(ref obj, ReadObject(buffer, ref index, member.Type, recordType));
+                    member.SetValue(ref obj, ReadObject(buffer, ref index, member.Type, recordType, ignore));
                 }
                 else throw new Exception($"你没有标记此类[{member.Type}]为可序列化! 请使用NetConvertBinary.AddNetworkType<T>()方法进行添加此类为可序列化类型!");
             }

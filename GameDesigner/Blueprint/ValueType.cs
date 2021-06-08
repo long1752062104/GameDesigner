@@ -62,12 +62,12 @@ namespace GameDesigner
                     else if (valueType.IsEnum)
                     {
                         try { _object = (Enum)Enum.Parse(valueType, _valueString); }
-                        catch { try { _object = CreateUtility.CreateInstance(valueType); } catch { } }
+                        catch { _object = CreateUtility.CreateInstance(valueType); }
                     }
                     else if (valueType.IsValueType)
                     {
                         try { _object = SystemType.StringToValue(valueType.FullName, _valueString); }
-                        catch { try { _object = CreateUtility.CreateInstance(valueType); } catch { } }
+                        catch { _object = CreateUtility.CreateInstance(valueType); }
                     }
                     else if (valueType.FullName == "System.String")
                         _object = _valueString;
@@ -75,14 +75,9 @@ namespace GameDesigner
                         _object = SystemType.GetType(ValueTypeName);
                     else
                     {
-                        try
-                        {
-                            _object = CreateUtility.CreateInstance(valueType);
-                        }
-                        catch
-                        {
+                        _object = CreateUtility.CreateInstance(valueType);
+                        if(_object==null)
                             _object = SystemType.GetType(ValueTypeName);
-                        }
                     }
                 }
                 if (SystemType.IsSubclassOf(valueType, typeof(Object)))
@@ -107,9 +102,9 @@ namespace GameDesigner
                     else
                     {
                         if (value == null)
-                            _object = (_Object = new Object());
+                            _object = _Object = new Object();
                         else
-                            _object = (_Object = (Object)value);
+                            _object = _Object = (Object)value;
                     }
                 }
                 else

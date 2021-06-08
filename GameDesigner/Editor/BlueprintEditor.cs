@@ -41,9 +41,9 @@ namespace GameDesigner
             {
                 if (designer == null)
                     return;
-                if (designer.methods.Count > 0)
+                if (designer.nodes.Count > 0)
                 {
-                    UpdateScrollPosition(designer.methods[0].rect.position - new Vector2(position.size.x / 2 - 75, position.size.y / 2 - 15)); //  更新滑动矩阵
+                    UpdateScrollPosition(designer.nodes[0].rect.position - new Vector2(position.size.x / 2 - 75, position.size.y / 2 - 15)); //  更新滑动矩阵
                 }
                 else
                     UpdateScrollPosition(Center); //  归位到矩形的中心
@@ -110,21 +110,16 @@ namespace GameDesigner
         public void DrawBlueprintNodes()
         {
             DragFunctionalBlock();
-            for (int i = 0; i < designer.methods.Count; ++i)
+            for (int i = 0; i < designer.nodes.Count; ++i)
             {
-                if (designer.methods[i] == null)
-                {
-                    designer.methods.RemoveAt(i);
-                    return;
-                }
-                DrawTransition(designer.methods[i], i);
+                DrawTransition(designer.nodes[i], i);
             }
-            for (int i = 0; i < designer.methods.Count; ++i)
+            for (int i = 0; i < designer.nodes.Count; ++i)
             {
-                if (designer.selectNodes.Contains(designer.methods[i]))
-                    DoNode(designer.methods[i], StateMachineSetting.Instance.selectNodesStyle);
+                if (designer.selectNodes.Contains(designer.nodes[i]))
+                    DoNode(designer.nodes[i], StateMachineSetting.Instance.selectNodesStyle);
                 else
-                    DoNode(designer.methods[i], StateMachineSetting.Instance.designerStyle);
+                    DoNode(designer.nodes[i], StateMachineSetting.Instance.designerStyle);
             }
             DragSelectNodes();
             if (Event.current.type == EventType.MouseDown & Event.current.button == 0 & AddBlueprintNode.WindowIsNull & !showWindow)
@@ -135,7 +130,7 @@ namespace GameDesigner
                 showWindow = false;
         }
 
-        private void DoNode(BlueprintNode node, GUIStyle style)
+        private void DoNode(Node node, GUIStyle style)
         {
             if (node.method.memberTypes == System.Reflection.MemberTypes.All)
             {
@@ -146,7 +141,7 @@ namespace GameDesigner
                 DrawNode(node, style);
         }
 
-        public void DrawFunctionTransition(BlueprintNode method)
+        public void DrawFunctionTransition(Node method)
         {
             Rect rect = method.rect;
             if (method.runtime)
@@ -159,12 +154,12 @@ namespace GameDesigner
                 Vector2 startpos = method.rect.position + StateMachineSetting.Instance.runRect.center - StateMachineSetting.Instance.offset;
                 Vector2 endpos = Event.current.mousePosition;
                 DrawConnection(startpos, endpos, Color.green, 1, true, false, 0);
-                for (int a = 0; a < designer.methods.Count; ++a)
+                for (int a = 0; a < designer.nodes.Count; ++a)
                 {
-                    if (designer.methods[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
+                    if (designer.nodes[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
                     {
-                        method.runtime = designer.methods[a];
-                        FOR(method.runtime, method, ref method.runtime);
+                        method.runtime = designer.nodes[a];
+                        FOR(method.runtime, method, method.runtime);
                         method.makeRuntimeTransition = false;
                         method.Invoke();//更新判断是否符合条件
                         return;
@@ -178,7 +173,7 @@ namespace GameDesigner
             }
         }
 
-        public void DrawFunctionNode(BlueprintNode method, GUIStyle style = null)
+        public void DrawFunctionNode(Node method, GUIStyle style = null)
         {
             if (style == null)
                 DragStateBoxPosition(method.rect, StateMachineSetting.Instance.designerStyle);
@@ -198,7 +193,7 @@ namespace GameDesigner
             {
                 if (!designer.selectNodes.Contains(method))
                 {
-                    designer.selectNodes = new List<BlueprintNode> {
+                    designer.selectNodes = new List<Node> {
                         method
                     };
                 }
@@ -254,23 +249,10 @@ namespace GameDesigner
                     case EventType.MouseDrag:
                         if (dragBlock & designer.selectBlock != null)
                         {
-                            for (int i = 0; i < designer.selectBlock.funNodes.Count; ++i)
-                            {
-                                if (designer.selectBlock.funNodes[i] == null)
-                                {
-                                    designer.selectBlock.funNodes.RemoveAt(i);
-                                    continue;
-                                }
-                                designer.selectBlock.funNodes[i].rect.position += Event.current.delta;//拖到状态按钮
-                            }
+                            designer.selectBlock.rect.position += Event.current.delta;//拖到状态按钮
                             for (int n = 0; n < designer.selectBlock.nodes.Count; ++n)
                             {
-                                if (designer.selectBlock.nodes[n] == null)
-                                {
-                                    designer.selectBlock.nodes.RemoveAt(n);
-                                    continue;
-                                }
-                                designer.selectBlock.nodes[n].rect.position += Event.current.delta;//拖到状态按钮
+                                designer.nodes[designer.selectBlock.nodes[n]].rect.position += Event.current.delta;//拖到状态按钮
                             }
                         }
                         if (dragBlockSize & designer.selectBlock != null)
@@ -284,15 +266,10 @@ namespace GameDesigner
                         dragBlock = false;
                         if (dragBlockSize)
                         {
-                            designer.selectBlock.nodes = new List<BlueprintNode>();
-                            designer.selectBlock.nodes.AddRange(designer.selectNodes);
-                            designer.selectBlock.funNodes = new List<FunBlockNode>();
-                            foreach (var n in designer.functionalBlocks)
+                            designer.selectBlock.nodes = new List<int>();
+                            foreach (var node1 in designer.selectNodes)
                             {
-                                if (designer.selectBlock.rect.Contains(n.rect.position) & !designer.selectBlock.funNodes.Contains(n))
-                                {
-                                    designer.selectBlock.funNodes.Add(n);
-                                }
+                                designer.selectBlock.nodes.Add(node1.ID);
                             }
                             dragBlockSize = false;
                         }
@@ -318,7 +295,7 @@ namespace GameDesigner
                         mode = SelectMode.none;
                         return;
                     }
-                    foreach (BlueprintNode state in designer.methods)
+                    foreach (Node state in designer.nodes)
                     {
                         if (state.rect.Contains(mousePosition))
                         {
@@ -356,17 +333,17 @@ namespace GameDesigner
 
         private void SelectNodesInRect(Rect r)
         {
-            for (int i = 0; i < designer.methods.Count; i++)
+            for (int i = 0; i < designer.nodes.Count; i++)
             {
-                Rect rect = designer.methods[i].rect;
+                Rect rect = designer.nodes[i].rect;
                 if (rect.xMax < r.x || rect.x > r.xMax || rect.yMax < r.y || rect.y > r.yMax)
                 {
-                    designer.selectNodes.Remove(designer.methods[i]);
+                    designer.selectNodes.Remove(designer.nodes[i]);
                     continue;
                 }
-                if (!designer.selectNodes.Contains(designer.methods[i]))
+                if (!designer.selectNodes.Contains(designer.nodes[i]))
                 {
-                    designer.selectNodes.Add(designer.methods[i]);
+                    designer.selectNodes.Add(designer.nodes[i]);
                 }
             }
             if (Event.current.keyCode == KeyCode.LeftAlt & Event.current.type == EventType.KeyUp)
@@ -407,7 +384,7 @@ namespace GameDesigner
         /// <summary>
         /// 绘制状态(状态的层,状态窗口举行)
         /// </summary>
-        public void DrawNode(BlueprintNode method, GUIStyle style = null)
+        public void DrawNode(Node method, GUIStyle style = null)
         {
             GUI.skin.label.normal.textColor = Color.white;
             if (style == null)
@@ -470,7 +447,7 @@ namespace GameDesigner
             {
                 if (!designer.selectNodes.Contains(method))
                 {
-                    designer.selectNodes = new List<BlueprintNode> {
+                    designer.selectNodes = new List<Node> {
                         method
                     };
                 }
@@ -486,7 +463,7 @@ namespace GameDesigner
             }
         }
 
-        public void DrawTransition(BlueprintNode method, int index)
+        public void DrawTransition(Node method, int index)
         {
             Rect rect = method.rect;
             if (method.setValue)
@@ -503,12 +480,12 @@ namespace GameDesigner
                 Vector2 startpos = method.rect.position + StateMachineSetting.Instance.setRect.center - StateMachineSetting.Instance.offset;
                 Vector2 endpos = Event.current.mousePosition;
                 DrawConnection(startpos, endpos, Color.white, 1, true, false, 0);
-                for (int a = 0; a < designer.methods.Count; ++a)
+                for (int a = 0; a < designer.nodes.Count; ++a)
                 {
-                    if (designer.methods[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
+                    if (designer.nodes[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
                     {
-                        method.setValue = designer.methods[a];
-                        FOR(method.setValue, method, ref method.setValue);
+                        method.setValue = designer.nodes[a];
+                        FOR(method.setValue, method, method.setValue);
                         method.makeTransition = false;
                         method.Invoke();//更新判断是否符合条件
                         return;
@@ -541,14 +518,14 @@ namespace GameDesigner
                 Vector2 startpos = method.rect.position + StateMachineSetting.Instance.getRect.center - StateMachineSetting.Instance.offset;
                 Vector2 endpos = Event.current.mousePosition;
                 DrawConnection(endpos, startpos, Color.white, 1, true, false, 0);
-                for (int a = 0; a < designer.methods.Count; ++a)
+                for (int a = 0; a < designer.nodes.Count; ++a)
                 {
-                    if (designer.methods[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
+                    if (designer.nodes[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
                     {
-                        designer.methods[a].setValue = method;
-                        FOR(designer.methods[a].setValue, method, ref designer.methods[a].setValue);
+                        designer.nodes[a].setValue = method;
+                        FOR(designer.nodes[a].setValue, method, designer.nodes[a].setValue);
                         method.makeGetValueTransition = false;
-                        designer.methods[a].Invoke();//更新判断是否符合条件
+                        designer.nodes[a].Invoke();//更新判断是否符合条件
                         return;
                     }
                 }
@@ -584,12 +561,12 @@ namespace GameDesigner
                 Vector2 startpos = method.rect.position + StateMachineSetting.Instance.runRect.center - StateMachineSetting.Instance.offset;
                 Vector2 endpos = Event.current.mousePosition;
                 DrawConnection(startpos, endpos, Color.green, 1, true, false, 0);
-                for (int a = 0; a < designer.methods.Count; ++a)
+                for (int a = 0; a < designer.nodes.Count; ++a)
                 {
-                    if (designer.methods[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
+                    if (designer.nodes[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
                     {
-                        method.runtime = designer.methods[a];
-                        FOR(method.runtime, method, ref method.runtime);
+                        method.runtime = designer.nodes[a];
+                        FOR(method.runtime, method,  method.runtime);
                         method.makeRuntimeTransition = false;
                         method.Invoke();//更新判断是否符合条件
                         return;
@@ -610,12 +587,13 @@ namespace GameDesigner
                     Vector2 startpos = rect.position + StateMachineSetting.Instance.setRect.center;
                     Vector2 endpos = Event.current.mousePosition;
                     DrawConnection(startpos, endpos, Color.white, 1, true, false, 0);
-                    for (int a = 0; a < designer.methods.Count; ++a)
+                    for (int a = 0; a < designer.nodes.Count; ++a)
                     {
-                        if (designer.methods[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
+                        if (designer.nodes[a].rect.Contains(Event.current.mousePosition) & Event.current.type == EventType.MouseDown)
                         {
-                            p.setValue = designer.methods[a];
-                            FOR(p.setValue, method, ref p.setValue);
+                            p.blueprint = designer;
+                            p.setValue = designer.nodes[a];
+                            FOR(p.setValue, method,  p.setValue);
                             if (p.setValue) { p.setValue.Invoke(); }
                             p.makeTransition = false;
                             return;
@@ -655,30 +633,30 @@ namespace GameDesigner
             }
         }
 
-        static void FOR(BlueprintNode a, BlueprintNode b, ref BlueprintNode set)
+        static void FOR(Node a, Node b, Node set)
         {
             if (a.setValue)
             {
                 if (a.setValue == b)
                 {
-                    set = null;
+                    set.setValueIndex = -1;
                     Debug.Log("死循环对象值! -- 系统自动取消设置值...");
                 }
                 else
                 {
-                    For(a.setValue, b, ref set);
+                    For(a.setValue, b,  set);
                 }
             }
             if (a.runtime)
             {
                 if (a.runtime == b)
                 {
-                    set = null;
+                    set.runtimeIndex = -1;
                     Debug.Log("死循环运行路径! -- 系统自动取消设置值...");
                 }
                 else
                 {
-                    For(a.runtime, b, ref set);
+                    For(a.runtime, b, set);
                 }
             }
 
@@ -688,38 +666,38 @@ namespace GameDesigner
                     continue;
                 if (pp.setValue == b)
                 {
+                    set.setValueIndex = -1;
                     Debug.Log("死循环参数! -- 系统自动取消设置值...");
-                    set = null;
                     return;
                 }
-                For(pp.setValue, b, ref set);
+                For(pp.setValue, b, set);
             }
         }
 
-        static void For(BlueprintNode a, BlueprintNode b, ref BlueprintNode set)
+        static void For(Node a, Node b, Node set)
         {
             if (a.setValue)
             {
                 if (a.setValue == b)
                 {
-                    set = null;
+                    set.setValueIndex = -1;
                     Debug.Log("死循环对象值! -- 系统自动取消设置值...");
                 }
                 else
                 {
-                    For(a.setValue, b, ref set);
+                    For(a.setValue, b, set);
                 }
             }
             if (a.runtime)
             {
                 if (a.runtime == b)
                 {
-                    set = null;
+                    set.runtimeIndex = -1;
                     Debug.Log("死循环运行路径! -- 系统自动取消设置值...");
                 }
                 else
                 {
-                    For(a.runtime, b, ref set);
+                    For(a.runtime, b, set);
                 }
             }
 
@@ -729,18 +707,18 @@ namespace GameDesigner
                     continue;
                 if (pp.setValue == b)
                 {
+                    set.setValueIndex = -1;
                     Debug.Log("死循环参数! -- 系统自动取消设置值...");
-                    set = null;
                     return;
                 }
-                For(pp.setValue, b, ref set);
+                For(pp.setValue, b, set);
             }
         }
 
         /// <summary>
         /// 右键打开状态菜单
         /// </summary>
-        protected void OpenStateContextMenu(BlueprintNode body)
+        protected void OpenStateContextMenu(Node body)
         {
             if (body == null)
             {
@@ -776,12 +754,24 @@ namespace GameDesigner
         {
             for (int i = 0; i < designer.selectNodes.Count; i++)
             {
-                Undo.DestroyObjectImmediate(designer.selectNodes[i].gameObject);
-                designer.methods.Remove(designer.selectNodes[i]);
+                var node = designer.selectNodes[i];
+                designer.nodes.Remove(node);
+                foreach (var node1 in designer.nodes)
+                {
+                    if (node1.setValueIndex >= node.ID)
+                        node1.setValueIndex = -1;
+                    if (node1.runtimeIndex >= node.ID)
+                        node1.runtimeIndex = -1;
+                    foreach (var par in node1.method.Parameters)
+                    {
+                        if (par.setValueIndex >= node.ID)
+                            par.setValueIndex = -1;
+                    }
+                }
             }
-            for (int i = 0; i < designer.methods.Count; i++)
+            for (int i = 0; i < designer.nodes.Count; i++)
             {
-                designer.methods[i].stateID = i;
+                designer.nodes[i].ID = i;
             }
         }
 
@@ -816,6 +806,20 @@ namespace GameDesigner
                         break;
                     case EventType.MouseUp:
                         dragState = false;
+                        foreach (var node in designer.selectNodes)
+                        {
+                            foreach (var n in designer.functionalBlocks)
+                            {
+                                if (!n.rect.Contains(node.rect.position))
+                                {
+                                    n.nodes.Remove(node.ID);
+                                }
+                                else if(!n.nodes.Contains(node.ID))
+                                {
+                                    n.nodes.Add(node.ID);
+                                }
+                            }
+                        }
                         break;
                 }
             }
@@ -837,7 +841,7 @@ namespace GameDesigner
                         GenericMenu menu = new GenericMenu();
                         menu.AddItem(new GUIContent("删除功能块面板"), false, delegate
                         {
-                            Undo.DestroyObjectImmediate(designer.selectBlock.gameObject);
+                            //Undo.DestroyObjectImmediate(designer.selectBlock.gameObject);
                             designer.functionalBlocks.Remove(designer.selectBlock);
                         });
                         menu.ShowAsContext();
@@ -855,22 +859,26 @@ namespace GameDesigner
                     });
                     menu.AddItem(new GUIContent("粘贴选择状态"), false, delegate
                     {
-                        List<BlueprintNode> nodes = new List<BlueprintNode>();
-                        BlueprintNode n = Instantiate(designer.selectNodes[0], designer.transform);
+                        List<Node> nodes = new List<Node>();
+                        Node n = Net.Clone.Instance<Node>(designer.selectNodes[0]);
                         n.name = designer.selectNodes[0].name;
                         n.rect.center = mousePosition;
-                        designer.methods.Add(n);
+                        n.blueprint = designer;
+                        n.preID = n.ID;
+                        n.ID = designer.nodes.Count;
+                        designer.nodes.Add(n);
                         nodes.Add(n);
                         Vector2 dis = designer.selectNodes[0].rect.center - mousePosition;
-                        Undo.RegisterCreatedObjectUndo(n, n.name);
                         for (int i = 1; i < designer.selectNodes.Count; ++i)
                         {
-                            BlueprintNode nn = Instantiate(designer.selectNodes[i], designer.transform);
+                            Node nn = Net.Clone.Instance<Node>(designer.selectNodes[i]);
                             nn.name = designer.selectNodes[i].name;
                             nn.rect.position -= dis;
-                            designer.methods.Add(nn);
+                            nn.blueprint = designer;
+                            nn.preID = nn.ID;
+                            nn.ID = designer.nodes.Count;
+                            designer.nodes.Add(nn);
                             nodes.Add(nn);
-                            Undo.RegisterCreatedObjectUndo(nn, nn.name);
                         }
                         foreach (var node in nodes)
                         {
@@ -878,7 +886,7 @@ namespace GameDesigner
                             {
                                 foreach (var sta in nodes)
                                 {
-                                    if (node.runtime.stateID == sta.stateID)
+                                    if (node.runtimeIndex == sta.preID)
                                         node.runtime = sta;
                                 }
                             }
@@ -886,7 +894,7 @@ namespace GameDesigner
                             {
                                 foreach (var sta in nodes)
                                 {
-                                    if (node.setValue.stateID == sta.stateID)
+                                    if (node.setValueIndex == sta.preID)
                                         node.setValue = sta;
                                 }
                             }
@@ -896,15 +904,18 @@ namespace GameDesigner
                                 {
                                     foreach (var sta in nodes)
                                     {
-                                        if (par.setValue.stateID == sta.stateID)
+                                        if (par.setValueIndex == sta.preID)
+                                        {
+                                            par.blueprint = sta.blueprint;
                                             par.setValue = sta;
+                                        }
                                     }
                                 }
                             }
                         }
-                        for (int i = 0; i < designer.methods.Count; ++i)
+                        for (int i = 0; i < designer.nodes.Count; ++i)
                         {
-                            designer.methods[i].stateID = i;
+                            designer.nodes[i].ID = i;
                         }
                         designer.selectNodes = nodes;
                     }
@@ -914,7 +925,7 @@ namespace GameDesigner
                 }
                 else
                 {
-                    foreach (BlueprintNode state in designer.methods)
+                    foreach (Node state in designer.nodes)
                     {
                         if (state.rect.Contains(mousePosition))
                             return;

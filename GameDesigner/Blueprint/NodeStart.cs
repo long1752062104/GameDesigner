@@ -4,7 +4,7 @@ namespace GameDesigner
 {
     public class NodeStart : MonoBehaviour
     {
-        public BlueprintNode node;
+        public Node node;
 
         void Start()
         {

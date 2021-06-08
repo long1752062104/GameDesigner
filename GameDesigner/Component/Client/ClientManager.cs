@@ -1,4 +1,4 @@
-﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Net.Component.Client
 {
     using Net.Client;
@@ -11,21 +11,18 @@ namespace Net.Component.Client
 
     public enum TransportProtocol
     {
-        Udp, Tcp, NetworkTU_TP, Udx, Kcp, Web, Enet
+        Gudp, Tcp, Network, Udx, Kcp, Web, Enet
     }
 
     public class ClientManager : SingleCase<ClientManager>, ISendHandle
     {
         private bool mainInstance;
         private ClientBase _client;
-        public TransportProtocol protocol = TransportProtocol.Udp;
+        public TransportProtocol protocol = TransportProtocol.Gudp;
         public string ip = "127.0.0.1";
         public int port = 6666;
         public bool throwException;
-        public bool control;
-        public bool team;
         public bool debugRpc = true;
-        public string playerName;
         public int frameRate = 60;
 
         public ClientBase client
@@ -36,13 +33,13 @@ namespace Net.Component.Client
                 {
                     switch (protocol)
                     {
-                        case TransportProtocol.Udp:
+                        case TransportProtocol.Gudp:
                             _client = new UdpClient(true);
                             break;
                         case TransportProtocol.Tcp:
                             _client = new TcpClient(true);
                             break;
-                        case TransportProtocol.NetworkTU_TP:
+                        case TransportProtocol.Network:
                             _client = new NetworkClient(true);
                             break;
                         case TransportProtocol.Enet:
@@ -135,12 +132,6 @@ namespace Net.Component.Client
             if (Instance == null)
                 return false;
             return instance._client.Identify == name;
-        }
-
-        [Rpc]
-        void SetControl(bool control)
-        {
-            this.control = control;
         }
 
         [rpc]

@@ -3,7 +3,6 @@
     using Net.Share;
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     /// <summary>
     /// 网络场景

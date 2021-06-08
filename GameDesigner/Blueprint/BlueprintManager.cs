@@ -33,57 +33,21 @@ namespace GameDesigner
     /// </summary>
     public class BlueprintManager : IBlueprint
     {
-        //[HideInInspector]
-        public BlueprintNode _onStart = null;
-        public BlueprintNode onStart
-        {
-            get
-            {
-                if (_onStart == null)
-                {
-                    _onStart = BlueprintNode.CreateFunctionBody(blueprint, typeof(BlueprintManager), "Start", "MonoBehaviour", "当mono开始时调用一次");
-
-                }
-                return _onStart;
-            }
-        }
-
-        //[HideInInspector]
-        public BlueprintNode _onLateUpdate = null;
-        public BlueprintNode onLateUpdate
-        {
-            get
-            {
-                if (_onLateUpdate == null)
-                {
-                    _onLateUpdate = BlueprintNode.CreateFunctionBody(blueprint, typeof(BlueprintManager), "LateUpdate", "MonoBehaviour", "当mono每一帧执行调用");
-                }
-                return _onLateUpdate;
-            }
-        }
-
         public override void CheckUpdate()
         {
-            _onStart = onStart;
-            _onLateUpdate = onLateUpdate;
+
         }
 
         // Use this for initialization
         public void Start()
         {
-            if (onStart.runtime)
-            {
-                onStart.runtime.Invoke();
-            }
+            blueprint.nodes[0].runtime?.Invoke();
         }
 
         // Update is called once per frame
         public void LateUpdate()
         {
-            if (onLateUpdate.runtime)
-            {
-                onLateUpdate.runtime.Invoke();
-            }
+            blueprint.nodes[1].runtime?.Invoke();
         }
     }
 }

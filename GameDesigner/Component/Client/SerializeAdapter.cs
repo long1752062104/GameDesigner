@@ -1,12 +1,12 @@
-﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Net.Component.Client
 {
     public enum SerializeAdapterType
     {
-        Default,
-        PB_JSON_FAST,
-        Binary,
-        Binary2
+        Default,//默认序列化, protobuff + json
+        PB_JSON_FAST,//快速序列化 protobuff + json
+        Binary,//快速序列化 需要注册远程类型
+        Binary2//极速序列化 需要生成序列化类型, 菜单GameDesigner/Netowrk/Fast2BuildTools
     }
 
     public class SerializeAdapter : SingleCase<SerializeAdapter>

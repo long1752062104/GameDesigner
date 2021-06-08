@@ -1,22 +1,38 @@
 ﻿namespace GameDesigner
 {
     using System.Collections.Generic;
-    using UnityEngine;
 
     /// <summary>
     /// 状态连接组件 2017年12月6日
     /// 版本修改2019.8.27
     /// </summary>
+    [System.Serializable]
     public sealed class Transition : IState
     {
+        public int currStateID, nextStateID;
         /// <summary>
         /// 当前状态
         /// </summary>
-		public State currState = null;
+		public State currState { 
+            get {
+                foreach (var item in stateMachine.states)
+                    if (item.ID == currStateID)
+                        return item;
+                return null;
+            } 
+        }
         /// <summary>
         /// 下一个状态
         /// </summary>
-		public State nextState = null;
+		public State nextState {
+            get
+            {
+                foreach (var item in stateMachine.states)
+                    if (item.ID == nextStateID)
+                        return item;
+                return null;
+            }
+        }
         /// <summary>
         /// 连接控制模式
         /// </summary>
@@ -38,7 +54,7 @@
         /// </summary>
 		public bool isEnterNextState = false;
 
-        private Transition() { }
+        public Transition() { }
 
         /// <summary>
         /// 创建连接实例
@@ -49,13 +65,14 @@
         /// <returns></returns>
 		public static Transition CreateTransitionInstance(State state, State nextState, string transitionName = "New Transition")
         {
-            Transition t = new GameObject(transitionName).AddComponent<Transition>();
+            Transition t = new Transition();
             t.name = transitionName;
-            t.currState = state;
-            t.nextState = nextState;
+            t.currStateID = state.ID;
+            t.nextStateID = nextState.ID;
+            t.stateMachine = state.stateMachine;
             state.transitions.Add(t);
-            t.transform.SetParent(state.transform);
-            t.transform.hideFlags = HideFlags.None;
+            for (int i = 0; i < state.transitions.Count; i++)
+                state.transitions[i].ID = i;
             return t;
         }
     }

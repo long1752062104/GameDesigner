@@ -78,6 +78,12 @@
             this.buffer = buffer;
         }
 
+        public Operation(byte cmd, int uid) : this()
+        {
+            this.cmd = cmd;
+            index = uid;
+        }
+
         /// <summary>
         /// 玩家操作指令
         /// </summary>

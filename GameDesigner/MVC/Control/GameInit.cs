@@ -1,4 +1,4 @@
-﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace MVC.Control
 {
     using UnityEngine;
@@ -14,6 +14,10 @@ namespace MVC.Control
         private MemoryStream dllStream;
         private MemoryStream pdbStream;
         private IMethod updateMethod;
+#if UNITY_EDITOR
+        public enum SelectPath { StreamingAssets, AssetsPath, FullPath }
+        public SelectPath pathMode = SelectPath.StreamingAssets;
+#endif
         public string dllPath;
         public string pdbPath;
 
@@ -22,11 +26,30 @@ namespace MVC.Control
         {
             appdomain = new AppDomain();
 #if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
-            dllPath = Application.persistentDataPath + "/Hotfix.dll";
-            pdbPath = Application.persistentDataPath + "/Hotfix.pdb";
-#else
-            dllPath = Application.streamingAssetsPath + "/Hotfix.dll";
-            pdbPath = Application.streamingAssetsPath + "/Hotfix.pdb";
+            var dllPath = Application.persistentDataPath + "/" + this.dllPath;
+            var pdbPath = Application.persistentDataPath + "/" + this.pdbPath;
+#elif !UNITY_EDITOR
+            var dllPath = Application.streamingAssetsPath + "/" + this.dllPath;
+            var pdbPath = Application.streamingAssetsPath + "/" + this.pdbPath;
+#endif
+#if UNITY_EDITOR
+            string dllPath;
+            string pdbPath;
+            if (pathMode == SelectPath.StreamingAssets)
+            {
+                dllPath = Application.streamingAssetsPath + "/" + this.dllPath;
+                pdbPath = Application.streamingAssetsPath + "/" + this.pdbPath;
+            }
+            else if (pathMode == SelectPath.AssetsPath)
+            {
+                dllPath = Application.dataPath + "/" + this.dllPath;
+                pdbPath = Application.dataPath + "/" + this.pdbPath;
+            }
+            else
+            {
+                dllPath = this.dllPath;
+                pdbPath = this.pdbPath;
+            }
 #endif
             if (File.Exists(dllPath))
                  dllStream = new MemoryStream(File.ReadAllBytes(dllPath));
@@ -50,13 +73,11 @@ namespace MVC.Control
             });
             appdomain.DelegateManager.RegisterMethodDelegate<bool>();
             appdomain.DelegateManager.RegisterMethodDelegate<bool, ILRuntime.Runtime.Intepreter.ILTypeInstance>();
-
             var method = appdomain.LoadedTypes["Hotfix.GameEntry"].GetMethod("Init", 0);
             appdomain.Invoke(method, null);
             updateMethod = appdomain.LoadedTypes["Hotfix.GameEntry"].GetMethod("Update", 0);
         }
 
-        // Update is called once per frame
         void Update()
         {
             appdomain.Invoke(updateMethod, null);

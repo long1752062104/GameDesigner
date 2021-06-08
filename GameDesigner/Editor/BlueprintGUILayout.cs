@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 public class BlueprintGUILayout : Editor
 {
-    static public BlueprintSetting Instance
+    public static BlueprintSetting Instance
     {
         get
         {
@@ -20,7 +20,7 @@ public class BlueprintGUILayout : Editor
     /// 开始水平向前移动几个格子
     /// </summary>
 
-    static public void BeginSpaceHorizontal(float pixels, string styleName)
+    public static void BeginSpaceHorizontal(float pixels, string styleName)
     {
         EditorGUILayout.BeginHorizontal(styleName);
         GUILayout.Space(pixels);
@@ -31,7 +31,7 @@ public class BlueprintGUILayout : Editor
     /// 开始水平向前移动几个格子
     /// </summary>
 
-    static public void BeginSpaceHorizontal(float pixels = 10f)
+    public static void BeginSpaceHorizontal(float pixels = 10f)
     {
         EditorGUILayout.BeginHorizontal();
         GUILayout.Space(pixels);
@@ -42,7 +42,7 @@ public class BlueprintGUILayout : Editor
     /// 结束水平向前移动
     /// </summary>
 
-    static public void EndSpaceHorizontal()
+    public static void EndSpaceHorizontal()
     {
         EditorGUILayout.EndVertical();
         EditorGUILayout.EndHorizontal();
@@ -52,7 +52,7 @@ public class BlueprintGUILayout : Editor
     /// 开始水平向前移动几个格子
     /// </summary>
 
-    static public void BeginStyleVertical(string name = "系统基础动作组件", string styleName = "ProgressBarBack")
+    public static void BeginStyleVertical(string name = "系统基础动作组件", string styleName = "ProgressBarBack")
     {
         GUILayout.Button(name, GUI.skin.GetStyle("dragtabdropwindow"));
         if (styleName == "")
@@ -65,12 +65,12 @@ public class BlueprintGUILayout : Editor
     /// 结束水平向前移动
     /// </summary>
 
-    static public void EndStyleVertical()
+    public static void EndStyleVertical()
     {
         EditorGUILayout.EndVertical();
     }
 
-    static public void TextColor(Rect rect, string label, Color color, float offset = 25)
+    public static void TextColor(Rect rect, string label, Color color, float offset = 25)
     {
         Color c = GUI.skin.label.normal.textColor;
         GUI.skin.label.normal.textColor = color;
@@ -78,17 +78,17 @@ public class BlueprintGUILayout : Editor
         GUI.skin.label.normal.textColor = c;
     }
 
-    static public bool Button(Rect rect, GUIStyle Style, float offset = 25)
+    public static bool Button(Rect rect, GUIStyle Style, float offset = 25)
     {
         return DrawTextureButton(rect, Style, "", offset);
     }
 
-    static public bool Button(Rect rect, GUIStyle Style, string tooltip, float offset = 25)
+    public static bool Button(Rect rect, GUIStyle Style, string tooltip, float offset = 25)
     {
         return DrawTextureButton(rect, Style, tooltip, offset);
     }
 
-    static public bool DrawTextureButton(Rect rect, GUIStyle Style, string tooltip, float offset = 25)
+    public static bool DrawTextureButton(Rect rect, GUIStyle Style, string tooltip, float offset = 25)
     {
         GUI.Label(new Rect(rect.x, rect.y, rect.width, rect.height), "", Style);
         if (GUI.Button(new Rect(rect.x + offset, rect.y, rect.width - offset, rect.height), new GUIContent("", tooltip), "scrollview"))
@@ -98,7 +98,7 @@ public class BlueprintGUILayout : Editor
         return false;
     }
 
-    static public bool DrawTextureButton(Rect rect, Texture Style, float offset = 25)
+    public static bool DrawTextureButton(Rect rect, Texture Style, float offset = 25)
     {
         GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, rect.height), Style);
         if (GUI.Button(new Rect(rect.x + offset, rect.y, rect.width - offset, rect.height), "", "scrollview"))
@@ -108,7 +108,7 @@ public class BlueprintGUILayout : Editor
         return false;
     }
 
-    static public void LabelTexture(Rect rect, string label, Texture Style, string styleName = "LODSliderRangeSelected", float offset = 25)
+    public static void LabelTexture(Rect rect, string label, Texture Style, string styleName = "LODSliderRangeSelected", float offset = 25)
     {
         GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, rect.height), Style);
         GUI.Label(new Rect(rect.x + offset, rect.y, rect.width - offset, rect.height), label, styleName);
@@ -119,7 +119,7 @@ public class BlueprintGUILayout : Editor
     /// typeName(类型完全限定符) , 如果typeName为默认则获取value对象的类型来判断编辑器字段显示,否则使用typeName名称来获取类型在编辑器字段显示
     /// </summary>
 
-    static public object PropertyField(Rect rect, string label, object value, System.Type type = null, GameDesigner.ValueType.TypeParameter typeName = null, Texture image = null, bool isTargetType = false)
+    public static object PropertyField(Rect rect, string label, object value, System.Type type = null, GameDesigner.ValueType.TypeParameter typeName = null, Texture image = null, bool isTargetType = false)
     {
         return PropertyField(rect, label, value, type, typeName, image, "", isTargetType);
     }
@@ -128,7 +128,7 @@ public class BlueprintGUILayout : Editor
     /// 在监视目标显示类的值并且可视化修改 （ 将value值穿进去赋值并且返回修改后的值 ）
     /// </summary>
 
-    static public object PropertyField(Rect rect, string label, object value, System.Type type, GameDesigner.ValueType.TypeParameter typeName, Texture image = null, string tooltip = "", bool isTargetType = false)
+    public static object PropertyField(Rect rect, string label, object value, System.Type type, GameDesigner.ValueType.TypeParameter typeName, Texture image = null, string tooltip = "", bool isTargetType = false)
     {
         try
         {
@@ -141,7 +141,7 @@ public class BlueprintGUILayout : Editor
     /// 在监视目标显示类的值并且可视化修改 （ 将value值穿进去赋值并且返回修改后的值 ）
     /// </summary>
 
-    static public object PropertyFields(Rect rect, string label, object value, System.Type type, GameDesigner.ValueType.TypeParameter typeName, Texture image = null, string tooltip = "", bool isTargetType = false)
+    public static object PropertyFields(Rect rect, string label, object value, System.Type type, GameDesigner.ValueType.TypeParameter typeName, Texture image = null, string tooltip = "", bool isTargetType = false)
     {
         float width = GUI.skin.label.CalcSize(new GUIContent(label)).x;
         if (value == null)
@@ -274,7 +274,7 @@ public class BlueprintGUILayout : Editor
     /// <summary>
     /// 绘制只读字符串属性字段
     /// </summary>
-    static public void PropertyField(Rect rect, string label, string value, string tooltip)
+    public static void PropertyField(Rect rect, string label, string value, string tooltip)
     {
         float width = GUI.skin.label.CalcSize(new GUIContent(label)).x;
         GUI.Label(new Rect(rect.x, rect.y, 20, 18), new GUIContent("S", tooltip), Instance.stringStyle);
@@ -290,7 +290,7 @@ public class BlueprintGUILayout : Editor
     /// selectTypeIndex = -1 是参数默认值 , -1 为使用系统静态变量
     /// </summary>
 
-    static public object PropertyField(string label, object value, int selectTypeIndex = -1, params GUILayoutOption[] options)
+    public static object PropertyField(string label, object value, int selectTypeIndex = -1, params GUILayoutOption[] options)
     {
         if (value == null) { EditorGUILayout.TextField("null--value!!!", options); return value; }
         if (label == "" | label == null)
@@ -306,7 +306,7 @@ public class BlueprintGUILayout : Editor
     /// selectTypeIndex = -1 是参数默认值 , -1 为使用系统静态变量
     /// </summary>
 
-    static public object PropertyField(string label, object value, System.Type type, int selectTypeIndex = -1, params GUILayoutOption[] options)
+    public static object PropertyField(string label, object value, System.Type type, int selectTypeIndex = -1, params GUILayoutOption[] options)
     {
         if (label == "" | label == null)
             return DrawPropertyField(value, type, selectTypeIndex, options);

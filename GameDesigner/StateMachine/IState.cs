@@ -5,8 +5,11 @@ namespace GameDesigner
     /// <summary>
     /// 状态基类
     /// </summary>
-    public abstract class IState : MonoBehaviour
+    [System.Serializable]
+    public class IState
     {
+        public string name;
+        public int ID, perID;
 #if UNITY_EDITOR || DEBUG || DEBUG
         /// <summary>
         /// 查找行为组件
@@ -65,42 +68,7 @@ namespace GameDesigner
         /// 蓝图 和 状态 的编辑器矩形
         /// </summary>
         public Rect rect = new Rect(10, 10, 150, 30);
-        [SerializeField]
-        [HideInInspector]
-        private StateMachine _stateMachine = null;
-        /// <summary>
-        /// 状态机
-        /// </summary>
-		public StateMachine stateMachine
-        {
-            get
-            {
-                if (_stateMachine == null)
-                {
-                    _stateMachine = transform.GetComponentInParent<StateMachine>();
-                }
-                return _stateMachine;
-            }
-            set { _stateMachine = value; }
-        }
-
-        [SerializeField]
-        [HideInInspector]
-        private StateManager _stateManager = null;
-        /// <summary>
-        /// 状态管理
-        /// </summary>
-		public StateManager stateManager
-        {
-            get
-            {
-                if (_stateManager == null)
-                {
-                    _stateManager = transform.GetComponentInParent<StateManager>();
-                }
-                return _stateManager;
-            }
-            set { _stateManager = value; }
-        }
+        public StateMachine stateMachine = null;
+        public StateManager stateManager { get { return stateMachine.stateManager; } }
     }
 }

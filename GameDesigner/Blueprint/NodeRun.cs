@@ -4,7 +4,7 @@ namespace GameDesigner
 {
     public class NodeRun : MonoBehaviour
     {
-        public BlueprintNode node;
+        public Node node;
 
         // Update is called once per frame
         void Update()

@@ -41,7 +41,7 @@ namespace GameDesigner
             }
             text += "\npublic class " + CreateScriptName + " : " + designer.InheritedClassName + "\n{\n";
 
-            foreach (var m in designer.methods)
+            foreach (var m in designer.nodes)
             {
                 if (m.method.memberTypes == MemberTypes.All)//方法入口(函数名)枚举
                     continue;
@@ -128,7 +128,7 @@ namespace GameDesigner
                     }
                 }
             }
-            foreach (var m in designer.methods)
+            foreach (var m in designer.nodes)
             {
                 if (m.method.memberTypes == MemberTypes.All)
                 {
@@ -161,13 +161,13 @@ namespace GameDesigner
             designer.InheritedClassName = EditorGUILayout.TextField("继承类型", designer.InheritedClassName);
             if (GUILayout.Button(new GUIContent("BuildScript")))
             {
-                foreach (var body in designer.methods)
+                foreach (var body in designer.nodes)
                 {
-                    foreach (var b in designer.methods)
+                    foreach (var b in designer.nodes)
                     {
                         if (body.runtime == null & !body.IsFunction & !body.IsStatic & body != b & body.method.nodeName == b.method.nodeName)
                         {
-                            body.method.nodeName = body.method.nodeName + body.stateID;
+                            body.method.nodeName = body.method.nodeName + body.ID;
                             Debug.Log(body.method.nodeName + "节点重名,自动更改节点名称加上索引号...");
                             return;
                         }
@@ -360,7 +360,7 @@ namespace GameDesigner
             return str;
         }
 
-        private bool Contains(BlueprintNode body)
+        private bool Contains(Node body)
         {
             foreach (var p in body.method.Parameters)
             {
@@ -375,7 +375,7 @@ namespace GameDesigner
         /// <summary>
         /// 主方法
         /// </summary>
-        public string Invoke(BlueprintNode body, string tab = "\t\t")
+        public string Invoke(Node body, string tab = "\t\t")
         {
             string text = "";
             switch (body.method.memberTypes)
@@ -639,7 +639,7 @@ namespace GameDesigner
         /// onEnter 当第一次连接进入是从什么方法或字段或属性开始呢
         /// nEnter 如果从n多次进入
         /// </summary>
-        public string NInvoke(BlueprintNode body, MemberTypes onEnter = MemberTypes.Event)
+        public string NInvoke(Node body, MemberTypes onEnter = MemberTypes.Event)
         {
             string str = "";
             switch (body.method.memberTypes)
@@ -799,7 +799,7 @@ namespace GameDesigner
             return str;
         }
 
-        string SetPars(BlueprintNode body)
+        string SetPars(Node body)
         {
             string str = "";
             for (int i = 0; i < body.method.Parameters.Count; ++i)

@@ -1,7 +1,6 @@
 ﻿namespace GameDesigner
 {
     using System;
-    using System.Collections.Generic;
     using UnityEngine;
 
     /// <summary>
@@ -15,30 +14,16 @@
         /// 状态机
         /// </summary>
 		public StateMachine stateMachine = null;
-        /// <summary>
-        /// 旧版动画组件
-        /// </summary>
-		public new Animation animation = null;
-        /// <summary>
-        /// 新版动画组件
-        /// </summary>
-        public Animator animator = null;
-        /// <summary>
-        /// 动画剪辑
-        /// </summary>
-        public List<string> clipNames = new List<string>();
-
+        
         void Awake()
         {
-            animation = GetComponent<Animation>();
-            animator = GetComponent<Animator>();
             if (stateMachine == null)
             {
                 enabled = false;
                 return;
             }
-            if (stateMachine.GetComponentInParent<StateManager>() == null)
-            {//当使用本地公用状态机时
+            if (stateMachine.GetComponentInParent<StateManager>() == null)//当使用本地公用状态机时
+            {
                 StateMachine sm = Instantiate(stateMachine);
                 sm.name = stateMachine.name;
                 sm.transform.SetParent(transform);
@@ -49,11 +34,10 @@
 
         void Start()
         {
-            if (stateMachine != null)
-            {
-                if (stateMachine.defaultState.actionSystem)
-                    stateMachine.defaultState.OnEnterState();
-            }
+            if (stateMachine == null)
+                return;
+            if (stateMachine.defaultState.actionSystem)
+                stateMachine.defaultState.OnEnterState();
         }
 
         private void Update()
@@ -83,7 +67,7 @@
             }
             for (int i = 0; i < state.behaviours.Count; ++i) //用户自定义脚本行为
                 if (state.behaviours[i].Active)
-                    state.behaviours[i].OnUpdate(state, null);
+                    state.behaviours[i].RuntimeBehaviour.OnUpdate(state, null);
             for (int i = 0; i < state.transitions.Count; ++i)
                 OnTransition(state.transitions[i]);
         }
@@ -96,7 +80,7 @@
         {
             for (int i = 0; i < transition.behaviours.Count; ++i)
                 if (transition.behaviours[i].Active)
-                    transition.behaviours[i].OnUpdate(ref transition.isEnterNextState);
+                    transition.behaviours[i].RuntimeBehaviour.OnUpdate(ref transition.isEnterNextState);
             if (transition.model == TransitionModel.ExitTime)
             {
                 transition.time += Time.deltaTime;
@@ -118,9 +102,8 @@
         public void OnStateTransitionExit(State state)
         {
             foreach (Transition transition in state.transitions)
-                foreach (TransitionBehaviour behaviour in transition.behaviours)
-                    if (transition.model == TransitionModel.ExitTime)
-                        transition.time = 0;
+                if (transition.model == TransitionModel.ExitTime)
+                    transition.time = 0;
         }
 
         /// <summary>
@@ -132,16 +115,16 @@
         {
             foreach (StateBehaviour behaviour in currState.behaviours)//先退出当前的所有行为状态OnExitState的方法
                 if (behaviour.Active)
-                    behaviour.OnExit(currState, enterState);
+                    behaviour.RuntimeBehaviour.OnExit(currState, enterState);
             OnStateTransitionExit(currState);
             foreach (StateBehaviour behaviour in enterState.behaviours)//最后进入新的状态前调用这个新状态的所有行为类的OnEnterState方法
                 if (behaviour.Active)
-                    behaviour.OnEnter(enterState, null);
+                    behaviour.RuntimeBehaviour.OnEnter(enterState, null);
             if (currState.actionSystem)
                 currState.OnExitState();
             if (enterState.actionSystem)
                 enterState.OnEnterState();
-            stateMachine.stateIndex = enterState.stateID;
+            stateMachine.stateID = enterState.ID;
         }
 
         /// <summary>
@@ -152,16 +135,16 @@
         {
             foreach (StateBehaviour behaviour in stateMachine.currState.behaviours)//先退出当前的所有行为状态OnExitState的方法
                 if (behaviour.Active)
-                    behaviour.OnExit(stateMachine.currState, stateMachine.states[nextStateIndex]);
+                    behaviour.RuntimeBehaviour.OnExit(stateMachine.currState, stateMachine.states[nextStateIndex]);
             OnStateTransitionExit(stateMachine.states[nextStateIndex]);
             foreach (StateBehaviour behaviour in stateMachine.states[nextStateIndex].behaviours)//最后进入新的状态前调用这个新状态的所有行为类的OnEnterState方法
                 if (behaviour.Active)
-                    behaviour.OnEnter(stateMachine.states[nextStateIndex], null);
+                    behaviour.RuntimeBehaviour.OnEnter(stateMachine.states[nextStateIndex], null);
             if (stateMachine.currState.actionSystem)
                 stateMachine.currState.OnExitState();
             if (stateMachine.states[nextStateIndex].actionSystem)
                 stateMachine.states[nextStateIndex].OnEnterState();
-            stateMachine.stateIndex = nextStateIndex;
+            stateMachine.stateID = nextStateIndex;
         }
 
         /// <summary>
@@ -170,7 +153,7 @@
         /// <param name="stateID"></param>
         public void StatusEntry(int stateID)
         {
-            if (stateMachine.stateIndex == stateID)
+            if (stateMachine.stateID == stateID)
                 return;
             OnEnterNextState(stateID);
         }

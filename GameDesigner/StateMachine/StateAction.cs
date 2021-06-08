@@ -75,7 +75,7 @@ namespace GameDesigner
     /// ARPG状态动作
     /// </summary>
 	[System.Serializable]
-    public class StateAction
+    public sealed class StateAction
     {
         /// <summary>
         /// 动画剪辑名称
@@ -104,7 +104,7 @@ namespace GameDesigner
         /// <summary>
         /// 技能粒子物体
         /// </summary>
-		public Object effectSpwan = null;
+		public GameObject effectSpwan = null;
         /// <summary>
         /// 粒子物体生成模式
         /// </summary>
@@ -159,8 +159,11 @@ namespace GameDesigner
         /// 创建脚本名称
         /// </summary>
         public string createScriptName = "NewStateAction";
-#endif
 
+        public int acSize = 1;
+#endif
+        public StateMachine stateMachine;
+       
         /// <summary>
         /// 动作是否完成?, 当动画播放结束后为True, 否则为false
         /// </summary>

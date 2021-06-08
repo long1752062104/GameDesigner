@@ -834,7 +834,7 @@ namespace Net.Client
             if (OnSerializeOPT == null) OnSerializeOPT = OnSerializeOptInternal;
             if (OnDeserializeOPT == null) OnDeserializeOPT = OnDeserializeOptInternal;
             AddRpcHandle(this, false);
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
             persistentDataPath = UnityEngine.Application.persistentDataPath;
 #else
             persistentDataPath = Directory.GetCurrentDirectory();

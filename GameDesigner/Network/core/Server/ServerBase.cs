@@ -1741,6 +1741,8 @@ namespace Net.Server
         /// <returns></returns>
         public bool RemoveScenePlayer(Player player, bool isEntMain = true, Action<Scene> exitCurrentSceneCall = null)
         {
+            if (string.IsNullOrEmpty(player.sceneID))
+                return false;
             if (Scenes.TryGetValue(player.sceneID, out Scene scene))
             {
                 scene.Remove(player);

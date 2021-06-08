@@ -20,7 +20,7 @@
         /// </summary>
         public OperationList()
         {
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
             operations = new Operation[0];
 #endif
         }

@@ -1,0 +1,15 @@
+案例2使用:
+
+1. 打开Server~/Server.csproj项目文件, 并引用GameDesigner.dll(简称gdnet.dll) 请到gitee下载gdnet新版本后引用项目或dll
+
+2.有需要时, 可打开Hotfix~/Hotfix.csproj项目文件, 并引用GDNet.dll和UnityEngine.UI.dll, Assembly-CSharp.dll, UnityEngine.CoreModule这4个dll才能生成热更新工程!
+
+Assembly-CSharp.dll和UnityEngine.UI.dll 可以到你当前的unity项目路径: Library\ScriptAssemblies\Assembly-CSharp.dll找到, 在Assets同目录中找到Library文件夹
+
+UnityEngine.CoreModule.dll需要到unity的安装路径下找到, 可以使用搜索
+
+3.进入BuildSetting窗口添加Login, Battle场景
+
+4.运行服务器
+
+5.打开Login场景, 运行即可

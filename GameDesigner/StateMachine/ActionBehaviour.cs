@@ -1,16 +1,18 @@
 ﻿namespace GameDesigner
 {
+    using System;
     using UnityEngine;
 
     /// <summary>
     /// 动作行为--用户添加的组件 v2017/12/6
     /// </summary>
-    public abstract class ActionBehaviour : IBehaviour
+    [Serializable]
+    public class ActionBehaviour : IBehaviour
     {
         /// <summary>
         /// 状态管理器转换组建
         /// </summary>
-        public new Transform transform
+        public Transform transform
         {
             get
             {
@@ -55,5 +57,30 @@
         /// <param name="action">当前动作</param>
         /// <param name="spwan">技能物体</param>
         public virtual void OnInstantiateSpwan(StateAction action, GameObject spwan) { }
+
+        private ActionBehaviour runtimeBehaviour;
+        public ActionBehaviour RuntimeBehaviour
+        {
+            get
+            {
+                if (runtimeBehaviour == null)
+                {
+                    var type = SystemType.GetType(name);
+                    runtimeBehaviour = (ActionBehaviour)Activator.CreateInstance(type);
+                    runtimeBehaviour.stateMachine = stateMachine;
+                    runtimeBehaviour.Active = Active;
+                    runtimeBehaviour.ID = ID;
+                    runtimeBehaviour.name = name;
+                    foreach (var metadata in metadatas)
+                    {
+                        var field = type.GetField(metadata.name);
+                        metadata.field = field;
+                        metadata.target = runtimeBehaviour;
+                        field.SetValue(runtimeBehaviour, metadata.Read());
+                    }
+                }
+                return runtimeBehaviour;
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ namespace GameDesigner.FlowControls
 {
     public class WhileLoop
     {
-        public static void While(bool condition, BlueprintNode runtime)
+        public static void While(bool condition, Node runtime)
         {
             while (!condition)
             {
@@ -12,7 +12,7 @@ namespace GameDesigner.FlowControls
             }
         }
 
-        public static void LimitWhile(bool condition, BlueprintNode runtime)
+        public static void LimitWhile(bool condition, Node runtime)
         {
             int i = 0;//为了确保是死循环模式的措施
             while (!condition)
