@@ -1,4 +1,7 @@
 using MVC.View;
+using Net.Client;
+using Net.Component.Client;
+using Net.Share;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,9 +42,10 @@ namespace Hotfix
 				action = null;
 				Hide();
 			});
+			ClientManager.Instance.client.Add_ILR_RpcHandle(this);
 		}
 
-		public static void Show(string info)
+        public static void Show(string info)
 		{
 			Show("消息", info, null);
 		}
@@ -62,6 +66,18 @@ namespace Hotfix
 		internal static void Hide()
 		{
 			Instance.panel.SetActive(false);
+		}
+
+		[Rpc]
+		void BackLogin(string info)
+		{
+			Show("登录提示", info, (r) =>
+			{
+				ClientManager.Instance.client.Close();
+				UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+				ClientManager.Instance.client.Connect();
+				LoginPanel.Show();
+			});
 		}
 	}
 }

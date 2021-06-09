@@ -5475,13 +5475,13 @@
         </member>
         <member name="M:Net.Server.ServerBase`2.OfflineHandle(`0)">
             <summary>
-            强制下线处理, 这将会断开client客户端的socket连接, 如果不想断开client的socket, 请使用SignOut方法, 退出登录即可
+            强制下线处理, 将client客户端从在线字段clients和Players字段中移除
             </summary>
             <param name="client"></param>
         </member>
         <member name="M:Net.Server.ServerBase`2.SignOut(`0)">
             <summary>
-            退出登录, 当退出登录后, 会将client客户端从在线字段clients和Players字段中移除, 并将client移入未知客户端unClients字段里
+            退出登录, 将client客户端从在线字段clients和Players字段中移除
             </summary>
             <param name="client"></param>
         </member>

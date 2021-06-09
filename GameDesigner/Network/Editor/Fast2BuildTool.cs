@@ -142,7 +142,7 @@ public static class Fast2BuildToolMethod
             };
             if (field.FieldType.IsArray)
             {
-                var serType = field.FieldType.GetInterface("IList`1");
+                var serType = field.FieldType.GetInterface(typeof(IList<>).FullName);
                 var itemType = serType.GetGenericArguments()[0];
                 member.ItemType = itemType;
             }
@@ -177,7 +177,7 @@ public static class Fast2BuildToolMethod
             };
             if (property.PropertyType.IsArray)
             {
-                var serType = property.PropertyType.GetInterface("IList`1");
+                var serType = property.PropertyType.GetInterface(typeof(IList<>).FullName);
                 var itemType = serType.GetGenericArguments()[0];
                 member.ItemType = itemType;
             }

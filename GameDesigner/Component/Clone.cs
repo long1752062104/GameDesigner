@@ -103,7 +103,7 @@
                 }
                 else if (field.FieldType.IsArray)
                 {
-                    Type itemType = field.FieldType.GetInterface("IList`1").GenericTypeArguments[0];
+                    Type itemType = field.FieldType.GetInterface(typeof(IList<>).FullName).GenericTypeArguments[0];
                     if (itemType.IsPointer)
                         continue;
                     Array list = (Array)field.GetValue(source);

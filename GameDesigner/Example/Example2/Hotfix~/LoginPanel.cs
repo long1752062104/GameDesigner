@@ -56,9 +56,11 @@ namespace Hotfix
 		void LoginCallback(bool result, string info)
 		{
 			if (result)
+			{
+				Hide();
 				UnityEngine.SceneManagement.SceneManager.LoadScene(1);
-			else
-				MsgPanel.Show(info);
+			}
+			else MsgPanel.Show(info);
 		}
 	}
 }

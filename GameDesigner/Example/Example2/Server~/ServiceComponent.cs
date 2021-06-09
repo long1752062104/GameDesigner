@@ -98,12 +98,19 @@
                 SendRT(unClient, "LoginCallback", false, "账号或密码错误!");
                 return false;
             }
-            PlayerData p = DBComponent.Instance[acc];
-            if (p.password != pwd)
+            PlayerData data = DBComponent.Instance[acc];
+            if (data.password != pwd)
             {
                 SendRT(unClient, "LoginCallback", false, "账号或密码错误!");
                 return false;
             }
+            if (IsOnline(acc, out PlayerComponent player))
+            {
+                SendRT(player, "BackLogin", "你的账号在其他地方被登录!");//在客户端热更新工程的MsgPanel类找到
+                SignOut(player);
+            }
+            unClient.playerID = acc;
+            unClient.data = data;
             SendRT(unClient, "LoginCallback", true, "登录成功!");
             return true;
         }

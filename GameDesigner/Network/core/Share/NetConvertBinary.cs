@@ -1141,7 +1141,7 @@
 #endif
             if (fpType.IsArray)
             {
-                Type itemType = fpType.GetInterface("IList`1").GenericTypeArguments[0];
+                Type itemType = fpType.GetInterface(typeof(IList<>).FullName).GenericTypeArguments[0];
 #if SERVICE
                 if (isClassField)
                 {

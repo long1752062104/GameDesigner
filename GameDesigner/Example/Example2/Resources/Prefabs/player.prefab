@@ -50,6 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
+  property: 4
   mode: 2
   identity: -1
   interval: 0.5

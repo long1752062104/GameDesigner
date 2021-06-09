@@ -7,8 +7,9 @@ namespace MVC.Control
     using System;
     using AppDomain = ILRuntime.Runtime.Enviorment.AppDomain;
     using ILRuntime.Runtime.CLRBinding;
+    using Net.Component.Client;
 
-    public class GameInit : MonoBehaviour
+    public class GameInit : SingleCase<GameInit>
     {
         private AppDomain appdomain;
         private MemoryStream dllStream;
@@ -24,6 +25,12 @@ namespace MVC.Control
         // Start is called before the first frame update
         void Start()
         {
+            if (instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            instance = this;
             appdomain = new AppDomain();
 #if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
             var dllPath = Application.persistentDataPath + "/" + this.dllPath;
@@ -76,6 +83,7 @@ namespace MVC.Control
             var method = appdomain.LoadedTypes["Hotfix.GameEntry"].GetMethod("Init", 0);
             appdomain.Invoke(method, null);
             updateMethod = appdomain.LoadedTypes["Hotfix.GameEntry"].GetMethod("Update", 0);
+            DontDestroyOnLoad(gameObject);
         }
 
         void Update()

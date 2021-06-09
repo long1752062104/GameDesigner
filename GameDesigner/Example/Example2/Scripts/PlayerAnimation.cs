@@ -24,7 +24,7 @@ namespace Example2
 				newPosition = transform.position;
 				if (isGround)
 				{
-					if (oldPosition != newPosition)
+					if (Vector3.Distance(oldPosition, newPosition) > 0.02f)
 					{
 						anim.CrossFade("soldierRun");
 						oldPosition = newPosition;

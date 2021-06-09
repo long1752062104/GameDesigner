@@ -71,7 +71,7 @@ namespace Net.Example
             t.sendTime = Time.time + t.interval;
             t.netPosition = opt.position;
             t.netRotation = opt.rotation;
-            t.transform.localScale = opt.direction;
+            t.netLocalScale = opt.direction;
         }
 
         void OnDestroy()

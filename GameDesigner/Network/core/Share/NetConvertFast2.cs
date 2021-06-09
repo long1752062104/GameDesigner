@@ -176,10 +176,12 @@
         {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                var types = assembly.GetTypes().Where((t)=> { return t.GetInterface("Net.Share.ISerialize`1") != null; });
+                var types = assembly.GetTypes().Where((t)=> { 
+                    return t.GetInterface(typeof(ISerialize<>).FullName) != null; 
+                });
                 foreach (var type in types)
                 {
-                    var serType = type.GetInterface("Net.Share.ISerialize`1");
+                    var serType = type.GetInterface(typeof(ISerialize<>).FullName);
                     var itemType = serType.GetGenericArguments()[0];
                     BindTypes.Add(itemType, type);
                 }
@@ -251,7 +253,7 @@
                 BufferPool.Push(segment);
                 return value;
             }
-            throw new Exception($"请注册或绑定:{type}类型后才能序列化!");
+            throw new Exception($"请注册或绑定:{type}类型后才能反序列化!");
         }
     }
 }

@@ -2505,30 +2505,24 @@ namespace Net.Server
         }
 
         /// <summary>
-		/// 强制下线处理, 这将会断开client客户端的socket连接, 如果不想断开client的socket, 请使用SignOut方法, 退出登录即可
+		/// 强制下线处理, 将client客户端从在线字段clients和Players字段中移除
 		/// </summary>
 		/// <param name="client"></param>
 		public virtual void OfflineHandle(Player client)
         {
             SendDirect(client);
             RemoveClient(client);
+            Debug.Log("[" + client.playerID + "]被强制下线...!");
         }
 
         /// <summary>
-        /// 退出登录, 当退出登录后, 会将client客户端从在线字段clients和Players字段中移除, 并将client移入未知客户端unClients字段里
+        /// 退出登录, 将client客户端从在线字段clients和Players字段中移除
         /// </summary>
         /// <param name="client"></param>
         public virtual void SignOut(Player client)
         {
             SendDirect(client);
-            Players.TryRemove(client.playerID, out _);
-            UIDClients.TryRemove(client.UserID, out _);
-            OnRemoveClientHandle(client);
-            client.OnRemoveClient();
-            ExitScene(client, false, null);
-            if (client.login)
-                onlineNumber--;
-            client.login = false;
+            RemoveClient(client);
             Debug.Log("[" + client.playerID + "]退出登录...!");
         }
 
