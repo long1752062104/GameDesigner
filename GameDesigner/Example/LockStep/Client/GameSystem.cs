@@ -30,20 +30,18 @@ namespace LockStep.Client
                 switch (opt.cmd)
                 {
                     case Command.Input:
-                        if (!players.ContainsKey(opt.name))
+                        if (!players.TryGetValue(opt.name, out Actor actor))
                         {
-                            Actor acr = OnCreate(opt);
-                            acr.name = opt.name;
-                            players.Add(opt.name, acr);
-                            playersView.Add(acr);
+                            actor = OnCreate(opt);
+                            actor.name = opt.name;
+                            players.Add(opt.name, actor);
+                            playersView.Add(actor);
                         }
-                        Actor p = players[opt.name];
-                        p.Update(opt);
+                        actor.Update(opt);
                         break;
                     case NetCmd.QuitGame:
-                        if (players.ContainsKey(opt.name))
+                        if (players.TryGetValue(opt.name, out Actor actor1))
                         {
-                            Actor actor1 = players[opt.name];
                             actor1.Destroy();
                         }
                         break;

@@ -7602,12 +7602,6 @@
             <param name="position"></param>
             <param name="rotation"></param>
         </member>
-        <member name="M:Net.Share.Operation.GetData">
-            <summary>
-            获取Rpc远程函数
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:Net.Share.Operation.ToString">
             <summary>
             重写字符串

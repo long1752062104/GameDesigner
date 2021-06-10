@@ -1,5 +1,4 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
-using System.Collections;
 using UnityEngine;
 
 namespace LockStep.Client

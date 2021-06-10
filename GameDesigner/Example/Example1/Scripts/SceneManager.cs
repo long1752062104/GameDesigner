@@ -5,7 +5,6 @@ namespace Net.Example
     using Net.Component;
     using Net.Component.Client;
     using Net.Share;
-    using System.Collections.Generic;
     using UnityEngine;
 
     /// <summary>
@@ -14,7 +13,7 @@ namespace Net.Example
     public class SceneManager : NetBehaviour
     {
         public TransformComponent demo;
-        public Dictionary<int, TransformComponent> transforms = new Dictionary<int, TransformComponent>();
+        public MyDictionary<int, TransformComponent> transforms = new MyDictionary<int, TransformComponent>();
 
         public virtual void Start()
         {
