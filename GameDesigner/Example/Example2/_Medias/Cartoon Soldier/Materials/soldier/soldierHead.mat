@@ -4,8 +4,9 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: soldierHead
   m_Shader: {fileID: 23, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: 
@@ -31,11 +32,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _Shininess: 0.21942309
+    - _Shininess: 0.1
     m_Colors:
-    - _Color: {r: 0.93656206, g: 0.96268654, b: 0.8692916, a: 1}
-    - _ReflectColor: {r: 0.43283582, g: 0.1023699, b: 0.0032301154, a: 0.5019608}
-    - _SpecColor: {r: 0.47761196, g: 0.46016458, b: 0.29939854, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ReflectColor: {r: 1, g: 0.6819114, b: 0.5330188, a: 1}
+    - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1002 &2100001
 EditorExtensionImpl:
   serializedVersion: 6
