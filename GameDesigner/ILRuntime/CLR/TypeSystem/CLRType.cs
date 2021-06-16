@@ -868,7 +868,7 @@ namespace ILRuntime.CLR.TypeSystem
                     newType = clrType.MakeGenericType(args);
 #if UNITY_EDITOR || (DEBUG && !DISABLE_ILRUNTIME_DEBUG)
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     string argString = "";
                     for (int i = 0; i < args.Length; i++)

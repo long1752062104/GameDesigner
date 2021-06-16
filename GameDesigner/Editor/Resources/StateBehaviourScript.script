@@ -10,9 +10,7 @@ public class StateBehaviourScript : StateBehaviour
     /// <summary>
     /// 当进入状态
     /// </summary>
-    /// <param name="currentState">当前状态</param>
-    /// <param name="nextState">下一个状态</param>
-    public override void OnEnter(State currentState, State nextState)
+    public override void OnEnter()
     {
         Debug.Log("当进入状态");
     }
@@ -20,9 +18,7 @@ public class StateBehaviourScript : StateBehaviour
     /// <summary>
     /// 当更新状态
     /// </summary>
-    /// <param name="currentState">当前状态</param>
-    /// <param name="nextState">下一个状态</param>
-    public override void OnUpdate(State currentState, State nextState)
+    public override void OnUpdate()
     {
         Debug.Log("当更新状态");
     }
@@ -30,9 +26,7 @@ public class StateBehaviourScript : StateBehaviour
     /// <summary>
     /// 当退出状态
     /// </summary>
-    /// <param name="currentState">当前状态</param>
-    /// <param name="nextState">下一个状态</param>
-    public override void OnExit(State currentState, State nextState)
+    public override void OnExit()
     {
         Debug.Log("当退出状态");
     }

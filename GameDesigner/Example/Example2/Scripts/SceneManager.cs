@@ -1,10 +1,10 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Example2
 {
-    using Net.Component.Client;
+    using Net.Component;
     using Net.Share;
 
-    public class SceneManager : Net.Example.SceneManager
+    public class SceneManager : Net.Component.SceneManager
     {
         public override void OnOperationOther(Operation opt)
         {

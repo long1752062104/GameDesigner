@@ -65,9 +65,6 @@ namespace GameDesigner
         /// 动画结束进入下一个状态的ID
         /// </summary>
         public int DstStateID = 0;
-
-        //public int stateIndex;
-
         /// <summary>
         /// 状态动作集合
         /// </summary>
@@ -126,13 +123,13 @@ namespace GameDesigner
         {
             foreach (ActionBehaviour behaviour in Action.behaviours) //当子动作的动画开始进入时调用
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnEnter(Action);
+                    behaviour.OnEnter(Action);
             if (animPlayMode == AnimPlayMode.Random)
                 actionIndex = Random.Range(0, actions.Count); 
             else
                 actionIndex = (actionIndex < actions.Count - 1) ? actionIndex + 1 : 0;
             Action.eventEnter = false;
-            if (Action.isPlayAudio & Action.audioModel == AudioMode.EnterPlayAudio)
+            if (Action.isPlayAudio & Action.audioModel == AudioMode.EnterPlay)
             {
                 audioIndex = Random.Range(0, Action.audioClips.Count);
                 AudioManager.Play(Action.audioClips[audioIndex]);
@@ -155,7 +152,7 @@ namespace GameDesigner
         /// <summary>
         /// 状态每一帧
         /// </summary>
-		public void OnUpdateState(StateManager stateManager, State state)
+		public void OnUpdateState()
         {
             bool isPlaying = true;
             switch (stateMachine.animMode)
@@ -190,6 +187,9 @@ namespace GameDesigner
                                 go.transform.SetParent(null);
                                 SetPosition(stateManager, go);
                                 active = true;
+                                StateEvent.AddEvent(Action.spwanTime, () => {
+                                    go.SetActive(false);
+                                });
                                 break;
                             }
                         }
@@ -197,26 +197,28 @@ namespace GameDesigner
                         {
                             GameObject go = InstantiateSpwan(stateManager);
                             Action.activeObjs.Add(go);
+                            StateEvent.AddEvent(Action.spwanTime, ()=> {
+                                go.SetActive(false);
+                            });
                         }
                     }
                 }
-                if (Action.isPlayAudio & Action.audioModel == AudioMode.AnimEventPlayAudio)
+                if (Action.isPlayAudio & Action.audioModel == AudioMode.AnimEvent)
                 {
                     audioIndex = Random.Range(0, Action.audioClips.Count);
                     AudioManager.Play(Action.audioClips[audioIndex]);
                 }
                 Action.eventEnter = true;
-
                 foreach (ActionBehaviour behaviour in Action.behaviours) //当子动作的动画事件进入
                     if (behaviour.Active)
-                        behaviour.RuntimeBehaviour.OnAnimationEvent(Action, Action.animEventTime);
+                        behaviour.OnAnimationEvent(Action, Action.animEventTime);
             }
 
             if (Action.animTime >= Action.animTimeMax | !isPlaying)
             {
-                if (isExitState & state.transitions.Count != 0)
+                if (isExitState & transitions.Count != 0)
                 {
-                    state.transitions[DstStateID].isEnterNextState = true;
+                    transitions[DstStateID].isEnterNextState = true;
                     return;
                 }
                 if (animLoop)
@@ -235,7 +237,7 @@ namespace GameDesigner
 
             foreach (ActionBehaviour behaviour in Action.behaviours)
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnUpdate(Action);
+                    behaviour.OnUpdate(Action);
         }
 
         /// <summary>
@@ -247,25 +249,25 @@ namespace GameDesigner
             {
                 case SpwanMode.localPosition:
                     go.transform.localPosition = stateManager.transform.TransformPoint(Action.effectPostion);
-                    go.transform.rotation = stateManager.transform.rotation;
+                    go.transform.eulerAngles = stateManager.transform.eulerAngles + Action.effectEulerAngles;
                     break;
                 case SpwanMode.SetParent:
                     Action.parent = Action.parent ? Action.parent : stateManager.transform;
                     go.transform.SetParent(Action.parent);
                     go.transform.position = Action.parent.TransformPoint(Action.effectPostion);
-                    go.transform.rotation = Action.parent.rotation;
+                    go.transform.eulerAngles = Action.parent.eulerAngles + Action.effectEulerAngles;
                     break;
                 case SpwanMode.SetInTargetPosition:
                     Action.parent = Action.parent ? Action.parent : stateManager.transform;
                     go.transform.SetParent(Action.parent);
                     go.transform.position = Action.parent.TransformPoint(Action.effectPostion);
-                    go.transform.rotation = Action.parent.rotation;
+                    go.transform.eulerAngles = Action.parent.eulerAngles + Action.effectEulerAngles;
                     go.transform.parent = null;
                     break;
             }
             foreach (ActionBehaviour behaviour in Action.behaviours) // 当实例化技能物体调用
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnInstantiateSpwan(Action, go);
+                    behaviour.OnInstantiateSpwan(Action, go);
         }
 
         /// <summary>
@@ -273,7 +275,7 @@ namespace GameDesigner
         /// </summary>
 		private GameObject InstantiateSpwan(StateManager stateManager)
         {
-            GameObject go = (GameObject)Object.Instantiate(Action.effectSpwan);
+            GameObject go = Object.Instantiate(Action.effectSpwan);
             SetPosition(stateManager, go);
             return go;
         }
@@ -283,14 +285,14 @@ namespace GameDesigner
         /// </summary>
 		public void OnExitState()
         {
-            if (Action.isPlayAudio & Action.audioModel == AudioMode.ExitPlayAudio)
+            if (Action.isPlayAudio & Action.audioModel == AudioMode.ExitPlay)
             {
                 audioIndex = Random.Range(0, Action.audioClips.Count);
                 AudioManager.Play(Action.audioClips[audioIndex]);
             }
             foreach (ActionBehaviour behaviour in Action.behaviours) //当子动作结束
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnExit(Action);
+                    behaviour.OnExit(Action);
             Action.eventEnter = false;
         }
 
@@ -301,7 +303,7 @@ namespace GameDesigner
         {
             foreach (StateBehaviour behaviour in behaviours) //当子动作停止
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnActionExit(this);
+                    behaviour.OnActionExit();
         }
 
         /// <summary>
@@ -311,10 +313,10 @@ namespace GameDesigner
         {
             foreach (StateBehaviour behaviour in behaviours) //当子动作停止
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnStop(this);
+                    behaviour.OnStop();
             foreach (ActionBehaviour behaviour in Action.behaviours) //当子动作停止
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnStop(Action);
+                    behaviour.OnStop(Action);
         }
     }
 }

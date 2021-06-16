@@ -11,7 +11,7 @@ namespace Newtonsoft.Json.Serialization
     /// </summary>
     public class DefaultSerializationBinder : SerializationBinder
     {
-        private static Type GetTypeFromTypeNameKey(DefaultSerializationBinder.TypeNameKey typeNameKey)
+        private static Type GetTypeFromTypeNameKey(TypeNameKey typeNameKey)
         {
             string assemblyName = typeNameKey.AssemblyName;
             string typeName = typeNameKey.TypeName;

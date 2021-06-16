@@ -171,19 +171,14 @@ namespace Newtonsoft.Json.Linq
             foreach (JToken o in ChildrenTokens)
             {
                 yield return o;
-                JContainer jcontainer = o as JContainer;
-                if (jcontainer != null)
+                if (o is JContainer jcontainer)
                 {
                     foreach (JToken jtoken in jcontainer.Descendants())
                     {
                         yield return jtoken;
                     }
-                    IEnumerator<JToken> enumerator2 = null;
                 }
-                //o = null;
             }
-            IEnumerator<JToken> enumerator = null;
-            yield break;
             yield break;
         }
 
@@ -836,7 +831,6 @@ namespace Newtonsoft.Json.Linq
                         }
                         return;
                     }
-                    break;
                 case MergeArrayHandling.Union:
                     break;
                 case MergeArrayHandling.Replace:

@@ -1,5 +1,5 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
-namespace Net.Component.Client
+namespace Net.Component
 {
     using Net.Client;
     using Net.Share;
@@ -28,9 +28,11 @@ namespace Net.Component.Client
         void LoginCallback(bool result, string info)
         {
             if (result)
+            {
+                gameObject.SetActive(false);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(1);
-            else
-                MessageBox.Show(info);
+            }
+            else MessageBox.Show(info);
         }
     }
 }

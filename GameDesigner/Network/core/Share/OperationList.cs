@@ -4,7 +4,7 @@
     /// 帧同步列表
     /// </summary>
     [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllPublic)]
-    public class OperationList
+    public struct OperationList
     {
         /// <summary>
         /// 帧索引
@@ -18,17 +18,7 @@
         /// <summary>
         /// 构造
         /// </summary>
-        public OperationList()
-        {
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
-            operations = new Operation[0];
-#endif
-        }
-
-        /// <summary>
-        /// 构造
-        /// </summary>
-        public OperationList(uint frame)
+        public OperationList(uint frame) : this()
         {
             this.frame = frame;
         }
@@ -37,7 +27,7 @@
         /// 构造
         /// </summary>
         /// <param name="opts"></param>
-        public OperationList(Operation[] opts)
+        public OperationList(Operation[] opts) : this()
         {
             operations = opts;
         }

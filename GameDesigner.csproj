@@ -238,10 +238,12 @@
     <None Include="GameDesigner\Blueprint\ValueType.cs.meta" />
     <None Include="GameDesigner\Component.meta" />
     <None Include="GameDesigner\Component\Client.meta" />
+    <None Include="GameDesigner\Component\Client\ARPGcamera.cs.meta" />
     <None Include="GameDesigner\Component\Client\ClientManager.cs.meta" />
     <None Include="GameDesigner\Component\Client\Login.cs.meta" />
     <None Include="GameDesigner\Component\Client\MessageBox.cs.meta" />
     <None Include="GameDesigner\Component\Client\Register.cs.meta" />
+    <None Include="GameDesigner\Component\Client\SceneManager.cs.meta" />
     <None Include="GameDesigner\Component\Client\SerializeAdapter.cs.meta" />
     <None Include="GameDesigner\Component\Client\SingleCase.cs.meta" />
     <None Include="GameDesigner\Component\Client\SingleCasePanel.cs.meta" />
@@ -250,6 +252,7 @@
     <None Include="GameDesigner\Component\Client\UnityThread.cs.meta" />
     <None Include="GameDesigner\Component\Clone.cs.meta" />
     <None Include="GameDesigner\Component\Command.cs.meta" />
+    <None Include="GameDesigner\Component\InspectorAttribute.cs.meta" />
     <None Include="GameDesigner\Component\MySqlHelper.cs.meta" />
     <None Include="GameDesigner\Component\NTransform.cs.meta" />
     <None Include="GameDesigner\Component\RoomData.cs.meta" />
@@ -274,6 +277,7 @@
     <None Include="GameDesigner\Editor\GraphEditor.cs.meta" />
     <None Include="GameDesigner\Editor\HelpEdit.cs.meta" />
     <None Include="GameDesigner\Editor\PluginSettings.cs.meta" />
+    <None Include="GameDesigner\Editor\ReadOnlyDrawer.cs.meta" />
     <None Include="GameDesigner\Editor\Resources.meta" />
     <None Include="GameDesigner\Editor\Resources\11000503.png.meta" />
     <None Include="GameDesigner\Editor\Resources\11000826.png.meta" />
@@ -778,6 +782,8 @@
     <None Include="GameDesigner\Network\gudp\Helper.meta" />
     <None Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs.meta" />
+    <None Include="GameDesigner\Network\gudp\P2P.meta" />
+    <None Include="GameDesigner\Network\gudp\P2P\P2PClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server.meta" />
     <None Include="GameDesigner\Network\gudp\Server\NetworkServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\RawPlayer.cs.meta" />
@@ -1167,6 +1173,7 @@
     <None Include="GameDesigner\StateMachine\State.cs.meta" />
     <None Include="GameDesigner\StateMachine\StateAction.cs.meta" />
     <None Include="GameDesigner\StateMachine\StateBehaviour.cs.meta" />
+    <None Include="GameDesigner\StateMachine\StateEvent.cs.meta" />
     <None Include="GameDesigner\StateMachine\StateMachine.cs.meta" />
     <None Include="GameDesigner\StateMachine\StateManager.cs.meta" />
     <None Include="GameDesigner\StateMachine\StateSystem.cs.meta" />
@@ -1268,10 +1275,12 @@
     <Compile Include="GameDesigner\Blueprint\SystemType.cs" />
     <Compile Include="GameDesigner\Blueprint\TypeInfo.cs" />
     <Compile Include="GameDesigner\Blueprint\ValueType.cs" />
+    <Compile Include="GameDesigner\Component\Client\ARPGcamera.cs" />
     <Compile Include="GameDesigner\Component\Client\ClientManager.cs" />
     <Compile Include="GameDesigner\Component\Client\Login.cs" />
     <Compile Include="GameDesigner\Component\Client\MessageBox.cs" />
     <Compile Include="GameDesigner\Component\Client\Register.cs" />
+    <Compile Include="GameDesigner\Component\Client\SceneManager.cs" />
     <Compile Include="GameDesigner\Component\Client\SerializeAdapter.cs" />
     <Compile Include="GameDesigner\Component\Client\SingleCase.cs" />
     <Compile Include="GameDesigner\Component\Client\SingleCasePanel.cs" />
@@ -1280,6 +1289,7 @@
     <Compile Include="GameDesigner\Component\Client\UnityThread.cs" />
     <Compile Include="GameDesigner\Component\Clone.cs" />
     <Compile Include="GameDesigner\Component\Command.cs" />
+    <Compile Include="GameDesigner\Component\InspectorAttribute.cs" />
     <Compile Include="GameDesigner\Component\MySqlHelper.cs" />
     <Compile Include="GameDesigner\Component\NTransform.cs" />
     <Compile Include="GameDesigner\Component\RoomData.cs" />
@@ -1302,6 +1312,7 @@
     <Compile Include="GameDesigner\Editor\GraphEditor.cs" />
     <Compile Include="GameDesigner\Editor\HelpEdit.cs" />
     <Compile Include="GameDesigner\Editor\PluginSettings.cs" />
+    <Compile Include="GameDesigner\Editor\ReadOnlyDrawer.cs" />
     <Compile Include="GameDesigner\Editor\ScriptTools.cs" />
     <Compile Include="GameDesigner\Editor\StateBehaviourInspector.cs" />
     <Compile Include="GameDesigner\Editor\StateMachineEditor.cs" />
@@ -1685,6 +1696,7 @@
     <Compile Include="GameDesigner\Network\gudp\Client\UdpClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs" />
     <Compile Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs" />
+    <Compile Include="GameDesigner\Network\gudp\P2P\P2PClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\NetworkServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\RawPlayer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\RawServer.cs" />
@@ -2018,6 +2030,7 @@
     <Compile Include="GameDesigner\StateMachine\State.cs" />
     <Compile Include="GameDesigner\StateMachine\StateAction.cs" />
     <Compile Include="GameDesigner\StateMachine\StateBehaviour.cs" />
+    <Compile Include="GameDesigner\StateMachine\StateEvent.cs" />
     <Compile Include="GameDesigner\StateMachine\StateMachine.cs" />
     <Compile Include="GameDesigner\StateMachine\StateManager.cs" />
     <Compile Include="GameDesigner\StateMachine\StateSystem.cs" />

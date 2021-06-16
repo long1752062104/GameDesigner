@@ -35,6 +35,15 @@
         }
 
         /// <summary>
+        /// 获取p2p IP和端口, 通过client.OnP2PCallback事件回调
+        /// </summary>
+        /// <param name="uid"></param>
+        public void GetP2P(int uid)
+        {
+            SendRT(NetCmd.P2P, BitConverter.GetBytes(uid));
+        }
+
+        /// <summary>
         /// udp压力测试
         /// </summary>
         /// <param name="ip">服务器ip</param>
@@ -167,7 +176,7 @@
         }
         protected internal override OperationList OnDeserializeOptInternal(byte[] buffer, int index, int count)
         {
-            return null;
+            return default;
         }
         /// <summary>
         /// 单线程更新，需要开发者自动调用更新

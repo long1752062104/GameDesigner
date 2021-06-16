@@ -13,8 +13,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
         {
             foreach (JToken t in current)
             {
-                JObject o = t as JObject;
-                if (o != null)
+                if (t is JObject o)
                 {
                     if (Name != null)
                     {
@@ -34,18 +33,13 @@ namespace Newtonsoft.Json.Linq.JsonPath
                         {
                             yield return keyValuePair.Value;
                         }
-                        IEnumerator<KeyValuePair<string, JToken>> enumerator2 = null;
                     }
                 }
                 else if (errorWhenNoMatch)
                 {
                     throw new JsonException("Property '{0}' not valid on {1}.".FormatWith(CultureInfo.InvariantCulture, Name ?? "*", t.GetType().Name));
                 }
-                o = null;
-                //t = null;
             }
-            IEnumerator<JToken> enumerator = null;
-            yield break;
             yield break;
         }
     }

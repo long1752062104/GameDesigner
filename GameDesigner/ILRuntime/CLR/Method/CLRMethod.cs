@@ -399,7 +399,7 @@ namespace ILRuntime.CLR.Method
                 t = def.MakeGenericMethod(p);
 #if UNITY_EDITOR || (DEBUG && !DISABLE_ILRUNTIME_DEBUG)
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 string argString = "";
                 for (int i = 0; i < genericArguments.Length; i++)

@@ -7,7 +7,7 @@ namespace MVC.Control
     using System;
     using AppDomain = ILRuntime.Runtime.Enviorment.AppDomain;
     using ILRuntime.Runtime.CLRBinding;
-    using Net.Component.Client;
+    using Net.Component;
 
     public class GameInit : SingleCase<GameInit>
     {

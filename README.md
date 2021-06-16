@@ -5,5 +5,9 @@
 谢谢大家对我的支持，如果有其他问题，请加QQ群:825240544讨论
 ## 支持本项目
 您的支持就是我不懈努力的动力。打赏时请一定留下您的称呼
+<br>感谢以下人员对gdnet捐款:</br>
+
+<br>1 vsmile ¥ 10</br>
+<br>2 南归 ¥ 10</br>
 
 <img src="https://gitee.com/leng_yue/GameDesigner/raw/master/GameDesigner/pay.jpg" width = "600" height = "400" alt="图片名称" align=center />

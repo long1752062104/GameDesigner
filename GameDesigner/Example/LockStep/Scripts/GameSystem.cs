@@ -57,7 +57,7 @@ namespace LockStep.Client
             }
             for (int i = 0; i < updates.Count; i++)
             {
-                updates[i].Update(null);
+                updates[i].Update(default);
             }
             for (int i = 0; i < lateUpdates.Count; i++)
             {

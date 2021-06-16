@@ -245,7 +245,7 @@ namespace Newtonsoft.Json.Bson
         /// Writes a <see cref="T:System.UInt32" /> value.
         /// </summary>
         /// <param name="value">The <see cref="T:System.UInt32" /> value to write.</param>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public override void WriteValue(uint value)
         {
             if (value > 2147483647U)
@@ -270,7 +270,7 @@ namespace Newtonsoft.Json.Bson
         /// Writes a <see cref="T:System.UInt64" /> value.
         /// </summary>
         /// <param name="value">The <see cref="T:System.UInt64" /> value to write.</param>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public override void WriteValue(ulong value)
         {
             if (value > 9223372036854775807UL)
@@ -325,7 +325,7 @@ namespace Newtonsoft.Json.Bson
         /// Writes a <see cref="T:System.UInt16" /> value.
         /// </summary>
         /// <param name="value">The <see cref="T:System.UInt16" /> value to write.</param>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public override void WriteValue(ushort value)
         {
             base.WriteValue(value);
@@ -357,7 +357,7 @@ namespace Newtonsoft.Json.Bson
         /// Writes a <see cref="T:System.SByte" /> value.
         /// </summary>
         /// <param name="value">The <see cref="T:System.SByte" /> value to write.</param>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public override void WriteValue(sbyte value)
         {
             base.WriteValue(value);

@@ -250,6 +250,10 @@ namespace Net.Client
         /// </summary>
         public Action<byte[], bool> OnSendErrorHandle;
         /// <summary>
+        /// 当从服务器获取的客户端地址点对点
+        /// </summary>
+        public Action<IPEndPoint> OnP2PCallback;
+        /// <summary>
         /// 发送可靠传输缓冲
         /// </summary>
         protected ConcurrentDictionary<uint, MyDictionary<ushort, RTBuffer>> sendRTList = new ConcurrentDictionary<uint, MyDictionary<ushort, RTBuffer>>();
@@ -277,10 +281,10 @@ namespace Net.Client
         /// </summary>
         protected readonly int frame = 6;
         /// <summary>
-        /// 心跳时间间隔, 默认每2秒检查一次玩家是否离线, 玩家心跳确认为5次, 如果超出5次 则移除玩家客户端. 确认玩家离线总用时10秒, 
-        /// 如果设置的值越小, 确认的速度也会越快. 但发送的数据也会增加.
+        /// 心跳时间间隔, 默认每1秒检查一次玩家是否离线, 玩家心跳确认为5次, 如果超出5次 则移除玩家客户端. 确认玩家离线总用时5秒, 
+        /// 如果设置的值越小, 确认的速度也会越快. 值太小有可能出现直接中断问题, 设置的最小值在100以上
         /// </summary>
-        public int HeartInterval { get; set; } = 2000;
+        public int HeartInterval { get; set; } = 1000;
         /// <summary>
         /// <para>心跳检测次数, 默认为5次检测, 如果5次发送心跳给客户端或服务器, 没有收到回应的心跳包, 则进入断开连接处理</para>
         /// <para>当一直有数据往来时是不会发送心跳数据的, 只有当没有数据往来了, 才会进入发送心跳数据</para>
@@ -289,7 +293,7 @@ namespace Net.Client
         /// <summary>
         /// 客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是NetPlayer.playerID值
         /// </summary>
-        public string Identify { get; set; }
+        public string Identify { get; protected set; }
         /// <summary>
         /// 用户唯一标识, 对应服务器的NetPlayer.UID
         /// </summary>
@@ -297,7 +301,7 @@ namespace Net.Client
         /// <summary>
         /// 网络数据发送频率, 大概每秒发送1000个数据
         /// </summary>
-        [Obsolete("已弃用, 发送频率为1ms!", false)]
+        [Obsolete("已弃用, 发送频率固定为1ms!", false)]
         public int SyncFrequency { get; set; } = 1;
         /// <summary>
         /// 在多线程调用unity主线程的上下文对象
@@ -505,14 +509,14 @@ namespace Net.Client
                         if (rpcs.Value[i].method.Equals(@delegate.Method))
                         {
                             rpcs.Value.RemoveAt(i);
-                            i--;
+                            if (i > 0) i--;
                         }
                         continue;
                     }
                     if (rpcs.Value[i].target.Equals(target) | rpcs.Value[i].method.Equals(null))
                     {
                         rpcs.Value.RemoveAt(i);
-                        i--;
+                        if(i > 0) i--;
                     }
                 }
                 if (rpcs.Value.Count <= 0)
@@ -573,12 +577,12 @@ namespace Net.Client
             }
             if (!RpcsDic.TryGetValue(model.func, out List<RPCMethod> rpcs))
             {
-                NDebug.LogWarning($"Rpcs里面没有{model.func}的远程方法被注册!如果在Unity使用请在检视面板使用Debug模式查看Rpcs里面的Rpc注册情况!");
+                NDebug.LogWarning($"{model.func}的远程方法未被收集!请定义[Rpc]void {model.func}方法和参数, 并使用client.AddRpcHandle方法收集rpc方法!");
                 return;
             }
             if (rpcs.Count <= 0)
             {
-                NDebug.LogWarning($"Rpcs里面没有{model.func}的远程方法被注册!如果在Unity使用请在检视面板使用Debug模式查看Rpcs里面的Rpc注册情况!");
+                NDebug.LogWarning($"{model.func}的远程方法未被收集!请定义[Rpc]void {model.func}方法和参数, 并使用client.AddRpcHandle方法收集rpc方法!");
                 return;
             }
             foreach (RPCMethod rpc in rpcs)
@@ -1722,7 +1726,7 @@ namespace Net.Client
                             dataCount = dataCount
                         });
                         fileStreamCurrPos += dataCount;
-                        if (fileStreamCurrPos > (1024l * 1024l * 1024l))//如果文件大于1g, 则从0开始记录
+                        if (fileStreamCurrPos > (1024 * 1024 * 1024))//如果文件大于1g, 则从0开始记录
                             fileStreamCurrPos = 0;
                     }
                     FrameList revdFrame = revdFrames[frame];
@@ -1811,7 +1815,7 @@ namespace Net.Client
                     Task.Run(()=> { OnSwitchPort(model.pars[0].ToString(), (ushort)model.pars[1]); });
                     break;
                 case NetCmd.Identify:
-                    UID = BitConverter.ToInt32(model.buffer, model.index + 0);
+                    UID = BitConverter.ToInt32(model.buffer, model.index);
                     Identify = Encoding.Unicode.GetString(model.buffer, model.index + 4, model.count - 4);
                     break;
                 case NetCmd.OperationSync:
@@ -1822,12 +1826,21 @@ namespace Net.Client
                     rPCModels.Enqueue(new RPCModel(NetCmd.PingCallback, model.Buffer, model.kernel, false));
                     break;
                 case NetCmd.PingCallback:
-                    long ticks = BitConverter.ToInt64(model.buffer, model.index + 0);
+                    long ticks = BitConverter.ToInt64(model.buffer, model.index);
                     DateTime time = new DateTime(ticks);
                     currRto = DateTime.Now.Subtract(time).TotalMilliseconds + 100d;
                     if (OnPingCallback == null)
                         return;
                     InvokeContext(() => { OnPingCallback((currRto - 100d) / 2); });
+                    break;
+                case NetCmd.P2P:
+                    Segment segment = new Segment(model.buffer, model.index, 10, false);
+                    var address = segment.ReadValue<long>();
+                    var port = segment.ReadValue<int>();
+                    IPEndPoint iPEndPoint = new IPEndPoint(address, port);
+                    if (OnP2PCallback == null)
+                        return;
+                    InvokeContext(() => { OnP2PCallback(iPEndPoint); });
                     break;
                 default:
                     InvokeOnRevdBufferHandle(model);
@@ -2584,7 +2597,7 @@ namespace Net.Client
 
         private void OperationSyncCallback(object state)
         {
-            OnOperationSync?.Invoke(state as OperationList);
+            OnOperationSync?.Invoke((OperationList)state);
         }
 
         /// <summary>

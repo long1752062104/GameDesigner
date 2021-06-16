@@ -90,9 +90,9 @@ namespace Newtonsoft.Json.Linq.JsonPath
                 case JTokenType.Date:
                     using (StringWriter stringWriter = StringUtils.CreateStringWriter(64))
                     {
-                        if (value.Value is DateTimeOffset)
+                        if (value.Value is DateTimeOffset offset)
                         {
-                            DateTimeUtils.WriteDateTimeOffsetString(stringWriter, (DateTimeOffset)value.Value, DateFormatHandling.IsoDateFormat, null, CultureInfo.InvariantCulture);
+                            DateTimeUtils.WriteDateTimeOffsetString(stringWriter, offset, DateFormatHandling.IsoDateFormat, null, CultureInfo.InvariantCulture);
                         }
                         else
                         {
@@ -101,7 +101,6 @@ namespace Newtonsoft.Json.Linq.JsonPath
                         a = stringWriter.ToString();
                         goto IL_DF;
                     }
-                    break;
                 case JTokenType.Raw:
                     return false;
                 case JTokenType.Bytes:

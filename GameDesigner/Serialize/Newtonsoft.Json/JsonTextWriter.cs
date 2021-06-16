@@ -375,7 +375,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="T:System.UInt32" /> value.
         /// </summary>
         /// <param name="value">The <see cref="T:System.UInt32" /> value to write.</param>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public override void WriteValue(uint value)
         {
             base.InternalWriteValue(JsonToken.Integer);
@@ -396,7 +396,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="T:System.UInt64" /> value.
         /// </summary>
         /// <param name="value">The <see cref="T:System.UInt64" /> value to write.</param>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public override void WriteValue(ulong value)
         {
             base.InternalWriteValue(JsonToken.Integer);
@@ -477,7 +477,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="T:System.UInt16" /> value.
         /// </summary>
         /// <param name="value">The <see cref="T:System.UInt16" /> value to write.</param>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public override void WriteValue(ushort value)
         {
             base.InternalWriteValue(JsonToken.Integer);
@@ -508,7 +508,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="T:System.SByte" /> value.
         /// </summary>
         /// <param name="value">The <see cref="T:System.SByte" /> value to write.</param>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public override void WriteValue(sbyte value)
         {
             base.InternalWriteValue(JsonToken.Integer);

@@ -84,7 +84,7 @@
         /// </summary>
         /// <param name="model">函数名</param>
         /// <returns></returns>
-        public new static byte[] Serialize(RPCModel model, byte[] flag = null)
+        public static byte[] Serialize(RPCModel model, byte[] flag = null)
         {
             var bufferPool = BufferPool.Take();
             using (MemoryStream stream = new MemoryStream(bufferPool))

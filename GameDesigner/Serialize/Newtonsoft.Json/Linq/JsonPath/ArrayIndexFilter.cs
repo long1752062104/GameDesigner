@@ -15,7 +15,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
             {
                 if (Index != null)
                 {
-                    JToken tokenIndex = PathFilter.GetTokenIndex(t, errorWhenNoMatch, Index.GetValueOrDefault());
+                    JToken tokenIndex = GetTokenIndex(t, errorWhenNoMatch, Index.GetValueOrDefault());
                     if (tokenIndex != null)
                     {
                         yield return tokenIndex;
@@ -27,16 +27,12 @@ namespace Newtonsoft.Json.Linq.JsonPath
                     {
                         yield return jtoken;
                     }
-                    IEnumerator<JToken> enumerator2 = null;
                 }
                 else if (errorWhenNoMatch)
                 {
                     throw new JsonException("Index * not valid on {0}.".FormatWith(CultureInfo.InvariantCulture, t.GetType().Name));
                 }
-                //t = null;
             }
-            IEnumerator<JToken> enumerator = null;
-            yield break;
             yield break;
         }
     }

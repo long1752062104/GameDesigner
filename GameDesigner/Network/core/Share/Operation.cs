@@ -4,7 +4,7 @@
     /// 帧同步操作
     /// </summary>
     [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllPublic)]
-    public class Operation
+    public struct Operation
     {
         /// <summary>
         /// 操作指令
@@ -39,10 +39,6 @@
         /// </summary>
         public int index1, index2;
         /// <summary>
-        /// 玩家生命值
-        /// </summary>
-        public float health;
-        /// <summary>
         /// 数据数组, 备用
         /// </summary>
         public byte[] buffer;
@@ -50,13 +46,6 @@
         /// 备用字符串
         /// </summary>
         public string name1, name2;
-
-        /// <summary>
-        /// 默认
-        /// </summary>
-        public Operation()
-        {
-        }
 
         /// <summary>
         /// 玩家操作指令

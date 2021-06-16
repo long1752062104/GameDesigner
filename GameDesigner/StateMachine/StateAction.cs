@@ -26,15 +26,15 @@ namespace GameDesigner
         /// <summary>
         /// 进入状态播放音效
         /// </summary>
-		EnterPlayAudio,
+		EnterPlay,
         /// <summary>
         /// 动画事件播放音效
         /// </summary>
-		AnimEventPlayAudio,
+		AnimEvent,
         /// <summary>
         /// 退出状态播放音效
         /// </summary>
-		ExitPlayAudio
+		ExitPlay
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace GameDesigner
         /// <summary>
         /// 对象池
         /// </summary>
-		SetActive
+		ObjectPool
     }
 
     /// <summary>
@@ -130,13 +130,17 @@ namespace GameDesigner
         /// </summary>
 		public Vector3 effectPostion = new Vector3(0, 1.5f, 2f);
         /// <summary>
+        /// 粒子角度
+        /// </summary>
+        public Vector3 effectEulerAngles;
+        /// <summary>
         /// 是否播放音效
         /// </summary>
-		public bool isPlayAudio = false;
+        public bool isPlayAudio = false;
         /// <summary>
         /// 音效触发模式
         /// </summary>
-		public AudioMode audioModel = AudioMode.AnimEventPlayAudio;
+		public AudioMode audioModel = AudioMode.AnimEvent;
         /// <summary>
         /// 音效剪辑
         /// </summary>

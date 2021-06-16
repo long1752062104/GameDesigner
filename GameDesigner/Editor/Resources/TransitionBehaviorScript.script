@@ -10,7 +10,7 @@ public class TransitionBehaviorScript : TransitionBehaviour
     /// <summary>
     /// 当连接行为更新
     /// </summary>
-    /// <param name="isEnterNextState">是否进入下一个状态</param>
+    /// <param name="isEnterNextState">进入下一个状态?</param>
     public override void OnUpdate(ref bool isEnterNextState)
     {
         Debug.Log("当连接行为更新");

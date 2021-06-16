@@ -210,8 +210,6 @@ namespace Newtonsoft.Json.Serialization
             IL_71:
                 throw JsonSerializationException.Create(reader, "Unexpected end when deserializing object.");
             }
-            JToken result;
-            return result;
         }
 
         private object CreateValueInternal(JsonReader reader, Type objectType, JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue)
@@ -1157,7 +1155,6 @@ namespace Newtonsoft.Json.Serialization
                             }
                             throw;
                         }
-                        goto IL_266;
                     }
                 }
             IL_287:
@@ -1244,7 +1241,6 @@ namespace Newtonsoft.Json.Serialization
                         num = new int?(position.Position);
                         goto IL_1F9;
                     }
-                    goto IL_179;
                 }
                 goto IL_179;
             IL_1F9:
@@ -1585,7 +1581,6 @@ namespace Newtonsoft.Json.Serialization
                                 }
                                 goto IL_55B;
                             }
-                            goto IL_4A9;
                         }
                     IL_55B:
                         creatorPropertyContext2.Used = true;
@@ -1927,7 +1922,6 @@ namespace Newtonsoft.Json.Serialization
                             }
                             throw;
                         }
-                        goto IL_26B;
                     }
                 }
             IL_28B:

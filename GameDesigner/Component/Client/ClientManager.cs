@@ -1,5 +1,5 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
-namespace Net.Component.Client
+namespace Net.Component
 {
     using Net.Client;
     using Net.Event;
@@ -7,7 +7,6 @@ namespace Net.Component.Client
     using System;
     using System.Threading;
     using UnityEngine;
-    using UnityEngine.SceneManagement;
 
     public enum TransportProtocol
     {
@@ -139,7 +138,7 @@ namespace Net.Component.Client
         {
             MessageBox.Show("登录提示", info, (r) =>
             {
-                SceneManager.LoadScene(0);
+                UnityEngine.SceneManagement.SceneManager.LoadScene(0);
             });
         }
 

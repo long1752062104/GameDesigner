@@ -330,7 +330,6 @@ namespace Newtonsoft.Json.Bson
                             base.SetToken(token2);
                             return true;
                         }
-                        break;
                     }
                 case JsonReader.State.ConstructorStart:
                 case JsonReader.State.Constructor:

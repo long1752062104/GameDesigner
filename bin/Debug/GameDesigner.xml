@@ -1362,11 +1362,6 @@
             动作行为--用户添加的组件 v2017/12/6
             </summary>
         </member>
-        <member name="P:GameDesigner.ActionBehaviour.transform">
-            <summary>
-            状态管理器转换组建
-            </summary>
-        </member>
         <member name="M:GameDesigner.ActionBehaviour.OnEnter(GameDesigner.StateAction)">
             <summary>
             当进入状态
@@ -1466,6 +1461,16 @@
         <member name="P:GameDesigner.IBehaviour.state">
             <summary>
             当前状态
+            </summary>
+        </member>
+        <member name="P:GameDesigner.IBehaviour.transform">
+            <summary>
+            状态管理器转换组建
+            </summary>
+        </member>
+        <member name="M:GameDesigner.IBehaviour.OnInit">
+            <summary>
+            当初始化调用
             </summary>
         </member>
         <member name="M:GameDesigner.IBehaviour.OnDestroyComponent">
@@ -1662,7 +1667,7 @@
             进入状态
             </summary>
         </member>
-        <member name="M:GameDesigner.State.OnUpdateState(GameDesigner.StateManager,GameDesigner.State)">
+        <member name="M:GameDesigner.State.OnUpdateState">
             <summary>
             状态每一帧
             </summary>
@@ -1712,17 +1717,17 @@
             音效模式
             </summary>
         </member>
-        <member name="F:GameDesigner.AudioMode.EnterPlayAudio">
+        <member name="F:GameDesigner.AudioMode.EnterPlay">
             <summary>
             进入状态播放音效
             </summary>
         </member>
-        <member name="F:GameDesigner.AudioMode.AnimEventPlayAudio">
+        <member name="F:GameDesigner.AudioMode.AnimEvent">
             <summary>
             动画事件播放音效
             </summary>
         </member>
-        <member name="F:GameDesigner.AudioMode.ExitPlayAudio">
+        <member name="F:GameDesigner.AudioMode.ExitPlay">
             <summary>
             退出状态播放音效
             </summary>
@@ -1737,7 +1742,7 @@
             实例化
             </summary>
         </member>
-        <member name="F:GameDesigner.ActiveMode.SetActive">
+        <member name="F:GameDesigner.ActiveMode.ObjectPool">
             <summary>
             对象池
             </summary>
@@ -1832,6 +1837,11 @@
             粒子出生位置
             </summary>
         </member>
+        <member name="F:GameDesigner.StateAction.effectEulerAngles">
+            <summary>
+            粒子角度
+            </summary>
+        </member>
         <member name="F:GameDesigner.StateAction.isPlayAudio">
             <summary>
             是否播放音效
@@ -1897,39 +1907,27 @@
             状态行为脚本 v2017/12/6 - 2020.6.7
             </summary>
         </member>
-        <member name="P:GameDesigner.StateBehaviour.transform">
-            <summary>
-            状态管理器转换组建
-            </summary>
-        </member>
-        <member name="M:GameDesigner.StateBehaviour.OnEnter(GameDesigner.State,GameDesigner.State)">
+        <member name="M:GameDesigner.StateBehaviour.OnEnter">
             <summary>
             当状态进入时
             </summary>
-            <param name="currentState">当前状态</param>
-            <param name="nextState">下一个状态</param>
         </member>
-        <member name="M:GameDesigner.StateBehaviour.OnUpdate(GameDesigner.State,GameDesigner.State)">
+        <member name="M:GameDesigner.StateBehaviour.OnUpdate">
             <summary>
             当状态每一帧
             </summary>
-            <param name="currentState">当前状态</param>
-            <param name="nextState">下一个状态</param>
         </member>
-        <member name="M:GameDesigner.StateBehaviour.OnExit(GameDesigner.State,GameDesigner.State)">
+        <member name="M:GameDesigner.StateBehaviour.OnExit">
             <summary>
             当状态退出后
             </summary>
-            <param name="currentState">当前状态</param>
-            <param name="nextState">下一个状态</param>
         </member>
-        <member name="M:GameDesigner.StateBehaviour.OnStop(GameDesigner.State)">
+        <member name="M:GameDesigner.StateBehaviour.OnStop">
             <summary>
             当停止动作 : 当动作不使用动画循环时, 动画时间到达100%后调用
             </summary>
-            <param name="state"></param>
         </member>
-        <member name="M:GameDesigner.StateBehaviour.OnActionExit(GameDesigner.State)">
+        <member name="M:GameDesigner.StateBehaviour.OnActionExit">
             <summary>
             当动作处于循环模式时, 子动作动画每次结束都会调用一次
             </summary>
@@ -2044,14 +2042,14 @@
             </summary>
             <param name="state">要退出的状态</param>
         </member>
-        <member name="M:GameDesigner.StateManager.OnEnterNextState(GameDesigner.State,GameDesigner.State)">
+        <member name="M:GameDesigner.StateManager.EnterNextState(GameDesigner.State,GameDesigner.State)">
             <summary>
             当进入下一个状态
             </summary>
             <param name="currState">当前状态</param>
             <param name="enterState">要进入的状态</param>
         </member>
-        <member name="M:GameDesigner.StateManager.OnEnterNextState(System.Int32)">
+        <member name="M:GameDesigner.StateManager.EnterNextState(System.Int32)">
             <summary>
             当进入下一个状态, 你也可以立即进入当前播放的状态, 如果不想进入当前播放的状态, 使用StatusEntry方法
             </summary>
@@ -2676,6 +2674,11 @@
             当socket发送失败调用. 参数1:发送的字节数组, 参数2:发送标志(可靠和不可靠)  ->可通过SendByteData方法重新发送
             </summary>
         </member>
+        <member name="F:Net.Client.ClientBase.OnP2PCallback">
+            <summary>
+            当从服务器获取的客户端地址点对点
+            </summary>
+        </member>
         <member name="F:Net.Client.ClientBase.sendRTList">
             <summary>
             发送可靠传输缓冲
@@ -2708,8 +2711,8 @@
         </member>
         <member name="P:Net.Client.ClientBase.HeartInterval">
             <summary>
-            心跳时间间隔, 默认每2秒检查一次玩家是否离线, 玩家心跳确认为5次, 如果超出5次 则移除玩家客户端. 确认玩家离线总用时10秒, 
-            如果设置的值越小, 确认的速度也会越快. 但发送的数据也会增加.
+            心跳时间间隔, 默认每1秒检查一次玩家是否离线, 玩家心跳确认为5次, 如果超出5次 则移除玩家客户端. 确认玩家离线总用时5秒, 
+            如果设置的值越小, 确认的速度也会越快. 值太小有可能出现直接中断问题, 设置的最小值在100以上
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.HeartLimit">
@@ -3718,6 +3721,12 @@
             构造udp可靠客户端
             </summary>
             <param name="useUnityThread">使用unity多线程?</param>
+        </member>
+        <member name="M:Net.Client.UdpClient.GetP2P(System.Int32)">
+            <summary>
+            获取p2p IP和端口, 通过client.OnP2PCallback事件回调
+            </summary>
+            <param name="uid"></param>
         </member>
         <member name="M:Net.Client.UdpClient.Testing(System.String,System.Int32,System.Int32,System.Int32,System.Action{Net.Client.UdpClientTest},System.Action{System.Collections.Generic.List{Net.Client.UdpClientTest}})">
             <summary>
@@ -7475,11 +7484,6 @@
             其他索引
             </summary>
         </member>
-        <member name="F:Net.Share.Operation.health">
-            <summary>
-            玩家生命值
-            </summary>
-        </member>
         <member name="F:Net.Share.Operation.buffer">
             <summary>
             数据数组, 备用
@@ -7493,11 +7497,6 @@
         <member name="F:Net.Share.Operation.name2">
             <summary>
             备用字符串
-            </summary>
-        </member>
-        <member name="M:Net.Share.Operation.#ctor">
-            <summary>
-            默认
             </summary>
         </member>
         <member name="M:Net.Share.Operation.#ctor(System.Byte)">
@@ -7621,11 +7620,6 @@
         <member name="F:Net.Share.OperationList.operations">
             <summary>
             帧操作列表
-            </summary>
-        </member>
-        <member name="M:Net.Share.OperationList.#ctor">
-            <summary>
-            构造
             </summary>
         </member>
         <member name="M:Net.Share.OperationList.#ctor(System.UInt32)">

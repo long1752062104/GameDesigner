@@ -9,7 +9,7 @@ using UnityEditor;
 
 public class Fast2BuildTools : EditorWindow
 {
-    private string bindTypeName = "BindingEntry";
+    private string bindTypeName = "Net.Binding.BindingEntry";
     private string methodName = "GetBindTypes";
     private string savePath;
     private string bindTypeName1;

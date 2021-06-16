@@ -14,8 +14,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
         {
             foreach (JToken t in current)
             {
-                JObject o = t as JObject;
-                if (o != null)
+                if (t is JObject o)
                 {
                     foreach (string name in Names)
                     {
@@ -28,9 +27,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
                         {
                             throw new JsonException("Property '{0}' does not exist on JObject.".FormatWith(CultureInfo.InvariantCulture, name));
                         }
-                        //name = null;
                     }
-                    List<string>.Enumerator enumerator2 = default(List<string>.Enumerator);
                 }
                 else if (errorWhenNoMatch)
                 {
@@ -38,10 +35,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
                                                                                                                                            select "'" + n + "'").ToArray<string>()), t.GetType().Name));
                 }
                 o = null;
-                //t = null;
             }
-            IEnumerator<JToken> enumerator = null;
-            yield break;
             yield break;
         }
     }

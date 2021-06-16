@@ -218,7 +218,7 @@ public class BlueprintSetting : ScriptableObject
     [Header("quaternion 型皮肤")]
     public string quaternionStyleName = "button";
     [SerializeField]
-    private GUIStyle _quaternionStyle = null; private GUIStyle _quaternionStyle1 = null;
+    private GUIStyle _quaternionStyle = null;
     public GUIStyle quaternionStyle
     {
         get

@@ -1046,19 +1046,19 @@ namespace Net.Share
             _version++;
         }
 
-        internal sealed class FunctorComparer<T> : IComparer<T>
+        internal sealed class FunctorComparer<T1> : IComparer<T1>
         {
-            public FunctorComparer(Comparison<T> comparison)
+            public FunctorComparer(Comparison<T1> comparison)
             {
                 this.comparison = comparison;
             }
 
-            public int Compare(T x, T y)
+            public int Compare(T1 x, T1 y)
             {
                 return comparison(x, y);
             }
 
-            private readonly Comparison<T> comparison;
+            private readonly Comparison<T1> comparison;
         }
 
         public void Sort(Comparison<T> comparison)

@@ -151,9 +151,9 @@ namespace Newtonsoft.Json.Linq
                 JToken token = t;
                 if (key == null)
                 {
-                    if (token is JValue)
+                    if (token is JValue value)
                     {
-                        yield return ((JValue)token).Convert<JValue, U>();
+                        yield return value.Convert<JValue, U>();
                     }
                     else
                     {
@@ -161,7 +161,6 @@ namespace Newtonsoft.Json.Linq
                         {
                             yield return token2.Convert<JToken, U>();
                         }
-                        IEnumerator<JToken> enumerator2 = null;
                     }
                 }
                 else
@@ -172,10 +171,7 @@ namespace Newtonsoft.Json.Linq
                         yield return jtoken.Convert<JToken, U>();
                     }
                 }
-                token = null;
             }
-            IEnumerator<T> enumerator = null;
-            yield break;
             yield break;
         }
 
@@ -210,8 +206,6 @@ namespace Newtonsoft.Json.Linq
             {
                 yield return t.Convert<JToken, U>();
             }
-            IEnumerator<T> enumerator = null;
-            yield break;
             yield break;
         }
 
@@ -219,27 +213,26 @@ namespace Newtonsoft.Json.Linq
         {
             if (token == null)
             {
-                return default(U);
+                return default;
             }
             if (token is U && typeof(U) != typeof(IComparable) && typeof(U) != typeof(IFormattable))
             {
-                return (U)((object)token);
+                return (U)(object)token;
             }
-            JValue jvalue = token as JValue;
-            if (jvalue == null)
+            if (!(token is JValue jvalue))
             {
                 throw new InvalidCastException("Cannot cast {0} to {1}.".FormatWith(CultureInfo.InvariantCulture, token.GetType(), typeof(T)));
             }
-            if (jvalue.Value is U)
+            if (jvalue.Value is U u)
             {
-                return (U)jvalue.Value;
+                return u;
             }
             Type type = typeof(U);
             if (ReflectionUtils.IsNullableType(type))
             {
                 if (jvalue.Value == null)
                 {
-                    return default(U);
+                    return default;
                 }
                 type = Nullable.GetUnderlyingType(type);
             }

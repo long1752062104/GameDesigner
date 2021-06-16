@@ -71,13 +71,7 @@ namespace GameDesigner
         /// <summary>
         /// 当前状态
         /// </summary>
-		public State currState
-        {
-            get
-            {
-                return states[stateID];
-            }
-        }
+		public State currState => states[stateID];
 
         /// <summary>
         /// 选择的状态

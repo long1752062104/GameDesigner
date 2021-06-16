@@ -1,7 +1,7 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Net.Example
 {
-    using Net.Component.Client;
+    using Net.Component;
     using UnityEngine;
 
     public class Spawn1 : MonoBehaviour

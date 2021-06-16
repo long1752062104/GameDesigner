@@ -21,8 +21,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
             }
             foreach (JToken t in current)
             {
-                JArray a = t as JArray;
-                if (a != null)
+                if (t is JArray a)
                 {
                     int stepCount = Step ?? 1;
                     int num = Start ?? ((stepCount > 0) ? 0 : (a.Count - 1));
@@ -58,11 +57,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
                 {
                     throw new JsonException("Array slice is not valid on {0}.".FormatWith(CultureInfo.InvariantCulture, t.GetType().Name));
                 }
-                a = null;
-                //t = null;
             }
-            IEnumerator<JToken> enumerator = null;
-            yield break;
             yield break;
         }
 

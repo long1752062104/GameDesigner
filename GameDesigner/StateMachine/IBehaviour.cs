@@ -1,6 +1,7 @@
 ﻿namespace GameDesigner
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
     using UnityEngine;
@@ -33,7 +34,9 @@
         Color,
         Color32,
         Quaternion,
-        AnimationCurve
+        AnimationCurve,
+        GenericType,
+        Array,
     }
 
     [Serializable]
@@ -46,6 +49,7 @@
         public object target;
         public FieldInfo field;
         public Object Value;
+        public List<Object> values = new List<Object>();
         private object _value;
         public object value
         { 
@@ -53,7 +57,7 @@
             {
                 if (target != null & field != null)
                     _value = field.GetValue(target);
-                else if (_value == null)
+                if (_value == null)
                     _value = Read();
                 return _value;
             }
@@ -65,7 +69,6 @@
                 Write(_value);
             }
         }
-
         private Type _type;
         public Type Type 
         {
@@ -75,9 +78,20 @@
                 return _type;
             }
         }
+        public Type _itemType;
+        public Type itemType
+        {
+            get
+            {
+                if (_itemType == null)
+                    _itemType = Type.GetInterface(typeof(IList<>).FullName).GenericTypeArguments[0];
+                return _itemType;
+            }
+        }
+        public int arraySize;
+        public bool foldout;
 
         public Metadata() { }
-
         public Metadata(string name, string fullName, TypeCode type, object target, FieldInfo field)
         {
             this.name = name;
@@ -143,6 +157,32 @@
                 case TypeCode.Color32:
                     var datas6 = data.Split(',');
                     return new Color32(byte.Parse(datas6[0]), byte.Parse(datas6[1]), byte.Parse(datas6[2]), byte.Parse(datas6[2]));
+                case TypeCode.GenericType:
+                    if (itemType == typeof(Object) | itemType.IsSubclassOf(typeof(Object)))
+                    {
+                        IList list = (IList)Activator.CreateInstance(Type);
+                        for (int i = 0; i < values.Count; i++)
+                        {
+                            if (values[i] == null) 
+                                list.Add(null);
+                            else
+                                list.Add(values[i]);
+                        }
+                        return list;
+                    }
+                    else return Newtonsoft.Json.JsonConvert.DeserializeObject(data, Type);
+                case TypeCode.Array:
+                    if (itemType == typeof(Object) | itemType.IsSubclassOf(typeof(Object)))
+                    {
+                        IList list = Array.CreateInstance(itemType, values.Count);
+                        for (int i = 0; i < values.Count; i++)
+                        {
+                            if (values[i] == null) continue;
+                            list[i] = values[i];
+                        }
+                        return list;
+                    }
+                    else return Newtonsoft.Json.JsonConvert.DeserializeObject(data, Type);
             }
             return null;
         }
@@ -190,6 +230,17 @@
                     Color32 v = (Color32)value;
                     data = $"{v.r},{v.g},{v.b},{v.a}";
                 }
+                else if (type == TypeCode.GenericType | type == TypeCode.Array)
+                {
+                    if (itemType == typeof(Object) | itemType.IsSubclassOf(typeof(Object)))
+                    {
+                        values.Clear();
+                        IList list = (IList)value;
+                        for (int i = 0; i < list.Count; i++)
+                            values.Add(list[i] as Object);
+                    }
+                    else data = Newtonsoft.Json.JsonConvert.SerializeObject(value);
+                }
                 else data = value.ToString();
             }
             else
@@ -218,20 +269,15 @@
         public bool Active = true;
         public List<Metadata> metadatas = new List<Metadata>();
         public StateMachine stateMachine;
-        public StateManager stateManager { get { return stateMachine.stateManager; } }
+        public StateManager stateManager => stateMachine.stateManager;
         /// <summary>
         /// 当前状态
         /// </summary>
-        public State state
-        {
-            get 
-            {
-                foreach (var item in stateMachine.states)
-                    if (item.ID == ID)
-                        return item;
-                return null;
-            }
-        }
+        public State state => stateMachine.states[ID];
+        /// <summary>
+        /// 状态管理器转换组建
+        /// </summary>
+        public Transform transform => stateManager.transform;
         public Type Type { get { return SystemType.GetType(name); } }
         public void InitMetadatas(StateMachine stateMachine) 
         {
@@ -248,33 +294,44 @@
             {
                 if (type != field.DeclaringType | field.IsStatic)
                     continue;
-                var code = Type.GetTypeCode(field.FieldType);
-                if (code == System.TypeCode.Object)
-                {
-                    if (field.FieldType.IsSubclassOf(typeof(Object)) | field.FieldType == typeof(Object))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Object, this, field));
-                    else if(field.FieldType == typeof(Vector2))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Vector2, this, field));
-                    else if (field.FieldType == typeof(Vector3))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Vector3, this, field));
-                    else if (field.FieldType == typeof(Vector4))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Vector4, this, field));
-                    else if (field.FieldType == typeof(Quaternion))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Quaternion, this, field));
-                    else if (field.FieldType == typeof(Rect))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Rect, this, field));
-                    else if (field.FieldType == typeof(Color))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Color, this, field));
-                    else if (field.FieldType == typeof(Color32))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Color32, this, field));
-                    else if (field.FieldType == typeof(AnimationCurve))
-                        metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.AnimationCurve, this, field));
-                }
-                else 
-                {
-                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, (TypeCode)code, this, field));
-                }
+                InitField(field);
             }
+        }
+
+        private void InitField(FieldInfo field) 
+        {
+            var code = Type.GetTypeCode(field.FieldType);
+            if (code == System.TypeCode.Object)
+            {
+                if (field.FieldType.IsSubclassOf(typeof(Object)) | field.FieldType == typeof(Object))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Object, this, field));
+                else if (field.FieldType == typeof(Vector2))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Vector2, this, field));
+                else if (field.FieldType == typeof(Vector3))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Vector3, this, field));
+                else if (field.FieldType == typeof(Vector4))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Vector4, this, field));
+                else if (field.FieldType == typeof(Quaternion))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Quaternion, this, field));
+                else if (field.FieldType == typeof(Rect))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Rect, this, field));
+                else if (field.FieldType == typeof(Color))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Color, this, field));
+                else if (field.FieldType == typeof(Color32))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Color32, this, field));
+                else if (field.FieldType == typeof(AnimationCurve))
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.AnimationCurve, this, field));
+                else if (field.FieldType.IsGenericType)
+                {
+                    var gta = field.FieldType.GenericTypeArguments;
+                    if (gta.Length > 1)
+                        return;
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.GenericType, this, field));
+                } 
+                else if (field.FieldType.IsArray)
+                    metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Array, this, field));
+            } 
+            else metadatas.Add(new Metadata(field.Name, field.FieldType.FullName, (TypeCode)code, this, field));
         }
 
         public void Reload(Type type, StateMachine stateMachine, List<Metadata> metadatas)
@@ -288,12 +345,19 @@
                     {
                         item.data = item1.data;
                         item.Value = item1.Value;
+                        item.arraySize = item1.arraySize;
+                        item.foldout = item1.foldout;
                         item.field.SetValue(this, item1.value);
                         break;
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// 当初始化调用
+        /// </summary>
+        public virtual void OnInit() { }
 
         /// <summary>
         /// 当组件被删除调用一次
@@ -320,6 +384,6 @@
         /// 当进入下一个状态, 你也可以立即进入当前播放的状态, 如果不想进入当前播放的状态, 使用StatusEntry方法
         /// </summary>
         /// <param name="stateID">下一个状态的ID</param>
-        public void OnEnterNextState(int stateID) => stateManager.OnEnterNextState(stateID);
+        public void OnEnterNextState(int stateID) => stateManager.EnterNextState(stateID);
     }
 }

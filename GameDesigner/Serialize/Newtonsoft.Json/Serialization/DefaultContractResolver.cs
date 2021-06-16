@@ -1066,7 +1066,7 @@ namespace Newtonsoft.Json.Serialization
             property.ItemIsReference = ((attribute != null) ? attribute._itemIsReference : null);
             property.ItemConverter = ((attribute != null && attribute.ItemConverterType != null) ? JsonTypeReflector.CreateJsonConverterInstance(attribute.ItemConverterType, attribute.ItemConverterParameters) : null);
             property.ItemReferenceLoopHandling = ((attribute != null) ? attribute._itemReferenceLoopHandling : null);
-            property.ItemTypeNameHandling = ((attribute != null) ? attribute._itemTypeNameHandling : null);
+            property.ItemTypeNameHandling = (attribute != null) ? attribute._itemTypeNameHandling : null;
             allowNonPublicAccess = false;
             if ((DefaultMembersSearchFlags & BindingFlags.NonPublic) == BindingFlags.NonPublic)
             {
@@ -1182,8 +1182,6 @@ namespace Newtonsoft.Json.Serialization
                 {
                     yield return new KeyValuePair<object, object>(keyValuePair.Key, keyValuePair.Value);
                 }
-                IEnumerator<KeyValuePair<TEnumeratorKey, TEnumeratorValue>> enumerator = null;
-                yield break;
                 yield break;
             }
 

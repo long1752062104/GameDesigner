@@ -46,8 +46,23 @@ namespace GameDesigner
                 Type type = assembly.GetType(typeName1);
                 if (type != null)
                 {
-                    Types.TryAdd(typeName, type);
-                    return type;
+                    if (typeName.Contains("[]"))
+                    {
+                        var arrayType = Array.CreateInstance(type, 0).GetType();
+                        Types.TryAdd(typeName, arrayType);
+                        return arrayType;
+                    }
+                    else if (typeName.Contains("List`1"))
+                    {
+                        var arrayType = Activator.CreateInstance(type).GetType();
+                        Types.TryAdd(typeName, arrayType);
+                        return arrayType;
+                    }
+                    else 
+                    {
+                        Types.TryAdd(typeName, type);
+                        return type;
+                    }
                 }
             }
             return null;

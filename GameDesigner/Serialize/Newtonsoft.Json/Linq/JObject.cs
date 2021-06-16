@@ -589,8 +589,6 @@ namespace Newtonsoft.Json.Linq
                 JProperty jproperty = (JProperty)jtoken;
                 yield return new KeyValuePair<string, JToken>(jproperty.Name, jproperty.Value);
             }
-            IEnumerator<JToken> enumerator = null;
-            yield break;
             yield break;
         }
 

@@ -1,5 +1,5 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
-using Net.Component.Client;
+using Net.Component;
 using UnityEngine;
 namespace Example2
 {

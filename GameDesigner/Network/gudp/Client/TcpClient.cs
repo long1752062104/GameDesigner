@@ -340,7 +340,7 @@
             }
             protected internal override OperationList OnDeserializeOptInternal(byte[] buffer, int index, int count)
             {
-                return null;
+                return default;
             }
             public override string ToString()
             {

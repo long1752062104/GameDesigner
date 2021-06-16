@@ -1,6 +1,5 @@
 ﻿namespace GameDesigner
 {
-    using System;
     using UnityEngine;
 
     /// <summary>
@@ -36,14 +35,39 @@
         {
             if (stateMachine == null)
                 return;
+            foreach (var state in stateMachine.states)
+            {
+                for (int i = 0; i < state.behaviours.Count; i++)
+                {
+                    state.behaviours[i] = state.behaviours[i].InitBehaviour();
+                    state.behaviours[i].OnInit();
+                }
+                foreach (var t in state.transitions)
+                {
+                    for (int i = 0; i < t.behaviours.Count; i++)
+                    {
+                        t.behaviours[i] = t.behaviours[i].InitBehaviour();
+                        t.behaviours[i].OnInit();
+                    }
+                }
+                if (state.actionSystem)
+                {
+                    foreach (var action in state.actions)
+                    {
+                        for (int i = 0; i < action.behaviours.Count; i++)
+                        {
+                            action.behaviours[i] = action.behaviours[i].InitBehaviour();
+                            action.behaviours[i].OnInit();
+                        }
+                    }
+                }
+            }
             if (stateMachine.defaultState.actionSystem)
                 stateMachine.defaultState.OnEnterState();
         }
 
         private void Update()
         {
-            if (stateMachine.currState == null)
-                return;
             OnState(stateMachine.currState);
         }
 
@@ -54,20 +78,10 @@
         public void OnState(State state)
         {
             if (state.actionSystem)
-            {
-                try
-                {
-                    state.OnUpdateState(this, state);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogWarning("系统动作出现异常,为了不影响性能,系统即将自动关闭系统动作 == > " + e);
-                    state.actionSystem = false;
-                }
-            }
+                state.OnUpdateState();
             for (int i = 0; i < state.behaviours.Count; ++i) //用户自定义脚本行为
                 if (state.behaviours[i].Active)
-                    state.behaviours[i].RuntimeBehaviour.OnUpdate(state, null);
+                    state.behaviours[i].OnUpdate();
             for (int i = 0; i < state.transitions.Count; ++i)
                 OnTransition(state.transitions[i]);
         }
@@ -80,7 +94,7 @@
         {
             for (int i = 0; i < transition.behaviours.Count; ++i)
                 if (transition.behaviours[i].Active)
-                    transition.behaviours[i].RuntimeBehaviour.OnUpdate(ref transition.isEnterNextState);
+                    transition.behaviours[i].OnUpdate(ref transition.isEnterNextState);
             if (transition.model == TransitionModel.ExitTime)
             {
                 transition.time += Time.deltaTime;
@@ -89,7 +103,7 @@
             }
             if (transition.isEnterNextState)
             {
-                OnEnterNextState(stateMachine.currState, transition.nextState);
+                EnterNextState(stateMachine.currState, transition.nextState);
                 transition.time = 0;
                 transition.isEnterNextState = false;
             }
@@ -111,15 +125,15 @@
         /// </summary>
         /// <param name="currState">当前状态</param>
         /// <param name="enterState">要进入的状态</param>
-        public void OnEnterNextState(State currState, State enterState)
+        public void EnterNextState(State currState, State enterState)
         {
             foreach (StateBehaviour behaviour in currState.behaviours)//先退出当前的所有行为状态OnExitState的方法
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnExit(currState, enterState);
+                    behaviour.OnExit();
             OnStateTransitionExit(currState);
             foreach (StateBehaviour behaviour in enterState.behaviours)//最后进入新的状态前调用这个新状态的所有行为类的OnEnterState方法
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnEnter(enterState, null);
+                    behaviour.OnEnter();
             if (currState.actionSystem)
                 currState.OnExitState();
             if (enterState.actionSystem)
@@ -131,15 +145,15 @@
         /// 当进入下一个状态, 你也可以立即进入当前播放的状态, 如果不想进入当前播放的状态, 使用StatusEntry方法
         /// </summary>
         /// <param name="nextStateIndex">下一个状态的ID</param>
-		public void OnEnterNextState(int nextStateIndex)
+		public void EnterNextState(int nextStateIndex)
         {
             foreach (StateBehaviour behaviour in stateMachine.currState.behaviours)//先退出当前的所有行为状态OnExitState的方法
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnExit(stateMachine.currState, stateMachine.states[nextStateIndex]);
+                    behaviour.OnExit();
             OnStateTransitionExit(stateMachine.states[nextStateIndex]);
             foreach (StateBehaviour behaviour in stateMachine.states[nextStateIndex].behaviours)//最后进入新的状态前调用这个新状态的所有行为类的OnEnterState方法
                 if (behaviour.Active)
-                    behaviour.RuntimeBehaviour.OnEnter(stateMachine.states[nextStateIndex], null);
+                    behaviour.OnEnter();
             if (stateMachine.currState.actionSystem)
                 stateMachine.currState.OnExitState();
             if (stateMachine.states[nextStateIndex].actionSystem)
@@ -155,7 +169,7 @@
         {
             if (stateMachine.stateID == stateID)
                 return;
-            OnEnterNextState(stateID);
+            EnterNextState(stateID);
         }
     }
 }

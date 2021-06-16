@@ -18,10 +18,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
                         yield return jtoken2;
                     }
                 }
-                IEnumerator<JToken> enumerator2 = null;
             }
-            IEnumerator<JToken> enumerator = null;
-            yield break;
             yield break;
         }
     }

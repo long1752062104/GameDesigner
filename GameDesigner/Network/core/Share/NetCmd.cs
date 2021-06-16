@@ -123,5 +123,7 @@
         /// 可靠传输取帧列表 内部指令
         /// </summary>
         public const byte TakeFrameList = 27;
+
+        public const byte P2P = 28;
     }
 }

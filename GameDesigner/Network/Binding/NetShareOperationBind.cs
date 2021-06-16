@@ -64,24 +64,19 @@ namespace Binding
 				NetConvertBase.SetBit(ref bits[1], 2, true);
 				strem.WriteValue(value.index2);
 			}
-			if(value.health != 0)
-			{
-				NetConvertBase.SetBit(ref bits[1], 3, true);
-				strem.WriteValue(value.health);
-			}
 			if(value.buffer != null)
 			{
-				NetConvertBase.SetBit(ref bits[1], 4, true);
+				NetConvertBase.SetBit(ref bits[1], 3, true);
 				strem.WriteArray(value.buffer);
 			}
 			if (!string.IsNullOrEmpty(value.name1))
 			{
-				NetConvertBase.SetBit(ref bits[1], 5, true);
+				NetConvertBase.SetBit(ref bits[1], 4, true);
 				strem.WriteValue(value.name1);
 			}
 			if (!string.IsNullOrEmpty(value.name2))
 			{
-				NetConvertBase.SetBit(ref bits[1], 6, true);
+				NetConvertBase.SetBit(ref bits[1], 5, true);
 				strem.WriteValue(value.name2);
 			}
 			int pos1 = strem.Position;
@@ -124,12 +119,10 @@ namespace Binding
 			if(NetConvertBase.GetBit(bits[1], 2))
 				value.index2 = strem.ReadValue<Int32>();
 			if(NetConvertBase.GetBit(bits[1], 3))
-				value.health = strem.ReadValue<Single>();
-			if(NetConvertBase.GetBit(bits[1], 4))
 				value.buffer = strem.ReadArray<System.Byte>();
-			if(NetConvertBase.GetBit(bits[1], 5))
+			if(NetConvertBase.GetBit(bits[1], 4))
 				value.name1 = strem.ReadValue<String>();
-			if(NetConvertBase.GetBit(bits[1], 6))
+			if(NetConvertBase.GetBit(bits[1], 5))
 				value.name2 = strem.ReadValue<String>();
 			return value;
 		}

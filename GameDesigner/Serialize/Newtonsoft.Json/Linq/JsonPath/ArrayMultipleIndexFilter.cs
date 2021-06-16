@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Linq.JsonPath
 {
@@ -13,17 +12,13 @@ namespace Newtonsoft.Json.Linq.JsonPath
             {
                 foreach (int index in Indexes)
                 {
-                    JToken tokenIndex = PathFilter.GetTokenIndex(t, errorWhenNoMatch, index);
+                    JToken tokenIndex = GetTokenIndex(t, errorWhenNoMatch, index);
                     if (tokenIndex != null)
                     {
                         yield return tokenIndex;
                     }
                 }
-                List<int>.Enumerator enumerator2 = default(List<int>.Enumerator);
-                //t = null;
             }
-            IEnumerator<JToken> enumerator = null;
-            yield break;
             yield break;
         }
     }

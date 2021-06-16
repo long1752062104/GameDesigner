@@ -23,10 +23,12 @@
         [FieldOffset(10)] public ushort ip_checksum; //16位IP首部校验和 
         [FieldOffset(12)] public uint ip_srcaddr; //32位源IP地址 
         [FieldOffset(16)] public uint ip_destaddr; //32位目的IP地址 
+        [FieldOffset(20)] public ushort srcPort; //源端口
+        [FieldOffset(22)] public ushort dstPort; //目的地端口
 
         public override string ToString()
         {
-            return $"源地址:{new IPAddress(ip_srcaddr)} 目的地:{new IPAddress(ip_destaddr)}";
+            return $"源地址:{new IPAddress(ip_srcaddr)}:{srcPort} 目的地:{new IPAddress(ip_destaddr)}:{dstPort}";
         }
     }
 
@@ -74,20 +76,18 @@
                 Blocking = false
             };
             Server.Bind(new IPEndPoint(IPAddress.Parse(NetPort.GetIP()), port));
-#if !UNITY_ANDROID//在安卓启动服务器时忽略此错误
             Server.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HeaderIncluded, 1);
-            //byte[] IN = new byte[4] { 1, 0, 0, 0 };
-            //byte[] OUT = new byte[4];
-            //int SIO_R = unchecked((int)0x98000001);
-            //int ret_code = Server.IOControl(SIO_R, IN, OUT);//接收所有IP数据包, bing的ip不能是127.0.0.1
-            //ret_code = OUT[0] + OUT[1] + OUT[2] + OUT[3];//把4个8位字节合成一个32位整数
-            //if (ret_code != 0)
-            //    throw new IOException("设置低级别操作失败!");
+            byte[] IN = new byte[4] { 1, 0, 0, 0 };
+            byte[] OUT = new byte[4];
+            int SIO_R = unchecked((int)0x98000001);//监听所有的数据包
+            int ret_code = Server.IOControl(SIO_R, IN, OUT);//接收所有IP数据包, bing的ip不能是127.0.0.1
+            ret_code = OUT[0] + OUT[1] + OUT[2] + OUT[3];//把4个8位字节合成一个32位整数
+            if (ret_code != 0)
+                throw new Exception("设置低级别操作失败!");
             uint IOC_IN = 0x80000000;
             uint IOC_VENDOR = 0x18000000;
             uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
             Server.IOControl((int)SIO_UDP_CONNRESET, new byte[] { Convert.ToByte(false) }, null);//udp远程关闭现有连接方案
-#endif
             IsRunServer = true;
             Thread proRevd = new Thread(ProcessReceive) { IsBackground = true, Name = "ProcessReceive" };
             proRevd.Start();
@@ -141,19 +141,17 @@
                     }
                     var buffer = BufferPool.Take();
                     int count = Server.Receive(buffer, 0, buffer.Length, SocketFlags.None);
+                    IPHeader* head;
                     fixed (byte* fixed_buf = &buffer.Buffer[0])
-                    {
-                        IPHeader* head = (IPHeader*)fixed_buf;
-                    }
-                    byte temp_protocol = buffer[9];
-                    if (temp_protocol != 17)//udp协议
+                        head = (IPHeader*)fixed_buf;
+                    if (head->ip_protocol != 17)//udp协议
                         continue;
-                    ushort OriginationPort = BitConverter.ToUInt16(new byte[] { buffer[21], buffer[20] }, 0);
-                    ushort DestinationPort = BitConverter.ToUInt16(new byte[] { buffer[23], buffer[22] }, 0);
-                    IPAddress OriginationAddress = new IPAddress(BitConverter.ToUInt32(buffer, 12));
-                    if (DestinationPort != Port)
+                    ushort srcPort = BitConverter.ToUInt16(new byte[] { buffer[21], buffer[20] }, 0);
+                    ushort desPort = BitConverter.ToUInt16(new byte[] { buffer[23], buffer[22] }, 0);
+                    IPAddress srcAddress = new IPAddress(head->ip_srcaddr);
+                    if (desPort != Port)
                         continue;
-                    IPEndPoint remotePoint = new IPEndPoint(OriginationAddress, OriginationPort);
+                    IPEndPoint remotePoint = new IPEndPoint(srcAddress, srcPort);
                     receiveCount += count;
                     receiveAmount++;
                     ReceiveProcessed(remotePoint, buffer, count, false);

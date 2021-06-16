@@ -10,6 +10,7 @@ namespace Newtonsoft.Json.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver" /> class.
         /// </summary>
+        [Obsolete]
         public CamelCasePropertyNamesContractResolver() : base(true)
         {
             base.NamingStrategy = new CamelCaseNamingStrategy

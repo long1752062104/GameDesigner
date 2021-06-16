@@ -142,7 +142,7 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the <see cref="T:System.UInt16" />.</returns>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public static string ToString(ushort value)
         {
             return value.ToString(null, CultureInfo.InvariantCulture);
@@ -153,7 +153,7 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the <see cref="T:System.UInt32" />.</returns>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public static string ToString(uint value)
         {
             return value.ToString(null, CultureInfo.InvariantCulture);
@@ -174,7 +174,7 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the <see cref="T:System.UInt64" />.</returns>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public static string ToString(ulong value)
         {
             return value.ToString(null, CultureInfo.InvariantCulture);
@@ -260,7 +260,7 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the <see cref="T:System.SByte" />.</returns>
-        [CLSCompliant(false)]
+        //[CLSCompliant(false)]
         public static string ToString(sbyte value)
         {
             return value.ToString(null, CultureInfo.InvariantCulture);
@@ -602,7 +602,7 @@ namespace Newtonsoft.Json
         public static object DeserializeObject(string value)
         {
             Type type = null; JsonSerializerSettings settings = null;
-            return JsonConvert.DeserializeObject(value, type, settings);
+            return DeserializeObject(value, type, settings);
         }
 
         /// <summary>
@@ -725,7 +725,7 @@ namespace Newtonsoft.Json
                 (obj = new JsonSerializerSettings()).Converters = converters;
             }
             JsonSerializerSettings settings = obj;
-            return JsonConvert.DeserializeObject(value, type, settings);
+            return DeserializeObject(value, type, settings);
         }
 
         /// <summary>
@@ -761,7 +761,7 @@ namespace Newtonsoft.Json
         /// <param name="target">The target object to populate values onto.</param>
         public static void PopulateObject(string value, object target)
         {
-            JsonConvert.PopulateObject(value, target, null);
+            PopulateObject(value, target, null);
         }
 
         /// <summary>

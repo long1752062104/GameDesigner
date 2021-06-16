@@ -986,7 +986,7 @@ namespace Net.Server
                             dataCount = dataCount
                         });
                         client.fileStreamCurrPos += dataCount;
-                        if (client.fileStreamCurrPos > (1024l * 1024l * 1024l))//如果文件大于1g, 则从0开始记录
+                        if (client.fileStreamCurrPos > (1024 * 1024 * 1024))//如果文件大于1g, 则从0开始记录
                             client.fileStreamCurrPos = 0;
                     }
                     FrameList revdFrame = client.revdFrames[frame];
@@ -1076,10 +1076,22 @@ namespace Net.Server
                     client.udpRPCModels.Enqueue(new RPCModel(NetCmd.PingCallback, model.Buffer, model.kernel, false, model.methodMask));
                     break;
                 case NetCmd.PingCallback:
-                    long ticks = BitConverter.ToInt64(model.buffer, model.index + 0);
+                    long ticks = BitConverter.ToInt64(model.buffer, model.index);
                     DateTime time = new DateTime(ticks);
                     client.currRto = DateTime.Now.Subtract(time).TotalMilliseconds + 100d;
                     OnPingCallback?.Invoke(client, (client.currRto - 100d) / 2);
+                    break;
+                case NetCmd.P2P:
+                    int uid = BitConverter.ToInt32(model.buffer, model.index);
+                    if(UIDClients.TryGetValue(uid, out Player player)){
+                        Segment segment = new Segment(new byte[10], 0, 10, false);
+                        IPEndPoint iPEndPoint = player.RemotePoint as IPEndPoint;
+#pragma warning disable CS0618 // 类型或成员已过时
+                        segment.WriteValue(iPEndPoint.Address.Address);
+#pragma warning restore CS0618 // 类型或成员已过时
+                        segment.WriteValue(iPEndPoint.Port);
+                        SendRT(client, NetCmd.P2P, segment.ToArray(false));
+                    }
                     break;
                 default:
                     client.OnRevdBufferHandle(model);

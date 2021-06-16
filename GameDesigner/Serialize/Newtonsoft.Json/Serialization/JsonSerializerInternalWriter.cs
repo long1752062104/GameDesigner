@@ -598,7 +598,6 @@ namespace Newtonsoft.Json.Serialization
                         }
                         throw;
                     }
-                    goto IL_CE;
                 }
                 goto IL_CE;
             IL_DE:

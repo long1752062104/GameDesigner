@@ -1,5 +1,5 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
-namespace Net.Component.Client
+namespace Net.Component
 {
     using UnityEngine;
 
@@ -28,6 +28,14 @@ namespace Net.Component.Client
                 }
                 return instance;
             }
+            set { instance = value; }
+        }
+        /// <summary>
+        /// 单例实例
+        /// </summary>
+        public static T I
+        {
+            get { return Instance; }
             set { instance = value; }
         }
 

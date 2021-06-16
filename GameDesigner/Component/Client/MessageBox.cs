@@ -1,5 +1,5 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
-namespace Net.Component.Client
+namespace Net.Component
 {
     using Net.Share;
     using System;
@@ -46,11 +46,6 @@ namespace Net.Component.Client
             instance.info.text = info;
             instance.action = action;
             instance.gameObject.SetActive(true);
-        }
-
-        public static void Hide()
-        {
-            instance.gameObject.SetActive(false);
         }
 
         [rpc]
