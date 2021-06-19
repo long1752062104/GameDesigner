@@ -36,7 +36,7 @@ namespace Newtonsoft.Json.Serialization
                 return CachedAttributeGetter<DataMemberAttribute>.GetAttribute(memberInfo);
             }
             PropertyInfo propertyInfo = (PropertyInfo)memberInfo;
-            DataMemberAttribute attribute = CachedAttributeGetter<DataMemberAttribute>.GetAttribute(propertyInfo);
+            var attribute = CachedAttributeGetter<DataMemberAttribute>.GetAttribute(propertyInfo);
             if (attribute == null && propertyInfo.IsVirtual())
             {
                 Type type = propertyInfo.DeclaringType;

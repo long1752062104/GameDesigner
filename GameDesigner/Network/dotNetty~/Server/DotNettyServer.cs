@@ -41,9 +41,9 @@ namespace Net.Server
             {
                 if (message is IByteBuffer buffer)
                 {
-                    var buffer1 = new Segment(buffer.Array, buffer.ArrayOffset, buffer.ArrayOffset + buffer.ReadableBytes, false);
-                    Instance.SetRAC(buffer1.Count);
-                    client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer1, index = buffer1.Index, count = buffer1.Count, tcp_udp = true });
+                    var segment = new Segment(buffer.Array, buffer.ArrayOffset, buffer.ArrayOffset + buffer.ReadableBytes, false);
+                    Instance.SetRAC(segment.Count - segment.Index);
+                    client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = segment, index = segment.Index, count = segment.Count, tcp_udp = true });
                 }
             }
 

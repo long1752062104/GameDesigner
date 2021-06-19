@@ -4,6 +4,7 @@ using System;
 using System.IO;
 #if !NO_GENERICS
 using System.Collections.Generic;
+using System.Xml;
 #endif
 
 #if FEAT_IKVM
@@ -163,7 +164,7 @@ namespace ProtoBuf
         /// <typeparam name="T">The type being serialized.</typeparam>
         /// <param name="instance">The existing instance to be serialized (cannot be null).</param>
         /// <param name="writer">The destination XmlWriter to write to.</param>
-        public static void Serialize<T>(System.Xml.XmlWriter writer, T instance) where T : System.Xml.Serialization.IXmlSerializable
+        public static void Serialize<T>(XmlWriter writer, T instance) where T : System.Xml.Serialization.IXmlSerializable
         {
             if (writer == null) throw new ArgumentNullException("writer");
             if (instance == null) throw new ArgumentNullException("instance");

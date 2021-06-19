@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDesigner", "GameDesigner.csproj", "{25DEE685-3111-40E0-A9BC-45BC6FD5C61D}"
 EndProject
@@ -20,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {85BC3C51-DD74-42DB-A985-37BA698ACCE4}
+		SolutionGuid = {E97A621C-6BB4-47D3-9A0B-45632D0F79F0}
 	EndGlobalSection
 EndGlobal
