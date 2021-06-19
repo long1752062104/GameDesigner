@@ -181,6 +181,16 @@ namespace GGPhysUnity
 
             if (edit)
             {
+                m_body.IsStatic = isStatic;
+                m_body.UseAreaForce = useGravity;
+                m_body.LinearDamping = linearDamping;
+                m_body.AngularDamping = angularDamping;
+                m_body.FreezePosition = (byte)freezePos;
+                m_body.FreezeRotation = (byte)freezeRot;
+                m_body.Friction = friction;
+                m_body.Restitution = restitution;
+                m_body.SleepEpsilon = sleepEpsilon;
+                m_body.AwakeVelocityLimit = awakeVelocityLimit;
                 SetPositionAndOrientation(transform.position, transform.rotation);
             }
 #endif

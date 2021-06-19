@@ -232,10 +232,10 @@ public static class Fast2BuildToolMethod
                 {
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}int count = value.{members[i].Name}.Length;");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}strem.WriteValue(count);");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}if (count == 0) goto JMP;");
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
                     var local = members[i].ItemType.FullName.Replace(".", "") + "Bind";
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}foreach (var value1 in value.{members[i].Name})");

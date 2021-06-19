@@ -18,10 +18,10 @@ namespace Binding
 			}
 			if(value.operations != null)
 			{
+				NetConvertBase.SetBit(ref bits[0], 2, true);
 				int count = value.operations.Length;
 				strem.WriteValue(count);
 				if (count == 0) goto JMP;
-				NetConvertBase.SetBit(ref bits[0], 2, true);
 				NetShareOperationBind bind = new NetShareOperationBind();
 				foreach (var value1 in value.operations)
 					bind.Write(value1, strem);

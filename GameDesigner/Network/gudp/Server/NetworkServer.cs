@@ -508,7 +508,7 @@
                     continue;
                 if (DateTime.Now > client.Value.LastTime)
                 {
-                    Debug.Log($"赖在服务器的客户端:{client.Key}被踢下线!");
+                    Debug.Log($"赖在服务器的客户端:{client.Key}被强制下线!");
                     client.Value.TcpRemoteEndPoint = client.Key;//解决key偶尔不对导致一直移除不了问题
                     RemoveClient(client.Value);
                     break;

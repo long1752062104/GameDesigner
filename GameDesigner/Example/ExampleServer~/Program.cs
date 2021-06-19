@@ -11,6 +11,7 @@ namespace ExampleServer
         [STAThread]
         static void Main(string[] args)
         {
+            //args = new string[] { "Example3" };
             if (args.Length == 0)
                 return;
             Application.EnableVisualStyles();

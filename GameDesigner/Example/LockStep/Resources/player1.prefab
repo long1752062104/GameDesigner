@@ -2038,17 +2038,17 @@ MonoBehaviour:
   mass:
     _serializedValue: 4294967296
   linearDamping:
-    _serializedValue: 3865470464
-  angularDamping:
-    _serializedValue: 3865470464
-  friction:
     _serializedValue: 429496736
+  angularDamping:
+    _serializedValue: 0
+  friction:
+    _serializedValue: 0
   restitution:
     _serializedValue: 0
   sleepEpsilon:
-    _serializedValue: 515396064
+    _serializedValue: 0
   awakeVelocityLimit:
-    _serializedValue: 429496736
+    _serializedValue: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0

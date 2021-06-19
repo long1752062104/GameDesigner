@@ -702,6 +702,7 @@
     <None Include="GameDesigner\Network\core\Share\RevdRTBuffer.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\RPCFun.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\RPCModel.cs.meta" />
+    <None Include="GameDesigner\Network\core\Share\RPCModelTask.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\RTOMode.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\SendBuffer.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\TransportMode.cs.meta" />
@@ -1651,6 +1652,7 @@
     <Compile Include="GameDesigner\Network\core\Share\RevdRTBuffer.cs" />
     <Compile Include="GameDesigner\Network\core\Share\RPCFun.cs" />
     <Compile Include="GameDesigner\Network\core\Share\RPCModel.cs" />
+    <Compile Include="GameDesigner\Network\core\Share\RPCModelTask.cs" />
     <Compile Include="GameDesigner\Network\core\Share\RTOMode.cs" />
     <Compile Include="GameDesigner\Network\core\Share\SendBuffer.cs" />
     <Compile Include="GameDesigner\Network\core\Share\TransportMode.cs" />

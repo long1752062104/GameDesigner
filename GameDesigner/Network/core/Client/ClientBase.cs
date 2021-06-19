@@ -2232,12 +2232,6 @@ namespace Net.Client
 
         private readonly MyDictionary<string, RPCModelTask> rpcTasks = new MyDictionary<string, RPCModelTask>();
 
-        private class RPCModelTask
-        {
-            internal bool IsCompleted;
-            internal RPCModel model;
-        }
-
         /// <summary>
         /// 远程同步调用
         /// </summary>

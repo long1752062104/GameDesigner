@@ -117,6 +117,8 @@ namespace Net.Adapter
     {
         public void OnRpcExecute(Player client, RPCModel model)
         {
+            if (model.methodMask != 0)
+                if (!RpcMask.TryGetValue(model.methodMask, out model.func)) model.func = $"[mask:{model.methodMask}]";
             if (string.IsNullOrEmpty(model.func))
                 return;
             if (RPCS.TryGetValue(model.func, out RPCPTR model1))
@@ -140,9 +142,12 @@ namespace Net.Adapter
     {
         internal SynchronizationContext Context;
         internal MyDictionary<string, RPCPTR> RPCS = new MyDictionary<string, RPCPTR>();
+        internal MyDictionary<ushort, string> RpcMask = new MyDictionary<ushort, string>();
+        internal MyDictionary<string, RPCModelTask> rpcTasks = new MyDictionary<string, RPCModelTask>();
+#if UNITY_EDITOR
         private readonly bool useIL2CPP;
-
-        public CallSiteRpcAdapter() 
+#endif
+        public CallSiteRpcAdapter()
         {
             Context = SynchronizationContext.Current;
 #if UNITY_EDITOR
@@ -233,14 +238,23 @@ namespace Net.Adapter
 
         public void OnRpcExecute(RPCModel model)
         {
+            if (model.methodMask != 0)
+                if (!RpcMask.TryGetValue(model.methodMask, out model.func)) model.func = $"[mask:{model.methodMask}]";
             if (string.IsNullOrEmpty(model.func))
                 return;
-            if (RPCS.TryGetValue(model.func, out RPCPTR model1))
+            if (rpcTasks.TryGetValue(model.func, out RPCModelTask model1))
+            {
+                model1.model = model;
+                model1.IsCompleted = true;
+                rpcTasks.Remove(model.func);
+                return;
+            }
+            if (RPCS.TryGetValue(model.func, out RPCPTR model2))
             {
                 if (Context != null)
-                    Context.Post((obj) => { model1.Invoke(model.pars); }, null);
+                    Context.Post((obj) => { model2.Invoke(model.pars); }, null);
                 else
-                    model1.Invoke(model.pars);
+                    model2.Invoke(model.pars);
             }
         }
 

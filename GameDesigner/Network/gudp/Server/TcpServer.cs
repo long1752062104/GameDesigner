@@ -151,13 +151,13 @@
                             continue;
                         if (client.Client.Poll(0, SelectMode.SelectRead))
                         {
-                            var buffer = BufferPool.Take();
-                            int count = client.Client.Receive(buffer, 0, buffer.Length, SocketFlags.None, out SocketError error);
+                            var segment = BufferPool.Take();
+                            int count = client.Client.Receive(segment, 0, segment.Length, SocketFlags.None, out SocketError error);
                             if (error != SocketError.Success)
                                 continue;
                             receiveCount += count;
                             receiveAmount++;
-                            client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, count = count, tcp_udp = true });
+                            client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = segment, count = count, tcp_udp = true });
                         }
                     }
                     revdLoopNum++;
@@ -340,7 +340,7 @@
                 {
                     if (DateTime.Now > client.Value.LastTime)
                     {
-                        Debug.Log($"赖在服务器的客户端:{client.Key}被踢下线!");
+                        Debug.Log($"赖在服务器的客户端:{client.Key}被强制下线!");
                         client.Value.RemotePoint = client.Key;//解决key偶尔不对导致一直移除不了问题
                         RemoveClient(client.Value);
                         break;
