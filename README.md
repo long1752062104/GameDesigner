@@ -1,6 +1,10 @@
 ## GDNet
  (Game Designer Network)游戏设计网络框架使用C#开发，支持.NetFramework和Core版本，目前主要用于Unity3D，Form窗体程序和控制台项目开发。扩展性强，支持新协议快速扩展，当前支持tcp，gudp, udx, kcp, enet, web网络协议。简易上手. api注释完整。
 
+## 模块图
+
+<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/gdnet模块图.png" width = "600" height = "400" alt="图片名称" align=center />
+
 ## 使用
 
 <br>1.创建服务器项目,使用控制台或窗体程序都可以</br>
