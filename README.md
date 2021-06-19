@@ -3,7 +3,7 @@
 
 ## 模块图
 
-<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/gdnet模块图.png" width = "600" height = "400" alt="图片名称" align=center />
+<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/gdnet模块图.png" width = "1048" height = "799" alt="图片名称" align=center />
 
 ## 使用
 
