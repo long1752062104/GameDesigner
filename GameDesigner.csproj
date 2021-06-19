@@ -39,9 +39,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+=======
+>>>>>>> 7e09a06 (xx)
     <Reference Include="DotNetty.Buffers, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\DotNetty.Buffers.0.6.0\lib\net45\DotNetty.Buffers.dll</HintPath>
       <Private>True</Private>
@@ -79,9 +82,12 @@
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.1.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
+<<<<<<< HEAD
     <Reference Include="Microsoft.Extensions.Logging, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\Microsoft.Extensions.Logging.1.1.1\lib\netstandard1.1\Microsoft.Extensions.Logging.dll</HintPath>
     </Reference>
+=======
+>>>>>>> 7e09a06 (xx)
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\Microsoft.Extensions.Logging.Abstractions.1.1.1\lib\netstandard1.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
@@ -174,6 +180,7 @@
       <HintPath>C:\Users\Administrator\source\repos\ConsoleApp1\packages\System.Xml.ReaderWriter.4.3.0\lib\net46\System.Xml.ReaderWriter.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Serialization" />
+<<<<<<< HEAD
     <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\UnityEditor.dll</HintPath>
@@ -181,6 +188,11 @@
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Users\Administrator\Documents\Tencent Files\1752062104\FileRecv\gdnet3压测\server\bin\Debug\UnityEngine.dll</HintPath>
+=======
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Library\UnityEngine.dll</HintPath>
+>>>>>>> 7e09a06 (xx)
     </Reference>
     <Reference Include="WebSocket4Net, Version=0.15.2.11, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -1183,7 +1195,10 @@
     <None Include="GameDesigner\StateMachine\TransitionBehaviour.cs.meta" />
     <None Include="GameDesigner\StateMachine\TransitionModel.cs.meta" />
     <None Include="GameDesigner\删减说明.txt.meta" />
+<<<<<<< HEAD
     <None Include="packages.config" />
+=======
+>>>>>>> 7e09a06 (xx)
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameDesigner\Editor\Resources\11000503.png" />
