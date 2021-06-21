@@ -98,6 +98,7 @@ MonoBehaviour:
   mode: 2
   identity: -1
   interval: 0.5
+  childs: []
 --- !u!114 &-1378744482142756692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -111,5 +112,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  movementProbability: 0.5
   movementDistance: 20

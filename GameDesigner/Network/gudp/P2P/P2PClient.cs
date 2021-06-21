@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Net.Client
 {
+    /// <summary>
+    /// NAT穿透最详细介绍: https://www.cnblogs.com/ssyfj/p/14791064.html#三：p2p网络中的nat穿透问题---nat的原理和类型
+    /// </summary>
     [Obsolete("未完工!", true)]
     public class P2PClient : UdpClient
     {

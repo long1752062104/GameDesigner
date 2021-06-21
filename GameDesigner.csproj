@@ -93,6 +93,8 @@
     <None Include="GameDesigner\Component\Client\ClientManager.cs.meta" />
     <None Include="GameDesigner\Component\Client\Login.cs.meta" />
     <None Include="GameDesigner\Component\Client\MessageBox.cs.meta" />
+    <None Include="GameDesigner\Component\Client\NetworkTransform.cs.meta" />
+    <None Include="GameDesigner\Component\Client\NetworkTransfromBase.cs.meta" />
     <None Include="GameDesigner\Component\Client\Register.cs.meta" />
     <None Include="GameDesigner\Component\Client\SceneManager.cs.meta" />
     <None Include="GameDesigner\Component\Client\SerializeAdapter.cs.meta" />
@@ -1036,6 +1038,87 @@
     <None Include="GameDesigner\删减说明.txt.meta" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="DotNetty.Buffers, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetty.Codecs, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetty.Codecs.Protobuf, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetty.Common, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetty.Handlers, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Handlers.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetty.Transport, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetty.Transport.Libuv, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.Libuv.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.ClientEngine, Version=0.10.0.0, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\web\Plugins\SuperSocket.ClientEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>Library\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSocket4Net, Version=0.15.2.11, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>GameDesigner\Network\web\Plugins\WebSocket4Net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="GameDesigner\Editor\Resources\11000503.png" />
     <Content Include="GameDesigner\Editor\Resources\11000826.png" />
     <Content Include="GameDesigner\Editor\Resources\1466603769212801.jpg" />
@@ -1054,18 +1137,21 @@
     <Content Include="GameDesigner\Editor\Resources\state.jpg" />
     <Content Include="GameDesigner\Editor\Resources\stateStyle.png" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.xml" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.xml" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.Protobuf.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Common.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Common.xml" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Handlers.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Handlers.xml" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.Libuv.dll" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.Libuv.xml" />
-    <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.xml" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Google.Protobuf.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.Logging.Abstractions.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.Logging.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\System.Collections.Immutable.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\System.Diagnostics.DiagnosticSource.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\System.Runtime.CompilerServices.Unsafe.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\System.Runtime.InteropServices.RuntimeInformation.dll" />
+    <Content Include="GameDesigner\Network\dotNetty~\Plugins\System.Threading.Tasks.Extensions.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-arm\libuv.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-x64\libuv.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\Windows\win-x86\libuv.dll" />
@@ -1130,6 +1216,8 @@
     <Compile Include="GameDesigner\Component\Client\ClientManager.cs" />
     <Compile Include="GameDesigner\Component\Client\Login.cs" />
     <Compile Include="GameDesigner\Component\Client\MessageBox.cs" />
+    <Compile Include="GameDesigner\Component\Client\NetworkTransform.cs" />
+    <Compile Include="GameDesigner\Component\Client\NetworkTransfromBase.cs" />
     <Compile Include="GameDesigner\Component\Client\Register.cs" />
     <Compile Include="GameDesigner\Component\Client\SceneManager.cs" />
     <Compile Include="GameDesigner\Component\Client\SerializeAdapter.cs" />
@@ -1890,87 +1978,6 @@
     <Compile Include="GameDesigner\StateMachine\Transition.cs" />
     <Compile Include="GameDesigner\StateMachine\TransitionBehaviour.cs" />
     <Compile Include="GameDesigner\StateMachine\TransitionModel.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="DotNetty.Buffers, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetty.Codecs, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetty.Codecs.Protobuf, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.Protobuf.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetty.Common, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetty.Handlers, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Handlers.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetty.Transport, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetty.Transport.Libuv, Version=0.6.0.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\DotNetty.Transport.Libuv.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\Google.Protobuf.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Logging, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperSocket.ClientEngine, Version=0.10.0.0, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\web\Plugins\SuperSocket.ClientEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Collections.Immutable.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Diagnostics.DiagnosticSource, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Diagnostics.DiagnosticSource.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
-      <HintPath>Library\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="WebSocket4Net, Version=0.15.2.11, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>GameDesigner\Network\web\Plugins\WebSocket4Net.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

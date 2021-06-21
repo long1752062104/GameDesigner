@@ -11,7 +11,7 @@ namespace Example2
             switch (opt.cmd) 
             {
                 case Command.Fire:
-                    if(transforms.TryGetValue(opt.index, out TransformComponent t))
+                    if(transforms.TryGetValue(opt.index, out NetworkTransformBase t))
                     {
                         t.GetComponent<Player>().Fire();
                     }

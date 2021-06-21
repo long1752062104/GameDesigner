@@ -10,8 +10,8 @@ namespace Net.Component
     /// </summary>
     public class SceneManager : NetBehaviour
     {
-        public TransformComponent demo;
-        public MyDictionary<int, TransformComponent> transforms = new MyDictionary<int, TransformComponent>();
+        public NetworkTransformBase demo;
+        public MyDictionary<int, NetworkTransformBase> transforms = new MyDictionary<int, NetworkTransformBase>();
 
         public virtual void Start()
         {
@@ -32,7 +32,7 @@ namespace Net.Component
                         TransformSync(opt);
                         break;
                     case Command.Destroy:
-                        if (transforms.TryGetValue(opt.index, out TransformComponent t))
+                        if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
                         {
                             Destroy(t.gameObject);
                             transforms.Remove(opt.index);
@@ -51,7 +51,7 @@ namespace Net.Component
 
         protected void TransformSync(Operation opt)
         {
-            if (!transforms.TryGetValue(opt.index, out TransformComponent t))
+            if (!transforms.TryGetValue(opt.index, out NetworkTransformBase t))
             {
                 t = Instantiate(demo, opt.position, opt.rotation);
                 SyncMode mode = (SyncMode)opt.cmd1;
@@ -61,14 +61,29 @@ namespace Net.Component
                     t.syncMode = SyncMode.Synchronized;
                 t.identity = opt.index;
                 transforms.Add(opt.index, t);
-                TransformComponent.Identity++;
+                NetworkTransformBase.Identity++;
             }
             if (ClientManager.UID == opt.index1)
                 return;
             t.sendTime = Time.time + t.interval;
-            t.netPosition = opt.position;
-            t.netRotation = opt.rotation;
-            t.netLocalScale = opt.direction;
+            if (opt.index2 == 0)
+            {
+                t.netPosition = opt.position;
+                t.netRotation = opt.rotation;
+                t.netLocalScale = opt.direction;
+                if (t.mode == SyncMode.SynchronizedAll | t.mode == SyncMode.Control)
+                    t.SyncControlTransform();
+            }
+            else 
+            {
+                var nt = t as NetworkTransform;
+                var child = nt.childs[opt.index2 - 1];
+                child.netPosition = opt.position;
+                child.netRotation = opt.rotation;
+                child.netLocalScale = opt.direction;
+                if (child.mode == SyncMode.SynchronizedAll | child.mode == SyncMode.Control)
+                    child.SyncControlTransform();
+            }
         }
 
         void OnDestroy()
