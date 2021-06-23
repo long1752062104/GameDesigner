@@ -7,6 +7,10 @@
 
 ## 使用
 
+<br>下载GameDesigner, 解压之前要进入GameDesigner目录的第二层GameDesigner文件夹拖入unity的Assets资源目录</br>
+<br>然后打开BuildSettings->ProjectSettings->OtherSettings->设置 ApiCompatibilityLevel* = .NET 4.x 和 AllowUnsafeCode勾上</br>
+<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/gdnetsetting.png" width = "645" height = "239" alt="图片名称" align=center />
+
 <br>1.创建服务器项目,使用控制台或窗体程序都可以</br>
 <br>2.新建一个Service脚本文件, 这个就是你的服务器类</br>
 ```
