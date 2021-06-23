@@ -10,7 +10,7 @@ namespace Net.Component
     /// </summary>
     public class SceneManager : NetBehaviour
     {
-        public NetworkTransformBase demo;
+        public NetworkTransformBase[] prefabs;
         public MyDictionary<int, NetworkTransformBase> transforms = new MyDictionary<int, NetworkTransformBase>();
 
         public virtual void Start()
@@ -53,7 +53,12 @@ namespace Net.Component
         {
             if (!transforms.TryGetValue(opt.index, out NetworkTransformBase t))
             {
-                t = Instantiate(demo, opt.position, opt.rotation);
+                if (prefabs == null)
+                    return;
+                if (opt.cmd2 >= prefabs.Length)
+                    return;
+                var prefab = prefabs[opt.cmd2];
+                t = Instantiate(prefab, opt.position, opt.rotation);
                 SyncMode mode = (SyncMode)opt.cmd1;
                 if(mode == SyncMode.Control)
                     t.syncMode = SyncMode.SynchronizedAll;

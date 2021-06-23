@@ -40,7 +40,8 @@ namespace Net.Component
         internal Net.Vector3 netPosition;
         internal Net.Quaternion netRotation;
         internal Net.Vector3 netLocalScale;
-        
+        public byte index;//在SceneManager的prefabs数组的索引
+
         public virtual void Start()
         {
             mode = syncMode;
@@ -90,6 +91,7 @@ namespace Net.Component
                         ClientManager.AddOperation(new Operation(Command.Transform, identity, localScale, position, rotation)
                         {
                             cmd1 = (byte)mode,
+                            cmd2 = index,
                             index1 = ClientManager.UID
                         });
                         break;
@@ -98,6 +100,7 @@ namespace Net.Component
                         {
                             position = position,
                             cmd1 = (byte)mode,
+                            cmd2 = index,
                             index1 = ClientManager.UID
                         });
                         break;
@@ -106,6 +109,7 @@ namespace Net.Component
                         {
                             rotation = rotation,
                             cmd1 = (byte)mode,
+                            cmd2 = index,
                             index1 = ClientManager.UID
                         });
                         break;
@@ -114,6 +118,7 @@ namespace Net.Component
                         {
                             direction = localScale,
                             cmd1 = (byte)mode,
+                            cmd2 = index,
                             index1 = ClientManager.UID
                         });
                         break;
@@ -121,6 +126,7 @@ namespace Net.Component
                         ClientManager.AddOperation(new Operation(Command.Transform, identity, position, rotation)
                         {
                             cmd1 = (byte)mode,
+                            cmd2 = index,
                             index1 = ClientManager.UID
                         });
                         break;
@@ -130,6 +136,7 @@ namespace Net.Component
                             position = position,
                             direction = localScale,
                             cmd1 = (byte)mode,
+                            cmd2 = index,
                             index1 = ClientManager.UID
                         });
                         break;
@@ -139,6 +146,7 @@ namespace Net.Component
                             rotation = rotation,
                             direction = localScale,
                             cmd1 = (byte)mode,
+                            cmd2 = index,
                             index1 = ClientManager.UID
                         });
                         break;

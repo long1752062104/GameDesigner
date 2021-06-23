@@ -74,5 +74,6 @@ client.SendRT("test", "客户端rpc请求");
 
 <br>1 vsmile ¥ 10</br>
 <br>2 南归 ¥ 10</br>
+<br>3 王者心，懂么？ ¥ 10</br>
 
 <img src="https://gitee.com/leng_yue/GameDesigner/raw/master/GameDesigner/pay.jpg" width = "600" height = "400" alt="图片名称" align=center />
