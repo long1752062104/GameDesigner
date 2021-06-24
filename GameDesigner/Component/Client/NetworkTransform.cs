@@ -8,16 +8,14 @@ namespace Net.Component
     [Serializable]
     public class ChildTransform
     {
+        public string name;
         public Transform transform;
         internal Net.Vector3 position;
         internal Net.Quaternion rotation;
         internal Net.Vector3 localScale;
-        public SyncMode syncMode = SyncMode.Control;
+        public SyncMode mode = SyncMode.Control;
         public SyncProperty property = SyncProperty.All;
-        [DisplayOnly]
-        public SyncMode mode = SyncMode.Synchronized;
-        [DisplayOnly]
-        public int identity = -1;//自身id
+        [DisplayOnly] public int identity = -1;//自身id
        
         internal Net.Vector3 netPosition;
         internal Net.Quaternion netRotation;
@@ -26,7 +24,6 @@ namespace Net.Component
         internal void Init(int identity)
         {
             this.identity = identity;
-            mode = syncMode;
             position = transform.localPosition;
             rotation = transform.localRotation;
             localScale = transform.localScale;
@@ -179,8 +176,10 @@ namespace Net.Component
         }
     }
 
+    [ExecuteInEditMode]
     public class NetworkTransform : NetworkTransformBase
     {
+        public bool getChilds;
         public ChildTransform[] childs;
 
         public override void Start()
@@ -197,6 +196,21 @@ namespace Net.Component
         // Update is called once per frame
         public override void Update()
         {
+#if UNITY_EDITOR
+            if (getChilds) 
+            {
+                getChilds = false;
+                var childs1 = transform.GetComponentsInChildren<Transform>();
+                childs = new ChildTransform[childs1.Length - 1];
+                for (int i = 1; i < childs1.Length; i++)
+                {
+                    childs[i - 1] = new ChildTransform() {
+                        name = childs1[i].name,
+                        transform = childs1[i]
+                    };
+                }
+            }
+#endif
             if (mode == SyncMode.Synchronized)
             {
                 SyncTransform();

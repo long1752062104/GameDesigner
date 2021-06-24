@@ -10,6 +10,7 @@ namespace Net.Component
     /// </summary>
     public class SceneManager : NetBehaviour
     {
+        [Header("Transform同步组件的index必须设置为此字段对应索引!")]
         public NetworkTransformBase[] prefabs;
         public MyDictionary<int, NetworkTransformBase> transforms = new MyDictionary<int, NetworkTransformBase>();
 
