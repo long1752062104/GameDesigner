@@ -1,5 +1,6 @@
 ﻿namespace Net.Example2
 {
+    using Net.Event;
     using Net.Server;
     using Net.Share;
     using System.Collections.Generic;
@@ -14,6 +15,8 @@
         /// </summary>
         protected override void OnStarting()
         {
+            DBComponent.Instance.Load().Wait();
+            NDebug.Log("数据库加载完成!");
             SetHeartTime(5, 300);//我们设置心跳检测时间, 时间越小检测越快, 跳检测时间也不能太小, 太小会直接判断为离线状态
         }
 

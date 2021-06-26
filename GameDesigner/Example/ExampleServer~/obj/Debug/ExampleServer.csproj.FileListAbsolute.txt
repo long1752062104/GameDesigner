@@ -54,14 +54,6 @@ D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Micros
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.pdb
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.xml
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.dll.config
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Transport.xml
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Transport.Libuv.xml
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Buffers.xml
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Common.xml
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Threading.Tasks.Extensions.xml
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Microsoft.Extensions.Logging.Abstractions.xml
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Microsoft.Extensions.Logging.xml
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Microsoft.Extensions.DependencyInjection.Abstractions.xml
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.csprojAssemblyReference.cache
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.exe.config
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form1.resources

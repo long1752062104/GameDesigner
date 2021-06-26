@@ -1,6 +1,6 @@
 using MVC.View;
 using Net.Client;
-using Net.Component.Client;
+using Net.Component;
 using Net.Share;
 using System;
 using UnityEngine;

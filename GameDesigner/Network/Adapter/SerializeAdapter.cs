@@ -81,4 +81,32 @@ namespace Net.Adapter
             return NetConvertFast2.DeserializeObject<OperationList>(segment);
         }
     }
+
+    /// <summary>
+    /// 极速序列化3适配器
+    /// </summary>
+    public class SerializeAdapter3 : ISerializeAdapter
+    {
+        public byte[] OnSerializeRpc(RPCModel model)
+        {
+            return NetConvertFast2.SerializeModel(model);
+        }
+
+        public FuncData OnDeserializeRpc(byte[] buffer, int index, int count)
+        {
+            Segment segment = new Segment(buffer, index, count, false);
+            return NetConvertFast2.DeserializeModel(segment);
+        }
+
+        public byte[] OnSerializeOpt(OperationList list)
+        {
+            return NetConvertFast2.SerializeObject(list).ToArray(true);
+        }
+
+        public OperationList OnDeserializeOpt(byte[] buffer, int index, int count)
+        {
+            Segment segment = new Segment(buffer, index, count, false);
+            return NetConvertFast2.DeserializeObject<OperationList>(segment);
+        }
+    }
 }

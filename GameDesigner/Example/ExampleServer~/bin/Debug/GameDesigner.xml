@@ -3742,6 +3742,11 @@
             单线程更新，需要开发者自动调用更新
             </summary>
         </member>
+        <member name="T:Net.Client.P2PClient">
+            <summary>
+            NAT穿透最详细介绍: https://www.cnblogs.com/ssyfj/p/14791064.html#三：p2p网络中的nat穿透问题---nat的原理和类型
+            </summary>
+        </member>
         <member name="T:Net.Client.KcpClient">
             <summary>
             kcp客户端

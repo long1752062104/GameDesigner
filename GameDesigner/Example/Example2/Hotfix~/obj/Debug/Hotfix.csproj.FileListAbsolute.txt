@@ -1,6 +1,5 @@
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Hotfix.dll
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Hotfix.pdb
-D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csprojAssemblyReference.cache
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csproj.CoreCompileInputs.cache
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.dll
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.pdb

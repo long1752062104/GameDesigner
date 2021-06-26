@@ -388,7 +388,7 @@ namespace MVC.View
                     }
                     return str;
                 });
-                var scriptStr = "using Net.Component.Client;\n" +
+                var scriptStr = "using Net.Component;\n" +
                 "using UnityEngine;\n" +
                 "using UnityEngine.UI;\n\n" +
                 (hasns ? "namespace " + nameSpace + "\n{\n" : "") +

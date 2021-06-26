@@ -6,7 +6,8 @@ namespace Net.Component
         Default,//默认序列化, protobuff + json
         PB_JSON_FAST,//快速序列化 protobuff + json
         Binary,//快速序列化 需要注册远程类型
-        Binary2//极速序列化 需要生成序列化类型, 菜单GameDesigner/Netowrk/Fast2BuildTools
+        Binary2,//极速序列化 Binary + Binary2 需要生成序列化类型, 菜单GameDesigner/Netowrk/Fast2BuildTools
+        Binary3//极速序列化 需要生成序列化类型, 菜单GameDesigner/Netowrk/Fast2BuildTools
     }
 
     public class SerializeAdapter : SingleCase<SerializeAdapter>

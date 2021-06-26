@@ -50,9 +50,11 @@ namespace Net.Component
                         case TransportProtocol.Udx:
                             _client = new UdxClient(true);
                             break;
+#if !UNITY_ANDROID && !UNITY_IOS
                         case TransportProtocol.Web:
                             _client = new WebClient(true);
                             break;
+#endif
                     }
                     _client.host = ip;
                     _client.port = port;

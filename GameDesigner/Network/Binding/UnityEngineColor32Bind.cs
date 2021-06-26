@@ -4,106 +4,136 @@ using Net.Share;
 
 namespace Binding
 {
-	public struct UnityEngineColor32Bind : ISerialize<UnityEngine.Color32>
+	public struct UnityEngineColor32Bind : ISerialize<UnityEngine.Color32>, ISerialize
 	{
-		public void Write(UnityEngine.Color32 value, Segment strem)
+		public void Write(UnityEngine.Color32 value, Segment stream)
 		{
-			int pos = strem.Position;
-			strem.Position += 1;
+			int pos = stream.Position;
+			stream.Position += 1;
 			byte[] bits = new byte[1];
 			if(value.r != 0)
 			{
 				NetConvertBase.SetBit(ref bits[0], 1, true);
-				strem.WriteValue(value.r);
+				stream.WriteValue(value.r);
 			}
 			if(value.g != 0)
 			{
 				NetConvertBase.SetBit(ref bits[0], 2, true);
-				strem.WriteValue(value.g);
+				stream.WriteValue(value.g);
 			}
 			if(value.b != 0)
 			{
 				NetConvertBase.SetBit(ref bits[0], 3, true);
-				strem.WriteValue(value.b);
+				stream.WriteValue(value.b);
 			}
 			if(value.a != 0)
 			{
 				NetConvertBase.SetBit(ref bits[0], 4, true);
-				strem.WriteValue(value.a);
+				stream.WriteValue(value.a);
 			}
-			int pos1 = strem.Position;
-			strem.Position = pos;
-			strem.Write(bits, 0, 1);
-			strem.Position = pos1;
+			int pos1 = stream.Position;
+			stream.Position = pos;
+			stream.Write(bits, 0, 1);
+			stream.Position = pos1;
 		}
 
-		public UnityEngine.Color32 Read(Segment strem)
+		public UnityEngine.Color32 Read(Segment stream)
 		{
-			byte[] bits = strem.Read(1);
+			byte[] bits = stream.Read(1);
 			var value = new UnityEngine.Color32();
 			if(NetConvertBase.GetBit(bits[0], 1))
-				value.r = strem.ReadValue<Byte>();
+				value.r = stream.ReadValue<Byte>();
 			if(NetConvertBase.GetBit(bits[0], 2))
-				value.g = strem.ReadValue<Byte>();
+				value.g = stream.ReadValue<Byte>();
 			if(NetConvertBase.GetBit(bits[0], 3))
-				value.b = strem.ReadValue<Byte>();
+				value.b = stream.ReadValue<Byte>();
 			if(NetConvertBase.GetBit(bits[0], 4))
-				value.a = strem.ReadValue<Byte>();
+				value.a = stream.ReadValue<Byte>();
 			return value;
+		}
+
+		public void WriteValue(object value, Segment stream)
+		{
+			Write((UnityEngine.Color32)value, stream);
+		}
+
+		public object ReadValue(Segment stream)
+		{
+			return Read(stream);
 		}
 	}
 }
 
 namespace Binding
 {
-	public struct UnityEngineColor32ArrayBind : ISerialize<UnityEngine.Color32[]>
+	public struct UnityEngineColor32ArrayBind : ISerialize<UnityEngine.Color32[]>, ISerialize
 	{
-		public void Write(UnityEngine.Color32[] value, Segment strem)
+		public void Write(UnityEngine.Color32[] value, Segment stream)
 		{
 			int count = value.Length;
-			strem.WriteValue(count);
+			stream.WriteValue(count);
 			if (count == 0) return;
 			UnityEngineColor32Bind bind = new UnityEngineColor32Bind();
 			foreach (var value1 in value)
-				bind.Write(value1, strem);
+				bind.Write(value1, stream);
 		}
 
-		public UnityEngine.Color32[] Read(Segment strem)
+		public UnityEngine.Color32[] Read(Segment stream)
 		{
-			var count = strem.ReadValue<int>();
+			var count = stream.ReadValue<int>();
 			var value = new UnityEngine.Color32[count];
 			if (count == 0) return value;
 			UnityEngineColor32Bind bind = new UnityEngineColor32Bind();
 			for (int i = 0; i < count; i++)
-				value[i] = bind.Read(strem);
+				value[i] = bind.Read(stream);
 			return value;
+		}
+
+		public void WriteValue(object value, Segment stream)
+		{
+			Write((UnityEngine.Color32[])value, stream);
+		}
+
+		public object ReadValue(Segment stream)
+		{
+			return Read(stream);
 		}
 	}
 }
 
 namespace Binding
 {
-	public struct UnityEngineColor32GenericBind : ISerialize<List<UnityEngine.Color32>>
+	public struct UnityEngineColor32GenericBind : ISerialize<List<UnityEngine.Color32>>, ISerialize
 	{
-		public void Write(List<UnityEngine.Color32> value, Segment strem)
+		public void Write(List<UnityEngine.Color32> value, Segment stream)
 		{
 			int count = value.Count;
-			strem.WriteValue(count);
+			stream.WriteValue(count);
 			if (count == 0) return;
 			UnityEngineColor32Bind bind = new UnityEngineColor32Bind();
 			foreach (var value1 in value)
-				bind.Write(value1, strem);
+				bind.Write(value1, stream);
 		}
 
-		public List<UnityEngine.Color32> Read(Segment strem)
+		public List<UnityEngine.Color32> Read(Segment stream)
 		{
-			var count = strem.ReadValue<int>();
+			var count = stream.ReadValue<int>();
 			var value = new List<UnityEngine.Color32>();
 			if (count == 0) return value;
 			UnityEngineColor32Bind bind = new UnityEngineColor32Bind();
 			for (int i = 0; i < count; i++)
-				value.Add(bind.Read(strem));
+				value.Add(bind.Read(stream));
 			return value;
+		}
+
+		public void WriteValue(object value, Segment stream)
+		{
+			Write((List<UnityEngine.Color32>)value, stream);
+		}
+
+		public object ReadValue(Segment stream)
+		{
+			return Read(stream);
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿namespace Net.Client
+﻿#if !UNITY_ANDROID && !UNITY_IOS
+namespace Net.Client
 {
     using Net.Event;
     using Net.Share;
@@ -255,3 +256,4 @@
         }
     }
 }
+#endif
