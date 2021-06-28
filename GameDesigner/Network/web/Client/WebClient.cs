@@ -1,4 +1,4 @@
-﻿#if !UNITY_ANDROID && !UNITY_IOS
+﻿#if UNITY_STANDALONE_WIN || UNITY_WSA
 namespace Net.Client
 {
     using Net.Event;
