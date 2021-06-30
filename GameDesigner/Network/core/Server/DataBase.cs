@@ -36,9 +36,13 @@
         /// </summary>
         public static T Instance = new T();
         /// <summary>
+        /// 当前程序工作路径, 数据库保存路径
+        /// </summary>
+        protected string rootPath;
+        /// <summary>
         /// 玩家数据保存路径
         /// </summary>
-        public static string DataPath = "Data/";
+        public static string DataPath = "/Data/";
         /// <summary>
         /// 所有玩家信息
         /// </summary>
@@ -61,6 +65,17 @@
         public List<Player> Players()
         {
             return new List<Player>(PlayerInfos.Values);
+        }
+
+        public DataBase() 
+        {
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
+            rootPath = UnityEngine.Application.persistentDataPath;
+#else
+            rootPath = Directory.GetCurrentDirectory();
+#endif
+            if (!Directory.Exists(rootPath + DataPath))
+                Directory.CreateDirectory(rootPath + DataPath);
         }
 
         /// <summary>
@@ -89,10 +104,7 @@
         {
             return Task.Run(() =>
             {
-                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                if (!Directory.Exists(baseDirectory + DataPath))
-                    Directory.CreateDirectory(baseDirectory + DataPath);
-                string[] playerDataPaths = Directory.GetFiles(baseDirectory + DataPath, "PlayerInfo.data", SearchOption.AllDirectories);
+                string[] playerDataPaths = Directory.GetFiles(rootPath + DataPath, "PlayerInfo.data", SearchOption.AllDirectories);
                 foreach (string path in playerDataPaths)
                 {
                     try
@@ -119,7 +131,7 @@
         public virtual Player OnDeserialize(byte[] buffer, int count)
         {
             string jsonStr = System.Text.Encoding.UTF8.GetString(buffer, 0, count);
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Player>(jsonStr);// Share.NetConvert.Deserialize(buffer, 0, count);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Player>(jsonStr);
         }
 
         /// <summary>
@@ -152,12 +164,10 @@
                 throw new Exception("UIDKey字段必须赋值，UIDKey是记录玩家账号或唯一标识用!");
             return Task.Run(() =>
             {
-                string path = AppDomain.CurrentDomain.BaseDirectory;
-                if (!Directory.Exists(path + DataPath))
-                    Directory.CreateDirectory(path + DataPath);
-                if (!Directory.Exists(path + DataPath + player.UIDKey))
-                    Directory.CreateDirectory(path + DataPath + player.UIDKey);
-                string path1 = path + DataPath + player.UIDKey + "/PlayerInfo.data";
+                string path = rootPath + DataPath + player.UIDKey;
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+                string path1 = path + "/PlayerInfo.data";
                 FileStream fileStream;
                 if (!File.Exists(path1))
                     fileStream = new FileStream(path1, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
@@ -177,7 +187,7 @@
         public virtual byte[] OnSerialize(Player player)
         {
             string jsonStr = Newtonsoft.Json.JsonConvert.SerializeObject(player);
-            return System.Text.Encoding.UTF8.GetBytes(jsonStr);//Share.NetConvert.Serialize(player);
+            return System.Text.Encoding.UTF8.GetBytes(jsonStr);
         }
 
         /// <summary>
@@ -187,14 +197,10 @@
         {
             return Task.Run(() =>
             {
-                string path = AppDomain.CurrentDomain.BaseDirectory;
-                if (!Directory.Exists(path + DataPath))
+                string path = rootPath + DataPath + player.UIDKey;
+                if (!Directory.Exists(path))
                     return;
-                if (!Directory.Exists(path + DataPath + player.UIDKey))
-                    return;
-                string path1 = path + DataPath + player.UIDKey;
-                if (Directory.Exists(path1))
-                    Directory.Delete(path1, true);
+                Directory.Delete(path, true);
             });
         }
 

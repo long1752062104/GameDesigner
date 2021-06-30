@@ -532,6 +532,10 @@ namespace Net.Share
                     fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
                     num = 16;
                     break;
+                case string[] array1:
+                    foreach (var str in array1)
+                        WriteValue(str);
+                    return;
                 default:
                     throw new Exception("错误!");
             }
@@ -608,6 +612,10 @@ namespace Net.Share
                     fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
                     num = 16;
                     break;
+                case string[] array1:
+                    for (int i = 0; i < array1.Length; i++)
+                        array1[i] = ReadValue<string>();
+                    return array1 as T[];
                 default:
                     throw new Exception("错误!");
             }

@@ -135,7 +135,7 @@
                         UserIDNumber++;
                         unClient.UserID = uid;
                         unClient.playerID = uid.ToString();
-                        unClient.stackStreamName = Directory.GetCurrentDirectory() + $"/reliable/{Name}-" + uid + ".stream";
+                        unClient.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
                         unClient.stackStream = new FileStream(unClient.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                         unClient.isDispose = false;
                         unClient.CloseSend = false;

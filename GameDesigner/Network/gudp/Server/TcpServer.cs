@@ -111,7 +111,7 @@
                     UserIDNumber++;
                     client.UserID = uid;
                     client.playerID = uid.ToString();
-                    client.stackStreamName = Directory.GetCurrentDirectory() + $"/reliable/{Name}-" + uid + ".stream";
+                    client.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
                     client.stackStream = new FileStream(client.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                     Interlocked.Increment(ref ignoranceNumber);
                     AllClients.TryAdd(socket.RemoteEndPoint, client);

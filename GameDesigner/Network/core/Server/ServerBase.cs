@@ -252,6 +252,10 @@ namespace Net.Server
         /// 组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
         /// </summary>
         public int PackageLength { get; set; } = 1000;
+        /// <summary>
+        /// 程序根路径, 网络数据缓存读写路径
+        /// </summary>
+        protected string rootPath;
         #endregion
 
         #region 服务器事件处理
@@ -350,10 +354,15 @@ namespace Net.Server
         /// </summary>
         public ServerBase()
         {
-            Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/reliable/");
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
+            rootPath = UnityEngine.Application.persistentDataPath;
+#else
+            rootPath = Directory.GetCurrentDirectory();
+#endif
+            Directory.CreateDirectory(rootPath + "/reliable/");
         }
 
-        #region 索引
+#region 索引
         /// <summary>
         /// 玩家索引
         /// </summary>
@@ -396,9 +405,9 @@ namespace Net.Server
         {
             return new List<Scene>(Scenes.Values);
         }
-        #endregion
+#endregion
 
-        #region 重写方法
+#region 重写方法
         /// <summary>
         /// 当未知客户端发送数据请求，返回false，不允许unClient进入服务器!，如果返回的是true，则允许unClient客户端进入服务器
         /// 客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互
@@ -520,7 +529,7 @@ namespace Net.Server
         protected virtual FuncData OnDeserializeRpc(byte[] buffer, int index, int count) { return OnDeserializeRPC(buffer, index, count); }
 
         protected internal FuncData OnDeserializeRpcInternal(byte[] buffer, int index, int count) { return NetConvert.Deserialize(buffer, index, count); }
-        #endregion
+#endregion
 
         /// <summary>
         /// 运行服务器
@@ -973,7 +982,7 @@ namespace Net.Server
                     }
                     if (client.stackStream == null)
                     {
-                        client.stackStreamName = Directory.GetCurrentDirectory() + $"/reliable/{Name}-" + client.UserID + ".stream";//解决当运行两个服务器以上时共用一个文件问题
+                        client.stackStreamName = rootPath + $"/reliable/{Name}-" + client.UserID + ".stream";//解决当运行两个服务器以上时共用一个文件问题
                         client.stackStream = new FileStream(client.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                     }
                     if (!client.revdFrames.ContainsKey(frame))
