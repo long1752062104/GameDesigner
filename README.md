@@ -88,7 +88,7 @@ gdnet内部实现了极速序列化, 速度远超出protobuff 5-10倍, 在案例
 NetConvertFast2极速序列化的使用:
 1.要生成绑定类型, 在unity中有生成绑定类型工具, 也可以在这里生成:[绑定类型工具](https://gitee.com/leng_yue/fast2-build-tool)
 
-<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/fast2build.png" width = "645" height = "239" alt="图片名称" align=center />
+<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/fast2build.png" width = "414" height = "229" alt="图片名称" align=center />
 
 ```
 public class Test //序列化的类型
