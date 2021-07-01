@@ -4,7 +4,7 @@
     /// 帧同步列表
     /// </summary>
     [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllPublic)]
-    public struct OperationList
+    public struct OperationList //结构是在栈创建,是很快, 配合我们的极速序列化适配器后快的飞起
     {
         /// <summary>
         /// 帧索引

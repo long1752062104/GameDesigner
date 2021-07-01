@@ -3,7 +3,7 @@
 namespace Net.Adapter
 {
     /// <summary>
-    /// 通用适配器
+    /// 通用升级版适配器
     /// </summary>
     public class SerializeFastAdapter : ISerializeAdapter
     {
@@ -56,7 +56,7 @@ namespace Net.Adapter
     }
 
     /// <summary>
-    /// 快速序列化适配器
+    /// 快速序列化2适配器
     /// </summary>
     public class SerializeAdapter2 : ISerializeAdapter
     {

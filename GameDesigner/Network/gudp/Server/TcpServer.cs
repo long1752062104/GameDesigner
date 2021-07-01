@@ -306,10 +306,11 @@
                             if (!client.Client.Connected)
                                 continue;
                             int count1 = client.Client.Send(sendData.buffer, 0, sendData.buffer.Length, SocketFlags.None, out SocketError error);
-                            if (error != SocketError.Success)
-                                continue;
-                            if (count1 <= 0)
+                            if (error != SocketError.Success | count1 <= 0)
+                            {
                                 OnSendErrorHandle?.Invoke(client, sendData.buffer, true);
+                                continue;
+                            }
                             sendAmount++;
                             sendCount += sendData.buffer.Length;
                         }

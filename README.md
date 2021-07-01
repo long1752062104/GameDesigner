@@ -69,6 +69,84 @@ client.SendRT("test", "客户端rpc请求");
 ```
 到此基本使用完成
 
+## 对象池
+gdnet提供BufferPool二进制数据对象池和ObjectPool类对象池, 在网络代码内部采用了BufferPool对象池, 使得网络可以高速读写处理数据, 而不是每次要创建一个byte[]来处理!
+
+
+```
+var seg = BufferPool.Take(65535);//申请65535字节的内存片
+seg.WriteValue(123);//写入4字节的值
+BufferPool.Push(seg);//压入内存片,等待下次复用
+var seg1 = BufferPool.Take(65535);//这次的申请内存片,实际是从BufferPool中弹出seg对象,在这个过程中只创建了一次byte[65535]
+seg1.WriteValue(456);
+BufferPool.Push(seg);//再次压入
+```
+
+## 极速序列化
+gdnet内部实现了极速序列化, 速度远超出protobuff 5-10倍, 在案例1测试中就采用了极速序列化适配器, 可以同步1万个cube, 如果用protobuff的话,只能同步2500个cube
+内部的序列化已经有三个版本, 一个是之前的NetConvertOld字符串序列化,这个版本性能是非常糟糕的,性能远不及Newtonsoft.Json, 而第二版本的序列化NetConvertBinary二进制序列化则超越protobuff的性能, 体积也和protobuff一样, 为什么比protobuff快? protobuff内部实现还是使用的反射field.GetValue这种方法,而NetConvertBinary则是采用了dynamic动态语法实现的,在获取值和写值时比反射field.GetValue要快5倍. 这个NetConvertBinary版本已经超越protobuff了,为什么还要开发极速序列化NetConvertFast2? 其实到NetConvertFast2的开发后,已经没有追求比protobuff快,但是实际比protobuff快很多倍, 主要还是为了框架的高性能处理.
+NetConvertFast2极速序列化的使用:
+1.要生成绑定类型, 在unity中有生成绑定类型工具, 也可以在这里生成:[绑定类型工具](https://gitee.com/leng_yue/fast2-build-tool)
+
+<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/fast2build.png" width = "645" height = "239" alt="图片名称" align=center />
+
+```
+public class Test //序列化的类型
+{
+    public int num;
+    public string str;
+}
+
+static void Main(string[] args)
+{
+    NetConvertFast2.AddSerializeType3<Test>();//绑定Test为可序列化类型
+    var seg = NetConvertFast2.SerializeObject(new Test());//序列化Test类
+    var obj = NetConvertFast2.DeserializeObject<Test>(seg);//反序列化Test类
+}
+```
+
+## ECS模块
+ECS模块类似unity的gameObject->component模式, 在ecs中gameObject=entity, component=component, system类执行, ecs跟gameObject模式基本流程是一样的, 只是ecs中的组件可以复用, 而gameObject的component则不能复用, 在创建上万个对象时, gameObject就得重新new出来对象和组件, 而ecs调用Destroy时是把entity或component压入对象池, 等待下一次复用.实际上对象没有被释放,所以性能高于gameObject的原因
+
+
+```
+//ecs时间组件
+public class TimerComponent : Component, IUpdate //继承IUpdate接口后就会每帧调用Update方法
+{
+    private DateTime dateTime;
+    public override void Awake()
+    {
+        dateTime = DateTime.Now.AddSeconds(5);//在初始化时,把当前时间推到5秒后
+    }
+    public void Update()
+    {
+        if (DateTime.Now >= dateTime)//当5秒时间到, 则删除这个时间组件, 实际上是压入对象池
+        {
+            Destroy(this);
+        }
+    }
+    public override void OnDestroy()//当销毁, 实际是压入对象池前调用一次
+    {
+    }
+}
+
+static void Main(string[] args)
+{
+    var entity = GSystem.Instance.Create<Entity>();//创建实体对象,这会在对象池中查询,如果对象池没有对象,则会new, 有则弹出entity
+    entity.AddComponent<TimerComponent>();//添加时间组件,也是从对象池查询,没有则new, 有则弹出TimerComponent对象
+    while (true)
+    {
+        Thread.Sleep(30);
+        GSystem.Instance.Run();//每帧执行ecs系统
+    }
+}
+```
+
+## MVC模块
+mvc模块:模型,控制,视图分离, mvc模块适应于帧同步游戏, model定义了对象字段,属性,事件, controller执行业务逻辑, view显示结果
+在帧同步中, mvc是分离的, 各自处理各自的, 做到可以不相关的地步, 比如view卡住, controller还是一直执行, 互不影响!
+
+
 ## 致谢
 
 谢谢大家对我的支持，如果有其他问题，请加QQ群:825240544讨论
