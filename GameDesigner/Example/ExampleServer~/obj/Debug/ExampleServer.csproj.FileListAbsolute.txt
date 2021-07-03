@@ -43,8 +43,6 @@ D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\UnityE
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Transport.dll
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Transport.Libuv.dll
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Buffers.dll
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\WebSocket4Net.dll
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\SuperSocket.ClientEngine.dll
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Common.dll
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Threading.Tasks.Extensions.dll
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll

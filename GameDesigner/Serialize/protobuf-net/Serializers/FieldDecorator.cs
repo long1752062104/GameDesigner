@@ -109,6 +109,10 @@ namespace ProtoBuf.Serializers
             }
         }
 #endif
+        public override string ToString()
+        {
+            return $"{field}";
+        }
     }
 }
 #endif
