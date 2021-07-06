@@ -29,7 +29,7 @@ public class Fast2BuildTools : EditorWindow
         if (File.Exists(path))
         {
             var jsonStr = File.ReadAllText(path);
-            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Data>(jsonStr);
+            var data = Newtonsoft_X.Json.JsonConvert.DeserializeObject<Data>(jsonStr);
             bindTypeName = data.typeName;
             methodName = data.methodName;
             savePath = data.savepath;
@@ -83,7 +83,7 @@ public class Fast2BuildTools : EditorWindow
     void Save()
     {
         Data data = new Data() { typeName = bindTypeName, methodName = methodName, savepath = savePath };
-        var jsonstr = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+        var jsonstr = Newtonsoft_X.Json.JsonConvert.SerializeObject(data);
         var path = Application.dataPath.Replace("Assets", "") + "data.txt";
         File.WriteAllText(path, jsonstr);
     }

@@ -102,14 +102,14 @@ public class ILRuntimeCrossBinding : EditorWindow
         if (File.Exists(Application.dataPath.Replace("Assets", "") + "ilrdata1.txt"))
         {
             var fcdata = File.ReadAllText(Application.dataPath.Replace("Assets", "") + "ilrdata1.txt");
-            typeNames = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(fcdata);
+            typeNames = Newtonsoft_X.Json.JsonConvert.DeserializeObject<List<string>>(fcdata);
         }
     }
 
     void SaveData()
     {
         var path = Application.dataPath.Replace("Assets", "") + "ilrdata1.txt";
-        var jsonstr = Newtonsoft.Json.JsonConvert.SerializeObject(typeNames);
+        var jsonstr = Newtonsoft_X.Json.JsonConvert.SerializeObject(typeNames);
         File.WriteAllText(path, jsonstr);
     }
 }

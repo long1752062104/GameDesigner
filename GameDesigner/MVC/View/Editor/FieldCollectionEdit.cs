@@ -106,7 +106,7 @@ namespace MVC.View
             if (File.Exists(Application.dataPath.Replace("Assets", "") + "fcdata.txt"))
             {
                 var fcdata = File.ReadAllText(Application.dataPath.Replace("Assets", "") + "fcdata.txt");
-                var jsonsave = Newtonsoft.Json.JsonConvert.DeserializeObject<JsonSave>(fcdata);
+                var jsonsave = Newtonsoft_X.Json.JsonConvert.DeserializeObject<JsonSave>(fcdata);
                 nameSpace = jsonsave.nameSpace;
                 savePath = jsonsave.savePath;
                 csprojFile = jsonsave.csprojFile;
@@ -117,7 +117,7 @@ namespace MVC.View
         {
             var path = Application.dataPath.Replace("Assets", "") + "fcdata.txt";
             var jsonSave = new JsonSave() { csprojFile = csprojFile, nameSpace = nameSpace, savePath = savePath };
-            var jsonstr = Newtonsoft.Json.JsonConvert.SerializeObject(jsonSave);
+            var jsonstr = Newtonsoft_X.Json.JsonConvert.SerializeObject(jsonSave);
             File.WriteAllText(path, jsonstr);
         }
 

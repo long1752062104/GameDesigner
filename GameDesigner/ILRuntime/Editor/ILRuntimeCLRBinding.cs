@@ -50,14 +50,14 @@ public class ILRuntimeCLRBinding : EditorWindow
         if (File.Exists(Application.dataPath.Replace("Assets", "") + "ilrdata.txt"))
         {
             var fcdata = File.ReadAllText(Application.dataPath.Replace("Assets", "") + "ilrdata.txt");
-            path = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(fcdata);
+            path = Newtonsoft_X.Json.JsonConvert.DeserializeObject<string>(fcdata);
         }
     }
 
     void SaveData()
     {
         var path = Application.dataPath.Replace("Assets", "") + "ilrdata.txt";
-        var jsonstr = Newtonsoft.Json.JsonConvert.SerializeObject(this.path);
+        var jsonstr = Newtonsoft_X.Json.JsonConvert.SerializeObject(this.path);
         File.WriteAllText(path, jsonstr);
     }
 }
