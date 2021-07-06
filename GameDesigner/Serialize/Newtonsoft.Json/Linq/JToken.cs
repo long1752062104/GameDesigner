@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Linq.JsonPath;
-using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Linq.JsonPath;
+using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace Newtonsoft.Json.Linq
+namespace Newtonsoft_X.Json.Linq
 {
     /// <summary>
     /// Represents an abstract JSON token.

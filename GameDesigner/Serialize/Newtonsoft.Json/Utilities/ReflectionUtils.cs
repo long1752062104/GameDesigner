@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Text;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     internal static class ReflectionUtils
     {

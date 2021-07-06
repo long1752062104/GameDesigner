@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Newtonsoft.Json.Linq
+namespace Newtonsoft_X.Json.Linq
 {
     /// <summary>
     /// Represents a JSON constructor.

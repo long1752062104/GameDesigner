@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Specifies metadata property handling options for the <see cref="T:Newtonsoft.Json.JsonSerializer" />.

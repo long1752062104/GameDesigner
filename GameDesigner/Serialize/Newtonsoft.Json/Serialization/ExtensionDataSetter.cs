@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json.Serialization
+namespace Newtonsoft_X.Json.Serialization
 {
     /// <summary>
     /// Sets extension data for an object during deserialization.

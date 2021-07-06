@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json.Converters
+namespace Newtonsoft_X.Json.Converters
 {
     /// <summary>
     /// Provides a base class for converting a <see cref="T:System.DateTime" /> to and from JSON.

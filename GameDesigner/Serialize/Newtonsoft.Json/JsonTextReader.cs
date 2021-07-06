@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Globalization;
 using System.IO;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Represents a reader that provides fast, non-cached, forward-only access to JSON text data.

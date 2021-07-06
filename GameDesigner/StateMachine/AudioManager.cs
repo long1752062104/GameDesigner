@@ -24,7 +24,10 @@
                 {
                     _instance = FindObjectOfType<AudioManager>();
                     if (_instance == null)
+                    {
                         _instance = new GameObject("AudioManager").AddComponent<AudioManager>();
+                        DontDestroyOnLoad(_instance);
+                    }
                 }
                 return _instance;
             }

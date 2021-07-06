@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Newtonsoft.Json.Serialization
+namespace Newtonsoft_X.Json.Serialization
 {
     /// <summary>
     /// Provides methods to get attributes.

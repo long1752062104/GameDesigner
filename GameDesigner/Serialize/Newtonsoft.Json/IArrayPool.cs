@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Provides an interface for using pooled arrays.

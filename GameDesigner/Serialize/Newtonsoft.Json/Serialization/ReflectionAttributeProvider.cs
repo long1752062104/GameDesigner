@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections.Generic;
 
-namespace Newtonsoft.Json.Serialization
+namespace Newtonsoft_X.Json.Serialization
 {
     /// <summary>
     /// Provides methods to get attributes from a <see cref="T:System.Type" />, <see cref="T:System.Reflection.MemberInfo" />, <see cref="T:System.Reflection.ParameterInfo" /> or <see cref="T:System.Reflection.Assembly" />.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Converts an object to and from JSON.

@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft_X.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     internal class ReflectionObject
     {

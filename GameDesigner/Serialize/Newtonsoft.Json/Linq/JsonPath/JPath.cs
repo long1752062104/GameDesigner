@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace Newtonsoft.Json.Linq.JsonPath
+namespace Newtonsoft_X.Json.Linq.JsonPath
 {
     internal class JPath
     {

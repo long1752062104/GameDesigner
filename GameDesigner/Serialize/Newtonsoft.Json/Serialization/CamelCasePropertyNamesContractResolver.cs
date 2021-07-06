@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json.Serialization
+namespace Newtonsoft_X.Json.Serialization
 {
     /// <summary>
     /// Resolves member mappings for a type, camel casing property names.

@@ -1,7 +1,7 @@
 ﻿namespace Net.Share
 {
     using Net.Event;
-    using Newtonsoft.Json;
+    using Newtonsoft_X.Json;
     using System;
     using System.Collections.Generic;
     using System.IO;

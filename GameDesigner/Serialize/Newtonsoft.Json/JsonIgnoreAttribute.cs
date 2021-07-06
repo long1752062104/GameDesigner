@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Instructs the <see cref="T:Newtonsoft.Json.JsonSerializer" /> not to serialize the public field or public read/write property value.

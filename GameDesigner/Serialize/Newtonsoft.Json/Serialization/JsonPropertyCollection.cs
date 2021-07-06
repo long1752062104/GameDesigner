@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 
-namespace Newtonsoft.Json.Serialization
+namespace Newtonsoft_X.Json.Serialization
 {
     /// <summary>
     /// A collection of <see cref="T:Newtonsoft.Json.Serialization.JsonProperty" /> objects.

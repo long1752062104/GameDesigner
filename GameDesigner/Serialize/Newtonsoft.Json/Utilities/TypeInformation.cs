@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     internal class TypeInformation
     {

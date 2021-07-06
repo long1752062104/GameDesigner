@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Specifies missing member handling options for the <see cref="T:Newtonsoft.Json.JsonSerializer" />.

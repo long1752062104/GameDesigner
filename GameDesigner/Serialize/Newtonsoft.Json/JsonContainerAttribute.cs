@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft_X.Json.Serialization;
 using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Instructs the <see cref="T:Newtonsoft.Json.JsonSerializer" /> how to serialize the object.

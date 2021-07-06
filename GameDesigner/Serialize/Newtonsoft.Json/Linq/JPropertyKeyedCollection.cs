@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Newtonsoft.Json.Linq
+namespace Newtonsoft_X.Json.Linq
 {
     internal class JPropertyKeyedCollection : Collection<JToken>
     {

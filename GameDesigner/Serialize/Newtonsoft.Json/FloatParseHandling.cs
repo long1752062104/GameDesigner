@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Specifies how floating point numbers, e.g. 1.0 and 9.9, are parsed when reading JSON text.

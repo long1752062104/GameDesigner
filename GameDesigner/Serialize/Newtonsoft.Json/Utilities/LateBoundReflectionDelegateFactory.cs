@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft_X.Json.Serialization;
 using System;
 using System.Reflection;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     internal class LateBoundReflectionDelegateFactory : ReflectionDelegateFactory
     {

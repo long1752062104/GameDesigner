@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Linq;
+using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
 
-namespace Newtonsoft.Json.Serialization
+namespace Newtonsoft_X.Json.Serialization
 {
     internal class JsonFormatterConverter : IFormatterConverter
     {

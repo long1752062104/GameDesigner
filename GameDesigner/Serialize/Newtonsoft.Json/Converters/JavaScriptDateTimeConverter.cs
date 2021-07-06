@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Globalization;
 
-namespace Newtonsoft.Json.Converters
+namespace Newtonsoft_X.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="T:System.DateTime" /> to and from a JavaScript <c>Date</c> constructor (e.g. <c>new Date(52231943)</c>).

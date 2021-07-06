@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Serialization;
+using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Serializes and deserializes objects into and from the JSON format.
@@ -20,7 +20,7 @@ namespace Newtonsoft.Json
         /// <summary>
         /// Occurs when the <see cref="T:Newtonsoft.Json.JsonSerializer" /> errors during serialization and deserialization.
         /// </summary>
-        public virtual event EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs> Error;
+        public virtual event EventHandler<Newtonsoft_X.Json.Serialization.ErrorEventArgs> Error;
 
         /// <summary>
         /// Gets or sets the <see cref="T:Newtonsoft.Json.Serialization.IReferenceResolver" /> used by the serializer when resolving references.
@@ -1155,9 +1155,9 @@ namespace Newtonsoft.Json
             return null;
         }
 
-        internal void OnError(Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        internal void OnError(Newtonsoft_X.Json.Serialization.ErrorEventArgs e)
         {
-            EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs> error = Error;
+            EventHandler<Newtonsoft_X.Json.Serialization.ErrorEventArgs> error = Error;
             if (error != null)
             {
                 error(this, e);

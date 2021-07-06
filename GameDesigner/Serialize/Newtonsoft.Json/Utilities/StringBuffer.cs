@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     /// <summary>
     /// Builds a string. Unlike <see cref="T:System.Text.StringBuilder" /> this class lets you reuse its internal buffer.

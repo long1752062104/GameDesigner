@@ -185,7 +185,7 @@ namespace Net
 
         // Token: 0x170012B7 RID: 4791
         // (get) Token: 0x060051C5 RID: 20933 RVA: 0x0008E674 File Offset: 0x0008C874
-        [Newtonsoft.Json.JsonIgnore]
+        [Newtonsoft_X.Json.JsonIgnore]
         [ProtoBuf.ProtoIgnore]
         public Vector4 normalized
         {

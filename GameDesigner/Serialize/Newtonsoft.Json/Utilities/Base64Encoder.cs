@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     internal class Base64Encoder
     {

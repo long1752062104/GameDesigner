@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Newtonsoft.Json.Linq
+namespace Newtonsoft_X.Json.Linq
 {
     /// <summary>
     /// Represents a view of a <see cref="T:Newtonsoft.Json.Linq.JProperty" />.

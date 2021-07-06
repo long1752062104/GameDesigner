@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft_X.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     internal static class ConvertUtils
     {

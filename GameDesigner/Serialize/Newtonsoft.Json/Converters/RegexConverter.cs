@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Bson;
-using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft_X.Json.Bson;
+using Newtonsoft_X.Json.Serialization;
 using System;
 using System.Text.RegularExpressions;
 
-namespace Newtonsoft.Json.Converters
+namespace Newtonsoft_X.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="T:System.Text.RegularExpressions.Regex" /> to and from JSON and BSON.

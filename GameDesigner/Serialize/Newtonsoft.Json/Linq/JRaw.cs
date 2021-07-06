@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.IO;
 
-namespace Newtonsoft.Json.Linq
+namespace Newtonsoft_X.Json.Linq
 {
     /// <summary>
     /// Represents a raw JSON string.

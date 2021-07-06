@@ -131,7 +131,7 @@
         public virtual Player OnDeserialize(byte[] buffer, int count)
         {
             string jsonStr = System.Text.Encoding.UTF8.GetString(buffer, 0, count);
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<Player>(jsonStr);
+            return Newtonsoft_X.Json.JsonConvert.DeserializeObject<Player>(jsonStr);
         }
 
         /// <summary>
@@ -186,7 +186,7 @@
         /// <returns></returns>
         public virtual byte[] OnSerialize(Player player)
         {
-            string jsonStr = Newtonsoft.Json.JsonConvert.SerializeObject(player);
+            string jsonStr = Newtonsoft_X.Json.JsonConvert.SerializeObject(player);
             return System.Text.Encoding.UTF8.GetBytes(jsonStr);
         }
 

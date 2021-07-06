@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Globalization;
 
-namespace Newtonsoft.Json.Converters
+namespace Newtonsoft_X.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="T:System.Version" /> to and from a string (e.g. <c>"1.2.3.4"</c>).

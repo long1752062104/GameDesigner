@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Specifies how object creation is handled by the <see cref="T:Newtonsoft.Json.JsonSerializer" />.

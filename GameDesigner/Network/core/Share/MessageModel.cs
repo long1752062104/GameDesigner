@@ -1,6 +1,6 @@
 ﻿namespace Net.Share
 {
-    using Newtonsoft.Json;
+    using Newtonsoft_X.Json;
     using System.Collections.Generic;
 
     /// <summary>

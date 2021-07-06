@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Globalization;
 
-namespace Newtonsoft.Json.Converters
+namespace Newtonsoft_X.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="T:System.DateTime" /> to and from the ISO 8601 date format (e.g. <c>"2008-04-12T12:53Z"</c>).

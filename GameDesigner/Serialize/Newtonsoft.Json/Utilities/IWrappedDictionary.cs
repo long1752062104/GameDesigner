@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     internal interface IWrappedDictionary : IDictionary, ICollection, IEnumerable
     {

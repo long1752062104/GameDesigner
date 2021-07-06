@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 
-namespace Newtonsoft.Json.Linq
+namespace Newtonsoft_X.Json.Linq
 {
     /// <summary>
     /// Represents a token that can contain other tokens.

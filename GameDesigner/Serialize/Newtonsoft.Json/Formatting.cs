@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Specifies formatting options for the <see cref="T:Newtonsoft.Json.JsonTextWriter" />.

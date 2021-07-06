@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Newtonsoft.Json.Utilities
+namespace Newtonsoft_X.Json.Utilities
 {
     internal static class MiscellaneousUtils
     {

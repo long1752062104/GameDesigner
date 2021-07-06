@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Serialization;
+using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Collections.Generic;
 
-namespace Newtonsoft.Json.Converters
+namespace Newtonsoft_X.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="T:System.Collections.Generic.KeyValuePair`2" /> to and from JSON.

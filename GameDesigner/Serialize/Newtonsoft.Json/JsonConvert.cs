@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Provides methods for converting between .NET types and JSON types.

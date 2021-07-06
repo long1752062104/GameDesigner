@@ -170,7 +170,7 @@
                         }
                         return list;
                     }
-                    else return Newtonsoft.Json.JsonConvert.DeserializeObject(data, Type);
+                    else return Newtonsoft_X.Json.JsonConvert.DeserializeObject(data, Type);
                 case TypeCode.Array:
                     if (itemType == typeof(Object) | itemType.IsSubclassOf(typeof(Object)))
                     {
@@ -182,7 +182,7 @@
                         }
                         return list;
                     }
-                    else return Newtonsoft.Json.JsonConvert.DeserializeObject(data, Type);
+                    else return Newtonsoft_X.Json.JsonConvert.DeserializeObject(data, Type);
             }
             return null;
         }
@@ -239,7 +239,7 @@
                         for (int i = 0; i < list.Count; i++)
                             values.Add(list[i] as Object);
                     }
-                    else data = Newtonsoft.Json.JsonConvert.SerializeObject(value);
+                    else data = Newtonsoft_X.Json.JsonConvert.SerializeObject(value);
                 }
                 else data = value.ToString();
             }

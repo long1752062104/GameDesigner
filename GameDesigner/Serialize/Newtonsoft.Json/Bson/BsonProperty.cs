@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json.Bson
+namespace Newtonsoft_X.Json.Bson
 {
     internal class BsonProperty
     {

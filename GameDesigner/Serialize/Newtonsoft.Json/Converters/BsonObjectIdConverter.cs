@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Bson;
-using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Bson;
+using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Globalization;
 
-namespace Newtonsoft.Json.Converters
+namespace Newtonsoft_X.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="T:Newtonsoft.Json.Bson.BsonObjectId" /> to and from JSON and BSON.

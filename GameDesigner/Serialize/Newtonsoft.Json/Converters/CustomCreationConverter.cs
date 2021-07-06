@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json.Converters
+namespace Newtonsoft_X.Json.Converters
 {
     /// <summary>
     /// Creates a custom object.

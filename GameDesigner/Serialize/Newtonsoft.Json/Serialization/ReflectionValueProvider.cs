@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 using System.Globalization;
 using System.Reflection;
 
-namespace Newtonsoft.Json.Serialization
+namespace Newtonsoft_X.Json.Serialization
 {
     /// <summary>
     /// Get and set values for a <see cref="T:System.Reflection.MemberInfo" /> using reflection.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Newtonsoft.Json.Linq.JsonPath
+namespace Newtonsoft_X.Json.Linq.JsonPath
 {
     internal enum QueryOperator
     {

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft_X.Json.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 
-namespace Newtonsoft.Json
+namespace Newtonsoft_X.Json
 {
     /// <summary>
     /// Specifies the settings on a <see cref="T:Newtonsoft.Json.JsonSerializer" /> object.

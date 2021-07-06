@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json.Utilities;
+﻿using Newtonsoft_X.Json.Utilities;
 using System;
 
-namespace Newtonsoft.Json.Bson
+namespace Newtonsoft_X.Json.Bson
 {
     /// <summary>
     /// Represents a BSON Oid (object id).
