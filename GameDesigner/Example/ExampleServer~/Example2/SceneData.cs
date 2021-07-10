@@ -28,7 +28,7 @@ namespace Example2
         public static void ReadData()
         {
 #if !UNITY_EDITOR
-            var path = Directory.GetCurrentDirectory() + "/Data/SceneData.json";
+            var path = AppDomain.CurrentDomain.BaseDirectory + "/Data/SceneData.json";
 #else
             var path = UnityEngine.Application.dataPath + "/GameDesigner/Example/ExampleServer~/bin/Debug/Data/SceneData.json";
 #endif

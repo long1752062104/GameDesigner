@@ -21,7 +21,7 @@
         public override void Start(ushort port = 6666)
         {
 #if !UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_ANDROID && !UNITY_IOS
-            string path = Directory.GetCurrentDirectory();
+            string path = AppDomain.CurrentDomain.BaseDirectory;
             if (!File.Exists(path + "\\kcp.dll"))
                 throw new FileNotFoundException($"kcp.dll没有在程序根目录中! 请从GameDesigner文件夹下找到kcp.dll复制到{path}目录下.");
 #endif

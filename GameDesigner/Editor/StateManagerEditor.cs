@@ -6,13 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace GameDesigner
 {
     [CustomEditor(typeof(StateManager))]
+    [CanEditMultipleObjects]
     public class StateManagerEditor : Editor
     {
         private static StateManager stateManager = null;
@@ -75,11 +75,12 @@ namespace GameDesigner
         public override void OnInspectorGUI()
         {
             EditorGUI.BeginChangeCheck();
-            stateManager.stateMachine = (StateMachine)EditorGUILayout.ObjectField(BlueprintGUILayout.Instance.LANGUAGE[0], stateManager.stateMachine, typeof(StateMachine), true);
+            serializedObject.Update();
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("stateMachine"), new GUIContent(BlueprintGUILayout.Instance.LANGUAGE[0]));
             if (GUILayout.Button(BlueprintSetting.Instance.LANGUAGE[1], GUI.skin.GetStyle("LargeButtonMid"), GUILayout.ExpandWidth(true)))
                 StateMachineWindow.Init(stateManager.stateMachine);
             if (stateManager.stateMachine == null)
-                return;
+                goto J;
             if (stateManager.stateMachine.selectState != null)
             {
                 DrawState(stateManager.stateMachine.selectState, stateManager);
@@ -97,6 +98,7 @@ namespace GameDesigner
                 EditorUtility.SetDirty(stateManager.stateMachine);
             }
             Repaint();
+            J: serializedObject.ApplyModifiedProperties();
         }
 
         /// <summary>

@@ -357,7 +357,7 @@ namespace Net.Server
 #if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
             rootPath = UnityEngine.Application.persistentDataPath;
 #else
-            rootPath = Directory.GetCurrentDirectory();
+            rootPath = AppDomain.CurrentDomain.BaseDirectory;
 #endif
             Directory.CreateDirectory(rootPath + "/reliable/");
         }

@@ -72,7 +72,7 @@
 #if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
             rootPath = UnityEngine.Application.persistentDataPath;
 #else
-            rootPath = Directory.GetCurrentDirectory();
+            rootPath = AppDomain.CurrentDomain.BaseDirectory;
 #endif
             if (!Directory.Exists(rootPath + DataPath))
                 Directory.CreateDirectory(rootPath + DataPath);

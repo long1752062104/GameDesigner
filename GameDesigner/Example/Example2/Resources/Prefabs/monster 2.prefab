@@ -1,763 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1743425970300294259
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1743425970300294257}
-  - component: {fileID: 1743425970300294256}
-  m_Layer: 0
-  m_Name: machine
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1743425970300294257
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1743425970300294259}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11.85, y: 0, z: -12.22}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4615171339904545797}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1743425970300294256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1743425970300294259}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3f06a47f02b71145a923749843ed18e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  defaulID: 0
-  stateID: 0
-  states:
-  - name: idle
-    ID: 0
-    perID: 0
-    findBehaviours: 0
-    makeTransition: 0
-    makeGetValueTransition: 0
-    makeRuntimeTransition: 0
-    makeOutRuntimeTransition: 0
-    createScriptName: NewStateBehaviour
-    foldout: 1
-    compiling: 0
-    behaviourMenuIndex: 0
-    actionMenuIndex: 0
-    rect:
-      serializedVersion: 2
-      x: 5544
-      y: 5119
-      width: 150
-      height: 30
-    stateMachine: {fileID: 1743425970300294256}
-    transitions: []
-    behaviours:
-    - name: MonsterIdle
-      ID: 0
-      show: 1
-      Active: 1
-      metadatas: []
-      stateMachine: {fileID: 1743425970300294256}
-    actionSystem: 1
-    animLoop: 1
-    animPlayMode: 0
-    actionIndex: 0
-    audioIndex: 0
-    animSpeed: 1
-    isExitState: 0
-    DstStateID: 0
-    actions:
-    - clipName: idle
-      clipIndex: 11
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 0
-      audioModel: 1
-      audioClips:
-      - {fileID: 0}
-      behaviours: []
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-  - name: walk
-    ID: 1
-    perID: 0
-    findBehaviours: 0
-    makeTransition: 0
-    makeGetValueTransition: 0
-    makeRuntimeTransition: 0
-    makeOutRuntimeTransition: 0
-    createScriptName: NewStateBehaviour
-    foldout: 1
-    compiling: 0
-    behaviourMenuIndex: 0
-    actionMenuIndex: 0
-    rect:
-      serializedVersion: 2
-      x: 5542
-      y: 5192
-      width: 150
-      height: 30
-    stateMachine: {fileID: 1743425970300294256}
-    transitions: []
-    behaviours:
-    - name: MonsterIdle
-      ID: 0
-      show: 1
-      Active: 1
-      metadatas: []
-      stateMachine: {fileID: 1743425970300294256}
-    actionSystem: 1
-    animLoop: 1
-    animPlayMode: 0
-    actionIndex: 0
-    audioIndex: 0
-    animSpeed: 1
-    isExitState: 0
-    DstStateID: 0
-    actions:
-    - clipName: walk
-      clipIndex: 22
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 0
-      audioModel: 1
-      audioClips:
-      - {fileID: 0}
-      behaviours: []
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-  - name: run
-    ID: 2
-    perID: 0
-    findBehaviours: 0
-    makeTransition: 0
-    makeGetValueTransition: 0
-    makeRuntimeTransition: 0
-    makeOutRuntimeTransition: 0
-    createScriptName: NewStateBehaviour
-    foldout: 1
-    compiling: 0
-    behaviourMenuIndex: 0
-    actionMenuIndex: 0
-    rect:
-      serializedVersion: 2
-      x: 5542
-      y: 5258
-      width: 150
-      height: 30
-    stateMachine: {fileID: 1743425970300294256}
-    transitions: []
-    behaviours:
-    - name: MonsterRun
-      ID: 0
-      show: 1
-      Active: 1
-      metadatas: []
-      stateMachine: {fileID: 1743425970300294256}
-    actionSystem: 1
-    animLoop: 1
-    animPlayMode: 0
-    actionIndex: 0
-    audioIndex: 0
-    animSpeed: 1
-    isExitState: 0
-    DstStateID: 0
-    actions:
-    - clipName: run
-      clipIndex: 14
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 0
-      audioModel: 1
-      audioClips:
-      - {fileID: 0}
-      behaviours: []
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-    - clipName: charge
-      clipIndex: 2
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 0
-      audioModel: 1
-      audioClips:
-      - {fileID: 0}
-      behaviours: []
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-  - name: attack
-    ID: 3
-    perID: 0
-    findBehaviours: 0
-    makeTransition: 0
-    makeGetValueTransition: 0
-    makeRuntimeTransition: 0
-    makeOutRuntimeTransition: 0
-    createScriptName: NewStateBehaviour
-    foldout: 1
-    compiling: 0
-    behaviourMenuIndex: 0
-    actionMenuIndex: 4
-    rect:
-      serializedVersion: 2
-      x: 5340
-      y: 5187
-      width: 150
-      height: 30
-    stateMachine: {fileID: 1743425970300294256}
-    transitions:
-    - name: attack -> idle
-      ID: 0
-      perID: 0
-      findBehaviours: 0
-      makeTransition: 0
-      makeGetValueTransition: 0
-      makeRuntimeTransition: 0
-      makeOutRuntimeTransition: 0
-      createScriptName: NewStateBehaviour
-      foldout: 1
-      compiling: 0
-      behaviourMenuIndex: 0
-      actionMenuIndex: 0
-      rect:
-        serializedVersion: 2
-        x: 10
-        y: 10
-        width: 150
-        height: 30
-      stateMachine: {fileID: 1743425970300294256}
-      currStateID: 3
-      nextStateID: 0
-      model: 1
-      time: 0
-      exitTime: 1
-      behaviours: []
-      isEnterNextState: 0
-    behaviours: []
-    actionSystem: 1
-    animLoop: 0
-    animPlayMode: 0
-    actionIndex: 0
-    audioIndex: 0
-    animSpeed: 1
-    isExitState: 1
-    DstStateID: 0
-    actions:
-    - clipName: default_attack
-      clipIndex: 4
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 1
-      audioModel: 1
-      audioClips:
-      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
-      behaviours:
-      - name: MonsterAttack
-        ID: 0
-        show: 1
-        Active: 1
-        metadatas:
-        - name: distance
-          type: 13
-          typeName: System.Single
-          data: 3
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: range
-          type: 13
-          typeName: System.Single
-          data: 60
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: damage
-          type: 13
-          typeName: System.Single
-          data: 1
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        stateMachine: {fileID: 1743425970300294256}
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-    - clipName: charge
-      clipIndex: 2
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 1
-      audioModel: 1
-      audioClips:
-      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
-      behaviours:
-      - name: MonsterAttack
-        ID: 0
-        show: 1
-        Active: 1
-        metadatas:
-        - name: distance
-          type: 13
-          typeName: System.Single
-          data: 3
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: range
-          type: 13
-          typeName: System.Single
-          data: 60
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: damage
-          type: 13
-          typeName: System.Single
-          data: 1
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        stateMachine: {fileID: 1743425970300294256}
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-    - clipName: charge_end
-      clipIndex: 3
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 1
-      audioModel: 1
-      audioClips:
-      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
-      behaviours:
-      - name: MonsterAttack
-        ID: 0
-        show: 1
-        Active: 1
-        metadatas:
-        - name: distance
-          type: 13
-          typeName: System.Single
-          data: 3
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: range
-          type: 13
-          typeName: System.Single
-          data: 60
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: damage
-          type: 13
-          typeName: System.Single
-          data: 1
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        stateMachine: {fileID: 1743425970300294256}
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-    - clipName: frenzied_slash
-      clipIndex: 6
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 1
-      audioModel: 1
-      audioClips:
-      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
-      behaviours:
-      - name: MonsterAttack
-        ID: 0
-        show: 1
-        Active: 1
-        metadatas:
-        - name: distance
-          type: 13
-          typeName: System.Single
-          data: 3
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: range
-          type: 13
-          typeName: System.Single
-          data: 60
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: damage
-          type: 13
-          typeName: System.Single
-          data: 1
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        stateMachine: {fileID: 1743425970300294256}
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-    - clipName: shield_bash
-      clipIndex: 15
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 1
-      audioModel: 1
-      audioClips:
-      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
-      behaviours:
-      - name: MonsterAttack
-        ID: 0
-        show: 1
-        Active: 1
-        metadatas:
-        - name: distance
-          type: 13
-          typeName: System.Single
-          data: 3
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: range
-          type: 13
-          typeName: System.Single
-          data: 60
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: damage
-          type: 13
-          typeName: System.Single
-          data: 1
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        stateMachine: {fileID: 1743425970300294256}
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-    - clipName: roar
-      clipIndex: 13
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 1
-      audioModel: 1
-      audioClips:
-      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
-      behaviours:
-      - name: MonsterAttack
-        ID: 0
-        show: 1
-        Active: 1
-        metadatas:
-        - name: distance
-          type: 13
-          typeName: System.Single
-          data: 3
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: range
-          type: 13
-          typeName: System.Single
-          data: 60
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        - name: damage
-          type: 13
-          typeName: System.Single
-          data: 1
-          Value: {fileID: 0}
-          values: []
-          arraySize: 0
-          foldout: 0
-        stateMachine: {fileID: 1743425970300294256}
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-  - name: die
-    ID: 4
-    perID: 2
-    findBehaviours: 0
-    makeTransition: 0
-    makeGetValueTransition: 0
-    makeRuntimeTransition: 0
-    makeOutRuntimeTransition: 0
-    createScriptName: NewStateBehaviour
-    foldout: 1
-    compiling: 0
-    behaviourMenuIndex: 0
-    actionMenuIndex: 0
-    rect:
-      serializedVersion: 2
-      x: 5763
-      y: 5188
-      width: 150
-      height: 30
-    stateMachine: {fileID: 1743425970300294256}
-    transitions: []
-    behaviours:
-    - name: MonsterDie
-      ID: 0
-      show: 1
-      Active: 1
-      metadatas: []
-      stateMachine: {fileID: 1743425970300294256}
-    actionSystem: 1
-    animLoop: 0
-    animPlayMode: 0
-    actionIndex: 0
-    audioIndex: 0
-    animSpeed: 1
-    isExitState: 0
-    DstStateID: 0
-    actions:
-    - clipName: die
-      clipIndex: 5
-      animTime: 0
-      animEventTime: 50
-      animTimeMax: 100
-      eventEnter: 0
-      effectSpwan: {fileID: 0}
-      activeMode: 0
-      spwanTime: 1
-      activeObjs: []
-      spwanmode: 0
-      parent: {fileID: 0}
-      effectPostion: {x: 0, y: 1.5, z: 2}
-      effectEulerAngles: {x: 0, y: 0, z: 0}
-      isPlayAudio: 1
-      audioModel: 1
-      audioClips:
-      - {fileID: 8300000, guid: d5b6ba6f4c6abd04f91d1330c93ca61c, type: 3}
-      behaviours: []
-      foldout: 1
-      audiofoldout: 0
-      findBehaviours: 0
-      desAudioIndex: 0
-      behaviourMenuIndex: 0
-      createScriptName: NewStateAction
-      acSize: 1
-      stateMachine: {fileID: 1743425970300294256}
-  selectStates: 03000000
-  animMode: 0
-  animation: {fileID: 8117216886536976500}
-  animator: {fileID: 0}
-  clipNames:
-  - backpedal
-  - charge_start
-  - charge
-  - charge_end
-  - default_attack
-  - die
-  - frenzied_slash
-  - gethit_from_behind
-  - gethit_from_front
-  - gethit_from_left
-  - gethit_from_right
-  - idle
-  - jump
-  - roar
-  - run
-  - shield_bash
-  - shield_block
-  - shuffle_left
-  - shuffle_right
-  - spawn
-  - strafe_left
-  - strafe_right
-  - walk
-  _stateManager: {fileID: 0}
 --- !u!1 &4119603575783416008
 GameObject:
   m_ObjectHideFlags: 0
@@ -817,7 +59,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4615171339904545797}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!137 &4119603575769754750
 SkinnedMeshRenderer:
@@ -2598,7 +1840,7 @@ Transform:
   - {fileID: 4119603575782931772}
   - {fileID: 4119603575782931774}
   m_Father: {fileID: 4615171339904545797}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4119603575783416188
 GameObject:
@@ -2629,7 +1871,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4615171339904545797}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!137 &4119603575769754748
 SkinnedMeshRenderer:
@@ -2802,10 +2044,10 @@ Transform:
   m_LocalPosition: {x: 11.85, y: 0, z: 12.22}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1743425970300294257}
   - {fileID: 4119603575782931804}
   - {fileID: 4119603575782931802}
   - {fileID: 4119603575782931758}
+  - {fileID: 5536536416161697125}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2884,7 +2126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2116bb30ba5d07848b369460ef8c9116, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stateMachine: {fileID: 1743425970300294256}
+  stateMachine: {fileID: 5536536416161697124}
 --- !u!136 &1340070763303181046
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2929,3 +2171,761 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   viewAngle: 120
   detectionRadius: 3
+--- !u!1 &5536536416161697127
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5536536416161697125}
+  - component: {fileID: 5536536416161697124}
+  m_Layer: 0
+  m_Name: machine
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5536536416161697125
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5536536416161697127}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -11.85, y: 0, z: -12.22}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4615171339904545797}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5536536416161697124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5536536416161697127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3f06a47f02b71145a923749843ed18e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaulID: 0
+  stateID: 0
+  states:
+  - name: idle
+    ID: 0
+    perID: 0
+    findBehaviours: 0
+    makeTransition: 0
+    makeGetValueTransition: 0
+    makeRuntimeTransition: 0
+    makeOutRuntimeTransition: 0
+    createScriptName: NewStateBehaviour
+    foldout: 1
+    compiling: 0
+    behaviourMenuIndex: 0
+    actionMenuIndex: 0
+    rect:
+      serializedVersion: 2
+      x: 5544
+      y: 5119
+      width: 150
+      height: 30
+    stateMachine: {fileID: 5536536416161697124}
+    transitions: []
+    behaviours:
+    - name: Example2.MonsterIdle
+      ID: 0
+      show: 1
+      Active: 1
+      metadatas: []
+      stateMachine: {fileID: 5536536416161697124}
+    actionSystem: 1
+    animLoop: 1
+    animPlayMode: 0
+    actionIndex: 0
+    audioIndex: 0
+    animSpeed: 1
+    isExitState: 0
+    DstStateID: 0
+    actions:
+    - clipName: idle
+      clipIndex: 11
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 0
+      audioModel: 1
+      audioClips:
+      - {fileID: 0}
+      behaviours: []
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+  - name: walk
+    ID: 1
+    perID: 0
+    findBehaviours: 0
+    makeTransition: 0
+    makeGetValueTransition: 0
+    makeRuntimeTransition: 0
+    makeOutRuntimeTransition: 0
+    createScriptName: NewStateBehaviour
+    foldout: 1
+    compiling: 0
+    behaviourMenuIndex: 0
+    actionMenuIndex: 0
+    rect:
+      serializedVersion: 2
+      x: 5542
+      y: 5192
+      width: 150
+      height: 30
+    stateMachine: {fileID: 5536536416161697124}
+    transitions: []
+    behaviours:
+    - name: Example2.MonsterIdle
+      ID: 0
+      show: 1
+      Active: 1
+      metadatas: []
+      stateMachine: {fileID: 5536536416161697124}
+    actionSystem: 1
+    animLoop: 1
+    animPlayMode: 0
+    actionIndex: 0
+    audioIndex: 0
+    animSpeed: 1
+    isExitState: 0
+    DstStateID: 0
+    actions:
+    - clipName: walk
+      clipIndex: 22
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 0
+      audioModel: 1
+      audioClips:
+      - {fileID: 0}
+      behaviours: []
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+  - name: run
+    ID: 2
+    perID: 0
+    findBehaviours: 0
+    makeTransition: 0
+    makeGetValueTransition: 0
+    makeRuntimeTransition: 0
+    makeOutRuntimeTransition: 0
+    createScriptName: NewStateBehaviour
+    foldout: 1
+    compiling: 0
+    behaviourMenuIndex: 0
+    actionMenuIndex: 0
+    rect:
+      serializedVersion: 2
+      x: 5542
+      y: 5258
+      width: 150
+      height: 30
+    stateMachine: {fileID: 5536536416161697124}
+    transitions: []
+    behaviours:
+    - name: Example2.MonsterRun
+      ID: 0
+      show: 1
+      Active: 1
+      metadatas: []
+      stateMachine: {fileID: 5536536416161697124}
+    actionSystem: 1
+    animLoop: 1
+    animPlayMode: 0
+    actionIndex: 0
+    audioIndex: 0
+    animSpeed: 1
+    isExitState: 0
+    DstStateID: 0
+    actions:
+    - clipName: run
+      clipIndex: 14
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 0
+      audioModel: 1
+      audioClips:
+      - {fileID: 0}
+      behaviours: []
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+    - clipName: charge
+      clipIndex: 2
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 0
+      audioModel: 1
+      audioClips:
+      - {fileID: 0}
+      behaviours: []
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+  - name: attack
+    ID: 3
+    perID: 0
+    findBehaviours: 0
+    makeTransition: 0
+    makeGetValueTransition: 0
+    makeRuntimeTransition: 0
+    makeOutRuntimeTransition: 0
+    createScriptName: NewStateBehaviour
+    foldout: 1
+    compiling: 0
+    behaviourMenuIndex: 0
+    actionMenuIndex: 4
+    rect:
+      serializedVersion: 2
+      x: 5340
+      y: 5187
+      width: 150
+      height: 30
+    stateMachine: {fileID: 5536536416161697124}
+    transitions:
+    - name: attack -> idle
+      ID: 0
+      perID: 0
+      findBehaviours: 0
+      makeTransition: 0
+      makeGetValueTransition: 0
+      makeRuntimeTransition: 0
+      makeOutRuntimeTransition: 0
+      createScriptName: NewStateBehaviour
+      foldout: 1
+      compiling: 0
+      behaviourMenuIndex: 0
+      actionMenuIndex: 0
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 10
+        width: 150
+        height: 30
+      stateMachine: {fileID: 5536536416161697124}
+      currStateID: 3
+      nextStateID: 0
+      model: 1
+      time: 0
+      exitTime: 1
+      behaviours: []
+      isEnterNextState: 0
+    behaviours: []
+    actionSystem: 1
+    animLoop: 0
+    animPlayMode: 0
+    actionIndex: 0
+    audioIndex: 0
+    animSpeed: 1
+    isExitState: 1
+    DstStateID: 0
+    actions:
+    - clipName: default_attack
+      clipIndex: 4
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 1
+      audioModel: 1
+      audioClips:
+      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
+      behaviours:
+      - name: Example2.MonsterAttack
+        ID: 0
+        show: 1
+        Active: 1
+        metadatas:
+        - name: distance
+          type: 13
+          typeName: System.Single
+          data: 3
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: range
+          type: 13
+          typeName: System.Single
+          data: 60
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: damage
+          type: 13
+          typeName: System.Single
+          data: 1
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        stateMachine: {fileID: 5536536416161697124}
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+    - clipName: charge
+      clipIndex: 2
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 1
+      audioModel: 1
+      audioClips:
+      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
+      behaviours:
+      - name: Example2.MonsterAttack
+        ID: 0
+        show: 1
+        Active: 1
+        metadatas:
+        - name: distance
+          type: 13
+          typeName: System.Single
+          data: 3
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: range
+          type: 13
+          typeName: System.Single
+          data: 60
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: damage
+          type: 13
+          typeName: System.Single
+          data: 1
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        stateMachine: {fileID: 5536536416161697124}
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+    - clipName: charge_end
+      clipIndex: 3
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 1
+      audioModel: 1
+      audioClips:
+      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
+      behaviours:
+      - name: Example2.MonsterAttack
+        ID: 0
+        show: 1
+        Active: 1
+        metadatas:
+        - name: distance
+          type: 13
+          typeName: System.Single
+          data: 3
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: range
+          type: 13
+          typeName: System.Single
+          data: 60
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: damage
+          type: 13
+          typeName: System.Single
+          data: 1
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        stateMachine: {fileID: 5536536416161697124}
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+    - clipName: frenzied_slash
+      clipIndex: 6
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 1
+      audioModel: 1
+      audioClips:
+      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
+      behaviours:
+      - name: Example2.MonsterAttack
+        ID: 0
+        show: 1
+        Active: 1
+        metadatas:
+        - name: distance
+          type: 13
+          typeName: System.Single
+          data: 3
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: range
+          type: 13
+          typeName: System.Single
+          data: 60
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: damage
+          type: 13
+          typeName: System.Single
+          data: 1
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        stateMachine: {fileID: 5536536416161697124}
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+    - clipName: shield_bash
+      clipIndex: 15
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 1
+      audioModel: 1
+      audioClips:
+      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
+      behaviours:
+      - name: Example2.MonsterAttack
+        ID: 0
+        show: 1
+        Active: 1
+        metadatas:
+        - name: distance
+          type: 13
+          typeName: System.Single
+          data: 3
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: range
+          type: 13
+          typeName: System.Single
+          data: 60
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: damage
+          type: 13
+          typeName: System.Single
+          data: 1
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        stateMachine: {fileID: 5536536416161697124}
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+    - clipName: roar
+      clipIndex: 13
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 1
+      audioModel: 1
+      audioClips:
+      - {fileID: 8300000, guid: 52fa067c25c5c401b811eb86d142287e, type: 3}
+      behaviours:
+      - name: Example2.MonsterAttack
+        ID: 0
+        show: 1
+        Active: 1
+        metadatas:
+        - name: distance
+          type: 13
+          typeName: System.Single
+          data: 3
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: range
+          type: 13
+          typeName: System.Single
+          data: 60
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        - name: damage
+          type: 13
+          typeName: System.Single
+          data: 1
+          Value: {fileID: 0}
+          values: []
+          arraySize: 0
+          foldout: 0
+        stateMachine: {fileID: 5536536416161697124}
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+  - name: die
+    ID: 4
+    perID: 2
+    findBehaviours: 0
+    makeTransition: 0
+    makeGetValueTransition: 0
+    makeRuntimeTransition: 0
+    makeOutRuntimeTransition: 0
+    createScriptName: NewStateBehaviour
+    foldout: 1
+    compiling: 0
+    behaviourMenuIndex: 0
+    actionMenuIndex: 0
+    rect:
+      serializedVersion: 2
+      x: 5763
+      y: 5188
+      width: 150
+      height: 30
+    stateMachine: {fileID: 5536536416161697124}
+    transitions: []
+    behaviours:
+    - name: Example2.MonsterDie
+      ID: 0
+      show: 1
+      Active: 1
+      metadatas: []
+      stateMachine: {fileID: 5536536416161697124}
+    actionSystem: 1
+    animLoop: 0
+    animPlayMode: 0
+    actionIndex: 0
+    audioIndex: 0
+    animSpeed: 1
+    isExitState: 0
+    DstStateID: 0
+    actions:
+    - clipName: die
+      clipIndex: 5
+      animTime: 0
+      animEventTime: 50
+      animTimeMax: 100
+      eventEnter: 0
+      effectSpwan: {fileID: 0}
+      activeMode: 0
+      spwanTime: 1
+      activeObjs: []
+      spwanmode: 0
+      parent: {fileID: 0}
+      effectPostion: {x: 0, y: 1.5, z: 2}
+      effectEulerAngles: {x: 0, y: 0, z: 0}
+      isPlayAudio: 1
+      audioModel: 1
+      audioClips:
+      - {fileID: 8300000, guid: 3125b22df21320846b37e7c048c848a8, type: 3}
+      behaviours: []
+      foldout: 1
+      audiofoldout: 0
+      findBehaviours: 0
+      desAudioIndex: 0
+      behaviourMenuIndex: 0
+      createScriptName: NewStateAction
+      acSize: 1
+      stateMachine: {fileID: 5536536416161697124}
+  selectStates: 04000000
+  animMode: 0
+  animation: {fileID: 8117216886536976500}
+  animator: {fileID: 0}
+  clipNames:
+  - backpedal
+  - charge_start
+  - charge
+  - charge_end
+  - default_attack
+  - die
+  - frenzied_slash
+  - gethit_from_behind
+  - gethit_from_front
+  - gethit_from_left
+  - gethit_from_right
+  - idle
+  - jump
+  - roar
+  - run
+  - shield_bash
+  - shield_block
+  - shuffle_left
+  - shuffle_right
+  - spawn
+  - strafe_left
+  - strafe_right
+  - walk
+  _stateManager: {fileID: 0}

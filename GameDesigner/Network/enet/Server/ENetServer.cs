@@ -59,7 +59,7 @@
                 Instance = this;
             AddRpcHandle(this, true);
 #if !UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_ANDROID && !UNITY_IOS
-            string path = Directory.GetCurrentDirectory();
+            string path = AppDomain.CurrentDomain.BaseDirectory;
             if (!File.Exists(path + "\\enet.dll"))
                 throw new FileNotFoundException($"enet.dll没有在程序根目录中! 请从GameDesigner文件夹下找到 enet.dll复制到{path}目录下.");
             if (!File.Exists(path + "\\ENetX64.dll"))

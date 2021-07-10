@@ -58,7 +58,7 @@ namespace Net.Client
         protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
 #if !UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_ANDROID && !UNITY_IOS
-            string path = Directory.GetCurrentDirectory();
+            string path = AppDomain.CurrentDomain.BaseDirectory;
             if (!File.Exists(path + "\\libuv.dll"))
                 throw new FileNotFoundException($"libuv.dll没有在程序根目录中! 请从GameDesigner文件夹下找到 libuv.dll复制到{path}目录下.");
 #endif

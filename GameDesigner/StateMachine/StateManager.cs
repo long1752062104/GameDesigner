@@ -23,10 +23,13 @@
             }
             if (stateMachine.GetComponentInParent<StateManager>() == null)//当使用本地公用状态机时
             {
-                StateMachine sm = Instantiate(stateMachine);
+                StateMachine sm = Instantiate(stateMachine, transform);
                 sm.name = stateMachine.name;
-                sm.transform.SetParent(transform);
                 sm.transform.localPosition = Vector3.zero;
+                if(sm.animation==null)
+                    sm.animation = GetComponentInChildren<Animation>();
+                if (sm.animator == null)
+                    sm.animator = GetComponentInChildren<Animator>();
                 stateMachine = sm;
             }
             foreach (var state in stateMachine.states)

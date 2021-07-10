@@ -20,7 +20,7 @@ namespace ExampleServer
         [STAThread]
         static void Main(string[] args)
         {
-            args = new string[] { "Example2" };
+            //args = new string[] { "Example2" };
             if (args.Length == 0)
                 return;
             Application.EnableVisualStyles();

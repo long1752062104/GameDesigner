@@ -498,9 +498,9 @@ namespace Net.Client
                     RpcsDic.Remove(key);
                 return;
             }
-            List<RPCMethod> rpcsList = new List<RPCMethod>();
-            Dictionary<string, List<RPCMethod>> dic = new Dictionary<string, List<RPCMethod>>(RpcsDic);
-            foreach (KeyValuePair<string, List<RPCMethod>> rpcs in dic)
+            var rpcsList = new List<RPCMethod>();
+            var dic = new Dictionary<string, List<RPCMethod>>(RpcsDic);
+            foreach (var rpcs in dic)
             {
                 for (int i = 0; i < rpcs.Value.Count; i++)
                 {
@@ -841,7 +841,7 @@ namespace Net.Client
 #if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
             persistentDataPath = UnityEngine.Application.persistentDataPath;
 #else
-            persistentDataPath = Directory.GetCurrentDirectory();
+            persistentDataPath = AppDomain.CurrentDomain.BaseDirectory;
 #endif
             if (Client == null) //如果套接字为空则说明没有连接上服务器
             {
@@ -1160,9 +1160,9 @@ namespace Net.Client
 
         private void UpdateRpcs()
         {
-            List<RPCMethod> rpcsList = new List<RPCMethod>();
-            Dictionary<string, List<RPCMethod>> dic = new Dictionary<string, List<RPCMethod>>(RpcsDic);
-            foreach (KeyValuePair<string, List<RPCMethod>> rpcs in dic)
+            var rpcsList = new List<RPCMethod>();
+            var dic = new Dictionary<string, List<RPCMethod>>(RpcsDic);
+            foreach (var rpcs in dic)
                 rpcsList.AddRange(rpcs.Value);
             Rpcs = rpcsList;
         }
