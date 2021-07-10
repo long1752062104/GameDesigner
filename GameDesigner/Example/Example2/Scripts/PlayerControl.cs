@@ -10,6 +10,7 @@ namespace Example2
         public float jumpSpeed = 500f;
         private Rigidbody rig;
         public PlayerAnimation pa;
+        private Player player;
         internal bool jump;
         internal bool fire;
         
@@ -17,6 +18,7 @@ namespace Example2
         {
             rig = GetComponent<Rigidbody>();
             pa = GetComponent<PlayerAnimation>();
+            player = GetComponent<Player>();
         }
 
         public static Vector3 InputDirection
@@ -27,6 +29,8 @@ namespace Example2
         // Update is called once per frame
         void Update()
         {
+            if (player.isDead)
+                return;
             var dir = InputDirection;
             if (dir != Vector3.zero)
                 moveDirection = dir;
@@ -45,7 +49,7 @@ namespace Example2
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir1, Vector3.up), 0.5f);
                 transform.Translate(0, 0, moveSpeed * Time.deltaTime);
             }
-            if (fire | Input.GetMouseButton(0))
+            if (fire | Input.GetMouseButtonDown(0))
             {
                 ClientManager.AddOperation(new Net.Share.Operation(Command.Fire, ClientManager.UID));
                 fire = false;

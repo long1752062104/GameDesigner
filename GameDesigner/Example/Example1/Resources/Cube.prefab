@@ -98,7 +98,9 @@ MonoBehaviour:
   mode: 2
   identity: -1
   interval: 0.5
-  childs: []
+  index: 0
+  setID: 0
+  m_identity: 0
 --- !u!114 &-1378744482142756692
 MonoBehaviour:
   m_ObjectHideFlags: 0

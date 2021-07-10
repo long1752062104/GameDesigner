@@ -495,7 +495,7 @@ namespace Net.Server
             if (client.OnOperationSync(list))
                 return;
             if (Scenes.TryGetValue(client.sceneID, out Scene scene))
-                scene.AddOperations(list.operations);
+                scene.OnOperationSync(client, list);
         }
 
         /// <summary>
@@ -2542,8 +2542,14 @@ namespace Net.Server
         /// <param name="client"></param>
         public virtual void SignOut(Player client)
         {
+            if (!client.login)
+                return;
             SendDirect(client);
-            RemoveClient(client);
+            if (onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
+            Players.TryRemove(client.playerID, out _);
+            ExitScene(client, false);
+            client.playerID = client.UserID.ToString();
+            client.login = false;
             Debug.Log("[" + client.playerID + "]退出登录...!");
         }
 

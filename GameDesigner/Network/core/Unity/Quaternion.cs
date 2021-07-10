@@ -628,7 +628,7 @@ namespace Net
             bool ret = LookRotationToQuaternion(viewVec, upVec, out Quaternion q);
             if (!ret)
             {
-                throw new Exception("Look fail!");
+                //throw new Exception("Look fail!");
             }
 
             return q;

@@ -230,7 +230,10 @@ public static class Fast2BuildToolMethod
                 }
                 else
                 {
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
+                    if (members[i].Type.IsValueType)
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != default)");
+                    else
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}int count = value.{members[i].Name}.Length;");
@@ -246,7 +249,10 @@ public static class Fast2BuildToolMethod
             }
             else
             {
-                str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
+                if(members[i].Type.IsValueType)
+                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != default)");
+                else
+                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
                 var local = members[i].Type.FullName.Replace(".", "") + "Bind";

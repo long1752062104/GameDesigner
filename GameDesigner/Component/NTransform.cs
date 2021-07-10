@@ -16,16 +16,13 @@
     public class NTransform
     {
         public Matrix4x4 matrix;
-
-        private Vector3 _position;
         public Vector3 position
         {
-            get { return _position = matrix.GetPosition(); }
+            get { return matrix.GetPosition(); }
             set
             {
                 matrix = Matrix4Utils.GetPosition(value);
                 matrix *= Matrix4x4.Rotate(rotation);
-                _position = value;
             }
         }
         public Quaternion rotation
@@ -145,6 +142,12 @@
         public void Rotate(float xAngle, float yAngle, float zAngle)
         {
             Rotate(new Vector3(xAngle, yAngle, zAngle), Space.Self);
+        }
+
+        public void LookAt(Vector3 position)
+        {
+            Vector3 v = (position - this.position).normalized;
+            forward = v;
         }
     }
 }

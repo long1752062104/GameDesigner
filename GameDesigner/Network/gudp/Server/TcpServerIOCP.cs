@@ -351,7 +351,7 @@
 
         protected override void HeartHandle()
         {
-            foreach (KeyValuePair<EndPoint, Player> client in AllClients)
+            foreach (var client in AllClients)
             {
                 if (client.Value == null)
                     continue;

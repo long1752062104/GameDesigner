@@ -374,6 +374,8 @@
             return false; //返回假: 绘制默认监视面板 | 返回真: 绘制扩展自定义监视面板
         }
 
+        public virtual void OnSceneGUI(State state) { }
+
         /// <summary>
         /// 进入下一个状态, 如果状态正在播放就不做任何处理, 如果想让动作立即播放可以使用 OnEnterNextState 方法
         /// </summary>

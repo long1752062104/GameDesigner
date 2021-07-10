@@ -3,7 +3,7 @@ namespace Net.Client
 {
     using Net.Event;
     using Net.Share;
-    using Newtonsoft.Json;
+    using Newtonsoft_X.Json;
     using System;
     using System.Collections.Generic;
     using System.IO;

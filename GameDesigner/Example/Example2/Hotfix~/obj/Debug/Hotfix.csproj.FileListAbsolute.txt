@@ -12,3 +12,4 @@ D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Unit
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.UI.pdb
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.SharedInternalsModule.xml
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csproj.CopyComplete
+D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csprojAssemblyReference.cache

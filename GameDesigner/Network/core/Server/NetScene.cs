@@ -82,6 +82,11 @@
         public int Split { get; set; } = 500;
 
         /// <summary>
+        /// 场景事件
+        /// </summary>
+        public ActionEvent Event = new ActionEvent();
+
+        /// <summary>
         /// 构造网络场景
         /// </summary>
         public NetScene() { }
@@ -162,6 +167,14 @@
         public virtual void OnRemove(Player client) { }
 
         /// <summary>
+        /// 当接收到客户端使用Client.AddOperation方法发送的请求时调用
+        /// </summary>
+        public virtual void OnOperationSync(Player client, OperationList list) 
+        { 
+            AddOperations(list.operations);
+        }
+
+        /// <summary>
         /// 添加玩家
         /// </summary>
         /// <param name="collection"></param>
@@ -194,6 +207,7 @@
                 if (count > 0)
                     OnPacket(handle, cmd, count);
             }
+            Event.UpdateEvent();
         }
 
         /// <summary>
@@ -296,6 +310,7 @@
             player.OnExit();
             player.Scene = null;
             player.sceneID = "";
+            players.Clear();
         }
 
         /// <summary>

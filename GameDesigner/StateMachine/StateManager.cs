@@ -29,12 +29,6 @@
                 sm.transform.localPosition = Vector3.zero;
                 stateMachine = sm;
             }
-        }
-
-        void Start()
-        {
-            if (stateMachine == null)
-                return;
             foreach (var state in stateMachine.states)
             {
                 for (int i = 0; i < state.behaviours.Count; i++)

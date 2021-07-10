@@ -1,4 +1,4 @@
-﻿using Net.Example2;
+﻿using Example2;
 using Net.Share;
 using System;
 using System.Diagnostics;

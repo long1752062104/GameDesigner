@@ -93,6 +93,7 @@
     <None Include="GameDesigner\Component\Client\ClientManager.cs.meta" />
     <None Include="GameDesigner\Component\Client\Login.cs.meta" />
     <None Include="GameDesigner\Component\Client\MessageBox.cs.meta" />
+    <None Include="GameDesigner\Component\Client\NetworkTime.cs.meta" />
     <None Include="GameDesigner\Component\Client\NetworkTransform.cs.meta" />
     <None Include="GameDesigner\Component\Client\NetworkTransfromBase.cs.meta" />
     <None Include="GameDesigner\Component\Client\Register.cs.meta" />
@@ -562,6 +563,7 @@
     <None Include="GameDesigner\Network\core\Share\UnZipHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs.meta" />
     <None Include="GameDesigner\Network\core\System.meta" />
+    <None Include="GameDesigner\Network\core\System\ActionEvent.cs.meta" />
     <None Include="GameDesigner\Network\core\System\BufferPool.cs.meta" />
     <None Include="GameDesigner\Network\core\System\Dictionary.cs.meta" />
     <None Include="GameDesigner\Network\core\System\ExceptionArgument.cs.meta" />
@@ -1214,6 +1216,7 @@
     <Compile Include="GameDesigner\Component\Client\ClientManager.cs" />
     <Compile Include="GameDesigner\Component\Client\Login.cs" />
     <Compile Include="GameDesigner\Component\Client\MessageBox.cs" />
+    <Compile Include="GameDesigner\Component\Client\NetworkTime.cs" />
     <Compile Include="GameDesigner\Component\Client\NetworkTransform.cs" />
     <Compile Include="GameDesigner\Component\Client\NetworkTransfromBase.cs" />
     <Compile Include="GameDesigner\Component\Client\Register.cs" />
@@ -1594,6 +1597,7 @@
     <Compile Include="GameDesigner\Network\core\Share\TransportMode.cs" />
     <Compile Include="GameDesigner\Network\core\Share\UnZipHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs" />
+    <Compile Include="GameDesigner\Network\core\System\ActionEvent.cs" />
     <Compile Include="GameDesigner\Network\core\System\BufferPool.cs" />
     <Compile Include="GameDesigner\Network\core\System\Dictionary.cs" />
     <Compile Include="GameDesigner\Network\core\System\ExceptionArgument.cs" />

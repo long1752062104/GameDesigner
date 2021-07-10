@@ -1,0 +1,25 @@
+Skeleton Swordsman Animation List
+
+Frame: 0030-0059: backpedal (loop)
+Frame: 0090-0102: charge start
+Frame: 0119-0136: charge (loop)
+Frame: 0153-0203: charge end
+Frame: 0205-0245: default attack
+Frame: 0250-0285: die
+Frame: 0290-0355: frenzied slash
+Frame: 0360-0400: gethit back
+Frame: 0405-0430: gethit front
+Frame: 0435-0470: gethit left
+Frame: 0475-0510: gethit right
+Frame: 0574-0633: idle (loop)
+Frame: 0695-0736: jump
+Frame: 0740-0785: roar
+Frame: 0813-0836: run (loop)
+Frame: 0865-0915: shield bash
+Frame: 0920-0950: shield block
+Frame: 0974-0993: shuffle left (loop)
+Frame: 1034-1053: shuffle right (loop)
+Frame: 1075-1125: spawn
+Frame: 1159-1188: strafe left (loop)
+Frame: 1249-1278: strafe right (loop)
+Frame: 1339-1368: walk (loop)

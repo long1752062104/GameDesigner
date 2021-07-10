@@ -52,10 +52,13 @@
     <Compile Include="Example2\DBComponent.cs" />
     <Compile Include="Example2\PlayerComponent.cs" />
     <Compile Include="Example2\SceneComponent.cs" />
+    <Compile Include="Example2\SceneData.cs" />
     <Compile Include="Example2\ServiceComponent.cs" />
     <Compile Include="Example3\Player.cs" />
     <Compile Include="Example3\Scene.cs" />
     <Compile Include="Example3\Service.cs" />
+    <Compile Include="Example2\AIMonster.cs" />
+    <Compile Include="Example2\Time.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -8,7 +8,7 @@ namespace Example2
         // Start is called before the first frame update
         void Start()
         {
-            TransformComponent.Identity = ClientManager.UID;
+            NetworkTransformBase.Identity = ClientManager.UID;
             var prefab = (GameObject)Resources.Load("Prefabs/player");
             var offset = new Vector3(Random.Range(-20, 20), 0, Random.Range(-20, 20));
             var player1 = Instantiate(prefab, transform.position + offset, transform.rotation);
@@ -16,6 +16,9 @@ namespace Example2
             FindObjectOfType<InputJump>().pc = pc;
             FindObjectOfType<InputFire>().pc = pc;
             Camera.main.GetComponent<ARPGcamera>().target = player1.transform;
+            var p = player1.GetComponent<Player>();
+            GameManager.I.players.Add(p);
+            p.IsLocal = true;
             InputJoystick.OnJoystickMoving += (dir) =>
             {
                 pc.moveDirection = new Vector3(dir.x, 0, dir.y);

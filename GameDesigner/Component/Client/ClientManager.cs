@@ -23,6 +23,7 @@ namespace Net.Component
         public bool throwException;
         public bool debugRpc = true;
         public int frameRate = 60;
+        public bool authorize;
 
         public ClientBase client
         {
@@ -118,7 +119,7 @@ namespace Net.Component
                 _client.Close();
         }
 
-        internal static void AddOperation(Operation operation)
+        public static void AddOperation(Operation operation)
         {
             Instance.client.AddOperation(operation);
         }

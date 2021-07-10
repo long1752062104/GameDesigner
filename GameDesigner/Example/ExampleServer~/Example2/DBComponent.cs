@@ -1,9 +1,9 @@
-﻿namespace Net.Example2
+﻿namespace Example2
 {
     /// <summary>
     /// 数据库组件
     /// </summary>
-    public class DBComponent : Server.DataBase<DBComponent, PlayerData>
+    public class DBComponent : Net.Server.DataBase<DBComponent, PlayerData>
     {
     }
 }

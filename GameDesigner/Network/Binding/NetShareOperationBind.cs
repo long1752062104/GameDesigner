@@ -31,19 +31,19 @@ namespace Binding
 				NetConvertBase.SetBit(ref bits[0], 4, true);
 				stream.WriteValue(value.name);
 			}
-			if(value.position != null)
+			if(value.position != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 5, true);
 				NetVector3Bind bind = new NetVector3Bind();
 				bind.Write(value.position, stream);
 			}
-			if(value.rotation != null)
+			if(value.rotation != Net.Quaternion.zero)
 			{
 				NetConvertBase.SetBit(ref bits[0], 6, true);
 				NetQuaternionBind bind = new NetQuaternionBind();
 				bind.Write(value.rotation, stream);
 			}
-			if(value.direction != null)
+			if(value.direction != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 7, true);
 				NetVector3Bind bind = new NetVector3Bind();

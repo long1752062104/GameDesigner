@@ -21,25 +21,25 @@ namespace Binding
 				NetConvertBase.SetBit(ref bits[0], 2, true);
 				stream.WriteValue(value.y);
 			}
-			if(value.position != null)
+			if(value.position != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 3, true);
 				NetVector2Bind bind = new NetVector2Bind();
 				bind.Write(value.position, stream);
 			}
-			if(value.center != null)
+			if(value.center != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 4, true);
 				NetVector2Bind bind = new NetVector2Bind();
 				bind.Write(value.center, stream);
 			}
-			if(value.min != null)
+			if(value.min != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 5, true);
 				NetVector2Bind bind = new NetVector2Bind();
 				bind.Write(value.min, stream);
 			}
-			if(value.max != null)
+			if(value.max != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 6, true);
 				NetVector2Bind bind = new NetVector2Bind();
@@ -55,7 +55,7 @@ namespace Binding
 				NetConvertBase.SetBit(ref bits[0], 8, true);
 				stream.WriteValue(value.height);
 			}
-			if(value.size != null)
+			if(value.size != default)
 			{
 				NetConvertBase.SetBit(ref bits[1], 1, true);
 				NetVector2Bind bind = new NetVector2Bind();

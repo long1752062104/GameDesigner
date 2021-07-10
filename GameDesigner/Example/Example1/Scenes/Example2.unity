@@ -241,6 +241,7 @@ MonoBehaviour:
   throwException: 0
   debugRpc: 0
   frameRate: 60
+  authorize: 0
 --- !u!4 &388253228
 Transform:
   m_ObjectHideFlags: 0

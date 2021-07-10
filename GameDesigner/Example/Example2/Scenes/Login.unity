@@ -561,12 +561,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b88d6553570e1842b9f31a025b86a92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  protocol: 0
+  protocol: 1
   ip: 127.0.0.1
   port: 6666
   throwException: 1
   debugRpc: 0
   frameRate: 60
+  authorize: 0
 --- !u!4 &1254267027
 Transform:
   m_ObjectHideFlags: 0

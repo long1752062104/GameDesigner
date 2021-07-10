@@ -35,8 +35,9 @@ namespace Net.Component
                     case Command.Destroy:
                         if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
                         {
-                            Destroy(t.gameObject);
                             transforms.Remove(opt.index);
+                            OnDestroyTransform(t);
+                            Destroy(t.gameObject);
                         }
                         break;
                     default:
@@ -47,6 +48,14 @@ namespace Net.Component
         }
 
         public virtual void OnOperationOther(Operation opt) 
+        {
+        }
+
+        public virtual void OnCrateTransform(NetworkTransformBase t)
+        {
+        }
+
+        public virtual void OnDestroyTransform(NetworkTransformBase t)
         {
         }
 
@@ -67,6 +76,7 @@ namespace Net.Component
                     t.syncMode = SyncMode.Synchronized;
                 t.identity = opt.index;
                 transforms.Add(opt.index, t);
+                OnCrateTransform(t);
                 NetworkTransformBase.Identity++;
             }
             if (ClientManager.UID == opt.index1)

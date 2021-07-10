@@ -8,6 +8,7 @@ namespace Net.Component
     {
         Local,
         Control,
+        Authorize,
         Synchronized,
         SynchronizedAll
     }
@@ -41,6 +42,8 @@ namespace Net.Component
         internal Net.Quaternion netRotation;
         internal Net.Vector3 netLocalScale;
         public byte index;//在SceneManager的prefabs数组的索引
+        public bool setID;
+        public int m_identity;
 
         public virtual void Start()
         {
@@ -56,6 +59,13 @@ namespace Net.Component
             {
                 Debug.Log("没有找到SceneManager组件！TransformComponent组件无效！");
                 Destroy(gameObject);
+                return;
+            }
+            if (setID) 
+            {
+                identity = m_identity;
+                if (!sm.transforms.ContainsKey(identity))
+                    sm.transforms.Add(identity, this);
                 return;
             }
         JUMP: identity = Identity++;

@@ -54,6 +54,9 @@ MonoBehaviour:
   mode: 2
   identity: -1
   interval: 0.5
+  index: 0
+  setID: 0
+  m_identity: 0
 --- !u!114 &-7067785888288551227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,6 +111,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51e6ac1cc872d514fbeb65e52bff6fe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 100
+  healthMax: 100
+  moveSpeed: 6
+  damage: 30
+  defense: 5
+  returnBlood: 5
+  isDead: 0
+  headBarOffset: {x: 0, y: 1, z: 0}
+  sm: {fileID: 0}
+  uid: 0
   bullet: {fileID: 7918907263500288135, guid: e96fc3f65b0401c4b8e71a0c71e4d6df, type: 3}
   firePoint: {fileID: 310055410538059874}
 --- !u!1 &7129681259272014773

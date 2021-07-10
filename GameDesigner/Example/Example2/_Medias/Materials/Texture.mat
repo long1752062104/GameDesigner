@@ -35,5 +35,5 @@ Material:
     - _Emission: 1
     - _Shininess: 0.078125
     m_Colors:
-    - _Color: {r: 0.4433962, g: 0.4433962, b: 0.4433962, a: 1}
+    - _Color: {r: 0.3584906, g: 0.3584906, b: 0.3584906, a: 1}
     - _SpecColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}

@@ -1,23 +1,23 @@
-﻿using Net.Server;
+﻿using Net;
+using Net.Component;
+using Net.Server;
 using Net.Share;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
-namespace Net.Example2
+namespace Example2
 {
     public class PlayerData : ISerializableData
     {
         public string UIDKey { get; set; }
-        public string account { get { return UIDKey; } set { UIDKey = value; } }
+        public string account { get => UIDKey; set => UIDKey = value; }
         public string password;
         public float moveSpeed = 5f;
         public Vector3 position;
         public Quaternion rotation;
-        public Vector3 direction;
-        public float health = 1000;
-        public string name;
-        public bool teamTag;//true:A退伍 false:B退伍
-        public bool ready;//准备?
+        public float health = 100;
+        public float healthMax = 100;
     }
 
     /// <summary>
@@ -26,7 +26,41 @@ namespace Net.Example2
     public class PlayerComponent : WebPlayer, ISendHandle
     {
         public PlayerData data = new PlayerData();
-        public new SceneComponent Scene;
+        internal NTransform transform = new NTransform();
+        internal bool isDead;
+        internal SceneComponent scene;
+
+        public override void OnEnter()
+        {
+            data.health = 100;
+            isDead = false;
+            scene = Scene as SceneComponent;
+        }
+
+        public override void OnUpdate()
+        {
+            scene.AddOperation(new Operation(50, UserID) {
+               index1 = (int)data.health
+            });
+        }
+
+        internal void BeAttacked(int damage)
+        {
+            if (isDead)
+                return;
+            data.health -= damage;
+            if (data.health <= 0)
+            {
+                isDead = true;
+                data.health = 0;
+            }
+        }
+
+        public void Resurrection()
+        {
+            data.health = data.healthMax;
+            isDead = false;
+        }
 
         #region 扩展网络请求
         public void Send(byte[] buffer)

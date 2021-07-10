@@ -1,8 +1,17 @@
-﻿using System;
+﻿using ECS;
+using Example2;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ExampleServer
 {
+    class TTT : Component 
+    {
+
+    }
+
     static class Program
     {
         /// <summary>
@@ -11,7 +20,7 @@ namespace ExampleServer
         [STAThread]
         static void Main(string[] args)
         {
-            //args = new string[] { "Example3" };
+            args = new string[] { "Example2" };
             if (args.Length == 0)
                 return;
             Application.EnableVisualStyles();
@@ -22,6 +31,13 @@ namespace ExampleServer
             }
             else if (args[0] == "Example2")
             {
+                Task.Run(() => {
+                    while (true)
+                    {
+                        Thread.Sleep(30);
+                        Time.time++;
+                    }
+                });
                 Application.Run(new Form2());
             }
             else if (args[0] == "Example3")

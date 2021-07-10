@@ -31,7 +31,7 @@ namespace Binding
 				NetConvertBase.SetBit(ref bits[0], 4, true);
 				stream.WriteValue(value.w);
 			}
-			if(value.eulerAngles != null)
+			if(value.eulerAngles != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 5, true);
 				UnityEngineVector3Bind bind = new UnityEngineVector3Bind();
