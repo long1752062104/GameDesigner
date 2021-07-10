@@ -1,7 +1,10 @@
-﻿using UnityEngine;
-
-public class LineOfSight : MonoBehaviour
+﻿namespace Example2
 {
-    public float viewAngle = 120f;
-    public float detectionRadius = 3f;
+    using UnityEngine;
+
+    public class LineOfSight : MonoBehaviour
+    {
+        public float viewAngle = 120f;
+        public float detectionRadius = 3f;
+    }
 }

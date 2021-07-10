@@ -1,195 +1,190 @@
-﻿using Example2;
-using GameDesigner;
-using Net.Component;
-using Net.Share;
-using UnityEngine;
-using Command = Example2.Command;
-
-public class AIMonster : Actor
+﻿namespace Example2
 {
-    internal RoamingPath roamingPath;
-    internal byte state;
-    internal byte state1;
-    public float walkSpeed = 3f;
-    public Player target;
-    public int id;
-    //private float time;
-    public int targetID;
+    using GameDesigner;
+    using Net.Component;
+    using Net.Share;
+    using UnityEngine;
 
-    void Awake()
+    public class AIMonster : Actor
     {
-        preHealth = health;
+        internal RoamingPath roamingPath;
+        internal byte state;
+        internal byte state1;
+        public float walkSpeed = 3f;
+        public Player target;
+        public int id;
+        //private float time;
+        public int targetID;
 
-        headBloodBar = Instantiate(GameManager.I.headBloodBar, GameManager.I.UIRoot);
-        headBloodBar.target = transform;
-        headBloodBar.offset = headBarOffset;
-        headBloodBar.text.text = $"{health:f0}/{healthMax:f0}";
-        headBloodBar.image.fillAmount = health / healthMax;
-    }
-
-    private void Update()
-    {
-        if (target != null & targetID == ClientManager.UID)
+        void Awake()
         {
-            //time += Time.deltaTime;
-            //if (time >= 1f / 60f)
-            //{
-            //    time = 0;
-            //    ClientManager.AddOperation(new Operation(Command.EnemySync, id, transform.position, transform.rotation));
-            //}
-            if (NetworkTime.CanSent)
-                ClientManager.AddOperation(new Operation(Command.EnemySync, id, transform.position, transform.rotation));
+            preHealth = health;
+
+            headBloodBar = Instantiate(GameManager.I.headBloodBar, GameManager.I.UIRoot);
+            headBloodBar.target = transform;
+            headBloodBar.offset = headBarOffset;
+            headBloodBar.text.text = $"{health:f0}/{healthMax:f0}";
+            headBloodBar.image.fillAmount = health / healthMax;
         }
-        else if (state == 1 & targetID == ClientManager.UID) 
+
+        private void Update()
         {
-            if (NetworkTime.CanSent)
-                ClientManager.AddOperation(new Operation(Command.EnemySwitchState, id) { cmd1 = 0, cmd2 = 0 });
+            if (target != null & targetID == ClientManager.UID)
+            {
+                if (NetworkTime.CanSent)
+                    ClientManager.AddOperation(new Operation(Command.EnemySync, id, transform.position, transform.rotation));
+            }
+            else if (state == 1 & targetID == ClientManager.UID)
+            {
+                if (NetworkTime.CanSent)
+                    ClientManager.AddOperation(new Operation(Command.EnemySwitchState, id) { cmd1 = 0, cmd2 = 0 });
+            }
         }
-    }
 
-    internal void StatusEntry()
-    {
-        sm.StatusEntry(state1);
-    }
-}
-
-public class MonsterIdle : StateBehaviour 
-{
-    private AIMonster self;
-    private int number;
-
-    public override void OnInit()
-    {
-        self = transform.GetComponent<AIMonster>();
-    }
-
-    public override void OnEnter()
-    {
-        number = 0;
-    }
-
-    public override void OnUpdate()
-    {
-        if (self.target != null & self.targetID == ClientManager.UID & number == 0)
+        internal void StatusEntry()
         {
-            var pos = self.target.transform.position;
-            transform.LookAt(new Vector3(pos.x, transform.position.y, pos.z));
-            var dis = Vector3.Distance(transform.position, self.target.transform.position);
-            byte state1;
-            if (dis > 15f)
-            {
-                state1 = 0;
-                self.target = null;
-            }
-            else if (dis < 1.5f)
-            {
-                state1 = 3;
-            }
-            else
-            {
-                state1 = 2;
-            }
-            ClientManager.AddOperation(new Operation(Command.EnemySwitchState, self.id) { cmd1 = 1, cmd2 = state1 });
-            number++;
+            sm.StatusEntry(state1);
         }
     }
-}
 
-public class MonsterRun : StateBehaviour
-{
-    private AIMonster self;
-    private int number;
-
-    public override void OnInit()
+    public class MonsterIdle : StateBehaviour
     {
-        self = transform.GetComponent<AIMonster>();
-    }
+        private AIMonster self;
+        private int number;
 
-    public override void OnEnter()
-    {
-        number = 0;
-    }
-
-    public override void OnUpdate()
-    {
-        if (self.target != null & self.targetID == ClientManager.UID & number == 0)
+        public override void OnInit()
         {
-            var pos = self.target.transform.position;
-            transform.LookAt(new Vector3(pos.x, transform.position.y, pos.z));
-            var dis = Vector3.Distance(transform.position, self.target.transform.position);
-            byte state1;
-            if (dis > 15f)
+            self = transform.GetComponent<AIMonster>();
+        }
+
+        public override void OnEnter()
+        {
+            number = 0;
+        }
+
+        public override void OnUpdate()
+        {
+            if (self.target != null & self.targetID == ClientManager.UID & number == 0)
             {
-                state1 = 0;
+                var pos = self.target.transform.position;
+                transform.LookAt(new Vector3(pos.x, transform.position.y, pos.z));
+                var dis = Vector3.Distance(transform.position, self.target.transform.position);
+                byte state1;
+                if (dis > 15f)
+                {
+                    state1 = 0;
+                    self.target = null;
+                }
+                else if (dis < 1.5f)
+                {
+                    state1 = 3;
+                }
+                else
+                {
+                    state1 = 2;
+                }
                 ClientManager.AddOperation(new Operation(Command.EnemySwitchState, self.id) { cmd1 = 1, cmd2 = state1 });
                 number++;
             }
-            else if (dis < 1.5f)
-            {
-                state1 = 3;
-                ClientManager.AddOperation(new Operation(Command.EnemySwitchState, self.id) { cmd1 = 1, cmd2 = state1 });
-                number++;
-            }
-            else 
-            {
-                transform.Translate(0, 0, self.moveSpeed * Time.deltaTime);
-            }
         }
     }
-}
 
-public class MonsterAttack : ActionBehaviour
-{
-    private AIMonster self;
-    public float distance = 3f;
-    public float range = 30f;
-    public float damage = 30f;
-    public override void OnInit()
+    public class MonsterRun : StateBehaviour
     {
-        self = transform.GetComponent<AIMonster>();
-    }
-    public override void OnAnimationEvent(StateAction action, float animEventTime)
-    {
-        foreach (var p in GameManager.I.players)
+        private AIMonster self;
+        private int number;
+
+        public override void OnInit()
         {
-            Vector3 targetDir = p.transform.position - transform.position;
-            if (targetDir.magnitude > distance)
-                continue;
-            Vector3 forward = transform.forward;
-            float angle = Vector3.Angle(targetDir, forward);
-            if (angle < range & !p.isDead & self.targetID == ClientManager.UID)//只能攻击本机玩家
+            self = transform.GetComponent<AIMonster>();
+        }
+
+        public override void OnEnter()
+        {
+            number = 0;
+        }
+
+        public override void OnUpdate()
+        {
+            if (self.target != null & self.targetID == ClientManager.UID & number == 0)
             {
-                ClientManager.AddOperation(new Operation(48, (int)damage));
+                var pos = self.target.transform.position;
+                transform.LookAt(new Vector3(pos.x, transform.position.y, pos.z));
+                var dis = Vector3.Distance(transform.position, self.target.transform.position);
+                byte state1;
+                if (dis > 15f)
+                {
+                    state1 = 0;
+                    ClientManager.AddOperation(new Operation(Command.EnemySwitchState, self.id) { cmd1 = 1, cmd2 = state1 });
+                    number++;
+                }
+                else if (dis < 1.5f)
+                {
+                    state1 = 3;
+                    ClientManager.AddOperation(new Operation(Command.EnemySwitchState, self.id) { cmd1 = 1, cmd2 = state1 });
+                    number++;
+                }
+                else
+                {
+                    transform.Translate(0, 0, self.moveSpeed * Time.deltaTime);
+                }
             }
         }
-        if (self.target != null) 
+    }
+
+    public class MonsterAttack : ActionBehaviour
+    {
+        private AIMonster self;
+        public float distance = 3f;
+        public float range = 30f;
+        public float damage = 30f;
+        public override void OnInit()
         {
-            if (self.target.isDead)
-                self.target = null;
+            self = transform.GetComponent<AIMonster>();
+        }
+        public override void OnAnimationEvent(StateAction action, float animEventTime)
+        {
+            foreach (var p in GameManager.I.players)
+            {
+                Vector3 targetDir = p.transform.position - transform.position;
+                if (targetDir.magnitude > distance)
+                    continue;
+                Vector3 forward = transform.forward;
+                float angle = Vector3.Angle(targetDir, forward);
+                if (angle < range & !p.isDead & self.targetID == ClientManager.UID)//只能攻击本机玩家
+                {
+                    ClientManager.AddOperation(new Operation(48, (int)damage));
+                }
+            }
+            if (self.target != null)
+            {
+                if (self.target.isDead)
+                    self.target = null;
+            }
         }
     }
-}
 
-public class MonsterDie : StateBehaviour
-{
-    private AIMonster self;
-
-    public override void OnInit()
+    public class MonsterDie : StateBehaviour
     {
-        self = transform.GetComponent<AIMonster>();
-    }
+        private AIMonster self;
 
-    public override void OnEnter()
-    {
-        self.GetComponent<Collider>().enabled = false;
-        self.GetComponent<Rigidbody>().isKinematic = true;
-        self.target = null;
-    }
+        public override void OnInit()
+        {
+            self = transform.GetComponent<AIMonster>();
+        }
 
-    public override void OnExit()
-    {
-        self.GetComponent<Collider>().enabled = true;
-        self.GetComponent<Rigidbody>().isKinematic = false;
-        self.target = null;
+        public override void OnEnter()
+        {
+            self.GetComponent<Collider>().enabled = false;
+            self.GetComponent<Rigidbody>().isKinematic = true;
+            self.target = null;
+        }
+
+        public override void OnExit()
+        {
+            self.GetComponent<Collider>().enabled = true;
+            self.GetComponent<Rigidbody>().isKinematic = false;
+            self.target = null;
+        }
     }
 }
