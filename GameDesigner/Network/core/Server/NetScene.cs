@@ -314,6 +314,22 @@
         }
 
         /// <summary>
+        /// 移除所有玩家
+        /// </summary>
+        public void RemoveAll()
+        {
+            foreach (var player in Players)
+            {
+                OnExit(player);
+                player.OnExit();
+                player.Scene = null;
+                player.sceneID = "";
+            }
+            Players.Clear();
+            players.Clear();
+        }
+
+        /// <summary>
         /// 移除场景所有玩家操作
         /// </summary>
         public void RemoveOperations()

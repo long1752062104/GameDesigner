@@ -82,7 +82,7 @@ namespace Example2
 
         internal void PatrolCall()
         {
-            scene.AddOperation(new Operation(47, id, transform.position, transform.rotation)
+            scene.AddOperation(new Operation(Command.AIMonster, id, transform.position, transform.rotation)
             {
                 cmd1 = state,
                 cmd2 = state1,

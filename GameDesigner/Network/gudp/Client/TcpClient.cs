@@ -59,14 +59,20 @@
                             throw new Exception("uid赋值失败!");
                     stackStreamName = persistentDataPath + "/c" + UID + ".stream";
                     StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    InvokeContext(() => { result(true); });
+                    InvokeContext(() => {
+                        connectState = ConnectState.Connected;
+                        result(true);
+                    });
                 }
                 catch(Exception ex)
                 {
                     NDebug.LogError("连接错误:" + ex);
                     Client?.Close();
                     Client = null;
-                    InvokeContext(() => { result(false); });
+                    InvokeContext(() => {
+                        connectState = ConnectState.ConnectFailed;
+                        result(false);
+                    });
                 }
             });
         }

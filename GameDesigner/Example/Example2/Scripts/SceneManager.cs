@@ -90,7 +90,7 @@ namespace Example2
                     monster2.state1 = opt.cmd2;
                     monster2.StatusEntry();
                     break;
-                case 50:
+                case Command.PlayerState:
                     {
                         if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
                         {
@@ -105,7 +105,7 @@ namespace Example2
                         }
                     }
                     break;
-                case 55:
+                case Command.Resurrection:
                     {
                         if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
                         {

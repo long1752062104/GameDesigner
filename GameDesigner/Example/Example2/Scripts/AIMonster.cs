@@ -13,7 +13,6 @@
         public float walkSpeed = 3f;
         public Player target;
         public int id;
-        //private float time;
         public int targetID;
 
         void Awake()
@@ -138,6 +137,7 @@
         public float distance = 3f;
         public float range = 30f;
         public float damage = 30f;
+        public GameObject damageEffect;
         public override void OnInit()
         {
             self = transform.GetComponent<AIMonster>();
@@ -151,9 +151,12 @@
                     continue;
                 Vector3 forward = transform.forward;
                 float angle = Vector3.Angle(targetDir, forward);
-                if (angle < range & !p.isDead & self.targetID == ClientManager.UID)//只能攻击本机玩家
+                if (angle < range & !p.isDead)//只能攻击本机玩家
                 {
-                    ClientManager.AddOperation(new Operation(48, (int)damage));
+                    var effect = Object.Instantiate(damageEffect, p.transform.position, p.transform.rotation);
+                    Object.Destroy(effect, 1f);
+                    if(self.targetID == ClientManager.UID)
+                        ClientManager.AddOperation(new Operation(Command.AIAttack, (int)damage));
                 }
             }
             if (self.target != null)

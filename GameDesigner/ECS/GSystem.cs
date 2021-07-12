@@ -107,6 +107,12 @@ namespace ECS
         }
 
         /// <summary>
+        /// 更新ecs系统
+        /// </summary>
+        /// <param name="worker">线程池并行?</param>
+        public void Update(bool worker = false) => Run(worker);
+
+        /// <summary>
         /// 运行ecs
         /// </summary>
         /// <param name="worker">线程池并行?</param>

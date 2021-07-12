@@ -23,8 +23,14 @@ namespace Net.Component
                 if (instance == null)
                 {
                     var ts = Resources.FindObjectsOfTypeAll<T>();
-                    if (ts.Length > 0)
-                        instance = ts[0];
+                    foreach (var t in ts)
+                    {
+                        if (t.gameObject.scene.isLoaded) 
+                        {
+                            instance = t;
+                            break;
+                        }
+                    }
                 }
                 return instance;
             }

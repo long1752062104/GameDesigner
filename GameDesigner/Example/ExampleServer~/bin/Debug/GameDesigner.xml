@@ -1931,6 +1931,7 @@
             <summary>
             当动作处于循环模式时, 子动作动画每次结束都会调用一次
             </summary>
+            <param name="state"></param>
         </member>
         <member name="T:GameDesigner.StateMachine">
             <summary>
@@ -4556,6 +4557,11 @@
             移除玩家
             </summary>
             <param name="player"></param>
+        </member>
+        <member name="M:Net.Server.NetScene`1.RemoveAll">
+            <summary>
+            移除所有玩家
+            </summary>
         </member>
         <member name="M:Net.Server.NetScene`1.RemoveOperations">
             <summary>
@@ -8769,6 +8775,12 @@
             </summary>
             <typeparam name="T"></typeparam>
             <returns></returns>
+        </member>
+        <member name="M:ECS.GSystem.Update(System.Boolean)">
+            <summary>
+            更新ecs系统
+            </summary>
+            <param name="worker">线程池并行?</param>
         </member>
         <member name="M:ECS.GSystem.Run(System.Boolean)">
             <summary>

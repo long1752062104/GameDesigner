@@ -3,7 +3,6 @@ using Net.Component;
 using Net.Server;
 using Net.Share;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace Example2
@@ -39,7 +38,7 @@ namespace Example2
 
         public override void OnUpdate()
         {
-            scene.AddOperation(new Operation(50, UserID) {
+            scene.AddOperation(new Operation(Command.PlayerState, UserID) {
                index1 = (int)data.health
             });
         }

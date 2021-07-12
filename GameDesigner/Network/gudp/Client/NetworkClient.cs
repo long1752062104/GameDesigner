@@ -67,20 +67,29 @@ namespace Net.Client
                                 throw new Exception("uid赋值失败!");
                         stackStreamName = persistentDataPath + "/c" + UID + ".stream";
                         StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                        InvokeContext(() => { result(true); });
+                        InvokeContext(() => {
+                            connectState = ConnectState.Connected;
+                            result(true);
+                        });
                     }
                     catch (Exception ex)
                     {
                         NDebug.Log("连接错误:" + ex.ToString());
                         TcpClient?.Close();
                         TcpClient = null;
-                        InvokeContext(() => { result(false); });
+                        InvokeContext(() => {
+                            connectState = ConnectState.ConnectFailed;
+                            result(false); 
+                        });
                     }
                 }
                 catch (Exception ex)
                 {
                     NDebug.Log("连接错误:" + ex.ToString());
-                    InvokeContext(() => { result(false); });
+                    InvokeContext(() => {
+                        connectState = ConnectState.ConnectFailed;
+                        result(false); 
+                    });
                 }
             });
         }

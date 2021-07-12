@@ -31,8 +31,7 @@ namespace Hotfix
             MsgPanel.Show("死亡", "是否复活!", (r)=> {
                 if (r)
                 {
-                    //GameManager.I.players[0].Resurrection()  ;
-                    ClientManager.AddOperation(new Net.Share.Operation(55, ClientManager.UID));
+                    ClientManager.AddOperation(new Net.Share.Operation(Example2.Command.Resurrection, ClientManager.UID));
                 }
                 else 
                 {

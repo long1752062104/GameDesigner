@@ -2366,8 +2366,9 @@ GameObject:
   - component: {fileID: 7351555832694924304}
   - component: {fileID: 7243498970002195508}
   - component: {fileID: 7245036414640624794}
+  - component: {fileID: 2069414148265509328}
   m_Layer: 5
-  m_Name: 7Scene1_V1
+  m_Name: SceneUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2431,7 +2432,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -2453,6 +2454,26 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &2069414148265509328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7284601882239516672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9661a32458c880e44ace7c1606110027, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  players: []
+  enemys: []
+  canvasRT: {fileID: 7349978556895309800}
+  headBloodBar: {fileID: 8566642883574178981, guid: ba6b9b9a274e58342a9458760ddb5908,
+    type: 3}
+  flyingWord: {fileID: 3553528119393075420, guid: ba2a603119ff52249873402c13f4e326,
+    type: 3}
+  UIRoot: {fileID: 7349978556895309800}
 --- !u!1 &7285136138229568116
 GameObject:
   m_ObjectHideFlags: 0

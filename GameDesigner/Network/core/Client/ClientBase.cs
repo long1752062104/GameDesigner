@@ -923,6 +923,7 @@ namespace Net.Client
                         Connected = true;
                         StartupThread();
                         InvokeContext(() => {
+                            connectState = ConnectState.Connected;
                             result(true);
                         });
                     }
@@ -932,6 +933,7 @@ namespace Net.Client
                         Client?.Close();
                         Client = null;
                         InvokeContext(() => {
+                            connectState = ConnectState.ConnectFailed;
                             result(false);
                         });
                     }
@@ -940,6 +942,7 @@ namespace Net.Client
             catch (Exception ex)
             {
                 NDebug.LogError("连接错误:" + ex.ToString());
+                connectState = ConnectState.ConnectFailed;
                 result(false);
                 return null;
             }

@@ -3,7 +3,9 @@
     using Net.Event;
     using Net.Server;
     using Net.Share;
+    using System;
     using System.Collections.Generic;
+    using System.IO;
 
     /// <summary>
     /// 服务器组件,  (案例代码)
@@ -18,7 +20,28 @@
             DBComponent.Instance.Load().Wait();
             NDebug.Log("数据库加载完成!");
             SetHeartTime(5, 300);//我们设置心跳检测时间, 时间越小检测越快, 跳检测时间也不能太小, 太小会直接判断为离线状态
-            SceneData.ReadData();
+        }
+
+        protected override void OnStartupCompleted()
+        {
+            base.OnStartupCompleted();
+            RemoveScene(MainSceneName, false);
+#if !UNITY_EDITOR
+            var path = AppDomain.CurrentDomain.BaseDirectory + "/Data/";
+#else
+            var path = UnityEngine.Application.dataPath + "/GameDesigner/Example/ExampleServer~/bin/Debug/Data/";
+#endif
+            var files = Directory.GetFiles(path, "*.sceneData");
+            foreach (var flie in files)
+            {
+                var sceneData = SceneData.ReadData(flie);
+                var scene = CreateScene(sceneData.name);
+                scene.sceneData = sceneData;
+                scene.Init();
+                NDebug.Log("创建地图:" + scene.Name);
+            }
+            MainSceneName = "Battle";//指定你的主战斗场景名称, 根据unity的主战斗场景名称设置
+            NDebug.Log("主地图名称:Battle");
         }
 
         /// <summary>

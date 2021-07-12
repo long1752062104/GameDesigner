@@ -11,11 +11,12 @@ namespace Example2
     /// </summary>
     public class SceneComponent : NetScene<PlayerComponent>
     {
-        private readonly MyDictionary<int, AIMonster> monsters = new MyDictionary<int, AIMonster>();
+        internal SceneData sceneData = new SceneData();
+        internal readonly MyDictionary<int, AIMonster> monsters = new MyDictionary<int, AIMonster>();
+        internal GSystem ecsSystem = new GSystem();
 
-        public SceneComponent() 
+        public void Init()
         {
-            SceneData sceneData = SceneData.I;
             int id = 1;
             foreach (var item in sceneData.monsterPoints)
             {
@@ -23,7 +24,7 @@ namespace Example2
                 for (int i = 0; i < item.monsterIDs.Length; i++)
                 {
                     var point = roamingPath.waypointsList[RandomHelper.Range(0, roamingPath.waypointsList.Count)];
-                    var monster1 = GSystem.Instance.Create<Entity>().AddComponent<AIMonster>();
+                    var monster1 = ecsSystem.Create<Entity>().AddComponent<AIMonster>();
                     monster1.transform = new NTransform();
                     monster1.transform.position = point;
                     monster1.transform.rotation = Quaternion.identity;
@@ -51,8 +52,8 @@ namespace Example2
             if (playerCount <= 0)
                 return;
             for (int i = 0; i < players.Count; i++)
-                players[i]?.OnUpdate();
-            GSystem.Instance.Run();
+                players[i].OnUpdate();
+            ecsSystem.Update();
             frame++;
             int count = operations.Count;
             if (count > 0)
@@ -79,7 +80,7 @@ namespace Example2
                         if (monsters.TryGetValue(opt.index, out AIMonster monster))
                         {
                             //if(monster.targetID == 0)
-                                monster.targetID = client.UserID;
+                            monster.targetID = client.UserID;
                             monster.OnDamage(opt.index1);
                             if (monster.isDeath)
                                 monster.PatrolCall();
@@ -106,10 +107,10 @@ namespace Example2
                             else monster3.PatrolCall();
                         }
                         break;
-                    case 48:
+                    case Command.AIAttack:
                         client.BeAttacked(opt.index);
                         break;
-                    case 55:
+                    case Command.Resurrection:
                         client.Resurrection();
                         AddOperation(opt);
                         break;

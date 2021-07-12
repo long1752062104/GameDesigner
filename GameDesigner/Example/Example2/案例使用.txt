@@ -2,7 +2,7 @@
 
 1. 打开Server~/Server.csproj项目文件, 并引用GameDesigner.dll(简称gdnet.dll) 请到gitee下载gdnet新版本后引用项目或dll
 
-2.有需要时, 可打开Hotfix~/Hotfix.csproj项目文件, 并引用GDNet.dll和UnityEngine.UI.dll, Assembly-CSharp.dll, UnityEngine.CoreModule这4个dll才能生成热更新工程!
+2.有需要时, 可打开Hotfix~/Hotfix.csproj项目文件, 如果编译不成功, 则需要引用UnityEngine.UI.dll, Assembly-CSharp.dll, UnityEngine.CoreModule这3个dll才能生成热更新工程!
 
 Assembly-CSharp.dll和UnityEngine.UI.dll 可以到你当前的unity项目路径: Library\ScriptAssemblies\Assembly-CSharp.dll找到, 在Assets同目录中找到Library文件夹
 
@@ -13,3 +13,6 @@ UnityEngine.CoreModule.dll需要到unity的安装路径下找到, 可以使用�
 4.运行服务器
 
 5.打开Login场景, 运行即可
+
+6.如果服务器打开出错, 提示xxx.sceneData文件找不到, 则需要打开Battle场景, 然后找到unity扩展菜单GameDesigner/Example/Example2/SceneDataBuild进行生成场景数据文件!
+或者直接打开Server~/Server.csproj项目文件并在vs运行找到出错点, 根据出错内容解决问题!

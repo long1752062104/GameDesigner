@@ -7,25 +7,47 @@ namespace GameDesigner
     public class StateEvent : MonoBehaviour
     {
         private static StateEvent instance;
-
         internal class EventQueue
         {
+            internal int id;
             internal float time;
             internal Action action;
-
             public EventQueue(float time, Action action)
             {
                 this.time = time;
                 this.action = action;
             }
         }
-        private static List<EventQueue> events = new List<EventQueue>();
-
-        public static void AddEvent(float time, Action action)
+        private static int ID = 0;
+        private static readonly List<EventQueue> events = new List<EventQueue>();
+        
+        public static int AddEvent(float time, Action action)
         {
             if (instance == null)
+            {
                 instance = new GameObject("Event").AddComponent<StateEvent>();
-            events.Add(new EventQueue(Time.time + time, action));
+                DontDestroyOnLoad(instance);
+            }
+            int id = ID++;
+            events.Add(new EventQueue(Time.time + time, action) { id = id });
+            return id;
+        }
+
+        public static void RemoveEvent(int id) 
+        {
+            for (int i = 0; i < events.Count; i++)
+            {
+                if (events[i].id == id)
+                {
+                    events.RemoveAt(i);
+                    break;
+                }
+            }
+        }
+
+        public static void RemoveAllEvent()
+        {
+            events.Clear();
         }
 
         void Update()

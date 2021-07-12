@@ -37,6 +37,11 @@ namespace GameDesigner
             stateMachine = (StateMachine)EditorGUILayout.ObjectField(GUIContent.none, stateMachine, typeof(StateMachine), true, GUILayout.Width(150));
             GUILayout.FlexibleSpace();
             GUILayout.Space(10);
+            if (GUILayout.Button("刷新脚本", GUILayout.Width(60)))
+            {
+                StateManagerEditor.OnScriptReload();
+                Debug.Log("刷新脚本成功!");
+            }
             if (GUILayout.Button(BlueprintGUILayout.Instance.LANGUAGE[85], GUILayout.Width(50)))
             {
                 if (stateMachine == null)

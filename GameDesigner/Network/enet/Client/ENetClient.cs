@@ -85,7 +85,10 @@
                         {
                             ClientHost.Dispose();
                             ClientHost = null;
-                            InvokeContext(() => { result(false); });
+                            InvokeContext(() => {
+                                connectState = ConnectState.ConnectFailed;
+                                result(false); 
+                            });
                             return;
                         }
                         if (ClientHost.CheckEvents(out Event netEvent) <= 0)
@@ -95,14 +98,20 @@
                         {
                             ClientHost.Dispose();
                             ClientHost = null;
-                            InvokeContext(() => { result(false); });
+                            InvokeContext(() => {
+                                connectState = ConnectState.ConnectFailed;
+                                result(false);
+                            });
                         }
                         else if (netEvent.Type == EventType.Connect)
                         {
                             Connected = true;
                             ChannelID = netEvent.ChannelID;
                             StartupThread();
-                            InvokeContext(() => { result(true); });
+                            InvokeContext(() => {
+                                connectState = ConnectState.Connected;
+                                result(true); 
+                            });
                         }
                         break;
                     }
@@ -111,6 +120,7 @@
             catch (Exception ex)
             {
                 NDebug.Log("连接错误: 如果提示视图加载错误则为平台设置不对! " + ex.ToString());
+                connectState = ConnectState.ConnectFailed;
                 result(false);
                 return null;
             }

@@ -828,7 +828,7 @@ namespace GameDesigner
         }
 
         [UnityEditor.Callbacks.DidReloadScripts(0)]
-        static void OnScriptReload()
+        internal static void OnScriptReload()
         {
             if (stateManager == null)
                 return;

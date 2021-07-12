@@ -81,12 +81,16 @@
                     while (!Connected & DateTime.Now < timeout) { Thread.Sleep(1); }
                     if (Connected)
                         StartupThread();
-                    InvokeContext(() => { result(Connected); });
+                    InvokeContext(() => {
+                        connectState = Connected ? ConnectState.Connected : ConnectState.ConnectFailed;
+                        result(Connected); 
+                    });
                 });
             }
             catch (Exception ex)
             {
                 NDebug.Log("连接错误: " + ex.ToString());
+                connectState = ConnectState.ConnectFailed;
                 result(false);
                 return null;
             }

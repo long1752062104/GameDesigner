@@ -21,19 +21,13 @@ namespace Example2
     [Serializable]
     public class SceneData
     {
-        private static SceneData sceneData;
-        public static SceneData I => sceneData;
+        public string name;
         public List<MonsterPoint1> monsterPoints = new List<MonsterPoint1>();
 
-        public static void ReadData()
+        public static SceneData ReadData(string path)
         {
-#if !UNITY_EDITOR
-            var path = Directory.GetCurrentDirectory() + "/Data/SceneData.json";
-#else
-            var path = UnityEngine.Application.dataPath + "/GameDesigner/Example/ExampleServer~/bin/Debug/Data/SceneData.json";
-#endif
             var jsonStr = File.ReadAllText(path);
-            sceneData = Newtonsoft_X.Json.JsonConvert.DeserializeObject<SceneData>(jsonStr);
+            return Newtonsoft_X.Json.JsonConvert.DeserializeObject<SceneData>(jsonStr);
         }
     }
 }

@@ -120,8 +120,8 @@ public static class Fast2BuildToolMethod
         str.AppendLine("using Net.Share;");
         str.AppendLine("");
         str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
-        var className = type.FullName.Replace(".", "");
-        str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}Bind : ISerialize<{type.FullName}>, ISerialize");
+        var className = type.FullName.Replace(".", "").Replace("+", "");
+        str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}Bind : ISerialize<{type.FullName.Replace("+", ".")}>, ISerialize");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
         var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -192,7 +192,7 @@ public static class Fast2BuildToolMethod
             }
             members.Add(member);
         }
-        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void Write({type.FullName} value, Segment stream)");
+        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void Write({type.FullName.Replace("+", ".")} value, Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}int pos = stream.Position;");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}stream.Position += {((members.Count - 1) / 8) + 1};");
@@ -239,7 +239,7 @@ public static class Fast2BuildToolMethod
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}int count = value.{members[i].Name}.Length;");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}stream.WriteValue(count);");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}if (count == 0) goto JMP;");
-                    var local = members[i].ItemType.FullName.Replace(".", "") + "Bind";
+                    var local = members[i].ItemType.FullName.Replace(".", "").Replace("+", "") + "Bind";
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}foreach (var value1 in value.{members[i].Name})");
                     str.AppendLine($"{(hasns ? "\t\t\t\t\t" : "\t\t\t\t")}bind.Write(value1, stream);");
@@ -255,7 +255,7 @@ public static class Fast2BuildToolMethod
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
-                var local = members[i].Type.FullName.Replace(".", "") + "Bind";
+                var local = members[i].Type.FullName.Replace(".", "").Replace("+", "") + "Bind";
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value.{members[i].Name}, stream);");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
@@ -267,11 +267,11 @@ public static class Fast2BuildToolMethod
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}stream.Position = pos1;");
         str.AppendLine($"{(hasns ? "\t\t}" : "\t}")}");
         str.AppendLine($"");
-        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public {type.FullName} Read(Segment stream)");
+        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public {type.FullName.Replace("+", ".")} Read(Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
 
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}byte[] bits = stream.Read({((members.Count - 1) / 8) + 1});");
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var value = new {type.FullName}();");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var value = new {type.FullName.Replace("+", ".")}();");
         for (int i = 0; i < members.Count; i++)
         {
             int bitInx1 = i % 8;
@@ -298,9 +298,9 @@ public static class Fast2BuildToolMethod
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var count = stream.ReadValue<int>();");
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = new {members[i].ItemType.FullName}[count];");
+                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = new {members[i].ItemType.FullName.Replace("+", ".")}[count];");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}if (count == 0) goto JMP;");
-                    var local = members[i].ItemType.FullName.Replace(".", "") + "Bind";
+                    var local = members[i].ItemType.FullName.Replace(".", "").Replace("+", "") + "Bind";
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}for (int i = 0; i < count; i++)");
                     str.AppendLine($"{(hasns ? "\t\t\t\t\t" : "\t\t\t\t")}value.{members[i].Name}[i] = bind.Read(stream);");
@@ -312,7 +312,7 @@ public static class Fast2BuildToolMethod
             {
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
-                var local = members[i].Type.FullName.Replace(".", "") + "Bind";
+                var local = members[i].Type.FullName.Replace(".", "").Replace("+", "") + "Bind";
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = bind.Read(stream);");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
@@ -324,7 +324,7 @@ public static class Fast2BuildToolMethod
         str.AppendLine($"");
         str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void WriteValue(object value, Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}Write(({type.FullName})value, stream);");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}Write(({type.FullName.Replace("+", ".")})value, stream);");
         str.AppendLine($"{(hasns ? "\t\t}" : "\t}")}");
 
         str.AppendLine($"");
@@ -344,25 +344,25 @@ public static class Fast2BuildToolMethod
         bool hasns = !string.IsNullOrEmpty(type.Namespace);
         str.AppendLine("");
         str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
-        var className = type.FullName.Replace(".", "");
-        str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}ArrayBind : ISerialize<{type.FullName}[]>, ISerialize");
+        var className = type.FullName.Replace(".", "").Replace("+", "");
+        str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}ArrayBind : ISerialize<{type.FullName.Replace("+", ".")}[]>, ISerialize");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
-        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void Write({type.FullName}[] value, Segment stream)");
+        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void Write({type.FullName.Replace("+", ".")}[] value, Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}int count = value.Length;");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}stream.WriteValue(count);");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (count == 0) return;");
-        var local = type.FullName.Replace(".", "") + "Bind";
+        var local = type.FullName.Replace(".", "").Replace("+", "") + "Bind";
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}{local} bind = new {local}();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}foreach (var value1 in value)");
         str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value1, stream);");
         str.AppendLine($"{(hasns ? "\t\t}" : "\t}")}");
         str.AppendLine($"");
-        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public {type.FullName}[] Read(Segment stream)");
+        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public {type.FullName.Replace("+", ".")}[] Read(Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
 
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var count = stream.ReadValue<int>();");
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var value = new {type.FullName}[count];");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var value = new {type.FullName.Replace("+", ".")}[count];");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (count == 0) return value;");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}{local} bind = new {local}();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}for (int i = 0; i < count; i++)");
@@ -374,7 +374,7 @@ public static class Fast2BuildToolMethod
         str.AppendLine($"");
         str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void WriteValue(object value, Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}Write(({type.FullName}[])value, stream);");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}Write(({type.FullName.Replace("+", ".")}[])value, stream);");
         str.AppendLine($"{(hasns ? "\t\t}" : "\t}")}");
 
         str.AppendLine($"");
@@ -394,25 +394,25 @@ public static class Fast2BuildToolMethod
         bool hasns = !string.IsNullOrEmpty(type.Namespace);
         str.AppendLine("");
         str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
-        var className = type.FullName.Replace(".", "");
-        str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}GenericBind : ISerialize<List<{type.FullName}>>, ISerialize");
+        var className = type.FullName.Replace(".", "").Replace("+", "");
+        str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}GenericBind : ISerialize<List<{type.FullName.Replace("+", ".")}>>, ISerialize");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
-        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void Write(List<{type.FullName}> value, Segment stream)");
+        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void Write(List<{type.FullName.Replace("+", ".")}> value, Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}int count = value.Count;");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}stream.WriteValue(count);");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (count == 0) return;");
-        var local = type.FullName.Replace(".", "") + "Bind";
+        var local = type.FullName.Replace(".", "").Replace("+", "") + "Bind";
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}{local} bind = new {local}();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}foreach (var value1 in value)");
         str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value1, stream);");
         str.AppendLine($"{(hasns ? "\t\t}" : "\t}")}");
         str.AppendLine($"");
-        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public List<{type.FullName}> Read(Segment stream)");
+        str.AppendLine($"{(hasns ? "\t\t" : "\t")}public List<{type.FullName.Replace("+", ".")}> Read(Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
 
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var count = stream.ReadValue<int>();");
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var value = new List<{type.FullName}>();");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var value = new List<{type.FullName.Replace("+", ".")}>();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (count == 0) return value;");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}{local} bind = new {local}();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}for (int i = 0; i < count; i++)");
@@ -424,7 +424,7 @@ public static class Fast2BuildToolMethod
         str.AppendLine($"");
         str.AppendLine($"{(hasns ? "\t\t" : "\t")}public void WriteValue(object value, Segment stream)");
         str.AppendLine($"{(hasns ? "\t\t{" : "\t{")}");
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}Write((List<{type.FullName}>)value, stream);");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}Write((List<{type.FullName.Replace("+", ".")}>)value, stream);");
         str.AppendLine($"{(hasns ? "\t\t}" : "\t}")}");
 
         str.AppendLine($"");

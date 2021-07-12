@@ -84,7 +84,7 @@ BufferPool.Push(seg);//再次压入
 
 ## 极速序列化
 gdnet内部实现了极速序列化, 速度远超出protobuff 5-10倍, 在案例1测试中就采用了极速序列化适配器, 可以同步1万个cube, 如果用protobuff的话,只能同步2500个cube
-内部的序列化已经有三个版本, 一个是之前的NetConvertOld字符串序列化,这个版本性能是非常糟糕的,性能远不及Newtonsoft.Json, 而第二版本的序列化NetConvertBinary二进制序列化则超越protobuff的性能, 体积也和protobuff一样, 为什么比protobuff快? protobuff内部实现还是使用的反射field.GetValue这种方法,而NetConvertBinary则是采用了dynamic动态语法实现的,在获取值和写值时比反射field.GetValue要快5倍. 这个NetConvertBinary版本已经超越protobuff了,为什么还要开发极速序列化NetConvertFast2? 其实到NetConvertFast2的开发后,已经没有追求比protobuff快,但是实际比protobuff快很多倍, 主要还是为了框架的高性能处理.
+内部的序列化已经有三个版本, 一个是之前的NetConvertOld字符串序列化,这个版本性能是非常糟糕的,性能远不及Newtonsoft.Json, 而第二版本的序列化NetConvertBinary二进制序列化则超越protobuff的性能, 体积也和protobuff一样, 为什么比protobuff快? protobuff内部实现还是使用的反射field.GetValue这种方法,而NetConvertBinary则是采用了dynamic动态语法实现的,在获取值和写值时比反射field.GetValue要快5倍. 这个NetConvertBinary版本已经超越protobuff了,为什么还要开发极速序列化NetConvertFast2? 主要还是为了框架的高性能处理.
 NetConvertFast2极速序列化的使用:
 1.要生成绑定类型, 在unity中有生成绑定类型工具, 也可以在这里生成:[绑定类型工具](https://gitee.com/leng_yue/fast2-build-tool)
 
@@ -104,6 +104,14 @@ static void Main(string[] args)
     var obj = NetConvertFast2.DeserializeObject<Test>(seg);//反序列化Test类
 }
 ```
+你也可以调用此api直接生成绑定类型
+
+```
+Fast2BuildToolMethod.Build(typeof(Test), AppDomain.CurrentDomain.BaseDirectory);//生成test绑定类型
+Fast2BuildToolMethod.BuildArray(typeof(Test), AppDomain.CurrentDomain.BaseDirectory);//生成test数组绑定类型
+Fast2BuildToolMethod.BuildGeneric(typeof(Test), AppDomain.CurrentDomain.BaseDirectory);//生成test泛型绑定类型
+```
+
 
 ## ECS模块
 ECS模块类似unity的gameObject->component模式, 在ecs中gameObject=entity, component=component, system类执行, ecs跟gameObject模式基本流程是一样的, 只是ecs中的组件可以复用, 而gameObject的component则不能复用, 在创建上万个对象时, gameObject就得重新new出来对象和组件, 而ecs调用Destroy时是把entity或component压入对象池, 等待下一次复用.实际上对象没有被释放,所以性能高于gameObject的原因
