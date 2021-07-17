@@ -1137,7 +1137,11 @@
             var pm = typeof(FPMember<>).MakeGenericType(new Type[] { fpType });
             var member1 = (Member)Activator.CreateInstance(pm);
 #else
-            var member1 = new FPMember();
+            Member member1;
+            if (!isClassField)
+                member1 = new Member();
+            else
+                member1 = new FPMember();
 #endif
             if (fpType.IsArray)
             {

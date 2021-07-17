@@ -7,7 +7,6 @@
 
     public class AIMonster : Actor
     {
-        internal RoamingPath roamingPath;
         internal byte state;
         internal byte state1;
         public float walkSpeed = 3f;

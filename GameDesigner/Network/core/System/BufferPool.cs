@@ -1,5 +1,6 @@
 ﻿using Net.Event;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -465,7 +466,10 @@ namespace Net.Share
             Position += 8;
             return value;
         }
-
+        public unsafe void WriteList<T>(List<T> array) 
+        {
+            WriteArray(array.ToArray());
+        }
         public unsafe void WriteArray<T>(T[] array)
         {
             int count = array.Length;
@@ -545,6 +549,13 @@ namespace Net.Share
                 Position += count * num;
                 Count = Position;
             }
+        }
+        public unsafe List<T> ReadList<T>()
+        {
+            var array = ReadArray<T>();
+            if(array == null)
+                return new List<T>();
+            return new List<T>(array);
         }
         public unsafe T[] ReadArray<T>()
         {

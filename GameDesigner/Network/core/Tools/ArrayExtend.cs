@@ -86,6 +86,18 @@ public static class ArrayExtend
         }
     }
 
+    public static T[] ToArray<T>(this HashSet<T> self)
+    {
+        T[] ts = new T[self.Count];
+        int i = 0;
+        foreach (T t in self)
+        {
+            ts[i] = t;
+            i++;
+        }
+        return ts;
+    }
+
     /// <summary>
     /// 反序列化数据(使用ProtoBuf反序列化)
     /// </summary>

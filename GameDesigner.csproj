@@ -486,6 +486,7 @@
     <None Include="GameDesigner\Network\Adapter\SerializeAdapter.cs.meta" />
     <None Include="GameDesigner\Network\Binding.meta" />
     <None Include="GameDesigner\Network\Binding\BindingEntry.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\Fast2BuildToolMethod.cs.meta" />
     <None Include="GameDesigner\Network\Binding\NetColor32Bind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\NetColorBind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\NetQuaternionBind.cs.meta" />
@@ -1526,6 +1527,7 @@
     <Compile Include="GameDesigner\Network\Adapter\ListenerAdapter.cs" />
     <Compile Include="GameDesigner\Network\Adapter\SerializeAdapter.cs" />
     <Compile Include="GameDesigner\Network\Binding\BindingEntry.cs" />
+    <Compile Include="GameDesigner\Network\Binding\Fast2BuildToolMethod.cs" />
     <Compile Include="GameDesigner\Network\Binding\NetColor32Bind.cs" />
     <Compile Include="GameDesigner\Network\Binding\NetColorBind.cs" />
     <Compile Include="GameDesigner\Network\Binding\NetQuaternionBind.cs" />

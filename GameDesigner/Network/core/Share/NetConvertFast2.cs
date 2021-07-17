@@ -43,7 +43,7 @@
     }
 
     /// <summary>
-    /// 快速序列化2版本
+    /// 极速序列化2版本
     /// </summary>
     public class NetConvertFast2 : NetConvertBase
     {
@@ -54,7 +54,6 @@
 
         static NetConvertFast2()
         {
-            GetInterfaces();
             Init();
         }
 
@@ -63,8 +62,11 @@
         /// </summary>
         public static bool Init()
         {
-            Types = new MyDictionary<ushort, Type>();
-            Types2 = new MyDictionary<Type, TypeBind>();
+            Types.Clear();
+            Types1.Clear();
+            Types2.Clear();
+            BindTypes.Clear();
+            GetInterfaces();
             AddBaseType();
             return true;
         }
@@ -210,6 +212,17 @@
             AddSerializeType(typeof(T));
             AddSerializeType(typeof(T[]));
             AddSerializeType(typeof(List<T>));
+        }
+
+        /// <summary>
+        /// 添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
+        /// </summary>
+        /// <typeparam name="T">要添加的网络类型</typeparam>
+        public static void AddSerializeType3(Type type)
+        {
+            AddSerializeType(type);
+            AddSerializeType(Array.CreateInstance(type, 0).GetType());
+            AddSerializeType(typeof(List<>).MakeGenericType(type));
         }
 
         /// <summary>

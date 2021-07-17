@@ -19,13 +19,8 @@ namespace Binding
 			if(value.operations != null)
 			{
 				NetConvertBase.SetBit(ref bits[0], 2, true);
-				int count = value.operations.Length;
-				stream.WriteValue(count);
-				if (count == 0) goto JMP;
-				NetShareOperationBind bind = new NetShareOperationBind();
-				foreach (var value1 in value.operations)
-					bind.Write(value1, stream);
-				JMP:;
+				NetShareOperationArrayBind bind = new NetShareOperationArrayBind();
+				bind.Write(value.operations, stream);
 			}
 			int pos1 = stream.Position;
 			stream.Position = pos;
@@ -41,13 +36,8 @@ namespace Binding
 				value.frame = stream.ReadValue<UInt32>();
 			if(NetConvertBase.GetBit(bits[0], 2))
 			{
-				var count = stream.ReadValue<int>();
-				value.operations = new Net.Share.Operation[count];
-				if (count == 0) goto JMP;
-				NetShareOperationBind bind = new NetShareOperationBind();
-				for (int i = 0; i < count; i++)
-					value.operations[i] = bind.Read(stream);
-				JMP:;
+				NetShareOperationArrayBind bind = new NetShareOperationArrayBind();
+				value.operations = bind.Read(stream);
 			}
 			return value;
 		}
