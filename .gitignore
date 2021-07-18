@@ -1,6 +1,6 @@
 .vs/
 .git/
-bin/
+bin/Debug/
 obj/
 packages/
 packages.config
