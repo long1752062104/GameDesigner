@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -69,35 +70,24 @@ namespace SerializeTestExample
 
     public class SerializeTest : MonoBehaviour
     {
+        private int index;
+        private string serName;
+        private float time;
+
         // Start is called before the first frame update
         void Start()
         {
             NDebug.BindLogAll(Debug.Log);
-            Fast2BuildToolMethod.DynamicBuild(BindingEntry.GetBindTypes());
-
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            stopwatch.Start();
-            for (int i = 0; i < 100000; i++)
+            Fast2BuildMethod.DynamicBuild(BindingEntry.GetBindTypes());
+            Debug.Log("开始序列化测试!");
+            Task.Run(()=> 
             {
-                var seg = Net.Share.NetConvertFast2.SerializeObject(new test()
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                stopwatch.Start();
+                serName = "极速序列化";
+                for (int i = 0; i < 1000000; i++)
                 {
-                    name = "dsad",
-                    vector3 = new Net.Vector3(5, 6, 7),
-                    array = new long[100],
-                    list = new List<int>() { 1,2,3 },
-                    test1s = new test1[] { new test1() { str = "dsad" } },
-                    test1s1 = new List<test1>() { new test1() { str = "2222qwewqe" } }
-                });
-                var obj = Net.Share.NetConvertFast2.DeserializeObject<test>(seg);
-            }
-            Debug.Log("极速序列化:" + stopwatch.ElapsedMilliseconds);
-            stopwatch.Restart();
-            using (var stream = new System.IO.MemoryStream(1024))
-            {
-                for (int i = 0; i < 100000; i++)
-                {
-                    stream.SetLength(0);
-                    ProtoBuf.Serializer.Serialize(stream, new test()
+                    var seg = Net.Share.NetConvertFast2.SerializeObject(new test()
                     {
                         name = "dsad",
                         vector3 = new Net.Vector3(5, 6, 7),
@@ -106,11 +96,43 @@ namespace SerializeTestExample
                         test1s = new test1[] { new test1() { str = "dsad" } },
                         test1s1 = new List<test1>() { new test1() { str = "2222qwewqe" } }
                     });
-                    stream.Position = 0;
-                    var obj = ProtoBuf.Serializer.Deserialize<test>(stream);
+                    var obj = Net.Share.NetConvertFast2.DeserializeObject<test>(seg);
+                    index = i;
                 }
+                Debug.Log("极速序列化:" + stopwatch.ElapsedMilliseconds);
+                stopwatch.Restart();
+                serName = "protobuff序列化";
+                using (var stream = new System.IO.MemoryStream(1024))
+                {
+                    for (int i = 0; i < 1000000; i++)
+                    {
+                        stream.SetLength(0);
+                        ProtoBuf.Serializer.Serialize(stream, new test()
+                        {
+                            name = "dsad",
+                            vector3 = new Net.Vector3(5, 6, 7),
+                            array = new long[100],
+                            list = new List<int>() { 1, 2, 3 },
+                            test1s = new test1[] { new test1() { str = "dsad" } },
+                            test1s1 = new List<test1>() { new test1() { str = "2222qwewqe" } }
+                        });
+                        stream.Position = 0;
+                        var obj = ProtoBuf.Serializer.Deserialize<test>(stream);
+                        index = i;
+                    }
+                }
+                Debug.Log("protobuff序列化:" + stopwatch.ElapsedMilliseconds);
+            });
+            time = Time.time + 5f;
+        }
+
+        private void Update()
+        {
+            if (Time.time > time) 
+            {
+                time = Time.time + 5f;
+                Debug.Log(serName + ":" + index);
             }
-            Debug.Log("protobuff序列化:" + stopwatch.ElapsedMilliseconds);
         }
     }
 }

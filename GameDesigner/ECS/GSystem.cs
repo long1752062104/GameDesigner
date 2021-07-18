@@ -8,6 +8,7 @@ namespace ECS
     /// <summary>
     /// ecs系统, 此系统管理entity和conponent对象池(复用)
     /// </summary>
+    [Serializable]
     public class GSystem : IDisposable
     {
         /// <summary>

@@ -1,8 +1,8 @@
-﻿using System.IO;
+﻿#if UNITY_EDITOR
+using System.IO;
 using System;
 using System.Reflection;
 using System.Collections.Generic;
-#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 
@@ -69,9 +69,9 @@ public class Fast2BuildTools : EditorWindow
             IList<Type> list = (IList<Type>)method.Invoke(null, null);
             foreach (var type in list)
             {
-                Fast2BuildToolMethod.Build(type, savePath);
-                Fast2BuildToolMethod.BuildArray(type, savePath);
-                Fast2BuildToolMethod.BuildGeneric(type, savePath);
+                Fast2BuildMethod.Build(type, savePath);
+                Fast2BuildMethod.BuildArray(type, savePath);
+                Fast2BuildMethod.BuildGeneric(type, savePath);
             }
             Debug.Log("生成完成.");
             AssetDatabase.Refresh();

@@ -36,6 +36,7 @@ namespace LockStep.Server
                 return;
             }
             scene.sceneCapacity = 1;
+            SendRT(client, "CreateRoomCallback", "创建成功!");
         }
 
         [Rpc(NetCmd.SafeCall)]
@@ -49,6 +50,7 @@ namespace LockStep.Server
                 return;
             }
             scene.AddPlayer(client);
+            SendRT(client, "JoinRoomCallback", "加入成功!");
         }
 
         [Rpc(NetCmd.SafeCall)]
@@ -112,6 +114,7 @@ namespace LockStep.Server
                 return;
             }
             scene.Remove(client);
+            SendRT(client, "ExitBattle", client.UserID);
             NDebug.Log("退出战斗");
         }
     }

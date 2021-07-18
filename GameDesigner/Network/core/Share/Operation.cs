@@ -110,6 +110,18 @@
         }
 
         /// <summary>
+        /// 玩家输入方向指令
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="name"></param>
+        /// <param name="direction"></param>
+        public Operation(byte cmd, int uid, Vector3 direction) : this(cmd)
+        {
+            index = uid;
+            this.direction = direction;
+        }
+
+        /// <summary>
         /// 玩家其他操作指令
         /// </summary>
         /// <param name="cmd"></param>

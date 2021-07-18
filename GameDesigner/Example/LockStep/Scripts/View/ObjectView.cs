@@ -5,6 +5,7 @@ namespace LockStep.Client
 {
     public class ObjectView : MonoBehaviour
     {
+        public Animation anim;
         public Actor actor;
         public float lerpSpeed = 0.25f;
 

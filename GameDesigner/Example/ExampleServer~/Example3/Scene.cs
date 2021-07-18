@@ -33,5 +33,10 @@ namespace LockStep.Server
             OnPacket(handle, cmd, count);
             frame++;
         }
+
+        public override void OnExit(Player client)
+        {
+            AddOperation(new Operation(NetCmd.QuitGame, client.UserID));
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
+using ECS;
 using Net.Component;
 using Net.Share;
 using System.Collections.Generic;
@@ -23,20 +24,23 @@ namespace LockStep.Client
         {
             gameSystem.OnCreate += (opt) => 
             {
-                Player actor = new Player(gameSystem)
-                {
-                    name = opt.name,
-                    gameObject = Instantiate(@object)
-                };
+                var entity = gameSystem.Create<Entity>();
+                Player actor = entity.AddComponent<Player>();
+                actor.name = opt.index.ToString();
+                actor.gameObject = Instantiate(@object);
                 actor.objectView = actor.gameObject.GetComponent<ObjectView>();
                 actor.objectView.actor = actor;
+                actor.objectView.anim = actor.gameObject.GetComponent<Animation>();
                 actor.transform = actor.gameObject.GetComponent<TSTransform>();
-                actor.gameSystem.updates.Remove(actor);
                 return actor;
             };
+            gameSystem.OnExitBattle += ()=> {
+                frame = 0;
+                logicFrame = 0;
+                snapshots.Clear();
+            };
             ClientManager.Instance.client.OnOperationSync += OnOperationSync;
-
-            GameMgr gameMgr = new GameMgr(gameSystem);
+            ClientManager.I.client.AddRpcHandle(gameSystem);
         }
 
         private void OnOperationSync(OperationList list)
@@ -48,7 +52,7 @@ namespace LockStep.Client
             }
             frame++;
             snapshots.Add(list);
-            ClientManager.AddOperation(new Operation(Command.Input, ClientManager.Identify, direction));
+            ClientManager.AddOperation(new Operation(Command.Input, ClientManager.UID, direction));
         }
 
         // Update is called once per frame

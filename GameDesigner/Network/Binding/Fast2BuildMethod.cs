@@ -7,7 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-public static class Fast2BuildToolMethod
+public static class Fast2BuildMethod
 {
     private class Member
     {
@@ -21,7 +21,6 @@ public static class Fast2BuildToolMethod
         internal Type ItemType;
     }
 
-#if DEBUG
     /// <summary>
     /// 动态编译, 在unity开发过程中不需要生成绑定cs文件, 直接运行时编译使用, 当编译apk. app时才进行生成绑定cs文件
     /// </summary>
@@ -38,7 +37,6 @@ public static class Fast2BuildToolMethod
             codes.Add(str.ToString());
         }
         CSharpCodeProvider provider = new CSharpCodeProvider();
-        ICodeCompiler compiler = provider.CreateCompiler();
         CompilerParameters param = new CompilerParameters();
         HashSet<string> dllpaths = new HashSet<string>();
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -54,7 +52,7 @@ public static class Fast2BuildToolMethod
         param.GenerateExecutable = false;
         param.GenerateInMemory = true;
         param.CompilerOptions = "/langversion:experimental";
-        CompilerResults cr = compiler.CompileAssemblyFromSourceBatch(param, codes.ToArray());
+        CompilerResults cr = provider.CompileAssemblyFromSource(param, codes.ToArray());
         if (cr.Errors.HasErrors)
         {
             NDebug.LogError("编译错误：");
@@ -68,7 +66,6 @@ public static class Fast2BuildToolMethod
         NDebug.Log("编译成功");
         return true;
     }
-#endif
 
     public static void Build(Type type, string savePath)
     {

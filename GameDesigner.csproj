@@ -486,7 +486,7 @@
     <None Include="GameDesigner\Network\Adapter\SerializeAdapter.cs.meta" />
     <None Include="GameDesigner\Network\Binding.meta" />
     <None Include="GameDesigner\Network\Binding\BindingEntry.cs.meta" />
-    <None Include="GameDesigner\Network\Binding\Fast2BuildToolMethod.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\Fast2BuildMethod.cs.meta" />
     <None Include="GameDesigner\Network\Binding\NetColor32Bind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\NetColorBind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\NetQuaternionBind.cs.meta" />
@@ -1033,7 +1033,6 @@
     <None Include="GameDesigner\StateMachine\StateMachine.cs.meta" />
     <None Include="GameDesigner\StateMachine\StateManager.cs.meta" />
     <None Include="GameDesigner\StateMachine\StateSystem.cs.meta" />
-    <None Include="GameDesigner\StateMachine\Timer.cs.meta" />
     <None Include="GameDesigner\StateMachine\Transition.cs.meta" />
     <None Include="GameDesigner\StateMachine\TransitionBehaviour.cs.meta" />
     <None Include="GameDesigner\StateMachine\TransitionModel.cs.meta" />
@@ -1527,7 +1526,7 @@
     <Compile Include="GameDesigner\Network\Adapter\ListenerAdapter.cs" />
     <Compile Include="GameDesigner\Network\Adapter\SerializeAdapter.cs" />
     <Compile Include="GameDesigner\Network\Binding\BindingEntry.cs" />
-    <Compile Include="GameDesigner\Network\Binding\Fast2BuildToolMethod.cs" />
+    <Compile Include="GameDesigner\Network\Binding\Fast2BuildMethod.cs" />
     <Compile Include="GameDesigner\Network\Binding\NetColor32Bind.cs" />
     <Compile Include="GameDesigner\Network\Binding\NetColorBind.cs" />
     <Compile Include="GameDesigner\Network\Binding\NetQuaternionBind.cs" />
@@ -1978,7 +1977,6 @@
     <Compile Include="GameDesigner\StateMachine\StateMachine.cs" />
     <Compile Include="GameDesigner\StateMachine\StateManager.cs" />
     <Compile Include="GameDesigner\StateMachine\StateSystem.cs" />
-    <Compile Include="GameDesigner\StateMachine\Timer.cs" />
     <Compile Include="GameDesigner\StateMachine\Transition.cs" />
     <Compile Include="GameDesigner\StateMachine\TransitionBehaviour.cs" />
     <Compile Include="GameDesigner\StateMachine\TransitionModel.cs" />

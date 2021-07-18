@@ -229,14 +229,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50a7b70453c7df04b9e4fdea2b4d6655, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameSystem:
-    starts: []
-    fixedUpdates: []
-    updates: []
-    lateUpdates: []
-    guis: []
-    destroys: []
-    playersView: []
   object: {fileID: 619350524187274750, guid: 5efec1cf334b8274a8d38c63b3fb868f, type: 3}
   enemyObj: {fileID: 2534605082900056454, guid: b0d4c23db4cec1a4cb62004b2c4800b8,
     type: 3}
@@ -1056,6 +1048,7 @@ MonoBehaviour:
   throwException: 0
   debugRpc: 0
   frameRate: 60
+  authorize: 0
 --- !u!4 &739602734
 Transform:
   m_ObjectHideFlags: 0
