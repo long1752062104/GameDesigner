@@ -6,10 +6,12 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
     using System.Text;
+#if SERVICE
+    using System.Runtime.CompilerServices;
     using Microsoft.CSharp.RuntimeBinder;
     using Binder = Microsoft.CSharp.RuntimeBinder.Binder;
+#endif
     using System.Collections;
     using System.Runtime.InteropServices;
 
@@ -260,7 +262,7 @@
         {
             if (networkType1s.TryGetValue(type, out ushort typeHash))
                 return typeHash;
-            throw new KeyNotFoundException($"没有注册[{type}]类为序列化对象, 请使用AddNetworkType<T>()进行注册类型!");
+            throw new KeyNotFoundException($"没有注册[{type}]类为序列化对象, 请使用NetConvertBinary.AddNetworkType<{type}>()进行注册类型!");
         }
 
         private const byte BYTE = 1, SHORT = 2, INT24 = 3, INT32 = 4, INT40 = 5, INT48 = 6, INT56 = 7, LONG = 8;

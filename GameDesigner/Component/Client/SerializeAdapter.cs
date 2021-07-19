@@ -40,6 +40,9 @@ namespace Net.Component
                 case SerializeAdapterType.Binary2:
                     cm.client.AddAdapter(new Adapter.SerializeAdapter2());
                     break;
+                case SerializeAdapterType.Binary3:
+                    cm.client.AddAdapter(new Adapter.SerializeAdapter3());
+                    break;
             }
         }
     }
