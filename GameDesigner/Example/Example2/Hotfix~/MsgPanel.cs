@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 namespace Hotfix
 {
+	//热更新生成的脚本, 请看gitee的mvc模块使用介绍图示
 	public class MsgPanel
 	{
 		public static MsgPanel Instance = new MsgPanel();

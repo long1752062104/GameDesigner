@@ -304,6 +304,7 @@ namespace MVC.View
                 "using UnityEngine;\n" +
                 "using UnityEngine.UI;\n\n" +
                 (hasns ? "namespace " + nameSpace + "\n{\n" : "") +
+                $"{(hasns ? "\t" : "")}" + $"//热更新生成的脚本, 请看gitee的mvc模块使用介绍图示\n" +
                 $"{(hasns ? "\t" : "")}" + $"public class {field.fieldName}\n" +
                 $"{(hasns ? "\t" : "")}" + "{\n" +
                 $"{(hasns ? "\t\t" : "\t")}" + $"public static {field.fieldName} Instance = new {field.fieldName}();\n" +

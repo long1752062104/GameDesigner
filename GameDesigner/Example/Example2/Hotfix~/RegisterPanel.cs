@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace Hotfix
 {
+	//热更新生成的脚本, 请看gitee的mvc模块使用介绍图示
 	public class RegisterPanel
 	{
 		public static RegisterPanel Instance = new RegisterPanel();
@@ -41,7 +42,7 @@ namespace Hotfix
 				}
 				ClientManager.Instance.SendRT("Register", acc.text, pwd.text);
 			});
-			ClientManager.Instance.client.Add_ILR_RpcHandle(this);
+			ClientManager.Instance.client.Add_ILR_RpcHandle(this);//收集ilr的rpc方法
 		}
 
 		internal static void Show()
