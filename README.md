@@ -154,6 +154,8 @@ static void Main(string[] args)
 mvc模块:模型,控制,视图分离, mvc模块适应于帧同步游戏, model定义了对象字段,属性,事件, controller执行业务逻辑, view显示结果
 在帧同步中, mvc是分离的, 各自处理各自的, 做到可以不相关的地步, 比如view卡住, controller还是一直执行, 互不影响!
 
+热更新FieldCollection组件使用:当在热更新项目中, 字段无需使用Find各种查找, 使用FieldCollection组件即可自动帮你处理完成字段收集引用, 一键生成即可写你的功能代码
+<img src="https://gitee.com/leng_yue/GameDesigner/raw/master/hotfixFC.png" width = "1179" height = "685" alt="图片名称" align=center />
 
 ## 致谢
 
@@ -165,5 +167,8 @@ mvc模块:模型,控制,视图分离, mvc模块适应于帧同步游戏, model�
 <br>1 vsmile ¥ 10</br>
 <br>2 南归 ¥ 10</br>
 <br>3 王者心，懂么？ ¥ 10</br>
+<br>3 郭少 ¥ 5000</br>
+<br>3 思念天边的你 ¥ 52</br>
+<br>3 娟子 ¥ 1000</br>
 
 <img src="https://gitee.com/leng_yue/GameDesigner/raw/master/pay.jpg" width = "600" height = "400" alt="图片名称" align=center />
