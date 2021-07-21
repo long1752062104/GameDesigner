@@ -8,7 +8,6 @@ namespace ECS
     /// </summary>
     public class Entity : GObject, IIndex
     {
-        internal GSystem system;
         internal List<Component> components = new List<Component>();
         internal List<IUpdate> updates = new List<IUpdate>();
         internal bool inactive;
@@ -37,6 +36,7 @@ namespace ECS
         {
             T com = system.Take<T>();
             com.entity = this;
+            com.system = system;
             components.Add(com);
             com.Awake();
             if (com is IUpdate update)
@@ -48,6 +48,7 @@ namespace ECS
         public Component AddComponent(Component com)
         {
             com.entity = this;
+            com.system = system;
             components.Add(com);
             com.Awake();
             if (com is IUpdate update)

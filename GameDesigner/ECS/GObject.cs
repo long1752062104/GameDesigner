@@ -1,8 +1,12 @@
-﻿namespace ECS
+﻿using System;
+using System.Collections.Generic;
+
+namespace ECS
 {
     public class GObject
     {
         internal int hashCode;
+        internal GSystem system;
 
         public GObject()
         {
@@ -42,6 +46,37 @@
                 entity.updates.Clear();
                 if (reuse) entity.system.Push(entity);
             }
+        }
+
+        public T FindObjectOfType<T>() where T : GObject
+        {
+            Type type = typeof(T);
+            var items = system.entities.ToArray();
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i].GetType() == type)
+                    return items[i] as T;
+                for (int n = 0; n < items[i].components.Count; n++)
+                    if (items[i].components[n].GetType() == type)
+                        return items[i].components[n] as T;
+            }
+            return null;
+        }
+
+        public T[] FindObjectsOfType<T>() where T : GObject
+        {
+            Type type = typeof(T);
+            var items = system.entities.ToArray();
+            List<T> objs = new List<T>();
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i].GetType() == type)
+                    objs.Add(items[i] as T);
+                for (int n = 0; n < items[i].components.Count; n++)
+                    if (items[i].components[n].GetType() == type)
+                        objs.Add(items[i].components[n] as T);
+            }
+            return objs.ToArray();
         }
     }
 }

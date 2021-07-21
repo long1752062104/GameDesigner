@@ -9,7 +9,6 @@ namespace LockStep.Client
     {
         public string name;
         public UnityEngine.GameObject gameObject;
-        internal GameSystem gameSystem;
         public TSTransform transform;
     }
 }

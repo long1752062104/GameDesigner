@@ -16,7 +16,7 @@ namespace ECS
         /// </summary>
         public static GSystem Instance = new GSystem();
         private readonly MyDictionary<int, Stack<GObject>> objectPool = new MyDictionary<int, Stack<GObject>>();
-        private readonly ArrayPool<Entity> entities = new ArrayPool<Entity>();
+        internal readonly ArrayPool<Entity> entities = new ArrayPool<Entity>();
         private bool isDispose;
 
         /// <summary>
@@ -149,6 +149,37 @@ namespace ECS
             if (isDispose)
                 return;
             isDispose = true;
+        }
+
+        public T FindObjectOfType<T>() where T : GObject
+        {
+            Type type = typeof(T);
+            var items = entities.ToArray();
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i].GetType() == type)
+                    return items[i] as T;
+                for (int n = 0; n < items[i].components.Count; n++)
+                    if (items[i].components[n].GetType() == type)
+                        return items[i].components[n] as T;
+            }
+            return null;
+        }
+
+        public T[] FindObjectsOfType<T>() where T : GObject
+        {
+            Type type = typeof(T);
+            var items = entities.ToArray();
+            List<T> objs = new List<T>();
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i].GetType() == type)
+                    objs.Add(items[i] as T);
+                for (int n = 0; n < items[i].components.Count; n++)
+                    if (items[i].components[n].GetType() == type)
+                        objs.Add(items[i].components[n] as T);
+            }
+            return objs.ToArray();
         }
     }
 }
