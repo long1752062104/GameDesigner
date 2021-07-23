@@ -69,7 +69,8 @@
             pars = null;
             serialize = false;
             index = 0;
-            count = buffer.Length;
+            if (buffer == null) count = 0;
+            else count = buffer.Length;
             methodMask = 0;
             bigData = false;
         }
@@ -123,7 +124,8 @@
             pars = null;
             serialize = false;
             index = 0;
-            count = buffer.Length;
+            if (buffer == null) count = 0;
+            else count = buffer.Length;
             methodMask = 0; 
             bigData = false;
         }
@@ -158,7 +160,8 @@
             func = null;
             pars = null;
             index = 0;
-            count = buffer.Length;
+            if (buffer == null) count = 0;
+            else count = buffer.Length;
             methodMask = 0;
             bigData = false;
         }
@@ -172,7 +175,8 @@
             func = null;
             pars = null;
             index = 0;
-            count = buffer.Length;
+            if (buffer == null) count = 0;
+            else count = buffer.Length;
             this.methodMask = methodMask; 
             bigData = false;
         }

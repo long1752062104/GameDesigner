@@ -51,7 +51,7 @@ namespace ExampleServer
                 toolStripStatusLabel1.Text = $"发送数量:{a} 发送字节:{b} 接收数量:{c} 接收字节:{d} 发送fps:{f} 接收fps:{g} 解析数量:{e1}";
                 label2.Text = "当前在线人数:" + server.OnlinePlayers + " 未知客户端:" + server.UnClientNumber;
             };
-            server.AddAdapter(new Net.Adapter.SerializeAdapter2());
+            server.AddAdapter(new Net.Adapter.SerializeAdapter3());
             //server.AddAdapter(new Net.Adapter.CallSiteRpcAdapter<PlayerComponent>());
             server.Run((ushort)port);//启动
             run = true;

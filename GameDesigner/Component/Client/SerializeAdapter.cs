@@ -22,10 +22,10 @@ namespace Net.Component
                 return;
             }
             instance = this;
-            InitSDRpc();
+            Init();
         }
 
-        public void InitSDRpc()
+        public void Init()
         {
             var cm = GetComponent<ClientManager>();
             switch (type) {

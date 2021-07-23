@@ -171,5 +171,10 @@ namespace ILRuntime.Reflection
                 return method.ReturnType?.ReflectionType;
             }
         }
+
+        public override string ToString()
+        {
+            return method.ToString();
+        }
     }
 }

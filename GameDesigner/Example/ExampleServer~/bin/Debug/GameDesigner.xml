@@ -2076,69 +2076,6 @@
             状态机新型复制组件
             </summary>
         </member>
-        <member name="T:GameDesigner.Timer">
-            <summary>
-            计时器
-            </summary>
-        </member>
-        <member name="F:GameDesigner.Timer.Time">
-            <summary>
-            当前时间
-            </summary>
-        </member>
-        <member name="P:GameDesigner.Timer.EndTime">
-            <summary>
-            结束时间
-            </summary>
-        </member>
-        <member name="M:GameDesigner.Timer.#ctor(System.Single)">
-            <summary>
-            构造计时器
-            </summary>
-            <param name="timeMax">结束时间</param>
-        </member>
-        <member name="M:GameDesigner.Timer.#ctor(System.Single,System.Single)">
-            <summary>
-            构造计时器
-            </summary>
-            <param name="_time">当前时间</param>
-            <param name="timeMax">结束时间</param>
-        </member>
-        <member name="M:GameDesigner.Timer.SpecifiedTime(System.Int32,System.Single)">
-            <summary>
-            是否到达指定时间 key必须是独有的,否则将会造成共用计时器
-            </summary>
-        </member>
-        <member name="M:GameDesigner.Timer.StartTiming(System.String,System.Single)">
-            <summary>
-            开始定时，定时键值不可一样，否则将会同用一个定时器
-            </summary>
-        </member>
-        <member name="P:GameDesigner.Timer.IsTimeOut">
-            <summary>
-            获得时间是否到达时间的最大值 , 到达后m_Time归零
-            </summary>
-        </member>
-        <member name="P:GameDesigner.Timer.OnTimeOut">
-            <summary>
-            当时间到达时间的最大值后返回真 , 到达后m_Time不归零
-            </summary>
-        </member>
-        <member name="P:GameDesigner.Timer.IsOutTime">
-            <summary>
-            计时器是否到达最大值,到达则不再计时
-            </summary>
-        </member>
-        <member name="M:GameDesigner.Timer.UpdateTime(System.Boolean)">
-            <summary>
-            如果时间大于定义的时间则返回真,zero参数为真则时间大于定义的时间后归零
-            </summary>
-        </member>
-        <member name="M:GameDesigner.Timer.UpdateTime(System.Single,System.Boolean)">
-            <summary>
-            如果时间大于定义的时间则返回真,zero参数为真则时间大于定义的时间后归零
-            </summary>
-        </member>
         <member name="T:GameDesigner.Transition">
             <summary>
             状态连接组件 2017年12月6日
@@ -7177,7 +7114,7 @@
             <summary>
             添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
             </summary>
-            <typeparam name="T">要添加的网络类型</typeparam>
+            <param name="type">要添加的网络类型</param>
         </member>
         <member name="M:Net.Share.NetConvertFast2.AddSerializeType(System.Type)">
             <summary>
@@ -7581,6 +7518,14 @@
             <param name="name1"></param>
         </member>
         <member name="M:Net.Share.Operation.#ctor(System.Byte,System.String,Net.Vector3)">
+            <summary>
+            玩家输入方向指令
+            </summary>
+            <param name="cmd"></param>
+            <param name="name"></param>
+            <param name="direction"></param>
+        </member>
+        <member name="M:Net.Share.Operation.#ctor(System.Byte,System.Int32,Net.Vector3)">
             <summary>
             玩家输入方向指令
             </summary>
@@ -10265,7 +10210,7 @@
             Source link data information.
             </summary>
         </member>
-        <member name="M:Fast2BuildToolMethod.DynamicBuild(System.Type[])">
+        <member name="M:Fast2BuildMethod.DynamicBuild(System.Type[])">
             <summary>
             动态编译, 在unity开发过程中不需要生成绑定cs文件, 直接运行时编译使用, 当编译apk. app时才进行生成绑定cs文件
             </summary>

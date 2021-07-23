@@ -5,6 +5,7 @@ namespace Net.Component
     using Net.Event;
     using Net.Share;
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using UnityEngine;
 
@@ -24,6 +25,7 @@ namespace Net.Component
         public bool debugRpc = true;
         public int frameRate = 60;
         public bool authorize;
+        public List<RPCMethod> rpcs = new List<RPCMethod>();
 
         public ClientBase client
         {
@@ -102,7 +104,7 @@ namespace Net.Component
             {
                 if (result)
                 {
-                    _client.Send(new byte[0]);
+                    _client.Send(new byte[1]);//发送一个字节:调用服务器的OnUnClientRequest方法, 如果不需要账号登录, 则会直接允许进入服务器
                 }
             });
         }
@@ -111,6 +113,7 @@ namespace Net.Component
         void Update()
         {
             _client.FixedUpdate();
+            rpcs = _client.RPCs;
         }
 
         void OnDestroy()
@@ -134,6 +137,18 @@ namespace Net.Component
             if (Instance == null)
                 return false;
             return instance._client.Identify == name;
+        }
+
+        /// <summary>
+        /// 判断uid是否是本地唯一id(本机玩家标识)
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        internal static bool IsLocal(int uid)
+        {
+            if (Instance == null)
+                return false;
+            return instance._client.UID == uid;
         }
 
         [rpc]

@@ -51,7 +51,6 @@ D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Micros
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.pdb
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.xml
-D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.dll.config
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.csprojAssemblyReference.cache
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form1.resources
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form2.resources
