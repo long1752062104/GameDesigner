@@ -14,7 +14,6 @@ namespace MVC.View
             public string name;
             public string typeName;
             public Object target;
-
             private Type type;
             public Type Type
             {
@@ -26,6 +25,10 @@ namespace MVC.View
                 }
                 internal set { type = value; }
             }
+            public T To<T>() where T : Object
+            {
+                return target as T;
+            }
         }
         public string fieldName;
         public List<Field> fields = new List<Field>();
@@ -33,6 +36,7 @@ namespace MVC.View
 #if UNITY_EDITOR
         public int nameIndex;
 #endif
+        private bool init;
         public Field this[int index]
         {
             get { return fields[index]; }
@@ -75,9 +79,17 @@ namespace MVC.View
 
         private void Awake()
         {
+            Init();
+        }
+
+        public void Init()
+        {
+            if (init)
+                return;
+            init = true;
             for (int i = 0; i < fields.Count; i++)
             {
-                if (fields[i].name == "")
+                if (string.IsNullOrEmpty(fields[i].name))
                     fieldsDic.Add(i.ToString(), fields[i].target);
                 else
                     fieldsDic.Add(fields[i].name, fields[i].target);

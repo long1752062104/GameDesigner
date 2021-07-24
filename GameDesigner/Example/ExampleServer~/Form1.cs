@@ -48,7 +48,7 @@ namespace ExampleServer
             server.MTPS = 2048;
             server.SetHeartTime(10,1000);
             server.OnNetworkDataTraffic += (a, b, c, d, e1, f, g) => {//当统计网络性能,数据传输量
-                toolStripStatusLabel1.Text = $"发送数量:{a} 发送字节:{b} 接收数量:{c} 接收字节:{d} 发送fps:{f} 接收fps:{g} 解析数量:{e1}";
+                toolStripStatusLabel1.Text = $"发送数量:{a} 发送字节:{ByteHelper.HumanReadableFilesize(b)} 接收数量:{c} 接收字节:{ByteHelper.HumanReadableFilesize(d)} 发送fps:{f} 接收fps:{g} 解析数量:{e1}";
                 label2.Text = "当前在线人数:" + server.OnlinePlayers + " 未知客户端:" + server.UnClientNumber;
             };
             server.AddAdapter(new Net.Adapter.SerializeAdapter2());

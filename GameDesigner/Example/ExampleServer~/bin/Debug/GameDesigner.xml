@@ -7114,7 +7114,7 @@
             <summary>
             添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
             </summary>
-            <param name="type">要添加的网络类型</param>
+            <typeparam name="T">要添加的网络类型</typeparam>
         </member>
         <member name="M:Net.Share.NetConvertFast2.AddSerializeType(System.Type)">
             <summary>
@@ -8624,6 +8624,13 @@
             A wrapper struct for volatile bool, please note the copy of the struct it self will not be volatile
             for example this statement will not include in volatilness operation volatileBool1 = volatileBool2 the jit will copy the struct and will ignore the volatile
             </summary>
+        </member>
+        <member name="M:Net.Share.ByteHelper.HumanReadableFilesize(System.Double)">
+            <summary>
+            转换方法
+            </summary>
+            <param name="size">字节值</param>
+            <returns></returns>
         </member>
         <member name="T:Net.Matrix3x3">
             <summary>

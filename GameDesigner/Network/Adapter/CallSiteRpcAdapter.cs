@@ -12,6 +12,14 @@ namespace Net.Adapter
         public byte cmd;
         public virtual void Invoke(object[] pars) {}
     }
+    public class RPCPTRMethod : RPCPTR
+    {
+        public MethodInfo method;
+        public override void Invoke(object[] pars)
+        {
+            method.Invoke(target, pars);
+        }
+    }
     public class RPCPTRNull : RPCPTR
     {
         public Action ptr;
@@ -167,7 +175,16 @@ namespace Net.Adapter
                 if (rpc != null)
                 {
                     if (info.ReturnType != typeof(void))
-                        throw new Exception("rpc函数不允许有返回值，也没必要!");
+                    {
+                        RPCPTRMethod met1 = new RPCPTRMethod
+                        {
+                            target = target,
+                            method = info,
+                            cmd = rpc.cmd
+                        };
+                        RPCS.Add(info.Name, met1);
+                        continue;
+                    }
                     var pars = info.GetParameters();
 #if UNITY_EDITOR
                     if (rpc.il2cpp == null & useIL2CPP)

@@ -29,38 +29,31 @@
             {
                 while (thread != null)
                 {
-                    try
+                    Thread.Sleep(1);
+                    for (int i = 0; i < timeActs.Count; i++)
                     {
-                        Thread.Sleep(1);
-                        for (int i = 0; i < timeActs.Count; i++)
+                        try
                         {
-                            try
+                            if (DateTime.Now >= timeActs[i].time)
                             {
-                                if (DateTime.Now >= timeActs[i].time)
+                                timeActs[i].action?.Invoke();
+                                timeActs[i].action1?.Invoke(timeActs[i].state);
+                                if (timeActs[i].action2 == null)
+                                    timeActs.RemoveAt(i);
+                                else
                                 {
-                                    timeActs[i].action?.Invoke();
-                                    timeActs[i].action1?.Invoke(timeActs[i].state);
-                                    if (timeActs[i].action2 == null)
+                                    if (timeActs[i].action2(timeActs[i].state))
                                         timeActs.RemoveAt(i);
                                     else
-                                    {
-                                        if (timeActs[i].action2(timeActs[i].state))
-                                            timeActs.RemoveAt(i);
-                                        else
-                                            timeActs[i].time = DateTime.Now.AddMilliseconds(timeActs[i].timeValue);
-                                    }
+                                        timeActs[i].time = DateTime.Now.AddMilliseconds(timeActs[i].timeValue);
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                NDebug.LogWarning("事件处理异常:" + ex);
-                                timeActs.RemoveAt(i);
-                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        NDebug.LogWarning("事件处理异常:" + ex);
+                        catch (Exception ex)
+                        {
+                            NDebug.LogWarning("事件处理异常:" + ex);
+                            timeActs.RemoveAt(i);
+                        }
                     }
                 }
             });

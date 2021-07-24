@@ -658,6 +658,7 @@
     <None Include="GameDesigner\Network\core\System\ThrowHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Tools.meta" />
     <None Include="GameDesigner\Network\core\Tools\ArrayExtend.cs.meta" />
+    <None Include="GameDesigner\Network\core\Tools\ByteHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Tools\FPExtend.cs.meta" />
     <None Include="GameDesigner\Network\core\Tools\Loop.cs.meta" />
     <None Include="GameDesigner\Network\core\Tools\OtherExtend.cs.meta" />
@@ -1610,6 +1611,7 @@
     <Compile Include="GameDesigner\Network\core\System\StackSafe.cs" />
     <Compile Include="GameDesigner\Network\core\System\ThrowHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\ArrayExtend.cs" />
+    <Compile Include="GameDesigner\Network\core\Tools\ByteHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\FPExtend.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\Loop.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\OtherExtend.cs" />

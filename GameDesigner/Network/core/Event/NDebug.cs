@@ -40,6 +40,7 @@
         private static QueueSafe<object> warningQueue = new QueueSafe<object>();
         private static Thread thread, thread1;
 
+#if SERVICE
         static NDebug()
         {
             ToLogHandle();
@@ -130,6 +131,7 @@
             }) { Name = "LogCheckEvent" };
             thread1.Start();
         }
+#endif
 
         /// <summary>
         /// 输出调式消息
@@ -137,7 +139,11 @@
         /// <param name="message"></param>
         public static void Log(object message)
         {
+#if SERVICE
             logQueue.Enqueue(message);
+#else
+            LogHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Log] {message}");
+#endif
         }
 
         /// <summary>
@@ -146,7 +152,11 @@
         /// <param name="message"></param>
         public static void LogError(object message)
         {
+#if SERVICE
             errorQueue.Enqueue(message);
+#else
+            LogErrorHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Error] {message}");
+#endif
         }
 
         /// <summary>
@@ -155,7 +165,11 @@
         /// <param name="message"></param>
         public static void LogWarning(object message)
         {
+#if SERVICE
             warningQueue.Enqueue(message);
+#else
+            LogWarningHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Warning] {message}");
+#endif
         }
 
         public static void BindLogAll(Action<string> log)
