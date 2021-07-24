@@ -2404,7 +2404,7 @@
             线程字典
             </summary>
         </member>
-        <member name="P:Net.Client.ClientBase.ConnectState">
+        <member name="P:Net.Client.ClientBase.NetworkState">
             <summary>
             网络连接状态
             </summary>
@@ -2431,9 +2431,9 @@
             False：使用多线程进行网络更新，使用多线程更新后unity的组件将不能在rpc函数内进行赋值设置等操作，否则会出现错误问题!
             </summary>
         </member>
-        <member name="F:Net.Client.ClientBase.connectState">
+        <member name="F:Net.Client.ClientBase.networkState">
             <summary>
-            当前网络客户端状态
+            当前客户端网络状态
             </summary>
         </member>
         <member name="F:Net.Client.ClientBase.currFrequency">
@@ -3397,6 +3397,13 @@
             </summary>
             <param name="type"></param>
             <param name="adapter"></param>
+        </member>
+        <member name="M:Net.Client.ClientBase.AddStateHandler(Net.Share.NetworkState,System.Action)">
+            <summary>
+            添加网络状态事件处理
+            </summary>
+            <param name="listen">要监听的网络状态</param>
+            <param name="action">监听网络状态的回调方法</param>
         </member>
         <member name="T:Net.Client.NetBehaviour">
             <summary>
@@ -5694,62 +5701,62 @@
             </summary>
             <param name="client"></param>
         </member>
-        <member name="T:Net.Share.ConnectState">
+        <member name="T:Net.Share.NetworkState">
             <summary>
-            网络连接状态
+            网络状态
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.None">
+        <member name="F:Net.Share.NetworkState.None">
             <summary>
             无状态
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.Connected">
+        <member name="F:Net.Share.NetworkState.Connected">
             <summary>
             连接成功
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.ConnectFailed">
+        <member name="F:Net.Share.NetworkState.ConnectFailed">
             <summary>
             连接失败
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.TryToConnect">
+        <member name="F:Net.Share.NetworkState.TryToConnect">
             <summary>
             尝试连接
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.Disconnect">
+        <member name="F:Net.Share.NetworkState.Disconnect">
             <summary>
             断开连接
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.ConnectLost">
+        <member name="F:Net.Share.NetworkState.ConnectLost">
             <summary>
             连接中断 (连接异常)
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.ConnectClosed">
+        <member name="F:Net.Share.NetworkState.ConnectClosed">
             <summary>
             连接已被关闭
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.Connection">
+        <member name="F:Net.Share.NetworkState.Connection">
             <summary>
             正在连接服务器中...
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.Reconnect">
+        <member name="F:Net.Share.NetworkState.Reconnect">
             <summary>
             断线重连成功
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.ExceededNumber">
+        <member name="F:Net.Share.NetworkState.ExceededNumber">
             <summary>
             服务器连接人数溢出, 服务器忽略当前客户端的所有Rpc请求
             </summary>
         </member>
-        <member name="F:Net.Share.ConnectState.BlockConnection">
+        <member name="F:Net.Share.NetworkState.BlockConnection">
             <summary>
             服务器爆满, 服务器忽略当前客户端的所有Rpc请求
             </summary>

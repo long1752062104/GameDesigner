@@ -82,7 +82,7 @@
                     if (Connected)
                         StartupThread();
                     InvokeContext(() => {
-                        connectState = Connected ? ConnectState.Connected : ConnectState.ConnectFailed;
+                        networkState = Connected ? NetworkState.Connected : NetworkState.ConnectFailed;
                         result(Connected); 
                     });
                 });
@@ -90,7 +90,7 @@
             catch (Exception ex)
             {
                 NDebug.Log("连接错误: " + ex.ToString());
-                connectState = ConnectState.ConnectFailed;
+                networkState = NetworkState.ConnectFailed;
                 result(false);
                 return null;
             }
@@ -134,7 +134,7 @@
                         break;
                     case UDXEVENT_TYPE.E_LINKBROKEN:
                         Connected = false;
-                        ConnectState = connectState = ConnectState.ConnectLost;
+                        NetworkState = networkState = NetworkState.ConnectLost;
                         sendRTList.Clear();
                         revdRTList.Clear();
                         rtRPCModels = new QueueSafe<RPCModel>();
@@ -199,7 +199,7 @@
         {
             Connected = false;
             openClient = false;
-            ConnectState = connectState = ConnectState.ConnectClosed;
+            NetworkState = networkState = NetworkState.ConnectClosed;
             AbortedThread();
             sendRTList.Clear();
             revdRTList.Clear();

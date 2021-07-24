@@ -60,7 +60,7 @@
                     stackStreamName = persistentDataPath + "/c" + UID + ".stream";
                     StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                     InvokeContext(() => {
-                        connectState = ConnectState.Connected;
+                        networkState = NetworkState.Connected;
                         result(true);
                     });
                 }
@@ -70,7 +70,7 @@
                     Client?.Close();
                     Client = null;
                     InvokeContext(() => {
-                        connectState = ConnectState.ConnectFailed;
+                        networkState = NetworkState.ConnectFailed;
                         result(false);
                     });
                 }
@@ -189,7 +189,7 @@
         {
             Connected = false;
             openClient = false;
-            ConnectState = connectState = ConnectState.ConnectClosed;
+            NetworkState = networkState = NetworkState.ConnectClosed;
             if (await) Thread.Sleep(1000);//给update线程一秒的时间处理关闭事件
             AbortedThread();
             Client?.Close();

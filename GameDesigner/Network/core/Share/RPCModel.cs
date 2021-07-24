@@ -26,7 +26,7 @@
             get
             {
                 if (count == 0)
-                    return null;
+                    return new byte[0];//byte[]不能为空,否则出错
                 byte[] buffer1 = new byte[count];
                 System.Buffer.BlockCopy(buffer, index, buffer1, 0, count);
                 return buffer1;
@@ -69,8 +69,7 @@
             pars = null;
             serialize = false;
             index = 0;
-            if (buffer == null) count = 0;
-            else count = buffer.Length;
+            count = buffer.Length;
             methodMask = 0;
             bigData = false;
         }
@@ -124,8 +123,7 @@
             pars = null;
             serialize = false;
             index = 0;
-            if (buffer == null) count = 0;
-            else count = buffer.Length;
+            count = buffer.Length;
             methodMask = 0; 
             bigData = false;
         }
@@ -160,8 +158,7 @@
             func = null;
             pars = null;
             index = 0;
-            if (buffer == null) count = 0;
-            else count = buffer.Length;
+            count = buffer.Length;
             methodMask = 0;
             bigData = false;
         }
@@ -175,8 +172,7 @@
             func = null;
             pars = null;
             index = 0;
-            if (buffer == null) count = 0;
-            else count = buffer.Length;
+            count = buffer.Length;
             this.methodMask = methodMask; 
             bigData = false;
         }

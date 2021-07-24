@@ -169,9 +169,9 @@
                     ProtoBuf.Serializer.Serialize(stream, datas);
                     return stream.ToArray();
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    NDebug.LogError(e.ToString());
+                    NDebug.LogError("序列化:" + model.func + "方法出错 详细信息:" + ex);
                     return new byte[0];
                 }
                 finally

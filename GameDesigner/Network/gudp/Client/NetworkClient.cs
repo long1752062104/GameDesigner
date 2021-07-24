@@ -68,7 +68,7 @@ namespace Net.Client
                         stackStreamName = persistentDataPath + "/c" + UID + ".stream";
                         StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                         InvokeContext(() => {
-                            connectState = ConnectState.Connected;
+                            networkState = NetworkState.Connected;
                             result(true);
                         });
                     }
@@ -78,7 +78,7 @@ namespace Net.Client
                         TcpClient?.Close();
                         TcpClient = null;
                         InvokeContext(() => {
-                            connectState = ConnectState.ConnectFailed;
+                            networkState = NetworkState.ConnectFailed;
                             result(false); 
                         });
                     }
@@ -87,7 +87,7 @@ namespace Net.Client
                 {
                     NDebug.Log("连接错误:" + ex.ToString());
                     InvokeContext(() => {
-                        connectState = ConnectState.ConnectFailed;
+                        networkState = NetworkState.ConnectFailed;
                         result(false); 
                     });
                 }
@@ -310,7 +310,7 @@ namespace Net.Client
         {
             Connected = false;
             openClient = false;
-            ConnectState = connectState = ConnectState.ConnectClosed;
+            NetworkState = networkState = NetworkState.ConnectClosed;
             AbortedThread();
             Client?.Close();
             Client = null;

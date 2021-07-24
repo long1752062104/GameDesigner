@@ -1322,7 +1322,11 @@ namespace Net.Server
                 if (!rPCModels.TryDequeue(out RPCModel rPCModel))
                     continue;
                 if (rPCModel.kernel & rPCModel.serialize)
+                {
                     rPCModel.buffer = OnSerializeRpc(rPCModel);
+                    if (rPCModel.buffer.Length == 0)
+                        continue;
+                }
                 int len = stream.Count + rPCModel.buffer.Length + frame;
                 if (len > BufferPool.Size)
                 {

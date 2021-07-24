@@ -81,7 +81,7 @@ namespace Net.Client
         /// <summary>
         /// 网络连接状态
         /// </summary>
-        public ConnectState ConnectState { get; protected set; } = ConnectState.None;
+        public NetworkState NetworkState { get; protected set; } = NetworkState.None;
         /// <summary>
         /// 服务器与客户端是否是连接状态
         /// </summary>
@@ -101,9 +101,9 @@ namespace Net.Client
         /// </summary>
         public bool UseUnityThread { get; set; }
         /// <summary>
-        /// 当前网络客户端状态
+        /// 当前客户端网络状态
         /// </summary>
-        protected ConnectState connectState = ConnectState.None;
+        protected NetworkState networkState = NetworkState.None;
         /// <summary>
         /// 当前尝试重连次数
         /// </summary>
@@ -731,39 +731,39 @@ namespace Net.Client
         //状态处理
         protected void StateHandle()
         {
-            if (connectState == ConnectState.None)
+            if (networkState == NetworkState.None)
                 return;
-            switch (connectState)
+            switch (networkState)
             {
-                case ConnectState.Connected:
+                case NetworkState.Connected:
                     OnConnectedHandle?.Invoke();
                     break;
-                case ConnectState.ConnectFailed:
+                case NetworkState.ConnectFailed:
                     OnConnectFailedHandle?.Invoke();
                     break;
-                case ConnectState.TryToConnect:
+                case NetworkState.TryToConnect:
                     OnTryToConnectHandle?.Invoke();
                     break;
-                case ConnectState.ConnectLost:
+                case NetworkState.ConnectLost:
                     OnConnectLostHandle?.Invoke();
                     break;
-                case ConnectState.Disconnect:
+                case NetworkState.Disconnect:
                     OnDisconnectHandle?.Invoke();
                     break;
-                case ConnectState.ConnectClosed:
+                case NetworkState.ConnectClosed:
                     OnCloseConnectHandle?.Invoke();
                     break;
-                case ConnectState.Reconnect:
+                case NetworkState.Reconnect:
                     OnReconnectHandle?.Invoke();
                     break;
-                case ConnectState.ExceededNumber:
+                case NetworkState.ExceededNumber:
                     OnExceededNumberHandle?.Invoke();
                     break;
-                case ConnectState.BlockConnection:
+                case NetworkState.BlockConnection:
                     OnBlockConnectionHandle?.Invoke();
                     break;
             }
-            connectState = ConnectState.None;
+            networkState = NetworkState.None;
         }
 
         /// <summary>
@@ -814,7 +814,7 @@ namespace Net.Client
         /// <param name="result">连接结果</param>
         public virtual Task Connect(string host, int port, int localPort, Action<bool> result)
         {
-            if (connectState == ConnectState.Connection)
+            if (networkState == NetworkState.Connection)
             {
                 NDebug.Log("连接服务器中,请稍等...");
                 return null;
@@ -825,7 +825,7 @@ namespace Net.Client
                 NDebug.Log("连接服务器中,请稍等...");
             }
             openClient = true;
-            connectState = ConnectState.Connection;
+            networkState = NetworkState.Connection;
             if (Instance == null)
                 Instance = this;
             if (Context == null)
@@ -857,7 +857,7 @@ namespace Net.Client
             {
                 Client.Close();
                 Client = null;
-                ConnectState = connectState = ConnectState.ConnectLost;
+                NetworkState = networkState = NetworkState.ConnectLost;
                 NDebug.LogError("服务器连接中断!");
                 AbortedThread();
                 result(false);
@@ -907,7 +907,7 @@ namespace Net.Client
                         if (buffer[7] == NetCmd.BlockConnection)
                         {
                             InvokeContext(()=> {
-                                connectState = ConnectState.BlockConnection;
+                                networkState = NetworkState.BlockConnection;
                                 StateHandle();
                             });
                             throw new Exception();
@@ -915,7 +915,7 @@ namespace Net.Client
                         if (buffer[7] == NetCmd.ExceededNumber)
                         {
                             InvokeContext(() => {
-                                connectState = ConnectState.ExceededNumber;
+                                networkState = NetworkState.ExceededNumber;
                                 StateHandle();
                             });
                             throw new Exception();
@@ -923,7 +923,7 @@ namespace Net.Client
                         Connected = true;
                         StartupThread();
                         InvokeContext(() => {
-                            connectState = ConnectState.Connected;
+                            networkState = NetworkState.Connected;
                             result(true);
                         });
                     }
@@ -933,7 +933,7 @@ namespace Net.Client
                         Client?.Close();
                         Client = null;
                         InvokeContext(() => {
-                            connectState = ConnectState.ConnectFailed;
+                            networkState = NetworkState.ConnectFailed;
                             result(false);
                         });
                     }
@@ -942,7 +942,7 @@ namespace Net.Client
             catch (Exception ex)
             {
                 NDebug.LogError("连接错误:" + ex.ToString());
-                connectState = ConnectState.ConnectFailed;
+                networkState = NetworkState.ConnectFailed;
                 result(false);
                 return null;
             }
@@ -1047,12 +1047,12 @@ namespace Net.Client
         {
             if (result)
             {
-                ConnectState = connectState = ConnectState.Connected;
+                NetworkState = networkState = NetworkState.Connected;
                 NDebug.Log("成功连接服务器...");
             }
             else
             {
-                ConnectState = connectState = ConnectState.ConnectFailed;
+                NetworkState = networkState = NetworkState.ConnectFailed;
                 NDebug.LogError("服务器尚未开启或连接IP端口错误!");
                 if (!UseUnityThread)
                     StartThread("UpdateHandle", UpdateHandle);
@@ -1065,7 +1065,7 @@ namespace Net.Client
         /// <param name="reuseSocket">断开连接后还能重新使用？</param>
         public void Disconnect(bool reuseSocket)
         {
-            ConnectState = connectState = ConnectState.Disconnect;
+            NetworkState = networkState = NetworkState.Disconnect;
             Client.Disconnect(reuseSocket);
         }
 
@@ -1302,7 +1302,11 @@ namespace Net.Client
                 if (!rPCModels.TryDequeue(out RPCModel rPCModel))
                     continue;
                 if (rPCModel.kernel & rPCModel.serialize)
+                {
                     rPCModel.buffer = OnSerializeRPC(rPCModel);
+                    if (rPCModel.buffer.Length == 0)
+                        continue;
+                }
                 int len = stream.Count + rPCModel.buffer.Length + frame;
                 if (len > BufferPool.Size)
                 {
@@ -1560,7 +1564,7 @@ namespace Net.Client
             if (ex is SocketException)
             {
                 Connected = false;
-                ConnectState = connectState = ConnectState.ConnectLost;
+                NetworkState = networkState = NetworkState.ConnectLost;
                 sendRTList.Clear();
                 revdRTList.Clear();
                 rtRPCModels = new QueueSafe<RPCModel>();
@@ -1698,10 +1702,10 @@ namespace Net.Client
                         InvokeOnRevdBufferHandle(model);
                     break;
                 case NetCmd.ExceededNumber:
-                    connectState = ConnectState.ExceededNumber;
+                    networkState = NetworkState.ExceededNumber;
                     break;
                 case NetCmd.BlockConnection:
-                    connectState = ConnectState.BlockConnection;
+                    networkState = NetworkState.BlockConnection;
                     break;
                 case NetCmd.ReliableTransport:
                     ushort index = BitConverter.ToUInt16(model.buffer, model.index + 0);
@@ -1950,7 +1954,7 @@ namespace Net.Client
                     }
                     else//连接中断事件执行
                     {
-                        ConnectState = connectState = ConnectState.ConnectLost;
+                        NetworkState = networkState = NetworkState.ConnectLost;
                         sendRTList.Clear();
                         revdRTList.Clear();
                         rtRPCModels = new QueueSafe<RPCModel>();
@@ -1997,7 +2001,7 @@ namespace Net.Client
                 {
                     currFrequency = 0;
                     heart = 0;
-                    ConnectState = connectState = ConnectState.Reconnect;
+                    NetworkState = networkState = NetworkState.Reconnect;
                     sendRTList.Clear();
                     revdRTList.Clear();
                     rtRPCModels = new QueueSafe<RPCModel>();
@@ -2013,7 +2017,7 @@ namespace Net.Client
                 }
                 else
                 {
-                    ConnectState = connectState = ConnectState.TryToConnect;
+                    NetworkState = networkState = NetworkState.TryToConnect;
                     NDebug.Log($"尝试重连:{currFrequency}...");
                 }
             });
@@ -2026,11 +2030,11 @@ namespace Net.Client
         /// <param name="await">true:等待内部1秒结束所有线程再关闭? false:直接关闭</param>
         public virtual void Close(bool await = true)
         {
-            if (ConnectState != ConnectState.ConnectClosed)
+            if (NetworkState != NetworkState.ConnectClosed)
                 Client?.Send(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.QuitGame, 0, 0, 0, 0 });
             Connected = false;
             openClient = false;
-            ConnectState = connectState = ConnectState.ConnectClosed;
+            NetworkState = networkState = NetworkState.ConnectClosed;
             if (await) Thread.Sleep(1000);//给update线程一秒的时间处理关闭事件
             AbortedThread();
             Client?.Close();
@@ -2685,6 +2689,45 @@ namespace Net.Client
                     break;
                 case AdapterType.NetworkEvt:
                     BindNetworkHandle((INetworkHandle)adapter);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 添加网络状态事件处理
+        /// </summary>
+        /// <param name="listen">要监听的网络状态</param>
+        /// <param name="action">监听网络状态的回调方法</param>
+        public void AddStateHandler(NetworkState listen, Action action)
+        {
+            switch (listen) 
+            {
+                case NetworkState.Connected:
+                    OnConnectedHandle += action;
+                    break;
+                case NetworkState.ConnectFailed:
+                    OnConnectFailedHandle += action;
+                    break;
+                case NetworkState.ConnectLost:
+                    OnConnectLostHandle += action;
+                    break;
+                case NetworkState.Reconnect:
+                    OnReconnectHandle += action;
+                    break;
+                case NetworkState.BlockConnection:
+                    OnBlockConnectionHandle += action;
+                    break;
+                case NetworkState.ExceededNumber:
+                    OnExceededNumberHandle += action;
+                    break;
+                case NetworkState.ConnectClosed:
+                    OnCloseConnectHandle += action;
+                    break;
+                case NetworkState.Disconnect:
+                    OnDisconnectHandle += action;
+                    break;
+                case NetworkState.TryToConnect:
+                    OnTryToConnectHandle += action;
                     break;
             }
         }

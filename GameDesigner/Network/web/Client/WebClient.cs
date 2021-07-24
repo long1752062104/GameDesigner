@@ -60,7 +60,7 @@ namespace Net.Client
                 WSClient.Closed += (o, e) =>
                 {
                     Connected = false;
-                    ConnectState = connectState = ConnectState.ConnectLost;
+                    NetworkState = networkState = NetworkState.ConnectLost;
                     sendRTList.Clear();
                     revdRTList.Clear();
                     rtRPCModels = new QueueSafe<RPCModel>();
@@ -188,7 +188,7 @@ namespace Net.Client
         {
             Connected = false;
             openClient = false;
-            ConnectState = connectState = ConnectState.ConnectClosed;
+            NetworkState = networkState = NetworkState.ConnectClosed;
             AbortedThread();
             if (WSClient != null)
             {

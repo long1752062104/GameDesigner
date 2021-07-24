@@ -127,6 +127,11 @@ namespace Net.Component
             Instance.client.AddOperation(operation);
         }
 
+        public static void AddRpcHandler(object target)
+        {
+            I.client.AddRpcHandle(target);
+        }
+
         /// <summary>
         /// 判断name是否是本地唯一id(本机玩家标识)
         /// </summary>
@@ -280,7 +285,7 @@ namespace Net.Component
         {
             ((ISendHandle)_client).SendRT(cmd, func, funcCB, callback, millisecondsDelay, outTimeAct, context, pars);
         }
-#endregion
+        #endregion
     }
 }
 #endif

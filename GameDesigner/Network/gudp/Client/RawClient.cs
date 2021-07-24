@@ -43,7 +43,7 @@ namespace Net.Client
                         if (buffer[7] == NetCmd.BlockConnection)
                         {
                             InvokeContext(() => {
-                                connectState = ConnectState.BlockConnection;
+                                networkState = NetworkState.BlockConnection;
                                 StateHandle();
                             });
                             throw new Exception();
@@ -51,7 +51,7 @@ namespace Net.Client
                         if (buffer[7] == NetCmd.ExceededNumber)
                         {
                             InvokeContext(() => {
-                                connectState = ConnectState.ExceededNumber;
+                                networkState = NetworkState.ExceededNumber;
                                 StateHandle();
                             });
                             throw new Exception();
@@ -59,7 +59,7 @@ namespace Net.Client
                         Connected = true;
                         StartupThread();
                         InvokeContext(() => {
-                            connectState = ConnectState.Connected;
+                            networkState = NetworkState.Connected;
                             result(true);
                         });
                     }
@@ -69,7 +69,7 @@ namespace Net.Client
                         Client?.Close();
                         Client = null;
                         InvokeContext(() => {
-                            connectState = ConnectState.ConnectFailed;
+                            networkState = NetworkState.ConnectFailed;
                             result(false);
                         });
                     }
@@ -78,7 +78,7 @@ namespace Net.Client
             catch (Exception ex)
             {
                 NDebug.LogError("连接错误:" + ex.ToString());
-                connectState = ConnectState.ConnectFailed;
+                networkState = NetworkState.ConnectFailed;
                 result(false);
                 return null;
             }

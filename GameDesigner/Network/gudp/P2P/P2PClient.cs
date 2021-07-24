@@ -29,7 +29,7 @@ namespace Net.Client
             Connected = true;
             StartupThread();
             InvokeContext(() => {
-                connectState = Share.ConnectState.ConnectFailed;
+                networkState = Share.NetworkState.ConnectFailed;
                 result(true);
             });
             return Task.Delay(1);

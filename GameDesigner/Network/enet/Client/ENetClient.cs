@@ -86,7 +86,7 @@
                             ClientHost.Dispose();
                             ClientHost = null;
                             InvokeContext(() => {
-                                connectState = ConnectState.ConnectFailed;
+                                networkState = NetworkState.ConnectFailed;
                                 result(false); 
                             });
                             return;
@@ -99,7 +99,7 @@
                             ClientHost.Dispose();
                             ClientHost = null;
                             InvokeContext(() => {
-                                connectState = ConnectState.ConnectFailed;
+                                networkState = NetworkState.ConnectFailed;
                                 result(false);
                             });
                         }
@@ -109,7 +109,7 @@
                             ChannelID = netEvent.ChannelID;
                             StartupThread();
                             InvokeContext(() => {
-                                connectState = ConnectState.Connected;
+                                networkState = NetworkState.Connected;
                                 result(true); 
                             });
                         }
@@ -120,7 +120,7 @@
             catch (Exception ex)
             {
                 NDebug.Log("连接错误: 如果提示视图加载错误则为平台设置不对! " + ex.ToString());
-                connectState = ConnectState.ConnectFailed;
+                networkState = NetworkState.ConnectFailed;
                 result(false);
                 return null;
             }
@@ -152,7 +152,7 @@
                     {
                         case EventType.Disconnect:
                             Connected = false;
-                            ConnectState = connectState = ConnectState.ConnectLost;
+                            NetworkState = networkState = NetworkState.ConnectLost;
                             sendRTList.Clear();
                             revdRTList.Clear();
                             rtRPCModels = new QueueSafe<RPCModel>();
@@ -174,7 +174,7 @@
                             break;
                         case EventType.Timeout:
                             Connected = false;
-                            ConnectState = connectState = ConnectState.ConnectLost;
+                            NetworkState = networkState = NetworkState.ConnectLost;
                             sendRTList.Clear();
                             revdRTList.Clear();
                             rtRPCModels = new QueueSafe<RPCModel>();
@@ -209,7 +209,7 @@
             Client.DisconnectNow(0);
             Connected = false;
             openClient = false;
-            ConnectState = connectState = ConnectState.ConnectClosed;
+            NetworkState = networkState = NetworkState.ConnectClosed;
             AbortedThread();
             sendRTList.Clear();
             revdRTList.Clear();

@@ -1,9 +1,9 @@
 ﻿namespace Net.Share
 {
     /// <summary>
-    /// 网络连接状态
+    /// 网络状态
     /// </summary>
-	public enum ConnectState : byte
+	public enum NetworkState : byte
     {
         /// <summary>
         /// 无状态

@@ -323,7 +323,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化异常:" + ex);
+                NDebug.LogError("序列化:" + value + "出错 详细信息:" + ex);
             }
             finally
             {
@@ -348,7 +348,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化异常:" + ex);
+                NDebug.LogError("序列化:" + value + "出错 详细信息:" + ex);
             }
             finally
             {
@@ -423,8 +423,6 @@
                 if (hasMask) stream.WriteValue(model.methodMask);
                 foreach (var obj in model.pars)
                 {
-                    if (obj == null)
-                        continue;
                     Type type = obj.GetType();
                     stream.WriteValue(TypeToIndex(type));
                     if (Types2.TryGetValue(type, out TypeBind typeBind))
@@ -438,7 +436,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化异常:" + ex);
+                NDebug.LogError("序列化:" + model.func + "方法出错 详细信息:" + ex);
             }
             return buffer1;
         }
@@ -459,8 +457,6 @@
                 {
                     ushort typeIndex = segment.ReadValue<ushort>();
                     Type type = IndexToType(typeIndex);
-                    if (type == null)
-                        break;
                     var obj1 = DeserializeObject(type, segment);
                     list.Add(obj1);
                 }
@@ -468,7 +464,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("解析出错:" + ex);
+                NDebug.LogError($"解析[{obj.name}]出错 详细信息:" + ex);
                 obj.error = true;
             }
             return obj;

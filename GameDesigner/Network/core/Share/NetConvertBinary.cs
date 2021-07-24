@@ -833,7 +833,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化异常:" + ex);
+                NDebug.LogError("序列化:" + func + "方法出错 详细信息:" + ex);
             }
             finally
             {
@@ -858,8 +858,6 @@
                 if (hasMask) WriteValue(stream, model.methodMask);
                 foreach (var obj in model.pars)
                 {
-                    if (obj == null)
-                        continue;
                     Type type = obj.GetType();
                     byte[] typeBytes = BitConverter.GetBytes(TypeToIndex(type));
                     stream.Write(typeBytes, 0, 2);
@@ -869,7 +867,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化异常:" + ex);
+                NDebug.LogError("序列化:" + model.func + "方法出错 详细信息:" + ex);
             }
             finally
             {
@@ -899,7 +897,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化异常:" + ex);
+                NDebug.LogError("序列化:" + obj + "出错 详细信息:" + ex);
             }
             finally
             {
@@ -928,7 +926,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化异常:" + ex);
+                NDebug.LogError("序列化:" + obj + "出错 详细信息:" + ex);
             }
             finally
             {
@@ -954,7 +952,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化异常:" + ex);
+                NDebug.LogError("序列化:" + obj + "出错 详细信息:" + ex);
             }
             finally 
             {
@@ -1304,7 +1302,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("解析出错:" + ex);
+                NDebug.LogError($"解析[{obj.name}]出错 详细信息:" + ex);
                 obj.error = true;
             }
             return obj;
@@ -1335,7 +1333,7 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("解析出错:" + ex);
+                NDebug.LogError($"解析[{obj.name}]出错 详细信息:" + ex);
                 obj.error = true;
             }
             return obj;
