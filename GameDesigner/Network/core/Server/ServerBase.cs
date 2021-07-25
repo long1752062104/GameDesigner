@@ -2467,7 +2467,12 @@ namespace Net.Server
                 {
                     RPCMethod item = new RPCMethod(target, info, rpc.cmd);
                     if (rpc.mask != 0)
-                        RpcMaskDic.Add(rpc.mask, info.Name);
+                    {
+                        if (!RpcMaskDic.TryGetValue(rpc.mask, out string func))
+                            RpcMaskDic.Add(rpc.mask, info.Name);
+                        else if (func != info.Name)
+                            Debug.LogError($"错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
+                    }
                     if (!RpcsDic.ContainsKey(item.method.Name))
                         RpcsDic.Add(item.method.Name, new List<RPCMethod>());
                     RpcsDic[item.method.Name].Add(item);

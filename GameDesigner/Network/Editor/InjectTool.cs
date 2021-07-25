@@ -22,31 +22,22 @@ public static class InjectTool
         CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
     }
 
+    //[MenuItem("gdnet/test")]
+    //static void Init()
+    //{
+    //    OnCompilationFinished(AssemblyPath, new CompilerMessage[0]);
+    //}
+
     internal static void OnCompilationFinished(string targetAssembly, CompilerMessage[] messages)
     {
-        // Do nothing if there were compile errors on the target
         if (messages.Length > 0)
-        {
             foreach (var msg in messages)
-            {
                 if (msg.type == CompilerMessageType.Error)
-                {
                     return;
-                }
-            }
-        }
-
-        // Should not run on the editor only assemblies
         if (targetAssembly.Contains("-Editor") || targetAssembly.Contains(".Editor"))
-        {
             return;
-        }
-
-        // Should not run on own assembly or Unity assemblies
         if (targetAssembly.Contains("com.unity") || Path.GetFileName(targetAssembly).StartsWith("Unity"))
-        {
             return;
-        }
 
         // 按路径读取程序集
         var readerParameters = new ReaderParameters { ReadWrite = true };
@@ -121,14 +112,26 @@ public static class InjectTool
         MethodDefinition instance = clientBaseDef.Methods[6];
         MethodDefinition send;
         int hasCmd = 0;
+        ushort hasMask = 0;
         if (attribute.Fields.Count == 0)
-            send = clientBaseDef.Methods[166];
+            send = clientBaseDef.Methods[178];
         else if (attribute.Fields[0].Argument.Value == null)
-            send = clientBaseDef.Methods[166];
+            send = clientBaseDef.Methods[178];
         else
         {
-            send = clientBaseDef.Methods[167];
-            hasCmd = (byte)attribute.Fields[0].Argument.Value;
+            foreach (var item in attribute.Fields)
+            {
+                if (item.Name == "cmd")
+                    hasCmd = (byte)item.Argument.Value;
+                if (item.Name == "mask")
+                    hasMask = (ushort)item.Argument.Value;
+            }
+            if(hasMask != 0 & hasCmd != 0)
+                send = clientBaseDef.Methods[181];
+            else if(hasMask != 0)
+                send = clientBaseDef.Methods[180];
+            else
+                send = clientBaseDef.Methods[179];
         }
 
         var objectType = module.ImportReference(typeof(object));
@@ -137,7 +140,12 @@ public static class InjectTool
         cmdWorker.Append(cmdWorker.Create(OpCodes.Call, instance));
         if(hasCmd != 0)
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4_S, (sbyte)hasCmd));
-        cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, name));
+        if(hasMask != 0 & hasMask < 128)
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4_S, (sbyte)hasMask));
+        else if(hasMask != 0)
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, hasMask));
+        else
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, name));
         if (method.Parameters.Count < 8)
         {
             var Ldc_I4_x = typeof(OpCodes).GetField("Ldc_I4_" + method.Parameters.Count, BindingFlags.Public | BindingFlags.Static);
