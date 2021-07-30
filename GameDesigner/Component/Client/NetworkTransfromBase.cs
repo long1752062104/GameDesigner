@@ -44,6 +44,7 @@ namespace Net.Component
         public byte index;//在SceneManager的prefabs数组的索引
         public bool setID;
         public int m_identity;
+        public float rate = 30f;//网络帧率, 一秒30次
 
         public virtual void Start()
         {
@@ -84,7 +85,7 @@ namespace Net.Component
             else if (Time.time > sendTime)
             {
                 Check();
-                sendTime = Time.time + (1f / 30f);
+                sendTime = Time.time + (1f / rate);
             }
         }
 

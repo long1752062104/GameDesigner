@@ -1423,6 +1423,13 @@
             参数volume : 声音大小调节
             </summary>
         </member>
+        <member name="M:GameDesigner.AudioManager.Play(UnityEngine.AudioClip,System.Single,System.Boolean)">
+            <summary>
+            播放音效剪辑
+            参数clip : 放入你要播放的音源
+            参数volume : 声音大小调节
+            </summary>
+        </member>
         <member name="M:GameDesigner.AudioManager.OnPlayingDestroy(UnityEngine.AudioClip)">
             <summary>
             当音效播放完成销毁AudioSource组件
@@ -3918,6 +3925,13 @@
             </summary>
             <param name="lastHandle">需要做最后的处理的, Player.playerID必须指定 </param>
             <returns></returns>
+        </member>
+        <member name="M:Net.Server.DataBase`2.LoadPlayerData(System.String,System.Action{`1})">
+            <summary>
+            加载单个玩家数据文件路径
+            </summary>
+            <param name="path"></param>
+            <param name="lastHandle"></param>
         </member>
         <member name="M:Net.Server.DataBase`2.OnLoad">
             <summary>
@@ -7896,7 +7910,7 @@
         </member>
         <member name="F:Net.Share.RPCFun.il2cpp">
             <summary>
-            <code>如果在unity编译为il2cpp后端脚本，则需要先声明类型出来，因为编译后，类型将无法在创建出来</code>
+            <code>如果在unity编译为il2cpp后端脚本并使用CallSiteRpcAdapter快速调用rpc适配器，则需要先声明类型出来，因为编译后，类型将无法在创建出来</code>
             例子: void Test(int num, string str); 则需要使用 [Rpc(il2cpp = typeof(RPCPTR&lt;int, string&gt;))]
             </summary>
         </member>

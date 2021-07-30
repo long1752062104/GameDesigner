@@ -25,6 +25,7 @@ class Service : TcpServer<Client, Scene>//你的服务器类
     protected override bool OnUnClientRequest(Client unClient, RPCModel model)
     {
         Console.WriteLine(model.pars[0]);
+        //你也可以理解为返回true则是输入的账号密码正确, 返回false则是账号或密码错误
         return true;//100%必须理解这个, 返回false则永远在这里被调用, 返回true才被服务器认可
     }
     [Rpc(cmd = NetCmd.SafeCall)]//使用SafeCall指令后, 第一个参数插入客户端对象, 这个客户端对象就是哪个客户端发送,这个参数就是对应那个客户端的对象
@@ -35,7 +36,7 @@ class Service : TcpServer<Client, Scene>//你的服务器类
     }
 }
 ```
-<br>3.mian入口方法写上</br>
+<br>3.main入口方法写上</br>
 
 ```
 var server = new Service();//创建服务器对象
@@ -43,9 +44,9 @@ server.Log += Console.WriteLine;//打印服务器内部信息
 server.Run(6666);//启动6666端口
 ```
 
-<br>3.创建客户端控制台项目</br>
+<br>4.创建客户端控制台项目</br>
 
-<br>4.定义一个Test类, 用来测试rpc过程调用</br>
+<br>5.定义一个Test类, 用来测试rpc过程调用</br>
 
 ```
 class Test 
@@ -57,7 +58,7 @@ class Test
     }
 }
 ```
-<br>4.然后在main入口方法写上</br>
+<br>6.然后在main入口方法写上</br>
 ```
 TcpClient client = new TcpClient();
 client.Log += Console.WriteLine;
@@ -77,7 +78,7 @@ gdnet提供BufferPool二进制数据对象池和ObjectPool类对象池, 在网�
 var seg = BufferPool.Take(65535);//申请65535字节的内存片
 seg.WriteValue(123);//写入4字节的值
 BufferPool.Push(seg);//压入内存片,等待下次复用
-var seg1 = BufferPool.Take(65535);//这次的申请内存片,实际是从BufferPool中弹出seg对象,在这个过程中只创建了一次byte[65535]
+var seg1 = BufferPool.Take(65535);//这次的申请内存片,实际是从BufferPool中弹出seg对象,在这个过程中不会再创建byte[65535]
 seg1.WriteValue(456);
 BufferPool.Push(seg);//再次压入
 ```
@@ -111,7 +112,12 @@ Fast2BuildToolMethod.Build(typeof(Test), AppDomain.CurrentDomain.BaseDirectory);
 Fast2BuildToolMethod.BuildArray(typeof(Test), AppDomain.CurrentDomain.BaseDirectory);//生成test数组绑定类型
 Fast2BuildToolMethod.BuildGeneric(typeof(Test), AppDomain.CurrentDomain.BaseDirectory);//生成test泛型绑定类型
 ```
+新版本中增加了运行时动态编译绑定类型
 
+```
+Fast2BuildMethod.DynamicBuild(BindingEntry.GetBindTypes());//动态编译指定的类型列表
+```
+详细信息请打开案例: GameDesigner\Example\SerializeTest\Scenes\example3.unity 查看
 
 ## ECS模块
 ECS模块类似unity的gameObject->component模式, 在ecs中gameObject=entity, component=component, system类执行, ecs跟gameObject模式基本流程是一样的, 只是ecs中的组件可以复用, 而gameObject的component则不能复用, 在创建上万个对象时, gameObject就得重新new出来对象和组件, 而ecs调用Destroy时是把entity或component压入对象池, 等待下一次复用.实际上对象没有被释放,所以性能高于gameObject的原因
@@ -167,8 +173,12 @@ mvc模块:模型,控制,视图分离, mvc模块适应于帧同步游戏, model�
 <br>1 vsmile ¥ 10</br>
 <br>2 南归 ¥ 10</br>
 <br>3 王者心，懂么？ ¥ 10</br>
-<br>3 郭少 ¥ 5000</br>
-<br>3 思念天边的你 ¥ 52</br>
-<br>3 娟子 ¥ 1000</br>
+<br>4 郭少 ¥ 5000</br>
+<br>5 思念天边的你 ¥ 52</br>
+<br>6 娟子 ¥ 1000</br>
+<br>7 Slarvens ¥ 30</br>
+<br>8 达西莉莉 ¥ 200</br>
+
+<br>不留名的大佬们 微信总资助 ¥ 653</br>
 
 <img src="https://gitee.com/leng_yue/GameDesigner/raw/master/pay.jpg" width = "600" height = "400" alt="图片名称" align=center />

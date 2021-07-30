@@ -353,31 +353,80 @@ namespace Net.Share
 
         public unsafe int WriteValue(float value)
         {
-            void* ptr = &value;
-            Write(ptr, 4);
+            byte record = 0;
+            byte* ptr = (byte*)&value;
+            var pos = Position++;
+            for (byte i = 0; i < 4; i++)
+            {
+                if (ptr[i] != 0)
+                {
+                    NetConvertBase.SetBit(ref record, i + 1, true);
+                    Buffer[Position++] = ptr[i];
+                }
+            }
+            Buffer[pos] = record;
             return 4;
         }
 
-        public float ReadFloat() 
+        public unsafe float ReadFloat() 
         {
-            float value = BitConverter.ToSingle(Buffer, Position);
-            Position += 4;
-            return value;
+            byte record = Buffer[Position++];
+            float value = 0f;
+            byte* ptr = (byte*)&value;
+            for (byte i = 1; i < 5; i++)
+            {
+                if(NetConvertBase.GetBit(record, i))
+                    ptr[i - 1] = Buffer[Position++];
+            }
+            int num;
+            if (BitConverter.IsLittleEndian)
+                num = * ptr | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);
+            else
+                num = (*ptr << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+            return *(float*)&num;
         }
 
         public unsafe int WriteValue(double value)
         {
-            byte num = 8;
-            void* ptr = &value;
-            Write(ptr, num);
-            return num;
+            byte record = 0;
+            byte* ptr = (byte*)&value;
+            var pos = Position++;
+            for (byte i = 0; i < 8; i++)
+            {
+                if (ptr[i] != 0)
+                {
+                    NetConvertBase.SetBit(ref record, i + 1, true);
+                    Buffer[Position++] = ptr[i];
+                }
+            }
+            Buffer[pos] = record;
+            return 8;
         }
 
-        public double ReadDouble()
+        public unsafe double ReadDouble()
         {
-            double value = BitConverter.ToDouble(Buffer, Position);
-            Position += 8;
-            return value;
+            byte record = Buffer[Position++];
+            double value = 0d;
+            byte* ptr = (byte*)&value;
+            for (byte i = 1; i < 9; i++)
+            {
+                if (NetConvertBase.GetBit(record, i))
+                    ptr[i - 1] = Buffer[Position++];
+            }
+            long value1;
+            if (BitConverter.IsLittleEndian)
+            {
+                int num = *ptr | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);
+                int num2 = ptr[4] | (ptr[5] << 8) | (ptr[6] << 16) | (ptr[7] << 24);
+                value1 = (uint)num | ((long)num2 << 32);
+            }
+            else 
+            {
+                int num3 = (*ptr << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+                int num4 = (ptr[4] << 24) | (ptr[5] << 16) | (ptr[6] << 8) | ptr[7];
+                value1 = (uint)num4 | ((long)num3 << 32);
+            }
+            return *(double*)&value1;
         }
 
         public unsafe int WriteValue(string value)

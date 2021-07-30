@@ -296,6 +296,8 @@ MonoBehaviour:
   throwException: 0
   debugRpc: 0
   frameRate: 60
+  authorize: 0
+  rpcs: []
 --- !u!4 &1508966928
 Transform:
   m_ObjectHideFlags: 0

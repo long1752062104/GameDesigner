@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,10 +7,11 @@ namespace GameDesigner
     public class StateEvent : MonoBehaviour
     {
         private static StateEvent instance;
-        internal class EventQueue
+        [Serializable]
+        public class EventQueue
         {
-            internal int id;
-            internal float time;
+            public int id;
+            public float time;
             internal Action action;
             internal Action<object> action1;
             internal object obj;
@@ -29,7 +29,7 @@ namespace GameDesigner
             }
         }
         private static int ID = 0;
-        private static readonly List<EventQueue> events = new List<EventQueue>();
+        public List<EventQueue> events = new List<EventQueue>();
         
         public static int AddEvent(float time, Action action)
         {
@@ -39,7 +39,7 @@ namespace GameDesigner
                 DontDestroyOnLoad(instance);
             }
             int id = ID++;
-            events.Add(new EventQueue(Time.time + time, action) { id = id });
+            instance.events.Add(new EventQueue(Time.time + time, action) { id = id });
             return id;
         }
 
@@ -51,17 +51,17 @@ namespace GameDesigner
                 DontDestroyOnLoad(instance);
             }
             int id = ID++;
-            events.Add(new EventQueue(Time.time + time, action) { id = id, obj = obj });
+            instance.events.Add(new EventQueue(Time.time + time, action) { id = id, obj = obj });
             return id;
         }
 
         public static void RemoveEvent(int id) 
         {
-            for (int i = 0; i < events.Count; i++)
+            for (int i = 0; i < instance.events.Count; i++)
             {
-                if (events[i].id == id)
+                if (instance.events[i].id == id)
                 {
-                    events.RemoveAt(i);
+                    instance.events.RemoveAt(i);
                     break;
                 }
             }
@@ -69,7 +69,7 @@ namespace GameDesigner
 
         public static void RemoveAllEvent()
         {
-            events.Clear();
+            instance.events.Clear();
         }
 
         void Update()

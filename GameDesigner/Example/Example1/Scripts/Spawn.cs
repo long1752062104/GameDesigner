@@ -18,13 +18,13 @@ namespace Net.Example
 
         private void Connected()
         {
-            TransformComponent.Identity = (ClientManager.UID - 10000) * 5000;//避免唯一标识碰撞
+            NetworkTransformBase.Identity = (ClientManager.UID - 10000) * 5000;//避免唯一标识碰撞
             InvokeRepeating("Ins", 0.1f, 0.1f);
         }
 
         void Ins()
         {
-            if (currnum > num)
+            if (currnum >= num)
                 return;
             currnum++;
             Instantiate(@object, transform.position, transform.rotation);

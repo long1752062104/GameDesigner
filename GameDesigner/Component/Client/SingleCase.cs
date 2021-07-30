@@ -45,14 +45,15 @@ namespace Net.Component
             set { instance = value; }
         }
 
-        public static void Show()
+        public static T Show()
         {
-            Instance.gameObject.SetActive(true);
+            I.gameObject.SetActive(true);
+            return I;
         }
 
         public static void Hide()
         {
-            Instance.gameObject.SetActive(false);
+            I.gameObject.SetActive(false);
         }
     }
 }

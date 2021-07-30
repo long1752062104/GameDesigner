@@ -226,7 +226,7 @@ namespace Net.Component
                 {
                     childs[i].Check(identity);
                 }
-                sendTime = Time.time + (1f / 30f);
+                sendTime = Time.time + (1f / rate);
             }
         }
     }

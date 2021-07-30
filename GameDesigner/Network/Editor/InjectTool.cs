@@ -19,14 +19,24 @@ public static class InjectTool
     [InitializeOnLoadMethod]
     static void OnInitializeOnLoad()
     {
-        CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
+        int open = 0;
+        if (PlayerPrefs.HasKey("RpcInject"))
+            open = PlayerPrefs.GetInt("RpcInject", 0);
+        if(open == 0)
+            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
     }
 
-    //[MenuItem("gdnet/test")]
-    //static void Init()
-    //{
-    //    OnCompilationFinished(AssemblyPath, new CompilerMessage[0]);
-    //}
+    [MenuItem("GameDesigner/Network/openRpcInject")]
+    static void Init1()
+    {
+        PlayerPrefs.SetInt("RpcInject", 0);
+    }
+
+    [MenuItem("GameDesigner/Network/closeRpcInject")]
+    static void Init()
+    {
+        PlayerPrefs.SetInt("RpcInject", 1);
+    }
 
     internal static void OnCompilationFinished(string targetAssembly, CompilerMessage[] messages)
     {

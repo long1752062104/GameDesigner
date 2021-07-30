@@ -6,7 +6,7 @@
     /// <summary>
     /// 音效管理
     /// </summary>
-    public sealed class AudioManager : MonoBehaviour
+    public class AudioManager : MonoBehaviour
     {
         [SerializeField]
         private List<AudioSource> sources = new List<AudioSource>();
@@ -32,6 +32,7 @@
                 return _instance;
             }
         }
+        public static AudioManager I => Instance;
 
         void Update()
         {
@@ -61,21 +62,41 @@
         /// </summary>
         public static AudioSource Play(AudioClip clip, float volume)
         {
+            return Play(clip, volume, false);
+        }
+
+        /// <summary>
+        /// 播放音效剪辑
+        /// 参数clip : 放入你要播放的音源
+        /// 参数volume : 声音大小调节
+        /// </summary>
+        public static AudioSource Play(AudioClip clip, float volume, bool loop)
+        {
             if (clip == null)
                 return null;
-            for (int i = 0; i < Instance.sources.Count; ++i)
+            for (int i = 0; i < I.sources.Count; ++i)
             {
-                if (!Instance.sources[i].isPlaying)//如果音效剪辑存在 并且 音效没有被播放 则可以执行播放音效
+                if (!I.sources[i].isPlaying)//如果音效剪辑存在 并且 音效没有被播放 则可以执行播放音效
                 {
-                    Instance.sources[i].PlayOneShot(clip, volume);
-                    return Instance.sources[i];
+                    I.sources[i].clip = clip;
+                    I.sources[i].volume = volume;
+                    I.sources[i].loop = loop;
+                    if (loop) 
+                        I.sources[i].Play();
+                    else 
+                        I.sources[i].PlayOneShot(clip, volume);
+                    return I.sources[i];
                 }
             }
-            AudioSource source = Instance.gameObject.AddComponent<AudioSource>();
-            Instance.sources.Add(source);
+            AudioSource source = I.gameObject.AddComponent<AudioSource>();
+            I.sources.Add(source);
             source.clip = clip;
             source.volume = volume;
-            source.PlayOneShot(clip, volume);
+            source.loop = loop;
+            if (loop)
+                source.Play();
+            else
+                source.PlayOneShot(clip, volume);
             return source;
         }
 
@@ -113,6 +134,33 @@
             Instance.destroyPlayingSources.Add(source);
             source.clip = clip;
             source.PlayOneShot(clip);
+        }
+
+        public static AudioSource Stop(AudioClip clip)
+        {
+            if (clip == null)
+                return null;
+            for (int i = 0; i < I.sources.Count; ++i)
+            {
+                if (I.sources[i].clip == clip)
+                {
+                    I.sources[i].Stop();
+                    return I.sources[i];
+                }
+            }
+            return null;
+        }
+
+        public static AudioSource GetAudioSource(AudioClip clip)
+        {
+            if (clip == null)
+                return null;
+            for (int i = 0; i < I.sources.Count; ++i)
+            {
+                if (I.sources[i].clip == clip)
+                    return I.sources[i];
+            }
+            return null;
         }
     }
 }

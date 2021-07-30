@@ -1,5 +1,6 @@
 ﻿namespace Net.Server
 {
+    using Net.Event;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -38,11 +39,11 @@
         /// <summary>
         /// 当前程序工作路径, 数据库保存路径
         /// </summary>
-        protected string rootPath;
+        public string rootPath;
         /// <summary>
         /// 玩家数据保存路径
         /// </summary>
-        public static string DataPath = "/Data/";
+        public string DataPath = "/Data/";
         /// <summary>
         /// 所有玩家信息
         /// </summary>
@@ -107,25 +108,41 @@
                 string[] playerDataPaths = Directory.GetFiles(rootPath + DataPath, "PlayerInfo.data", SearchOption.AllDirectories);
                 foreach (string path in playerDataPaths)
                 {
-                    try
+                    var player = LoadPlayerData(path, lastHandle);
+                    if (player != null)
                     {
-                        FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                        byte[] buffer = new byte[fileStream.Length];
-                        int count = fileStream.Read(buffer, 0, buffer.Length);
-                        fileStream.Close();
-                        if (count == 0)
-                            continue;
-                        Player player = OnDeserialize(buffer, count);
-                        if (player != null)
-                        {
-                            lastHandle?.Invoke(player);
-                            PlayerInfos.TryAdd(player.UIDKey, player);
-                        }
+                        lastHandle?.Invoke(player);
+                        if (!PlayerInfos.TryAdd(player.UIDKey, player))
+                            NDebug.LogError($"有账号冲突:{player.UIDKey}");
                     }
-                    catch (Exception e) { Console.WriteLine(e); }
                 }
                 OnLoad();
             });
+        }
+
+        /// <summary>
+        /// 加载单个玩家数据文件路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="lastHandle"></param>
+        public virtual Player LoadPlayerData(string path, Action<Player> lastHandle) 
+        {
+            try
+            {
+                FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                byte[] buffer = new byte[fileStream.Length];
+                int count = fileStream.Read(buffer, 0, buffer.Length);
+                fileStream.Close();
+                if (count == 0)
+                    return default;
+                Player player = OnDeserialize(buffer, count);
+                return player;
+            }
+            catch (Exception e) 
+            {
+                NDebug.LogError($"文件:{path}异常！详细信息:{e}");
+            }
+            return default;
         }
 
         public virtual Player OnDeserialize(byte[] buffer, int count)
@@ -160,7 +177,7 @@
         /// </summary>
         public virtual Task Save(Player player)
         {
-            if (player.UIDKey == string.Empty)
+            if (string.IsNullOrEmpty(player.UIDKey))
                 throw new Exception("UIDKey字段必须赋值，UIDKey是记录玩家账号或唯一标识用!");
             return Task.Run(() =>
             {
