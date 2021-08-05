@@ -330,8 +330,8 @@
         {
             if (client.isDispose)
                 return;
-            if (client.login & onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
-            else if (!client.login & ignoranceNumber > 0) Interlocked.Decrement(ref ignoranceNumber);
+            if (client.Login & onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
+            else if (!client.Login & ignoranceNumber > 0) Interlocked.Decrement(ref ignoranceNumber);
             Players.TryRemove(client.playerID, out _);
             UIDClients.TryRemove(client.UserID, out _);
             AllClients.TryRemove(client.TcpRemoteEndPoint, out _);
@@ -339,7 +339,7 @@
             client.OnRemoveClient();
             ExitScene(client, false);
             client.Dispose();
-            ObjectPool<Player>.Push(client);
+            //ObjectPool<Player>.Push(client);
         }
 
         private void UdpStartReceive()
@@ -504,7 +504,7 @@
                 }
                 client.Value.heart++;
                 SendRT(client.Value, NetCmd.SendHeartbeat, new byte[0]);//保活连接状态
-                if (client.Value.login)
+                if (client.Value.Login)
                     continue;
                 if (DateTime.Now > client.Value.LastTime)
                 {

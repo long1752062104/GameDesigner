@@ -833,7 +833,13 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化:" + func + "方法出错 详细信息:" + ex);
+                string str = "函数:" + func + " 参数:";
+                foreach (var obj in pars)
+                    if (obj == null)
+                        str += $"[null]";
+                    else
+                        str += $"[{obj}]";
+                NDebug.LogError("序列化:" + str + "方法出错 详细信息:" + ex);
             }
             finally
             {
@@ -867,7 +873,13 @@
             }
             catch (Exception ex)
             {
-                NDebug.LogError("序列化:" + model.func + "方法出错 详细信息:" + ex);
+                string str = "函数:" + model.func + " 参数:";
+                foreach (var obj in model.pars)
+                    if (obj == null)
+                        str += $"[null]";
+                    else
+                        str += $"[{obj}]";
+                NDebug.LogError("序列化:" + str + "方法出错 详细信息:" + ex);
             }
             finally
             {

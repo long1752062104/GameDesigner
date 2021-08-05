@@ -78,11 +78,16 @@ namespace GameDesigner
             {
                 if (Time.time >= events[i].time) 
                 {
-                    if(events[i].action != null)
-                        events[i].action();
-                    if (events[i].action1 != null)
-                        events[i].action1(events[i].obj);
-                    events.RemoveAt(i);
+                    try {
+                        if (events[i].action != null)
+                            events[i].action();
+                        if (events[i].action1 != null)
+                            events[i].action1(events[i].obj);
+                    } catch (Exception ex) {
+                        Debug.LogError(ex);
+                    } finally {
+                        events.RemoveAt(i);
+                    }
                     if(i > 0) i--;
                 }
             }

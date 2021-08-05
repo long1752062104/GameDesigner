@@ -76,7 +76,7 @@ namespace Net.Server
             {
                 List<Player> unclients = new List<Player>();
                 foreach (Player client in AllClients.Values)
-                    if (client.login) unclients.Add(client);
+                    if (client.Login) unclients.Add(client);
                 return unclients;
             }
         }
@@ -97,7 +97,7 @@ namespace Net.Server
             {
                 List<Player> unclients = new List<Player>();
                 foreach (Player client in AllClients.Values)
-                    if (!client.login) unclients.Add(client);
+                    if (!client.Login) unclients.Add(client);
                 return unclients;
             }
         }
@@ -392,7 +392,7 @@ namespace Net.Server
         {
             List<Player> players = new List<Player>();
             foreach (Player p in AllClients.Values)
-                if (p.login)
+                if (p.Login)
                     players.Add(p);
             return players;
         }
@@ -728,7 +728,8 @@ namespace Net.Server
                 blockConnection = 0;
                 int uid = UserIDNumber;
                 UserIDNumber++;
-                client = ObjectPool<Player>.Take();
+                //client = ObjectPool<Player>.Take();
+                client = new Player();
                 client.UserID = uid;
                 client.playerID = uid.ToString();
                 client.RemotePoint = remotePoint;
@@ -860,7 +861,7 @@ namespace Net.Server
         {
             if (IsInternalCommand(client, model))
                 return;
-            if (client.login)
+            if (client.Login)
             {
                 RpcDataHandle(client, model);
                 return;
@@ -888,13 +889,13 @@ namespace Net.Server
                 case NetCmd.PingCallback:
                     return;
                 case NetCmd.EntityRpc:
-                    client.login = client.OnUnClientRequest(model);
+                    client.Login = client.OnUnClientRequest(model);
                     break;
                 default:
-                    client.login = OnUnClientRequest(client, model);
+                    client.Login = OnUnClientRequest(client, model);
                     break;
             }
-            if (client.login)//当有客户端连接时,如果允许用户添加此客户端
+            if (client.Login)//当有客户端连接时,如果允许用户添加此客户端
             {
                 if (ignoranceNumber > 0)
                     Interlocked.Decrement(ref ignoranceNumber);
@@ -941,7 +942,7 @@ namespace Net.Server
                         client.udpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
                         return;
                     }
-                    Multicast(scene.Players, false, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    Multicast(scene.Clients, false, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
                     break;
                 case NetCmd.SceneRT:
                     if (!(client.Scene is Scene scene1))
@@ -949,13 +950,13 @@ namespace Net.Server
                         client.tcpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
                         return;
                     }
-                    Multicast(scene1.Players, true, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    Multicast(scene1.Clients, true, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
                     break;
                 case NetCmd.Notice:
-                    Multicast(Players.Values, false, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    Multicast(Players.Values.ToList(), false, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
                     break;
                 case NetCmd.NoticeRT:
-                    Multicast(Players.Values, true, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    Multicast(Players.Values.ToList(), true, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
                     break;
                 case NetCmd.SendHeartbeat:
                     Send(client, NetCmd.RevdHeartbeat, new byte[0]);
@@ -1570,7 +1571,7 @@ namespace Net.Server
                 client.Value.heart++;
                 if (RTOMode == RTOMode.Variable)
                     Ping(client.Value);
-                if (!client.Value.login)
+                if (!client.Value.Login)
                 {
                     if (DateTime.Now > client.Value.LastTime)
                     {
@@ -1802,8 +1803,8 @@ namespace Net.Server
         {
             if (client.isDispose)
                 return;
-            if (client.login & onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
-            else if (!client.login & ignoranceNumber > 0) Interlocked.Decrement(ref ignoranceNumber);
+            if (client.Login & onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
+            else if (!client.Login & ignoranceNumber > 0) Interlocked.Decrement(ref ignoranceNumber);
             Players.TryRemove(client.playerID, out _);
             UIDClients.TryRemove(client.UserID, out _);
             AllClients.TryRemove(client.RemotePoint, out _);
@@ -1811,7 +1812,7 @@ namespace Net.Server
             client.OnRemoveClient();
             ExitScene(client, false);
             client.Dispose();
-            ObjectPool<Player>.Push(client);
+            //ObjectPool<Player>.Push(client);
         }
 
         /// <summary>
@@ -2188,7 +2189,7 @@ namespace Net.Server
         /// </summary>
         /// <param name="clients">客户端集合</param>
         /// <param name="buffer">自定义字节数组</param>
-        public virtual void Multicast(ICollection<Player> clients, byte[] buffer)
+        public virtual void Multicast(IList<Player> clients, byte[] buffer)
         {
             Multicast(clients, false, NetCmd.CallRpc, buffer);
         }
@@ -2199,7 +2200,7 @@ namespace Net.Server
         /// <param name="clients">客户端集合</param>
         /// <param name="cmd"></param>
         /// <param name="buffer">自定义字节数组</param>
-        public virtual void Multicast(ICollection<Player> clients, byte cmd, byte[] buffer)
+        public virtual void Multicast(IList<Player> clients, byte cmd, byte[] buffer)
         {
             Multicast(clients, false, cmd, buffer);
         }
@@ -2210,12 +2211,12 @@ namespace Net.Server
         /// <param name="clients">客户端集合</param>
         /// <param name="reliable"></param>
         /// <param name="buffer">自定义字节数组</param>
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, byte[] buffer)
+        public virtual void Multicast(IList<Player> clients, bool reliable, byte[] buffer)
         {
             Multicast(clients, reliable, NetCmd.OtherCmd, buffer);
         }
 
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, byte cmd, object obj)
+        public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, object obj)
         {
             if (cmd < 30)
                 throw new Exception("自定义协议(命令)不能使用内核协议(命令)进行发送!");
@@ -2233,15 +2234,16 @@ namespace Net.Server
         /// <param name="reliable">使用可靠传输?</param>
         /// <param name="cmd">网络命令</param>
         /// <param name="buffer">自定义字节数组</param>
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, byte cmd, byte[] buffer)
+        public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, byte[] buffer)
         {
             if (buffer.Length / MTU > ushort.MaxValue)
             {
                 Debug.LogError("数据太大，请分块发送!");
                 return;
             }
-            Parallel.ForEach(clients, client =>
+            for (int i = 0; i < clients.Count; i++)
             {
+                var client = clients[i];
                 if (client == null)
                     return;
                 if (client.CloseSend)
@@ -2264,7 +2266,7 @@ namespace Net.Server
                     }
                     client.tcpRPCModels.Enqueue(new RPCModel(cmd, buffer, false, false) { bigData = buffer.Length > short.MaxValue });
                 }
-            });
+            }
         }
 
         /// <summary>
@@ -2276,15 +2278,16 @@ namespace Net.Server
         /// <param name="buffer">要包装的数据,你自己来定</param>
         /// <param name="kernel">内核? 你包装的数据在客户端是否被内核NetConvert序列化?</param>
         /// <param name="serialize">序列化? 你包装的数据是否在服务器即将发送时NetConvert序列化?</param>
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, byte cmd, byte[] buffer, bool kernel, bool serialize)
+        public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, byte[] buffer, bool kernel, bool serialize)
         {
             if (buffer.Length / MTU > ushort.MaxValue)
             {
                 Debug.LogError("数据太大，请分块发送!");
                 return;
             }
-            Parallel.ForEach(clients, client =>
+            for (int i = 0; i < clients.Count; i++)
             {
+                var client = clients[i];
                 if (client == null)
                     return;
                 if (client.CloseSend)
@@ -2297,7 +2300,6 @@ namespace Net.Server
                         return;
                     }
                     client.udpRPCModels.Enqueue(new RPCModel(cmd, buffer, kernel, serialize) { bigData = buffer.Length > short.MaxValue });
-
                 }
                 else
                 {
@@ -2308,13 +2310,14 @@ namespace Net.Server
                     }
                     client.tcpRPCModels.Enqueue(new RPCModel(cmd, buffer, kernel, serialize) { bigData = buffer.Length > short.MaxValue });
                 }
-            });
+            }
         }
 
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, RPCModel model)
+        public virtual void Multicast(IList<Player> clients, bool reliable, RPCModel model)
         {
-            Parallel.ForEach(clients, client =>
+            for (int i = 0; i < clients.Count; i++)
             {
+                var client = clients[i];
                 if (client == null)
                     return;
                 if (client.CloseSend)
@@ -2337,7 +2340,7 @@ namespace Net.Server
                     }
                     client.tcpRPCModels.Enqueue(model);
                 }
-            });
+            }
         }
 
         /// <summary>
@@ -2346,7 +2349,7 @@ namespace Net.Server
         /// <param name="clients">客户端集合</param>
         /// <param name="func">本地客户端rpc函数</param>
         /// <param name="pars">本地客户端rpc参数</param>
-        public virtual void Multicast(ICollection<Player> clients, string func, params object[] pars)
+        public virtual void Multicast(IList<Player> clients, string func, params object[] pars)
         {
             Multicast(clients, false, NetCmd.CallRpc, func, pars);
         }
@@ -2358,7 +2361,7 @@ namespace Net.Server
         /// <param name="reliable">使用可靠传输?</param>
         /// <param name="func">本地客户端rpc函数</param>
         /// <param name="pars">本地客户端rpc参数</param>
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, string func, params object[] pars)
+        public virtual void Multicast(IList<Player> clients, bool reliable, string func, params object[] pars)
         {
             Multicast(clients, reliable, NetCmd.CallRpc, func, pars);
         }
@@ -2370,7 +2373,7 @@ namespace Net.Server
         /// <param name="cmd">网络命令</param>
         /// <param name="func">本地客户端rpc函数</param>
         /// <param name="pars">本地客户端rpc参数</param>
-        public virtual void Multicast(ICollection<Player> clients, byte cmd, string func, params object[] pars)
+        public virtual void Multicast(IList<Player> clients, byte cmd, string func, params object[] pars)
         {
             Multicast(clients, false, cmd, func, pars);
         }
@@ -2383,7 +2386,7 @@ namespace Net.Server
         /// <param name="cmd">网络命令</param>
         /// <param name="func">本地客户端rpc函数</param>
         /// <param name="pars">本地客户端rpc参数</param>
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, byte cmd, string func, params object[] pars)
+        public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, string func, params object[] pars)
         {
             byte[] buffer = OnSerializeRpc(new RPCModel(1, func, pars));
             if (buffer.Length / MTU > ushort.MaxValue)
@@ -2391,8 +2394,9 @@ namespace Net.Server
                 Debug.LogError("数据太大，请分块发送!");
                 return;
             }
-            Parallel.ForEach(clients, client =>
+            for (int i = 0; i < clients.Count; i++)
             {
+                var client = clients[i];
                 if (client == null)
                     return;
                 if (client.CloseSend)
@@ -2415,15 +2419,15 @@ namespace Net.Server
                     }
                     client.tcpRPCModels.Enqueue(new RPCModel(cmd, buffer, true, false));
                 }
-            });
+            }
         }
 
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, ushort methodMask, params object[] pars)
+        public virtual void Multicast(IList<Player> clients, bool reliable, ushort methodMask, params object[] pars)
         {
             Multicast(clients, reliable, new RPCModel(NetCmd.CallRpc, methodMask, pars));
         }
 
-        public virtual void Multicast(ICollection<Player> clients, bool reliable, byte cmd, ushort methodMask, params object[] pars)
+        public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, ushort methodMask, params object[] pars)
         {
             Multicast(clients, reliable, new RPCModel(cmd, methodMask, pars));
         }
@@ -2551,14 +2555,14 @@ namespace Net.Server
         /// <param name="client"></param>
         public virtual void SignOut(Player client)
         {
-            if (!client.login)
+            if (!client.Login)
                 return;
             SendDirect(client);
             if (onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
             Players.TryRemove(client.playerID, out _);
             ExitScene(client, false);
             client.playerID = client.UserID.ToString();
-            client.login = false;
+            client.Login = false;
             Debug.Log("[" + client.playerID + "]退出登录...!");
         }
 

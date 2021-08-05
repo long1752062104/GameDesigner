@@ -8,10 +8,9 @@ namespace Net.Share
         public class Event
         {
             public float time;
-            public Action act;
-            public Action<object> act1;
+            public Action<object> action1;
+            public Func<object,bool> action2;
             public object obj;
-            public bool hasPars;
             public int invokeNum;
             internal float timeMax;
             internal int actionId;
@@ -24,14 +23,14 @@ namespace Net.Share
         public int AddEvent(float time, Action act)
         {
             actionId++;
-            actions.Add(new Event() { time = this.time + time, act = act, actionId = actionId });
+            actions.Add(new Event() { time = this.time + time, action1 = (o)=> { act(); }, actionId = actionId });
             return actionId;
         }
 
         public int AddEvent(float time, Action<object> act, object obj)
         {
             actionId++;
-            actions.Add(new Event() { time = this.time + time, act1 = act, obj = obj, hasPars = true, actionId = actionId });
+            actions.Add(new Event() { time = this.time + time, action1 = act, obj = obj, actionId = actionId });
             return actionId;
         }
 
@@ -41,11 +40,32 @@ namespace Net.Share
             actions.Add(new Event()
             {
                 time = this.time + time,
-                act1 = act,
+                action1 = act,
                 obj = obj,
                 invokeNum = invokeNum,
                 timeMax = time,
-                hasPars = true,
+                actionId = actionId
+            });
+            return actionId;
+        }
+
+        public int AddEvent(float time, Func<bool> act)
+        {
+            actionId++;
+            actions.Add(new Event() { time = this.time + time, action2 = (o) => { return act(); }, actionId = actionId });
+            return actionId;
+        }
+
+        public int AddEvent(float time, Func<object, bool> func, object obj)
+        {
+            actionId++;
+            actions.Add(new Event()
+            {
+                time = this.time + time,
+                action2 = func,
+                obj = obj,
+                invokeNum = 1,
+                timeMax = time,
                 actionId = actionId
             });
             return actionId;
@@ -58,10 +78,10 @@ namespace Net.Share
             {
                 if (time > actions[i].time)
                 {
-                    if (!actions[i].hasPars)
-                        actions[i].act();
-                    else
-                        actions[i].act1(actions[i].obj);
+                    actions[i].action1?.Invoke(actions[i].obj);
+                    if (actions[i].action2 != null)
+                        if (actions[i].action2(actions[i].obj))
+                            continue;
                     actions[i].invokeNum--;
                     if (actions[i].invokeNum <= 0)
                     {

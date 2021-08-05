@@ -89,7 +89,32 @@
         /// <summary>
         /// 构造网络场景
         /// </summary>
-        public NetScene() { }
+        public NetScene()
+        {
+            Event.AddEvent(5f, ()=> 
+            {
+                var clients = Clients;
+                for (int i = 0; i < clients.Count; i++)
+                {
+                    if (clients[i] == null)
+                        continue;
+                    if (!clients[i].Login | clients[i].isDispose | clients[i].CloseSend)
+                    {
+                        Clients.Clear();
+                        break;
+                    }
+                    else if (clients[i].Client != null) 
+                    {
+                        if (!clients[i].Client.Connected)
+                        {
+                            Clients.Clear();
+                            break;
+                        }
+                    }
+                }
+                return true;
+            });
+        }
 
         /// <summary>
         /// 添加网络主场景并增加主场景最大容纳人数
@@ -128,8 +153,8 @@
         {
             get
             {
-            JMP: if (Players.Count != players.Count)
-                    try { players = new List<Player>(Players); } catch { goto JMP; }//解决多线程复制错误问题
+                if (Players.Count != players.Count)
+                    players = new List<Player>(Players);
                 return players;
             }
         }
@@ -146,6 +171,7 @@
                 Players.Add(client);
             OnEnter(client);
             client.OnEnter();
+            players.Clear();
         }
 
         /// <summary>
@@ -189,7 +215,7 @@
         /// </summary>
         public virtual void Update(IServerSendHandle<Player> handle, byte cmd = NetCmd.OperationSync)
         {
-            List<Player> players = GetPlayers();//多线程问题, 心跳 或 未知线程 添加或移除玩家时实时更新了哈希列表
+            var players = Clients;//多线程问题, 心跳 或 未知线程 添加或移除玩家时实时更新了哈希列表
             int playerCount = players.Count;
             if (playerCount <= 0) 
                 return;

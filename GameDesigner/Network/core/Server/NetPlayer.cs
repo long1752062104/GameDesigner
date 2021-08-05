@@ -96,7 +96,7 @@
         internal long fileStreamCurrPos;
         internal QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
         internal QueueSafe<SendDataBuffer> sendDataBeProcessed = new QueueSafe<SendDataBuffer>();
-        internal bool login;
+        public bool Login { get; internal set; }
         internal bool isDispose;
         /// <summary>
         /// 关闭发送数据, 当关闭发送数据后, 数据将会停止发送, (允许接收客户端数据,但不能发送!)
@@ -167,7 +167,7 @@
             revdRTList.Clear();
             tcpRPCModels = new QueueSafe<RPCModel>();//可能这个类并非真正释放, 而是在运行时数据库, 
             udpRPCModels = new QueueSafe<RPCModel>();//为了下次登录不出错,所以下线要清除在线时的发送数据
-            login = false;
+            Login = false;
             if (File.Exists(stackStreamName) & !string.IsNullOrEmpty(stackStreamName))
                 File.Delete(stackStreamName);
             stackStreamName = "";
@@ -370,7 +370,7 @@
 
         public override string ToString()
         {
-            return $"[玩家ID:{playerID}][用户ID:{UserID}][场景ID:{sceneID}][登录:{login}]";
+            return $"[玩家ID:{playerID}][用户ID:{UserID}][场景ID:{sceneID}][登录:{Login}]";
         }
     }
 }

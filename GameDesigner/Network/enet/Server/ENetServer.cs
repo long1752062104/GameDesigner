@@ -229,8 +229,8 @@
         {
             if (client.isDispose)
                 return;
-            if (client.login & onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
-            else if (!client.login & ignoranceNumber > 0) Interlocked.Decrement(ref ignoranceNumber);
+            if (client.Login & onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
+            else if (!client.Login & ignoranceNumber > 0) Interlocked.Decrement(ref ignoranceNumber);
             peers.TryRemove(client.EClient, out _);
             Players.TryRemove(client.playerID, out _);
             UIDClients.TryRemove(client.UserID, out _);
@@ -239,7 +239,7 @@
             client.OnRemoveClient();
             ExitScene(client, false);
             client.Dispose();
-            ObjectPool<Player>.Push(client);
+            //ObjectPool<Player>.Push(client);
         }
 
         protected override void HeartHandle()

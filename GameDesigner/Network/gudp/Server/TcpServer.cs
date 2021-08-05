@@ -337,7 +337,7 @@
                 client.Value.heart++;
                 if (RTOMode == RTOMode.Variable)
                     Ping(client.Value);
-                if (!client.Value.login)
+                if (!client.Value.Login)
                 {
                     if (DateTime.Now > client.Value.LastTime)
                     {

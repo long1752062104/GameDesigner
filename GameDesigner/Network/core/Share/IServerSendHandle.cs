@@ -118,7 +118,7 @@
         /// </summary>
         /// <param name="clients">客户端集合</param>
         /// <param name="buffer">自定义字节数组</param>
-        void Multicast(ICollection<Player> clients, byte[] buffer);
+        void Multicast(IList<Player> clients, byte[] buffer);
 
         /// <summary>
         /// 网络多播, 发送自定义数据到clients集合的客户端
@@ -126,7 +126,7 @@
         /// <param name="clients">客户端集合</param>
         /// <param name="cmd"></param>
         /// <param name="buffer">自定义字节数组</param>
-        void Multicast(ICollection<Player> clients, byte cmd, byte[] buffer);
+        void Multicast(IList<Player> clients, byte cmd, byte[] buffer);
 
         /// <summary>
         /// 网络多播, 发送自定义数据到clients集合的客户端
@@ -134,7 +134,7 @@
         /// <param name="clients">客户端集合</param>
         /// <param name="reliable"></param>
         /// <param name="buffer">自定义字节数组</param>
-        void Multicast(ICollection<Player> clients, bool reliable, byte[] buffer);
+        void Multicast(IList<Player> clients, bool reliable, byte[] buffer);
 
         /// <summary>
         /// 网络多播, 发送自定义数据到clients集合的客户端
@@ -143,7 +143,7 @@
         /// <param name="reliable">使用可靠传输?</param>
         /// <param name="cmd">网络命令</param>
         /// <param name="buffer">自定义字节数组</param>
-        void Multicast(ICollection<Player> clients, bool reliable, byte cmd, byte[] buffer);
+        void Multicast(IList<Player> clients, bool reliable, byte cmd, byte[] buffer);
 
         /// <summary>
         /// 网络多播, 发送自定义数据到clients集合的客户端
@@ -153,7 +153,7 @@
         /// <param name="reliable">使用可靠传输?</param>
         /// <param name="cmd">网络命令</param>
         /// <param name="obj">使用protobuf序列化的对象</param>
-        void Multicast(ICollection<Player> clients, bool reliable, byte cmd, object obj);
+        void Multicast(IList<Player> clients, bool reliable, byte cmd, object obj);
 
         /// <summary>
         /// 网络多播, 发送数据到clients集合的客户端
@@ -161,7 +161,7 @@
         /// <param name="clients">客户端集合</param>
         /// <param name="func">本地客户端rpc函数</param>
         /// <param name="pars">本地客户端rpc参数</param>
-        void Multicast(ICollection<Player> clients, string func, params object[] pars);
+        void Multicast(IList<Player> clients, string func, params object[] pars);
 
         /// <summary>
         /// 网络多播, 发送数据到clients集合的客户端
@@ -170,7 +170,7 @@
         /// <param name="reliable">使用可靠传输?</param>
         /// <param name="func">本地客户端rpc函数</param>
         /// <param name="pars">本地客户端rpc参数</param>
-        void Multicast(ICollection<Player> clients, bool reliable, string func, params object[] pars);
+        void Multicast(IList<Player> clients, bool reliable, string func, params object[] pars);
 
         /// <summary>
         /// 网络多播, 发送数据到clients集合的客户端
@@ -179,7 +179,7 @@
         /// <param name="cmd">网络命令</param>
         /// <param name="func">本地客户端rpc函数</param>
         /// <param name="pars">本地客户端rpc参数</param>
-        void Multicast(ICollection<Player> clients, byte cmd, string func, params object[] pars);
+        void Multicast(IList<Player> clients, byte cmd, string func, params object[] pars);
 
         /// <summary>
         /// 网络多播, 发送数据到clients集合的客户端
@@ -189,7 +189,7 @@
         /// <param name="cmd">网络命令</param>
         /// <param name="func">本地客户端rpc函数</param>
         /// <param name="pars">本地客户端rpc参数</param>
-        void Multicast(ICollection<Player> clients, bool reliable, byte cmd, string func, params object[] pars);
+        void Multicast(IList<Player> clients, bool reliable, byte cmd, string func, params object[] pars);
 
         /// <summary>
         /// 网络多播, 发送数据到clients集合的客户端 (灵活数据包)
@@ -200,6 +200,6 @@
         /// <param name="buffer">要包装的数据,你自己来定</param>
         /// <param name="kernel">内核? 你包装的数据在客户端是否被内核NetConvert反序列化?</param>
         /// <param name="serialize">序列化? 你包装的数据是否在服务器即将发送时NetConvert序列化?</param>
-        void Multicast(ICollection<Player> clients, bool reliable, byte cmd, byte[] buffer, bool kernel, bool serialize);
+        void Multicast(IList<Player> clients, bool reliable, byte cmd, byte[] buffer, bool kernel, bool serialize);
     }
 }

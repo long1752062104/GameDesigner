@@ -243,7 +243,7 @@ namespace Net.Server
                     continue;
                 }
                 client.Value.heart++;
-                if (!client.Value.login)
+                if (!client.Value.Login)
                 {
                     if (DateTime.Now > client.Value.LastTime)
                     {

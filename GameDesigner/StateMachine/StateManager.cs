@@ -28,7 +28,11 @@
                 sm.transform.localPosition = Vector3.zero;
                 if(sm.animation==null)
                     sm.animation = GetComponentInChildren<Animation>();
+                else if (!sm.animation.gameObject.scene.isLoaded)
+                    sm.animation = GetComponentInChildren<Animation>();
                 if (sm.animator == null)
+                    sm.animator = GetComponentInChildren<Animator>();
+                else if(!sm.animator.gameObject.scene.isLoaded)
                     sm.animator = GetComponentInChildren<Animator>();
                 stateMachine = sm;
             }

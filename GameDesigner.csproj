@@ -654,6 +654,7 @@
     <None Include="GameDesigner\Network\core\System\ListPool.cs.meta" />
     <None Include="GameDesigner\Network\core\System\QueueSafe.cs.meta" />
     <None Include="GameDesigner\Network\core\System\RandomizedObjectEqualityComparer.cs.meta" />
+    <None Include="GameDesigner\Network\core\System\RandomSafe.cs.meta" />
     <None Include="GameDesigner\Network\core\System\StackSafe.cs.meta" />
     <None Include="GameDesigner\Network\core\System\ThrowHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Tools.meta" />
@@ -1609,6 +1610,7 @@
     <Compile Include="GameDesigner\Network\core\System\ListPool.cs" />
     <Compile Include="GameDesigner\Network\core\System\QueueSafe.cs" />
     <Compile Include="GameDesigner\Network\core\System\RandomizedObjectEqualityComparer.cs" />
+    <Compile Include="GameDesigner\Network\core\System\RandomSafe.cs" />
     <Compile Include="GameDesigner\Network\core\System\StackSafe.cs" />
     <Compile Include="GameDesigner\Network\core\System\ThrowHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\ArrayExtend.cs" />

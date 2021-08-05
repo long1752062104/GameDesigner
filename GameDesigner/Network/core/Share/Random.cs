@@ -3,11 +3,11 @@
     using System;
 
     /// <summary>
-    /// 随机类
+    /// 随机帮助类 (多线程安全)
     /// </summary>
-    public class RandomHelper : Random
+    public class RandomHelper : RandomSafe
     {
-        private static Random random = new Random(Guid.NewGuid().GetHashCode());
+        private static RandomSafe random = new RandomSafe(Guid.NewGuid().GetHashCode());
 
         public RandomHelper() { }
 
@@ -21,7 +21,7 @@
         /// <param name="Seed"></param>
         public static void InitSeed(int Seed)
         {
-            random = new Random(Seed);
+            random = new RandomSafe(Seed);
         }
 
         /// <summary>
