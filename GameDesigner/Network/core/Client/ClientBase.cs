@@ -1222,19 +1222,6 @@ namespace Net.Client
                 try
                 {
                     Thread.Sleep(1);
-                    int count = operations.Count;
-                    if (count > 0)
-                    {
-                        while (count > 500)
-                        {
-                            OnOptPacket(500);
-                            count -= 500;
-                        }
-                        if (count > 0)
-                        {
-                            OnOptPacket(count);
-                        }
-                    }
                     SendDirect();
                 }
                 catch (Exception ex)
@@ -1286,8 +1273,29 @@ namespace Net.Client
         /// </summary>
         public virtual void SendDirect()
         {
+            SendOperations();
             SendDataHandle(rPCModels, false);
             SendRTDataHandle();
+        }
+
+        /// <summary>
+        /// 打包操作同步马上要发送了
+        /// </summary>
+        protected virtual void SendOperations() 
+        {
+            int count = operations.Count;
+            if (count > 0)
+            {
+                while (count > 500)
+                {
+                    OnOptPacket(500);
+                    count -= 500;
+                }
+                if (count > 0)
+                {
+                    OnOptPacket(count);
+                }
+            }
         }
 
         protected virtual void WriteDataHead(Segment stream)

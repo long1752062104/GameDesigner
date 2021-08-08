@@ -33,11 +33,13 @@ namespace MVC.Control
             instance = this;
             appdomain = new AppDomain();
 #if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
-            var dllPath = Application.persistentDataPath + "/" + this.dllPath;
-            var pdbPath = Application.persistentDataPath + "/" + this.pdbPath;
+            var dllPath = Application.persistentDataPath + "/" + Path.GetFileName(this.dllPath);
+            var pdbPath = Application.persistentDataPath + "/" + Path.GetFileName(this.pdbPath);
+            Debug.Log(dllPath);
 #elif !UNITY_EDITOR
-            var dllPath = Application.streamingAssetsPath + "/" + this.dllPath;
-            var pdbPath = Application.streamingAssetsPath + "/" + this.pdbPath;
+            var dllPath = Application.streamingAssetsPath + "/" + Path.GetFileName(this.dllPath);
+            var pdbPath = Application.streamingAssetsPath + "/" + Path.GetFileName(this.pdbPath);
+            Debug.Log(dllPath);
 #endif
 #if UNITY_EDITOR
             string dllPath;

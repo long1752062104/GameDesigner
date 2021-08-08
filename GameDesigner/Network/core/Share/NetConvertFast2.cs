@@ -256,12 +256,12 @@
         {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                var types = assembly.GetTypes().Where((t)=> { 
-                    return t.GetInterface(typeof(ISerialize<>).FullName) != null; 
-                });
+                var types = assembly.GetTypes();
                 foreach (var type in types)
                 {
                     var serType = type.GetInterface(typeof(ISerialize<>).FullName);
+                    if (serType == null)
+                        continue;
                     var itemType = serType.GetGenericArguments()[0];
                     BindTypes.Add(itemType, type);
                 }

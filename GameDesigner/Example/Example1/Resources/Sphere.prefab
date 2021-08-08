@@ -128,3 +128,7 @@ MonoBehaviour:
   mode: 2
   identity: -1
   interval: 0.5
+  index: 0
+  setID: 0
+  m_identity: 0
+  rate: 30

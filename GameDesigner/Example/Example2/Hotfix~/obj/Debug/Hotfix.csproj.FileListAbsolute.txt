@@ -7,7 +7,6 @@ D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Asse
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.CoreModule.dll
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.UI.dll
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.SharedInternalsModule.dll
-D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Assembly-CSharp.pdb
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.CoreModule.xml
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.UI.pdb
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.SharedInternalsModule.xml

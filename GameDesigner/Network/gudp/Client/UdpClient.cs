@@ -50,7 +50,7 @@
         /// <param name="port">服务器端口</param>
         /// <param name="clientLen">测试客户端数量</param>
         /// <param name="dataLen">每个客户端数据大小</param>
-        public unsafe static CancellationTokenSource Testing(string ip, int port, int clientLen, int dataLen, Action<UdpClientTest> onInit = null, Action<List<UdpClientTest>> fpsAct = null)
+        public unsafe static CancellationTokenSource Testing(string ip, int port, int clientLen, int dataLen, Action<UdpClientTest> onInit = null, Action<List<UdpClientTest>> fpsAct = null, IAdapter adapter = null)
         {
             CancellationTokenSource cts = new CancellationTokenSource();
             Task.Run(() =>
@@ -60,6 +60,8 @@
                 {
                     UdpClientTest client = new UdpClientTest();
                     onInit?.Invoke(client);
+                    if(adapter!=null)
+                        client.AddAdapter(adapter);
                     client.Connect(ip,port);
                     clients.Add(client);
                 }
@@ -94,7 +96,8 @@
                                 try
                                 {
                                     var client = clients[ii];
-                                    client.Send(NetCmd.Local, new byte[dataLen]);
+                                    //client.Send(NetCmd.Local, new byte[dataLen]);
+                                    client.AddOperation(new Operation(NetCmd.Local) { buffer = new byte[dataLen] });
                                     client.Update();
                                 }
                                 catch (Exception ex)
