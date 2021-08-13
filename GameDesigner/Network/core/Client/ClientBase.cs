@@ -254,6 +254,10 @@ namespace Net.Client
         /// </summary>
         public Action<IPEndPoint> OnP2PCallback;
         /// <summary>
+        /// 当网关服务器指定这个客户端连接到一个游戏服务器时调用,回调有游戏服务器的ip和端口
+        /// </summary>
+        public Action<string, ushort> OnSwitchPortHandle;
+        /// <summary>
         /// 发送可靠传输缓冲
         /// </summary>
         protected ConcurrentDictionary<uint, MyDictionary<ushort, RTBuffer>> sendRTList = new ConcurrentDictionary<uint, MyDictionary<ushort, RTBuffer>>();
@@ -423,7 +427,7 @@ namespace Net.Client
 
         public List<RPCMethod> RPCs { get { return Rpcs; } set { Rpcs = value; } }
         public MyDictionary<string, List<RPCMethod>> RPCsDic { get { return RpcsDic; } set { RpcsDic = value; } }
-        
+
         /// <summary>
         /// 添加网络Rpc
         /// </summary>
@@ -444,7 +448,7 @@ namespace Net.Client
                 OnAddRpcHandle = AddRpcInternal;
             OnAddRpcHandle(target, append);
         }
-        
+
         private void AddRpcInternal(object target, bool append)
         {
             if (!append)
@@ -494,7 +498,7 @@ namespace Net.Client
                 OnRemoveRpc = RemoveRpcInternal;
             OnRemoveRpc(target);
         }
-        
+
         private void RemoveRpcInternal(object target)
         {
             if (target is string key)
@@ -521,7 +525,7 @@ namespace Net.Client
                     if (rpcs.Value[i].target.Equals(target) | rpcs.Value[i].method.Equals(null))
                     {
                         rpcs.Value.RemoveAt(i);
-                        if(i > 0) i--;
+                        if (i > 0) i--;
                     }
                 }
                 if (rpcs.Value.Count <= 0)
@@ -561,6 +565,22 @@ namespace Net.Client
             OnTryToConnectHandle += network.OnTryToConnect;
             OnCloseConnectHandle += network.OnCloseConnect;
             OnBlockConnectionHandle += network.OnBlockConnection;
+        }
+
+        /// <summary>
+        /// 移除网络状态处理接口
+        /// </summary>
+        /// <param name="network"></param>
+        public void RemoveNetworkHandle(INetworkHandle network)
+        {
+            OnConnectedHandle -= network.OnConnected;
+            OnConnectFailedHandle -= network.OnConnectFailed;
+            OnConnectLostHandle -= network.OnConnectLost;
+            OnDisconnectHandle -= network.OnDisconnect;
+            OnReconnectHandle -= network.OnReconnect;
+            OnTryToConnectHandle -= network.OnTryToConnect;
+            OnCloseConnectHandle -= network.OnCloseConnect;
+            OnBlockConnectionHandle -= network.OnBlockConnection;
         }
 
         /// <summary>
@@ -911,7 +931,7 @@ namespace Net.Client
                         isDone = true;
                         if (buffer[7] == NetCmd.BlockConnection)
                         {
-                            InvokeContext(()=> {
+                            InvokeContext(() => {
                                 networkState = NetworkState.BlockConnection;
                                 StateHandle();
                             });
@@ -953,9 +973,9 @@ namespace Net.Client
             }
         }
 
-        protected void InvokeContext(Action action) 
+        protected void InvokeContext(Action action)
         {
-            if (Context != null) 
+            if (Context != null)
                 Context.Post(new SendOrPostCallback(r => { action(); }), null);
             else action();
         }
@@ -1002,7 +1022,7 @@ namespace Net.Client
                     isDone = true;
                     client?.Close();
                     client = null;
-                    InvokeContext(()=> { result(true, ip); });
+                    InvokeContext(() => { result(true, ip); });
                 }
                 catch (Exception ex)
                 {
@@ -1035,10 +1055,10 @@ namespace Net.Client
 #if UNITY_ANDROID
             if (Context == null)
                 return;
-            Context.Post(new SendOrPostCallback((o)=> {
+            Context.Post(new SendOrPostCallback((o) => {
                 var randomName = RandomHelper.Range(0, int.MaxValue);
                 fileStreamName = UnityEngine.Application.persistentDataPath + "/rtTemp" + randomName + ".tmp";
-            }),null);
+            }), null);
 #else
             fileStreamName = Path.GetTempFileName();
 #endif
@@ -1086,7 +1106,7 @@ namespace Net.Client
             }
         }
 
-        protected virtual void OnNetworkFlowHandle() 
+        protected virtual void OnNetworkFlowHandle()
         {
             try
             {
@@ -1125,7 +1145,7 @@ namespace Net.Client
                 }
                 catch (Exception e)
                 {
-                    NDebug.LogError(e.ToString());
+                    NDebug.LogError(e);
                 }
             }
         }
@@ -1179,36 +1199,41 @@ namespace Net.Client
         private void CheckEventsUpdate()
         {
             Type type = typeof(ClientBase);
-            EventInfo[] es = type.GetEvents(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-            for (int i = 0; i < es.Length; i++)
+            var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            for (int i = 0; i < fields.Length; i++)
             {
-                FieldInfo f = type.GetField(es[i].Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-                if (f == null)
-                    continue;
-                object value = f.GetValue(this);
+                object value = fields[i].GetValue(this);
                 if (value == null)
                     continue;
-                Delegate dele = (Delegate)value;
-                Delegate[] ds = dele.GetInvocationList();
-                for (int a = 0; a < ds.Length; a++)
+                Delegate dele = value as Delegate;
+                if (dele == null)
+                    continue;
+                var ds = new List<Delegate>(dele.GetInvocationList());
+                int oldCount = ds.Count;
+                for (int a = 0; a < ds.Count; a++)
                 {
                     if (ds[a].Method == null)
                     {
-                        es[i].RemoveEventHandler(this, ds[a]);
+                        ds.RemoveAt(a);
+                        if (a > 0) a--;
                         continue;
                     }
                     if (ds[a].Method.IsStatic)//静态方法不需要判断对象是否为空
                         continue;
                     if (ds[a].Target == null)
                     {
-                        es[i].RemoveEventHandler(this, ds[a]);
+                        ds.RemoveAt(a);
+                        if (a > 0) a--;
                         continue;
                     }
                     if (ds[a].Target.Equals(null) | ds[a].Method.Equals(null))
                     {
-                        es[i].RemoveEventHandler(this, ds[a]);
+                        ds.RemoveAt(a);
+                        if (a > 0) a--;
                     }
                 }
+                if (oldCount != ds.Count)
+                    fields[i].SetValue(this, Delegate.Combine(ds.ToArray()));
             }
         }
 
@@ -1246,7 +1271,7 @@ namespace Net.Client
                 rPCModels.Enqueue(new RPCModel(NetCmd.OperationSync, buffer, false, false));
         }
 
-        protected internal virtual byte[] OnSerializeOptInternal(OperationList list) 
+        protected internal virtual byte[] OnSerializeOptInternal(OperationList list)
         {
             var segment = BufferPool.Take();
             using (MemoryStream stream = new MemoryStream(segment))
@@ -1259,7 +1284,7 @@ namespace Net.Client
             }
         }
 
-        protected internal virtual OperationList OnDeserializeOptInternal(byte[] buffer, int index, int count) 
+        protected internal virtual OperationList OnDeserializeOptInternal(byte[] buffer, int index, int count)
         {
             using (MemoryStream stream = new MemoryStream(buffer, index, count))
             {
@@ -1281,7 +1306,7 @@ namespace Net.Client
         /// <summary>
         /// 打包操作同步马上要发送了
         /// </summary>
-        protected virtual void SendOperations() 
+        protected virtual void SendOperations()
         {
             int count = operations.Count;
             if (count > 0)
@@ -1474,7 +1499,7 @@ namespace Net.Client
             sendAmount++;
             if (buffer.Length <= 65507)
                 Client.Send(buffer, 0, buffer.Length, SocketFlags.None);
-            else 
+            else
                 NDebug.LogError("数据过大, 请使用SendRT发送...");
         }
 
@@ -1555,7 +1580,7 @@ namespace Net.Client
         /// 接收数据和更新处理
         /// </summary>
         /// <param name="segment"></param>
-        public void ReceiveUpdate(Segment segment) 
+        public void ReceiveUpdate(Segment segment)
         {
             if (Client.Poll(1, SelectMode.SelectRead))
             {
@@ -1832,7 +1857,14 @@ namespace Net.Client
                     NDebug.LogError("可靠传输被清洗, 有可能是你的StackBufferSize和StackNumberMax属性设置的太小, 而数据过大导致!");
                     break;
                 case NetCmd.SwitchPort:
-                    Task.Run(()=> { OnSwitchPort(model.pars[0].ToString(), (ushort)model.pars[1]); });
+                    Task.Run(() => {
+                        InvokeContext(() => {
+                            if (OnSwitchPortHandle != null)
+                                OnSwitchPortHandle(model.pars[0].ToString(), (ushort)model.pars[1]);
+                            else
+                                OnSwitchPortInternal(model.pars[0].ToString(), (ushort)model.pars[1]);
+                        });
+                    });
                     break;
                 case NetCmd.Identify:
                     UID = BitConverter.ToInt32(model.buffer, model.index);
@@ -1868,7 +1900,7 @@ namespace Net.Client
             }
         }
 
-        public virtual void OnSwitchPort(string host, ushort port) 
+        protected virtual void OnSwitchPortInternal(string host, ushort port)
         {
             Close();
             Connect(host, port);
@@ -1890,7 +1922,7 @@ namespace Net.Client
             {
                 float bfb = currValue / (float)dataCount * 100f;
                 RTProgress progress = new RTProgress(bfb, RTState.Sending);
-                InvokeContext(()=> { OnSendRTProgress(progress); });
+                InvokeContext(() => { OnSendRTProgress(progress); });
             }
         }
 
@@ -1956,7 +1988,7 @@ namespace Net.Client
                     heart++;
                     if (heart <= HeartLimit)
                         continue;
-                    if (!Connected) 
+                    if (!Connected)
                     {
                         Reconnection(10);//尝试连接执行
                         continue;
@@ -1975,7 +2007,8 @@ namespace Net.Client
                         Connected = false;
                         NDebug.LogError("连接中断！");
                     }
-                } catch { }
+                }
+                catch { }
             }
         }
 
@@ -2041,14 +2074,15 @@ namespace Net.Client
         /// 关闭连接,释放线程以及所占资源
         /// </summary>
         /// <param name="await">true:等待内部1秒结束所有线程再关闭? false:直接关闭</param>
-        public virtual void Close(bool await = true)
+        /// <param name="millisecondsTimeout">等待毫秒数</param>
+        public virtual void Close(bool await = true, int millisecondsTimeout = 1000)
         {
             if (NetworkState != NetworkState.ConnectClosed)
                 Client?.Send(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.QuitGame, 0, 0, 0, 0 });
             Connected = false;
             openClient = false;
             NetworkState = networkState = NetworkState.ConnectClosed;
-            if (await) Thread.Sleep(1000);//给update线程一秒的时间处理关闭事件
+            if (await) Thread.Sleep(millisecondsTimeout);//给update线程一秒的时间处理关闭事件
             AbortedThread();
             Client?.Close();
             Client = null;
@@ -2139,7 +2173,7 @@ namespace Net.Client
             Send(NetCmd.CallRpc, methodMask, pars);
         }
 
-        public virtual void Send(byte cmd, ushort methodMask, params object[] pars) 
+        public virtual void Send(byte cmd, ushort methodMask, params object[] pars)
         {
             if (!Connected)
                 return;
@@ -2200,7 +2234,7 @@ namespace Net.Client
         /// <param name="millisecondsDelay">异步时间</param>
         /// <param name="outTimeAct">异步超时调用</param>
         /// <param name="pars">远程参数</param>
-        public virtual void Send(byte cmd, string func, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, params object[] pars) 
+        public virtual void Send(byte cmd, string func, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, params object[] pars)
         {
             Send(cmd, func, funcCB, callback, millisecondsDelay, outTimeAct, Context, pars);
         }
@@ -2389,7 +2423,7 @@ namespace Net.Client
         /// <param name="millisecondsDelay">异步时间</param>
         /// <param name="outTimeAct">异步超时调用</param>
         /// <param name="pars">远程参数</param>
-        public virtual void SendRT(string func, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, params object[] pars) 
+        public virtual void SendRT(string func, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, params object[] pars)
         {
             SendRT(NetCmd.CallRpc, func, funcCB, callback, millisecondsDelay, outTimeAct, pars);
         }
@@ -2489,7 +2523,7 @@ namespace Net.Client
             SendRT(new RPCModel(cmd, string.Empty, pars, true, true, func), funcCB1, callback, millisecondsDelay, outTimeAct, context, pars);
         }
 
-        private void SendRT(RPCModel model, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, SynchronizationContext context, params object[] pars) 
+        private void SendRT(RPCModel model, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, SynchronizationContext context, params object[] pars)
         {
             if (!Connected)
                 return;
@@ -2713,7 +2747,7 @@ namespace Net.Client
         /// <param name="action">监听网络状态的回调方法</param>
         public void AddStateHandler(NetworkState listen, Action action)
         {
-            switch (listen) 
+            switch (listen)
             {
                 case NetworkState.Connected:
                     OnConnectedHandle += action;

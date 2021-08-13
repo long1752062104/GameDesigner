@@ -1,14 +1,13 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Net.Component
 {
-    using Net.Client;
     using Net.Share;
     using UnityEngine;
 
     /// <summary>
     /// 场景管理组件, 这个组件负责 同步玩家操作, 玩家退出游戏移除物体对象, 怪物网络行为同步, 攻击同步等
     /// </summary>
-    public class SceneManager : NetBehaviour
+    public class SceneManager : SingleCase<SceneManager>
     {
         [Header("Transform同步组件的index必须设置为此字段对应索引!")]
         public NetworkTransformBase[] prefabs;
@@ -33,12 +32,7 @@ namespace Net.Component
                         TransformSync(opt);
                         break;
                     case Command.Destroy:
-                        if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
-                        {
-                            transforms.Remove(opt.index);
-                            OnDestroyTransform(t);
-                            Destroy(t.gameObject);
-                        }
+                        DestroyTransform(opt);
                         break;
                     default:
                         OnOperationOther(opt);
@@ -51,8 +45,22 @@ namespace Net.Component
         {
         }
 
-        public virtual void OnCrateTransform(NetworkTransformBase t)
+        public virtual void OnCrateTransform(Operation opt, NetworkTransformBase t)
         {
+        }
+
+        public virtual void DestroyTransform(Operation opt)
+        {
+            if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+                DestroyTransform(opt, t);
+        }
+
+        public virtual void DestroyTransform(Operation opt, NetworkTransformBase t)
+        {
+            transforms.Remove(opt.index);
+            OnDestroyTransform(t);
+            if (t.syncMode == SyncMode.Synchronized | t.syncMode == SyncMode.SynchronizedAll)
+                Destroy(t.gameObject);
         }
 
         public virtual void OnDestroyTransform(NetworkTransformBase t)
@@ -76,7 +84,7 @@ namespace Net.Component
                     t.syncMode = SyncMode.Synchronized;
                 t.identity = opt.index;
                 transforms.Add(opt.index, t);
-                OnCrateTransform(t);
+                OnCrateTransform(opt, t);
                 NetworkTransformBase.Identity++;
             }
             if (ClientManager.UID == opt.index1)
@@ -100,6 +108,15 @@ namespace Net.Component
                 if (child.mode == SyncMode.SynchronizedAll | child.mode == SyncMode.Control)
                     child.SyncControlTransform();
             }
+            OnTransformSync(opt);
+        }
+
+        /// <summary>
+        /// 当同步transform组件调用, opt的index,index1,index2,cmd,cmd1,cmd2,position,rotation,direction已被使用
+        /// </summary>
+        /// <param name="opt"></param>
+        public virtual void OnTransformSync(Operation opt)
+        {
         }
 
         void OnDestroy()

@@ -137,9 +137,9 @@ namespace Net.Client
             channel.WriteAndFlushAsync(byteBuffer);
         }
 
-        public override void Close(bool await = true)
+        public override void Close(bool await = true, int millisecondsTimeout = 1000)
         {
-            base.Close();
+            base.Close(await, millisecondsTimeout);
             channel?.CloseAsync();
             group?.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
         }

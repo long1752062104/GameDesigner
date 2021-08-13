@@ -28,6 +28,17 @@ public static class Fast2BuildMethod
     /// <returns></returns>
     public static bool DynamicBuild(params Type[] types)
     {
+        return DynamicBuild(0, types);
+    }
+
+    /// <summary>
+    /// 动态编译, 在unity开发过程中不需要生成绑定cs文件, 直接运行时编译使用, 当编译apk. app时才进行生成绑定cs文件
+    /// </summary>
+    /// <param name="compilerOptionsIndex">编译参数, 如果编译失败, 可以选择0-7测试哪个编译成功</param>
+    /// <param name="types"></param>
+    /// <returns></returns>
+    public static bool DynamicBuild(int compilerOptionsIndex, params Type[] types)
+    {
         List<string> codes = new List<string>();
         foreach (var type in types)
         {
@@ -51,7 +62,8 @@ public static class Fast2BuildMethod
         param.ReferencedAssemblies.AddRange(dllpaths.ToArray());
         param.GenerateExecutable = false;
         param.GenerateInMemory = true;
-        param.CompilerOptions = "/langversion:experimental";
+        var options = new string[] { "/langversion:experimental", "/langversion:default", "/langversion:ISO-1", "/langversion:ISO-2", "/langversion:3", "/langversion:4", "/langversion:5", "/langversion:6", "/langversion:7" };
+        param.CompilerOptions = options[compilerOptionsIndex];
         CompilerResults cr = provider.CompileAssemblyFromSource(param, codes.ToArray());
         if (cr.Errors.HasErrors)
         {
@@ -70,6 +82,13 @@ public static class Fast2BuildMethod
     public static void Build(Type type, string savePath)
     {
         var str = Build(type, false);
+        var className = type.FullName.Replace(".", "").Replace("+", "");
+        File.WriteAllText(savePath + $"//{className}Bind.cs", str.ToString());
+    }
+
+    public static void Build(Type type, bool addNs, string savePath)
+    {
+        var str = Build(type, addNs);
         var className = type.FullName.Replace(".", "").Replace("+", "");
         File.WriteAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
@@ -334,9 +353,9 @@ public static class Fast2BuildMethod
         return str;
     }
 
-    public static void BuildArray(Type type, string savePath)
+    public static void BuildArray(Type type, bool addNs, string savePath)
     {
-        var str = BuildArray(type, false);
+        var str = BuildArray(type, addNs);
         var className = type.FullName.Replace(".", "").Replace("+", "");
         File.AppendAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
@@ -391,9 +410,9 @@ public static class Fast2BuildMethod
         return str;
     }
 
-    public static void BuildGeneric(Type type, string savePath)
+    public static void BuildGeneric(Type type, bool addNs, string savePath)
     {
-        var str = BuildGeneric(type, false);
+        var str = BuildGeneric(type, addNs);
         var className = type.FullName.Replace(".", "").Replace("+", "");
         File.AppendAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }

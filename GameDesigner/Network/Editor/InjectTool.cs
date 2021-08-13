@@ -30,12 +30,14 @@ public static class InjectTool
     static void Init1()
     {
         PlayerPrefs.SetInt("RpcInject", 0);
+        Debug.Log("rpc注入开启");
     }
 
     [MenuItem("GameDesigner/Network/closeRpcInject")]
     static void Init()
     {
         PlayerPrefs.SetInt("RpcInject", 1);
+        Debug.Log("rpc注入关闭");
     }
 
     internal static void OnCompilationFinished(string targetAssembly, CompilerMessage[] messages)

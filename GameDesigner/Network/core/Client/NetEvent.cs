@@ -42,13 +42,13 @@ namespace Net.Client
         {
             if (Context == null)
                 Context = SynchronizationContext.Current;
-            AddEvent(millisecondsTimeout, () =>
+            AddEvent(millisecondsTimeout, (state1) =>
             {
-                Context.Post(new SendOrPostCallback((state1) =>
+                Context.Post(new SendOrPostCallback((state2) =>
                 {
-                    action(state);
-                }), null);
-            });
+                    action(state2);
+                }), state1);
+            }, state);
         }
 
         /// <summary>

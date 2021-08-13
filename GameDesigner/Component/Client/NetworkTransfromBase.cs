@@ -45,6 +45,7 @@ namespace Net.Component
         public bool setID;
         public int m_identity;
         public float rate = 30f;//网络帧率, 一秒30次
+        public float lerpSpeed = 0.3f;
 
         public virtual void Start()
         {
@@ -170,33 +171,33 @@ namespace Net.Component
             switch (property)
             {
                 case SyncProperty.All:
-                    transform.position = Vector3.Lerp(transform.position, netPosition, 0.3f);
+                    transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
                     if (netRotation != Net.Quaternion.identity)
-                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, 0.3f);
+                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
                     transform.localScale = netLocalScale;
                     break;
                 case SyncProperty.position:
-                    transform.position = Vector3.Lerp(transform.position, netPosition, 0.3f);
+                    transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
                     break;
                 case SyncProperty.rotation:
                     if (netRotation != Net.Quaternion.identity)
-                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, 0.3f);
+                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
                     break;
                 case SyncProperty.localScale:
                     transform.localScale = netLocalScale;
                     break;
                 case SyncProperty.position_rotation:
-                    transform.position = Vector3.Lerp(transform.position, netPosition, 0.3f);
+                    transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
                     if (netRotation != Net.Quaternion.identity)
-                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, 0.3f);
+                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
                     break;
                 case SyncProperty.position_localScale:
-                    transform.position = Vector3.Lerp(transform.position, netPosition, 0.3f);
+                    transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
                     transform.localScale = netLocalScale;
                     break;
                 case SyncProperty.rotation_localScale:
                     if (netRotation != Net.Quaternion.identity)
-                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, 0.3f);
+                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
                     transform.localScale = netLocalScale;
                     break;
             }

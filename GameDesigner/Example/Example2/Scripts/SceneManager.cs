@@ -9,7 +9,7 @@ namespace Example2
         public AIMonster[] monsters;
         internal MyDictionary<int, AIMonster> monsterDics = new MyDictionary<int, AIMonster>();
 
-        public override void OnCrateTransform(NetworkTransformBase t)
+        public override void OnCrateTransform(Operation opt, NetworkTransformBase t)
         {
             var p = t.GetComponent<Player>();
             if (p != null)

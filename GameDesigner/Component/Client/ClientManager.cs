@@ -25,6 +25,7 @@ namespace Net.Component
         public bool debugRpc = true;
         public int frameRate = 60;
         public bool authorize;
+        public bool startConnect = true;
         public List<RPCMethod> rpcs = new List<RPCMethod>();
 
         public ClientBase client
@@ -95,10 +96,16 @@ namespace Net.Component
         // Use this for initialization
         void Start()
         {
-            if (_client != null)
-                goto J;
+            NDebug.BindLogAll(Debug.Log);
+            if (startConnect)
+                Connect();
+        }
+
+        public void Connect()
+        {
             _client = client;
-        J: NDebug.BindLogAll(Debug.Log);
+            _client.host = ip;
+            _client.port = port;
             _client.AddRpcHandle(this);
             _client.Connect(result =>
             {

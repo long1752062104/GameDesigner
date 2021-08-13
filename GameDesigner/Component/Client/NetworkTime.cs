@@ -10,18 +10,21 @@ namespace Net.Component
     {
         private float time;
         private bool canSent;
-
         /// <summary>
         /// 当前是否可以发送数据? 这里可以控制发送次数, 一秒30帧数据左右
         /// </summary>
         public static bool CanSent { get { return Instance.canSent; } }
+        /// <summary>
+        /// 设置可发送时间 默认30次/秒
+        /// </summary>
+        public float CanSentTime = 1f / 30f;
 
         // Update is called once per frame
         void Update()
         {
             if (Time.time > time)
             {
-                time = Time.time + (1f / 30f);
+                time = Time.time + CanSentTime;
                 canSent = true;
             }
             else 

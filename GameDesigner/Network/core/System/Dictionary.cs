@@ -822,7 +822,7 @@ namespace Net.Share
 
         public Entry[] entries;//unity的editor用到
 
-        internal int count;
+        public int count;
 
         private int version;
 

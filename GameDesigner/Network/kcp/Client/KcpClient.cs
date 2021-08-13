@@ -111,7 +111,7 @@
             SendDataHandle(rtRPCModels, true);
         }
 
-        public override void Close(bool await = true)
+        public override void Close(bool await = true, int millisecondsTimeout = 1000)
         {
             base.Close(await);
             addressBuffer = null;

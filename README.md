@@ -166,6 +166,13 @@ mvc模块:模型,控制,视图分离, mvc模块适应于帧同步游戏, model�
 ## 致谢
 
 谢谢大家对我的支持，如果有其他问题，请加QQ群:825240544讨论
+
+## TapTap游戏
+<br>1.[士兵召唤](https://www.taptap.com/app/221847)</br>
+<br>2.[我是一只鱼](https://www.taptap.com/app/220242)</br>
+<br>3.[山海经吞食天地](https://www.taptap.com/app/207447)</br>
+<br>4.[捍卫星球](https://www.taptap.com/app/170490)</br>
+
 ## 支持本项目
 您的支持就是我不懈努力的动力。打赏时请一定留下您的称呼
 <br>感谢以下人员对gdnet捐款:</br>

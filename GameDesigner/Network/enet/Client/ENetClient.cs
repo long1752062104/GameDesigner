@@ -204,7 +204,7 @@
                 OnSendErrorHandle?.Invoke(buffer, reliable);
         }
 
-        public override void Close(bool await = true)
+        public override void Close(bool await = true, int millisecondsTimeout = 1000)
         {
             Client.DisconnectNow(0);
             Connected = false;
