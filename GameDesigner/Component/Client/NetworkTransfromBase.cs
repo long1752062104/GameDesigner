@@ -46,6 +46,9 @@ namespace Net.Component
         public int m_identity;
         public float rate = 30f;//网络帧率, 一秒30次
         public float lerpSpeed = 0.3f;
+        public bool fixedSync;
+        public float fixedSendTime = 1f;//固定发送时间
+        private float fixedTime;
 
         public virtual void Start()
         {
@@ -92,11 +95,12 @@ namespace Net.Component
 
         public virtual void Check()
         {
-            if (transform.position != position | transform.rotation != rotation | transform.localScale != localScale)
+            if (transform.position != position | transform.rotation != rotation | transform.localScale != localScale | (Time.time > fixedTime & fixedSync))
             {
                 position = transform.position;
                 rotation = transform.rotation;
                 localScale = transform.localScale;
+                fixedTime = Time.time + fixedSendTime;
                 switch (property)
                 {
                     case SyncProperty.All:
