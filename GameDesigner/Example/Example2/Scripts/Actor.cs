@@ -1,11 +1,11 @@
 ﻿using GameDesigner;
-using System.Collections;
 using UnityEngine;
 
 namespace Example2
 {
     public class Actor : MonoBehaviour
     {
+        public int id;
         public float health = 100f;
         public float healthMax = 100f;
         internal float preHealth;

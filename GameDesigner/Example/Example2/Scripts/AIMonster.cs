@@ -5,14 +5,16 @@
     using Net.Share;
     using UnityEngine;
 
+    /// <summary>
+    /// 怪物组件, 此类的核心处理是: 当怪物被攻击后, 怪物的行为由攻击这个怪物的玩家客户端进行同步这个怪物的所有行为, 追击, 攻击, 位置同步等
+    /// </summary>
     public class AIMonster : Actor
     {
         internal byte state;
         internal byte state1;
         public float walkSpeed = 3f;
         public Player target;
-        public int id;
-        public int targetID;
+        public int targetID;//怪物攻击的玩家id
 
         void Awake()
         {

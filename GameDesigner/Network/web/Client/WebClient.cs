@@ -184,7 +184,7 @@ namespace Net.Client
             return NetConvert.Deserialize(buffer, index, count - 1);
         }
 
-        public override void Close(bool await = true)
+        public override void Close(bool await = true, int millisecondsTimeout = 1000)
         {
             Connected = false;
             openClient = false;

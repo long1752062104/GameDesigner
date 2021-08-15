@@ -18,6 +18,7 @@ namespace Example2
             Camera.main.GetComponent<ARPGcamera>().target = player1.transform;
             var p = player1.GetComponent<Player>();
             GameManager.I.players.Add(p);
+            p.id = ClientManager.UID;
             p.IsLocal = true;
             InputJoystick.OnJoystickMoving += (dir) =>
             {

@@ -1,9 +1,9 @@
 ﻿namespace Net.Component
 {
     /// <summary>
-    /// 网络操作指令 用户可以分写
+    /// 网络操作指令
     /// </summary>
-    public partial class Command : Share.NetCmd
+    public class Command : Share.NetCmd
     {
         /// <summary>
         /// 帧同步操作命令

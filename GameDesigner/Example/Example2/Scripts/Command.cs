@@ -8,6 +8,7 @@ namespace Example2
         public const byte AIAttack = 48;
         public const byte Resurrection = 49;//复活
         public const byte PlayerState = 50;
+        public const byte AttackPlayer = 51;
     }
 }
 #endif

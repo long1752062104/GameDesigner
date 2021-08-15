@@ -13,7 +13,10 @@ namespace Example2
         {
             var p = t.GetComponent<Player>();
             if (p != null)
+            {
+                p.id = opt.index;
                 GameManager.I.players.Add(p);
+            }
         }
 
         public override void OnDestroyTransform(NetworkTransformBase t)

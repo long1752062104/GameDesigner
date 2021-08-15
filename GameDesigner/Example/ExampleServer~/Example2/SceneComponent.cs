@@ -47,7 +47,7 @@ namespace Example2
         /// </summary>
         public override void Update(IServerSendHandle<PlayerComponent> handle, byte cmd = 18)
         {
-            var players = GetPlayers();
+            var players = Clients;
             int playerCount = players.Count;
             if (playerCount <= 0)
                 return;
@@ -79,11 +79,21 @@ namespace Example2
                     case Command.Attack:
                         if (monsters.TryGetValue(opt.index, out AIMonster monster))
                         {
-                            //if(monster.targetID == 0)
                             monster.targetID = client.UserID;
                             monster.OnDamage(opt.index1);
                             if (monster.isDeath)
                                 monster.PatrolCall();
+                        }
+                        break;
+                    case Command.AttackPlayer:
+                        var players = Clients;
+                        for (int n = 0; n < players.Count; n++)
+                        {
+                            if (players[n].UserID == opt.index) 
+                            {
+                                players[n].BeAttacked(opt.index1);
+                                break;
+                            }
                         }
                         break;
                     case Command.EnemySync:

@@ -57,6 +57,10 @@ MonoBehaviour:
   index: 0
   setID: 0
   m_identity: 0
+  rate: 30
+  lerpSpeed: 0.3
+  fixedSync: 1
+  fixedSendTime: 1
 --- !u!114 &-7067785888288551227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122,6 +126,7 @@ MonoBehaviour:
   sm: {fileID: 0}
   bullet: {fileID: 7918907263500288135, guid: e96fc3f65b0401c4b8e71a0c71e4d6df, type: 3}
   firePoint: {fileID: 310055410538059874}
+  uid: 0
   IsLocal: 0
 --- !u!1 &7129681259272014773
 GameObject:

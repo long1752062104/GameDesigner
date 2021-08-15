@@ -2628,6 +2628,11 @@
             当从服务器获取的客户端地址点对点
             </summary>
         </member>
+        <member name="F:Net.Client.ClientBase.OnSwitchPortHandle">
+            <summary>
+            当网关服务器指定这个客户端连接到一个游戏服务器时调用,回调有游戏服务器的ip和端口
+            </summary>
+        </member>
         <member name="F:Net.Client.ClientBase.sendRTList">
             <summary>
             发送可靠传输缓冲
@@ -2837,6 +2842,12 @@
             </summary>
             <param name="network"></param>
         </member>
+        <member name="M:Net.Client.ClientBase.RemoveNetworkHandle(Net.Share.INetworkHandle)">
+            <summary>
+            移除网络状态处理接口
+            </summary>
+            <param name="network"></param>
+        </member>
         <member name="M:Net.Client.ClientBase.AddRpcBuffer(Net.Share.RPCModel)">
             <summary>
             添加网络函数数据,添加后自动在rpc中调用
@@ -2983,6 +2994,11 @@
             立刻发送, 不需要等待帧时间 (当你要强制把客户端下线时,你还希望客户端先发送完数据后,再强制客户端退出游戏用到)
             </summary>
         </member>
+        <member name="M:Net.Client.ClientBase.SendOperations">
+            <summary>
+            打包操作同步马上要发送了
+            </summary>
+        </member>
         <member name="M:Net.Client.ClientBase.SendDataHandle(Net.Share.QueueSafe{Net.Share.RPCModel},System.Boolean)">
             <summary>
             发送处理
@@ -3084,11 +3100,12 @@
             </summary>
             <param name="maxFrequency">重连最大次数</param>
         </member>
-        <member name="M:Net.Client.ClientBase.Close(System.Boolean)">
+        <member name="M:Net.Client.ClientBase.Close(System.Boolean,System.Int32)">
             <summary>
             关闭连接,释放线程以及所占资源
             </summary>
             <param name="await">true:等待内部1秒结束所有线程再关闭? false:直接关闭</param>
+            <param name="millisecondsTimeout">等待毫秒数</param>
         </member>
         <member name="M:Net.Client.ClientBase.Send(System.Byte[])">
             <summary>
@@ -3684,7 +3701,7 @@
             </summary>
             <param name="uid"></param>
         </member>
-        <member name="M:Net.Client.UdpClient.Testing(System.String,System.Int32,System.Int32,System.Int32,System.Action{Net.Client.UdpClientTest},System.Action{System.Collections.Generic.List{Net.Client.UdpClientTest}})">
+        <member name="M:Net.Client.UdpClient.Testing(System.String,System.Int32,System.Int32,System.Int32,System.Action{Net.Client.UdpClientTest},System.Action{System.Collections.Generic.List{Net.Client.UdpClientTest}},Net.Share.IAdapter)">
             <summary>
             udp压力测试
             </summary>
@@ -5337,14 +5354,14 @@
             <param name="kernel">内核? 你包装的数据在客户端是否被内核NetConvert序列化?</param>
             <param name="serialize">序列化? 你包装的数据是否在服务器即将发送时NetConvert序列化?</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.Byte[])">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.Byte[])">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             </summary>
             <param name="clients">客户端集合</param>
             <param name="buffer">自定义字节数组</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.Byte,System.Byte[])">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.Byte,System.Byte[])">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             </summary>
@@ -5352,7 +5369,7 @@
             <param name="cmd"></param>
             <param name="buffer">自定义字节数组</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte[])">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte[])">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             </summary>
@@ -5360,7 +5377,7 @@
             <param name="reliable"></param>
             <param name="buffer">自定义字节数组</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte,System.Byte[])">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte,System.Byte[])">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             </summary>
@@ -5369,7 +5386,7 @@
             <param name="cmd">网络命令</param>
             <param name="buffer">自定义字节数组</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte,System.Byte[],System.Boolean,System.Boolean)">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte,System.Byte[],System.Boolean,System.Boolean)">
             <summary>
             网络多播, 发送数据到clients集合的客户端 (灵活数据包)
             </summary>
@@ -5380,7 +5397,7 @@
             <param name="kernel">内核? 你包装的数据在客户端是否被内核NetConvert序列化?</param>
             <param name="serialize">序列化? 你包装的数据是否在服务器即将发送时NetConvert序列化?</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.String,System.Object[])">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.String,System.Object[])">
             <summary>
             网络多播, 发送数据到clients集合的客户端
             </summary>
@@ -5388,7 +5405,7 @@
             <param name="func">本地客户端rpc函数</param>
             <param name="pars">本地客户端rpc参数</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.String,System.Object[])">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.String,System.Object[])">
             <summary>
             网络多播, 发送数据到clients集合的客户端
             </summary>
@@ -5397,7 +5414,7 @@
             <param name="func">本地客户端rpc函数</param>
             <param name="pars">本地客户端rpc参数</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.Byte,System.String,System.Object[])">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.Byte,System.String,System.Object[])">
             <summary>
             网络多播, 发送数据到clients集合的客户端
             </summary>
@@ -5406,7 +5423,7 @@
             <param name="func">本地客户端rpc函数</param>
             <param name="pars">本地客户端rpc参数</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte,System.String,System.Object[])">
+        <member name="M:Net.Server.ServerBase`2.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte,System.String,System.Object[])">
             <summary>
             网络多播, 发送数据到clients集合的客户端
             </summary>
@@ -6473,14 +6490,14 @@
             <param name="kernel">内核? 你包装的数据在客户端是否被内核NetConvert序列化?</param>
             <param name="serialize">序列化? 你包装的数据是否在服务器即将发送时NetConvert序列化?</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Byte[])">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Byte[])">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             </summary>
             <param name="clients">客户端集合</param>
             <param name="buffer">自定义字节数组</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Byte,System.Byte[])">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Byte,System.Byte[])">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             </summary>
@@ -6488,7 +6505,7 @@
             <param name="cmd"></param>
             <param name="buffer">自定义字节数组</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte[])">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte[])">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             </summary>
@@ -6496,7 +6513,7 @@
             <param name="reliable"></param>
             <param name="buffer">自定义字节数组</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte,System.Byte[])">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte,System.Byte[])">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             </summary>
@@ -6505,7 +6522,7 @@
             <param name="cmd">网络命令</param>
             <param name="buffer">自定义字节数组</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte,System.Object)">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte,System.Object)">
             <summary>
             网络多播, 发送自定义数据到clients集合的客户端
             发送自定义协议类型, 使用protobuf序列化obj对象
@@ -6515,7 +6532,7 @@
             <param name="cmd">网络命令</param>
             <param name="obj">使用protobuf序列化的对象</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.String,System.Object[])">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.String,System.Object[])">
             <summary>
             网络多播, 发送数据到clients集合的客户端
             </summary>
@@ -6523,7 +6540,7 @@
             <param name="func">本地客户端rpc函数</param>
             <param name="pars">本地客户端rpc参数</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.String,System.Object[])">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.String,System.Object[])">
             <summary>
             网络多播, 发送数据到clients集合的客户端
             </summary>
@@ -6532,7 +6549,7 @@
             <param name="func">本地客户端rpc函数</param>
             <param name="pars">本地客户端rpc参数</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Byte,System.String,System.Object[])">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Byte,System.String,System.Object[])">
             <summary>
             网络多播, 发送数据到clients集合的客户端
             </summary>
@@ -6541,7 +6558,7 @@
             <param name="func">本地客户端rpc函数</param>
             <param name="pars">本地客户端rpc参数</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte,System.String,System.Object[])">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte,System.String,System.Object[])">
             <summary>
             网络多播, 发送数据到clients集合的客户端
             </summary>
@@ -6551,7 +6568,7 @@
             <param name="func">本地客户端rpc函数</param>
             <param name="pars">本地客户端rpc参数</param>
         </member>
-        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.ICollection{`0},System.Boolean,System.Byte,System.Byte[],System.Boolean,System.Boolean)">
+        <member name="M:Net.Share.IServerSendHandle`1.Multicast(System.Collections.Generic.IList{`0},System.Boolean,System.Byte,System.Byte[],System.Boolean,System.Boolean)">
             <summary>
             网络多播, 发送数据到clients集合的客户端 (灵活数据包)
             </summary>
@@ -7135,7 +7152,7 @@
             <summary>
             添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
             </summary>
-            <typeparam name="T">要添加的网络类型</typeparam>
+            <param name="type">要添加的网络类型</param>
         </member>
         <member name="M:Net.Share.NetConvertFast2.AddSerializeType(System.Type)">
             <summary>
@@ -7661,7 +7678,7 @@
         </member>
         <member name="T:Net.Share.RandomHelper">
             <summary>
-            随机类
+            随机帮助类 (多线程安全)
             </summary>
         </member>
         <member name="M:Net.Share.RandomHelper.InitSeed(System.Int32)">
@@ -8644,6 +8661,11 @@
             <summary>
             A wrapper struct for volatile bool, please note the copy of the struct it self will not be volatile
             for example this statement will not include in volatilness operation volatileBool1 = volatileBool2 the jit will copy the struct and will ignore the volatile
+            </summary>
+        </member>
+        <member name="T:Net.Share.RandomSafe">
+            <summary>
+            随机类 (多线程安全)
             </summary>
         </member>
         <member name="M:Net.Share.ByteHelper.HumanReadableFilesize(System.Double)">
@@ -10242,6 +10264,14 @@
             <summary>
             动态编译, 在unity开发过程中不需要生成绑定cs文件, 直接运行时编译使用, 当编译apk. app时才进行生成绑定cs文件
             </summary>
+            <param name="types"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Fast2BuildMethod.DynamicBuild(System.Int32,System.Type[])">
+            <summary>
+            动态编译, 在unity开发过程中不需要生成绑定cs文件, 直接运行时编译使用, 当编译apk. app时才进行生成绑定cs文件
+            </summary>
+            <param name="compilerOptionsIndex">编译参数, 如果编译失败, 可以选择0-7测试哪个编译成功</param>
             <param name="types"></param>
             <returns></returns>
         </member>
