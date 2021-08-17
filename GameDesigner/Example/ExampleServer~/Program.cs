@@ -44,6 +44,10 @@ namespace ExampleServer
             {
                 Application.Run(new Form3());
             }
+            else if (args[0] == "Example4")
+            {
+                Application.Run(new Form4());
+            }
         }
     }
 }

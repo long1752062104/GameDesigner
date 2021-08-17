@@ -61,3 +61,4 @@ D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\Exampl
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.exe
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.pdb
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form3.resources
+D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form4.resources

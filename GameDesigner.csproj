@@ -168,6 +168,12 @@
     <None Include="GameDesigner\Blueprint\TypeInfo.cs.meta" />
     <None Include="GameDesigner\Blueprint\ValueType.cs.meta" />
     <None Include="GameDesigner\Component.meta" />
+    <None Include="GameDesigner\Component\AOI.meta" />
+    <None Include="GameDesigner\Component\AOI\AOIComponent.cs.meta" />
+    <None Include="GameDesigner\Component\AOI\Grid.cs.meta" />
+    <None Include="GameDesigner\Component\AOI\GridData.cs.meta" />
+    <None Include="GameDesigner\Component\AOI\GridManager.cs.meta" />
+    <None Include="GameDesigner\Component\AOI\IGridBody.cs.meta" />
     <None Include="GameDesigner\Component\Client.meta" />
     <None Include="GameDesigner\Component\Client\ARPGcamera.cs.meta" />
     <None Include="GameDesigner\Component\Client\ClientManager.cs.meta" />
@@ -805,6 +811,7 @@
     <None Include="GameDesigner\Network\web\Server\WebServer.cs.meta" />
     <None Include="GameDesigner\Network\web\使用说明.txt.meta" />
     <None Include="GameDesigner\Serialize.meta" />
+    <None Include="GameDesigner\Serialize\Native.meta" />
     <None Include="GameDesigner\Serialize\Native\NetConvert.cs.meta" />
     <None Include="GameDesigner\Serialize\Native\NetConvertBase.cs.meta" />
     <None Include="GameDesigner\Serialize\Native\NetConvertBinary.cs.meta" />
@@ -1214,6 +1221,11 @@
     <Compile Include="GameDesigner\Blueprint\SystemType.cs" />
     <Compile Include="GameDesigner\Blueprint\TypeInfo.cs" />
     <Compile Include="GameDesigner\Blueprint\ValueType.cs" />
+    <Compile Include="GameDesigner\Component\AOI\AOIComponent.cs" />
+    <Compile Include="GameDesigner\Component\AOI\Grid.cs" />
+    <Compile Include="GameDesigner\Component\AOI\GridData.cs" />
+    <Compile Include="GameDesigner\Component\AOI\GridManager.cs" />
+    <Compile Include="GameDesigner\Component\AOI\IGridBody.cs" />
     <Compile Include="GameDesigner\Component\Client\ARPGcamera.cs" />
     <Compile Include="GameDesigner\Component\Client\ClientManager.cs" />
     <Compile Include="GameDesigner\Component\Client\Login.cs" />

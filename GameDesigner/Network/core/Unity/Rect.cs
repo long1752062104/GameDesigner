@@ -277,6 +277,11 @@ namespace Net
             return point.x >= xMin && point.x < xMax && point.y >= yMin && point.y < yMax;
         }
 
+        public bool ContainsXZ(Vector3 point)
+        {
+            return point.x >= xMin && point.x < xMax && point.z >= yMin && point.z < yMax;
+        }
+
         // Token: 0x06004B74 RID: 19316 RVA: 0x00082484 File Offset: 0x00080684
         public bool Contains(Vector3 point, bool allowInverse)
         {
@@ -443,13 +448,21 @@ namespace Net
             }
         }
 
+#if UNITY_EDITOR
+        [UnityEngine.SerializeField]
         private float m_XMin;
-
+        [UnityEngine.SerializeField]
         private float m_YMin;
-
+        [UnityEngine.SerializeField]
         private float m_Width;
-
+        [UnityEngine.SerializeField]
         private float m_Height;
+#else
+        private float m_XMin;
+        private float m_YMin;
+        private float m_Width;
+        private float m_Height;
+#endif
         #endregion
 
         // Token: 0x06005151 RID: 20817 RVA: 0x0008CDEC File Offset: 0x0008AFEC

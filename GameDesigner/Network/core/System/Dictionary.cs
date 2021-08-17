@@ -381,7 +381,7 @@ namespace Net.Share
             int num3 = 0;
             for (int i = buckets[num2]; i >= 0; i = entries[i].next)
             {
-                if (entries[i].hashCode == num)
+                if (entries[i].hashCode == num && comparer.Equals(entries[i].key, key))
                 {
                     if (add)
                         throw new Exception($"已经有{key}键存在!, 添加失败!");
