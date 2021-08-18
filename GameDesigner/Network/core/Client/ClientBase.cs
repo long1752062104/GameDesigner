@@ -32,7 +32,7 @@ namespace Net.Client
     using System.Threading.Tasks;
 
     /// <summary>
-    /// 网络客户端核心虚类 2019.3.3
+    /// 网络客户端核心基类 2019.3.3
     /// </summary>
     public abstract class ClientBase : INetClient, ISendHandle
     {
@@ -2677,7 +2677,7 @@ namespace Net.Client
         }
 
         /// <summary>
-        /// ping测试网络延迟, 通过OnPingCallBack事件回调
+        /// ping测试网络延迟, 通过<see cref="OnPingCallback"/>事件回调
         /// </summary>
         public void Ping()
         {
@@ -2686,7 +2686,7 @@ namespace Net.Client
         }
 
         /// <summary>
-        /// ping测试网络延迟, 此方法帮你监听OnPingCallback事件, 如果不使用的时候必须保证能移除委托, 建议不要用框名函数, 那么会无法移除委托
+        /// ping测试网络延迟, 此方法帮你监听<see cref="OnPingCallback"/>事件, 如果不使用的时候必须保证能移除委托, 建议不要用框名函数, 那样会无法移除委托
         /// </summary>
         /// <param name="callback"></param>
         public void Ping(Action<double> callback)

@@ -81,11 +81,11 @@ namespace Net.Server
             }
         }
         /// <summary>
-        /// 所有在线的客户端 与Clients为互助字典 所添加的键值为NetPlayer.playerID
+        /// 所有在线的客户端 与<see cref="UIDClients"/>为互助字典 所添加的键值为<see cref="NetPlayer.playerID"/>
         /// </summary>
         public ConcurrentDictionary<string, Player> Players { get; private set; } = new ConcurrentDictionary<string, Player>();
         /// <summary>
-        /// 所有在线的客户端 与Clients为互助字典 所添加的键值为NetPlayer.UserID
+        /// 所有在线的客户端 与<see cref="Players"/>为互助字典 所添加的键值为<see cref="NetPlayer.UserID"/>
         /// </summary>
         public ConcurrentDictionary<int, Player> UIDClients { get; private set; } = new ConcurrentDictionary<int, Player>();
         /// <summary>
@@ -288,7 +288,7 @@ namespace Net.Server
         /// </summary>
         public NetworkDataTraffic OnNetworkDataTraffic { get; set; }
         /// <summary>
-        /// 当客户端在时间帧发送的操作数据， 当使用客户端的UdpClient.AddOperation方法时调用
+        /// 当客户端在时间帧发送的操作数据， 当使用客户端的<see cref="Client.ClientBase.AddOperation(Operation)"/>方法时调用
         /// </summary>
         public Action<Player, OperationList> OnOperationSyncHandle { get; set; }
         /// <summary>
@@ -304,11 +304,11 @@ namespace Net.Server
         /// </summary>
         public Action<string> Log { get; set; }
         /// <summary>
-        /// ping服务器回调 参数double为延迟毫秒单位 当RTOMode属性为可变重传时, 内核将会每秒自动ping一次
+        /// ping服务器回调 参数double为延迟毫秒单位 当<see cref="RTOMode"/>=<see cref="RTOMode.Variable"/>可变重传时, 内核将会每秒自动ping一次
         /// </summary>
         public Action<Player, double> OnPingCallback;
         /// <summary>
-        /// 当socket发送失败调用.参数1:玩家对象, 参数2:发送的字节数组, 参数3:发送标志(可靠和不可靠)  ->可通过SendByteData方法重新发送
+        /// 当socket发送失败调用.参数1:玩家对象, 参数2:发送的字节数组, 参数3:发送标志(可靠和不可靠)  ->可通过<see cref="SendByteData"/>方法重新发送
         /// </summary>
         public Action<Player, byte[], bool> OnSendErrorHandle;
         /// <summary>
@@ -405,12 +405,13 @@ namespace Net.Server
         {
             return new List<Scene>(Scenes.Values);
         }
-#endregion
+        #endregion
 
-#region 重写方法
+        #region 重写方法
         /// <summary>
-        /// 当未知客户端发送数据请求，返回false，不允许unClient进入服务器!，如果返回的是true，则允许unClient客户端进入服务器
-        /// 客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互
+        /// 当未知客户端发送数据请求，返回<see langword="false"/>，不允许<see langword="unClient"/>进入服务器!，如果返回的是<see langword="true"/>，则允许<see langword="unClient"/>客户端进入服务器
+        /// 同时会将<see langword="unClient"/>添加到<see cref="Players"/>和<see cref="UIDClients"/>在线字典中.
+        /// <code>客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互</code>
         /// 在这里可以用来判断客户端登录和注册等等进站许可 (默认是允许进入服务器)
         /// </summary>
         /// <param name="unClient">尚未登录的客户端对象</param>
@@ -472,7 +473,7 @@ namespace Net.Server
 
         /// <summary>
         /// 当开始调用服务器RPC函数 或 开始调用自定义网络命令时 可设置请求客户端的client为全局字段，方便在服务器RPC函数内引用!!!
-        /// 在多线程时有1%不安全，当出现client赋值到其他玩家对象时，可在网络函数头加 [Rpc(NetCmd.SafeCall)] 特性
+        /// 在多线程时有1%不安全，当出现client赋值到其他玩家对象时，可在网络方法加<see langword="[Rpc(NetCmd.SafeCall)]"/>特性
         /// </summary>
         /// <param name="client">发送请求数据的客户端</param>
         [Obsolete("请重写OnRpcExecute方法实现!")]
@@ -486,7 +487,7 @@ namespace Net.Server
         protected virtual void OnReceiveBuffer(Player client, RPCModel model) { }
 
         /// <summary>
-        /// 当接收到客户端使用Client.AddOperation方法发送的请求时调用
+        /// 当接收到客户端使用<see cref="Client.ClientBase.AddOperation(Operation)"/>方法发送的请求时调用
         /// </summary>
         /// <param name="client">当前客户端</param>
         /// <param name="list">操作列表</param>
@@ -2539,7 +2540,7 @@ namespace Net.Server
         }
 
         /// <summary>
-		/// 强制下线处理, 将client客户端从在线字段clients和Players字段中移除
+		/// 强制下线处理, 将client客户端从在线字段<see cref="Players"/>和<see cref="UIDClients"/>和<see cref="AllClients"/>字段中移除
 		/// </summary>
 		/// <param name="client"></param>
 		public virtual void OfflineHandle(Player client)
@@ -2550,7 +2551,7 @@ namespace Net.Server
         }
 
         /// <summary>
-        /// 退出登录, 将client客户端从在线字段clients和Players字段中移除
+        /// 退出登录, 将client客户端从在线字段<see cref="Players"/>和<see cref="UIDClients"/>字段中移除
         /// </summary>
         /// <param name="client"></param>
         public virtual void SignOut(Player client)
@@ -2578,7 +2579,7 @@ namespace Net.Server
         }
 
         /// <summary>
-        /// ping测试网络延迟, 通过OnPingCallBack事件回调
+        /// ping测试网络延迟, 通过<see cref="OnPingCallback"/>事件回调
         /// </summary>
         /// <param name="client"></param>
         public void Ping(Player client)
@@ -2588,7 +2589,7 @@ namespace Net.Server
         }
 
         /// <summary>
-        /// ping测试网络延迟, 此方法帮你监听OnPingCallback事件, 如果不使用的时候必须保证能移除委托, 建议不要用框名函数, 那么会无法移除委托
+        /// ping测试网络延迟, 此方法帮你监听<see cref="OnPingCallback"/>事件, 如果不使用的时候必须保证能移除委托, 建议不要用框名函数, 那样会无法移除委托
         /// </summary>
         /// <param name="client"></param>
         /// <param name="callback"></param>

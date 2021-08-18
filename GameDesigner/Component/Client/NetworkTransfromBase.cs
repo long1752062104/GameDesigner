@@ -6,10 +6,27 @@ namespace Net.Component
 
     public enum SyncMode
     {
+        /// <summary>
+        /// 自身同步, 只有自身才能控制, 同步给其他客户端, 其他客户端无法控制这个物体的移动
+        /// </summary>
         Local,
+        /// <summary>
+        /// 完全控制, 所有客户端都可以移动这个物体, 并且其他客户端都会被同步
+        /// 同步条件是哪个先移动这个物体会有<see cref="NetworkTransformBase.interval"/>秒完全控制,
+        /// 其他客户端无法控制,如果先移动的客户端一直移动这个物体,则其他客户端无法移动,只有先移动的客户端停止操作,下个客户端才能同步这个物体
+        /// </summary>
         Control,
+        /// <summary>
+        /// 无效
+        /// </summary>
         Authorize,
+        /// <summary>
+        /// 自身同步在其他客户端显示的状态
+        /// </summary>
         Synchronized,
+        /// <summary>
+        /// 完全控制在其他客户端显示的状态
+        /// </summary>
         SynchronizedAll
     }
 
@@ -24,6 +41,9 @@ namespace Net.Component
         rotation_localScale,
     }
 
+    /// <summary>
+    /// 网络Transform同步组件基类
+    /// </summary>
     public abstract class NetworkTransformBase : MonoBehaviour
     {
         internal static int Identity = 0;
@@ -49,7 +69,7 @@ namespace Net.Component
         public bool fixedSync;
         public float fixedSendTime = 1f;//固定发送时间
         private float fixedTime;
-
+        
         public virtual void Start()
         {
             mode = syncMode;

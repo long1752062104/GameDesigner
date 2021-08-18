@@ -176,6 +176,9 @@ namespace Net.Component
         }
     }
 
+    /// <summary>
+    /// 网络Transform同步组件, 可以同步子物体
+    /// </summary>
     [ExecuteInEditMode]
     public class NetworkTransform : NetworkTransformBase
     {

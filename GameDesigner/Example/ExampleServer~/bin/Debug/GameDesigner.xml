@@ -2627,7 +2627,7 @@
         </member>
         <member name="E:Net.Client.ClientBase.OnOperationSync">
             <summary>
-            当使用服务器的NetScene.AddOperation方法时调用， 场景内的所有演员行为同步
+            当使用服务器的<see cref="M:Net.Server.NetScene`1.AddOperation(Net.Share.Operation)"/>方法时调用， 场景内的所有演员行为同步
             </summary>
         </member>
         <member name="E:Net.Client.ClientBase.OnRevdRTProgress">
@@ -2744,12 +2744,12 @@
         </member>
         <member name="P:Net.Client.ClientBase.Identify">
             <summary>
-            客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是NetPlayer.playerID值
+            客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是<see cref="F:Net.Server.NetPlayer.playerID"/>值
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.UID">
             <summary>
-            用户唯一标识, 对应服务器的NetPlayer.UID
+            用户唯一标识, 对应服务器的<see cref="P:Net.Server.NetPlayer.UserID"/>值
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.SyncFrequency">
@@ -4526,7 +4526,7 @@
         </member>
         <member name="M:Net.Server.NetScene`1.OnOperationSync(`0,Net.Share.OperationList)">
             <summary>
-            当接收到客户端使用Client.AddOperation方法发送的请求时调用
+            当接收到客户端使用<see cref="M:Net.Client.ClientBase.AddOperation(Net.Share.Operation)"/>方法发送的请求时调用
             </summary>
         </member>
         <member name="M:Net.Server.NetScene`1.AddPlayerRange(System.Collections.Generic.IEnumerable{`0})">

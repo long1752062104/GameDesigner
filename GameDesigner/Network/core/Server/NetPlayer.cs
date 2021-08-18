@@ -240,7 +240,7 @@
 
         #region 客户端数据处理函数
         /// <summary>
-        /// 当未知客户端发送数据请求，返回null，不添加到clients，返回对象，添加到clients中
+        /// 当未知客户端发送数据请求，返回<see langword="false"/>，不做任何事，返回<see langword="true"/>，添加到<see cref="ServerBase{Player, Scene}.Players"/>中
         /// 客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互
         /// 在这里可以用来判断客户端登录和注册等等进站许可
         /// </summary>
@@ -252,7 +252,7 @@
         }
 
         /// <summary>
-        /// 当web服务器未知客户端发送数据请求，返回null，不添加到clients，返回对象，添加到clients中
+        /// 当web服务器未知客户端发送数据请求，返回<see langword="false"/>，不做任何事，返回<see langword="true"/>，添加到<see cref="ServerBase{Player, Scene}.Players"/>中
         /// 客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互
         /// 在这里可以用来判断客户端登录和注册等等进站许可
         /// </summary>
@@ -327,8 +327,8 @@
         public virtual void OnRemove() { }
 
         /// <summary>
-        /// 当接收到客户端使用Client.AddOperation方法发送的请求时调用. 如果重写此方法, 
-        /// <code>返回false, 则服务器对象类会重新把操作列表加入到场景中, 你可以重写服务器的OnOperationSync方法让此次失效</code>
+        /// 当接收到客户端使用<see cref="Net.Client.ClientBase.AddOperation(Operation)"/>方法发送的请求时调用. 如果重写此方法, 
+        /// <code>返回false, 则服务器对象类会重新把操作列表加入到场景中, 你可以重写服务器的<see cref="ServerBase{Player, Scene}.OnOperationSync(Player, OperationList)"/>方法让此方法失效</code>
         /// <code>返回true, 服务器不再把数据加入到场景列表, 认为你已经在此处把数据处理了</code>
         /// </summary>
         /// <param name="list"></param>
@@ -364,7 +364,7 @@
         }
 
         /// <summary>
-        /// 此方法需要自己实现, 实现内容如下: Server.Instance.RemoveClient(this);
+        /// 此方法需要自己实现, 实现内容如下: <see langword="xxServer.Instance.RemoveClient(this);"/>
         /// </summary>
         public virtual void Close() { }
 

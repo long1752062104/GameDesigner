@@ -74,7 +74,7 @@ namespace AOIExample
                 handle.Send(player, cmd, buffer, false, false);
                 ObjectPool<OperationList>.Push(list);
             }
-            int count = operations.Count;
+            int count = operations.Count;//不管aoi, 整个场景的同步在这里, 如玩家退出操作
             if (count > 0)
             {
                 while (count > Split)
