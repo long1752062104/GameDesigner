@@ -69,12 +69,14 @@ namespace MVC.View
         private string selectTypeName;
         internal UnityEngine.Object selectObject;
         private string csprojFile;
+        private bool fullpath;
 
         public class JsonSave 
         {
             public string nameSpace;
             public string savePath;
             public string csprojFile;
+            public bool fullPath;
         }
 
         private void OnEnable()
@@ -110,13 +112,19 @@ namespace MVC.View
                 nameSpace = jsonsave.nameSpace;
                 savePath = jsonsave.savePath;
                 csprojFile = jsonsave.csprojFile;
+                fullpath = jsonsave.fullPath;
             }
         }
 
         void SaveData() 
         {
             var path = Application.dataPath.Replace("Assets", "") + "fcdata.txt";
-            var jsonSave = new JsonSave() { csprojFile = csprojFile, nameSpace = nameSpace, savePath = savePath };
+            var jsonSave = new JsonSave() { 
+                csprojFile = csprojFile,
+                nameSpace = nameSpace,
+                savePath = savePath,
+                fullPath = fullpath
+            };
             var jsonstr = Newtonsoft_X.Json.JsonConvert.SerializeObject(jsonSave);
             File.WriteAllText(path, jsonstr);
         }
@@ -203,6 +211,7 @@ namespace MVC.View
                         field.fields.RemoveAt(deleteArrayIndex);
                         deleteArrayIndex = -1;
                         EditorUtility.SetDirty(field);
+                        break;
                     }
                     var rect = EditorGUILayout.GetControlRect();
                     so.FindProperty("fields").GetArrayElementAtIndex(i).FindPropertyRelative("target").objectReferenceValue = EditorGUI.ObjectField(rect, field.fields[i].name, field.fields[i].target, field.fields[i].Type, true);
@@ -252,19 +261,70 @@ namespace MVC.View
                 nameSpace1 = nameSpace;
                 SaveData();
             }
+            fullpath = EditorGUILayout.Toggle("(绝/相)对路径", fullpath);
             var rect1 = EditorGUILayout.GetControlRect();
             EditorGUI.LabelField(rect1, "文件路径:", savePath);
             if (GUI.Button(new Rect(rect1.x + rect1.width - 60, rect1.y, 60, rect1.height), "选择"))
             {
-                savePath = EditorUtility.OpenFolderPanel("选择保存路径", "", "");
-                SaveData();
+                if (fullpath)
+                {
+                    savePath = EditorUtility.OpenFolderPanel("选择保存路径", "", "");
+                    SaveData();
+                }
+                else 
+                {
+                    savePath = EditorUtility.OpenFolderPanel("选择保存路径", "", "");
+                    var strs = savePath.ToCharArray();
+                    var strs1 = Application.dataPath.Replace("Assets", "").ToCharArray();
+                    int index = 0;
+                    for (int i = 0; i < strs.Length; i++)
+                    {
+                        if (i >= strs1.Length)
+                        {
+                            index = i;
+                            break;
+                        }
+                        if (strs[i] != strs1[i])
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                    savePath = savePath.Remove(0, index);
+                    SaveData();
+                }
             }
             var rect3 = EditorGUILayout.GetControlRect();
             EditorGUI.LabelField(rect3, "csproj文件:", csprojFile);
             if (GUI.Button(new Rect(rect3.x + rect3.width - 60, rect3.y, 60, rect3.height), "选择"))
             {
-                csprojFile = EditorUtility.OpenFilePanel("选择文件", "", "csproj");
-                SaveData();
+                if (fullpath) 
+                {
+                    csprojFile = EditorUtility.OpenFilePanel("选择文件", "", "csproj");
+                    SaveData();
+                }
+                else
+                {
+                    csprojFile = EditorUtility.OpenFilePanel("选择文件", "", "csproj");
+                    var strs = csprojFile.ToCharArray();
+                    var strs1 = Application.dataPath.Replace("Assets", "").ToCharArray();
+                    int index = 0;
+                    for (int i = 0; i < strs.Length; i++)
+                    {
+                        if (i >= strs1.Length)
+                        {
+                            index = i;
+                            break;
+                        }
+                        if (strs[i] != strs1[i])
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                    csprojFile = csprojFile.Remove(0, index);
+                    SaveData();
+                }
             }
             if (GUILayout.Button("生成脚本(hotfix)"))
             {
@@ -318,16 +378,27 @@ namespace MVC.View
                 $"{(hasns ? "\t\t" : "\t")}" + "}\n" +
                 $"{(hasns ? "\t" : "")}" + "}" +
                 (hasns ? "\n}" : "");
-                var path = savePath + $"/{field.fieldName}.cs";
+                string path = "";
+                string path1 = "";
+                if (fullpath)
+                {
+                    path = savePath + $"/{field.fieldName}.cs";
+                    path1 = csprojFile;
+                }
+                else
+                {
+                    path = Application.dataPath.Replace("Assets", "") + savePath + $"/{field.fieldName}.cs";
+                    path1 = Application.dataPath.Replace("Assets", "") + csprojFile;
+                }
                 if (File.Exists(path)) 
                 {
                     if(!EditorUtility.DisplayDialog("写入脚本文件", "脚本已存在, 是否替换? 或 尾部添加?", "替换", "尾部添加"))
                         File.AppendAllText(path, scriptStr);
                     else File.WriteAllText(path, scriptStr);
                 } else File.WriteAllText(path, scriptStr);
-                if (File.Exists(csprojFile)) 
+                if (File.Exists(path1)) 
                 {
-                    var rows = File.ReadAllLines(csprojFile);
+                    var rows = File.ReadAllLines(path1);
                     foreach (var row in rows)
                     {
                         if (row.Contains("<Compile Include=\"")) 
@@ -340,14 +411,14 @@ namespace MVC.View
                                 goto J;
                         }
                     }
-                    var cspath = Path.GetDirectoryName(csprojFile).Replace("\\", "/");
-                    var path1 = path.Replace(cspath, "").TrimStart('/').Replace("/", "\\");
+                    var cspath = Path.GetDirectoryName(path1).Replace("\\", "/");
+                    var path2 = path.Replace(cspath, "").TrimStart('/').Replace("/", "\\");
                     List<string> rows1 = new List<string>(rows);
-                    rows1.Insert(rows.Length - 3, $"    <Compile Include=\"{path1}\" />");
-                    File.WriteAllLines(csprojFile, rows1);
+                    rows1.Insert(rows.Length - 3, $"    <Compile Include=\"{path2}\" />");
+                    File.WriteAllLines(path1, rows1);
                 }
                 J: AssetDatabase.Refresh();
-                Debug.Log($"生成成功:{savePath}/{field.fieldName}.cs");
+                Debug.Log($"生成成功:{path}");
             }
             if (GUILayout.Button("生成脚本(主工程)"))
             {
@@ -403,7 +474,11 @@ namespace MVC.View
                 $"{(hasns ? "\t\t" : "\t")}" + "}\n" +
                 $"{(hasns ? "\t" : "")}" + "}" +
                 (hasns ? "\n}" : "");
-                var path = savePath + $"/{field.fieldName}.cs";
+                string path = "";
+                if (fullpath)
+                    path = savePath + $"/{field.fieldName}.cs";
+                else
+                    path = Application.dataPath.Replace("Assets", "") + savePath + $"/{field.fieldName}.cs";
                 if (File.Exists(path)) 
                 {
                     if(!EditorUtility.DisplayDialog("写入脚本文件", "脚本已存在, 是否替换? 或 尾部添加?", "替换", "尾部添加"))
@@ -412,7 +487,7 @@ namespace MVC.View
                 } else File.WriteAllText(path, scriptStr);
                 //csproj对主工程无效
                 AssetDatabase.Refresh();
-                Debug.Log($"生成成功:{savePath}/{field.fieldName}.cs");
+                Debug.Log($"生成成功:{path}");
             }
             serializedObject.ApplyModifiedProperties();
         }

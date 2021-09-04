@@ -10,18 +10,28 @@ namespace Net.Component
     /// </summary>
     public static class MySqlHelper
     {
-        private static readonly MySqlConnection conn = null;
+        private static MySqlConnection conn = null;
         private static readonly MySqlCommand cmd = new MySqlCommand();
         private static MySqlDataReader sdr;
         private static MySqlDataAdapter sda = null;
+        public static string connStr = "Database='sbzhgame';Data Source='127.0.0.1';User Id='root';Password='root';charset='utf8';pooling=true";
 
-        //数据库连接字符串
-        public static string connStr = "Database='poker';Data Source='127.0.0.1';User Id='root';Password='root';charset='utf8';pooling=true";
-
-        static MySqlHelper()
+        private static MySqlConnection Connect
         {
-            conn = new MySqlConnection(connStr); //数据库连接
-            conn.Open();
+            get {
+                if (conn == null) 
+                {
+                    conn = new MySqlConnection(connStr); //数据库连接
+                    conn.Open();
+                }
+                if (conn.State != ConnectionState.Open) 
+                {
+                    conn.Close();
+                    conn = new MySqlConnection(connStr); //数据库连接
+                    conn.Open();
+                }
+                return conn;
+            }
         }
 
         /// <summary>
@@ -31,10 +41,18 @@ namespace Net.Component
         /// <returns>受影响的函数</returns>
         public static int ExecuteNonQuery(string cmdText)
         {
-            cmd.CommandText = cmdText;
-            cmd.Connection = conn;
-            int res = cmd.ExecuteNonQuery();
-            return res;
+            try
+            {
+                cmd.CommandText = cmdText;
+                cmd.Connection = Connect;
+                int res = cmd.ExecuteNonQuery();
+                return res;
+            }
+            catch (Exception ex) 
+            {
+                NDebug.LogError(cmdText + " 错误:" + ex);
+            }
+            return -1;
         }
 
         /// <summary>
@@ -45,11 +63,19 @@ namespace Net.Component
         /// <returns>受影响的函数</returns>
         public static int ExecuteNonQuery(string cmdText, MySqlParameter[] paras)
         {
-            cmd.CommandText = cmdText;
-            cmd.Connection = conn; 
-            cmd.Parameters.AddRange(paras);
-            int res = cmd.ExecuteNonQuery();
-            return res;
+            try
+            {
+                cmd.CommandText = cmdText;
+                cmd.Connection = Connect; 
+                cmd.Parameters.AddRange(paras);
+                int res = cmd.ExecuteNonQuery();
+                return res;
+            }
+            catch (Exception ex) 
+            {
+                NDebug.LogError(cmdText + " 错误:" + ex);
+            }
+            return -1;
         }
 
         /// <summary>
@@ -61,7 +87,7 @@ namespace Net.Component
         {
             DataTable dt = new DataTable();
             cmd.CommandText = cmdText;
-            cmd.Connection = conn;
+            cmd.Connection = Connect;
             using (sdr = cmd.ExecuteReader())
             {
                 dt.Load(sdr);
@@ -79,7 +105,7 @@ namespace Net.Component
         {
             DataTable dt = new DataTable();
             cmd.CommandText = cmdText;
-            cmd.Connection = conn;
+            cmd.Connection = Connect;
             cmd.Parameters.AddRange(paras);
             using (sdr = cmd.ExecuteReader(CommandBehavior.CloseConnection))
             {
@@ -96,7 +122,7 @@ namespace Net.Component
         public static DataSet ExecuteDataset(string strSql)
         {
             DataSet ds = new DataSet();
-            sda = new MySqlDataAdapter(strSql, conn);
+            sda = new MySqlDataAdapter(strSql, Connect);
             try
             {
                 sda.Fill(ds);

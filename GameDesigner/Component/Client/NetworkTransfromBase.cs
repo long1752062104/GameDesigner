@@ -46,7 +46,10 @@ namespace Net.Component
     /// </summary>
     public abstract class NetworkTransformBase : MonoBehaviour
     {
-        internal static int Identity = 0;
+        /// <summary>
+        /// 实例化的物体带有<see cref="TransformComponent"/>组件的第一个唯一标识是从此字段开始计数++ (默认是0开始)
+        /// </summary>
+        public static int Identity = 0;
         protected Net.Vector3 position;
         protected Net.Quaternion rotation;
         protected Net.Vector3 localScale;

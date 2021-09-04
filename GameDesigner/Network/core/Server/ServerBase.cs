@@ -2246,9 +2246,9 @@ namespace Net.Server
             {
                 var client = clients[i];
                 if (client == null)
-                    return;
+                    continue;
                 if (client.CloseSend)
-                    return;
+                    continue;
                 if (!reliable)
                 {
                     if (client.udpRPCModels.Count >= ushort.MaxValue)
@@ -2290,9 +2290,9 @@ namespace Net.Server
             {
                 var client = clients[i];
                 if (client == null)
-                    return;
+                    continue;
                 if (client.CloseSend)
-                    return;
+                    continue;
                 if (!reliable)
                 {
                     if (client.udpRPCModels.Count >= ushort.MaxValue)
@@ -2320,9 +2320,9 @@ namespace Net.Server
             {
                 var client = clients[i];
                 if (client == null)
-                    return;
+                    continue;
                 if (client.CloseSend)
-                    return;
+                    continue;
                 if (!reliable)
                 {
                     if (client.udpRPCModels.Count >= ushort.MaxValue)
@@ -2399,9 +2399,9 @@ namespace Net.Server
             {
                 var client = clients[i];
                 if (client == null)
-                    return;
+                    continue;
                 if (client.CloseSend)
-                    return;
+                    continue;
                 if (!reliable)
                 {
                     if (client.udpRPCModels.Count >= ushort.MaxValue)
