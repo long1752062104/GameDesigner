@@ -36,6 +36,7 @@
         /// 数据库单例
         /// </summary>
         public static T Instance = new T();
+        public static T I => Instance;
         /// <summary>
         /// 当前程序工作路径, 数据库保存路径
         /// </summary>

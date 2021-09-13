@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
 namespace SerializeTestExample
@@ -70,9 +72,10 @@ namespace SerializeTestExample
 
     public class SerializeTest : MonoBehaviour
     {
-        private int index;
-        private string serName;
+        private int index, index1;
         private float time;
+        private float startTime;
+        public Text text;
 
         // Start is called before the first frame update
         void Start()
@@ -84,7 +87,6 @@ namespace SerializeTestExample
             {
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 stopwatch.Start();
-                serName = "极速序列化";
                 for (int i = 0; i < 1000000; i++)
                 {
                     var seg = Net.Share.NetConvertFast2.SerializeObject(new test()
@@ -99,9 +101,13 @@ namespace SerializeTestExample
                     var obj = Net.Share.NetConvertFast2.DeserializeObject<test>(seg);
                     index = i;
                 }
+                stopwatch.Stop();
                 Debug.Log("极速序列化:" + stopwatch.ElapsedMilliseconds);
-                stopwatch.Restart();
-                serName = "protobuff序列化";
+            });
+            Task.Run(() =>
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                stopwatch.Start();
                 using (var stream = new System.IO.MemoryStream(1024))
                 {
                     for (int i = 0; i < 1000000; i++)
@@ -118,12 +124,14 @@ namespace SerializeTestExample
                         });
                         stream.Position = 0;
                         var obj = ProtoBuf.Serializer.Deserialize<test>(stream);
-                        index = i;
+                        index1 = i;
                     }
                 }
+                stopwatch.Stop();
                 Debug.Log("protobuff序列化:" + stopwatch.ElapsedMilliseconds);
             });
             time = Time.time + 5f;
+            startTime = Time.time;
         }
 
         private void Update()
@@ -131,7 +139,9 @@ namespace SerializeTestExample
             if (Time.time > time) 
             {
                 time = Time.time + 5f;
-                Debug.Log(serName + ":" + index);
+                Debug.Log("极速序列化:" + index);
+                Debug.Log("protobuff序列化:" + index1);
+                text.text = $"极速序列化:<color=red>{index}</color>次/{Time.time - startTime}秒\nprotobuff序列化:<color=red>{index1}</color>次/{Time.time - startTime}秒";
             }
         }
     }
