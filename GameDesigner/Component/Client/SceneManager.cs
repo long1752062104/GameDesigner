@@ -9,8 +9,9 @@ namespace Net.Component
     /// </summary>
     public class SceneManager : SingleCase<SceneManager>
     {
-        [Header("Transform同步组件的index必须设置为此字段对应索引!")]
+        [Header("TransformComponent组件的index字段值必须设置对应数组元素的索引值!")]
         public NetworkTransformBase[] prefabs;
+        [HideInInspector]
         public MyDictionary<int, NetworkTransformBase> transforms = new MyDictionary<int, NetworkTransformBase>();
 
         public virtual void Start()
