@@ -129,6 +129,10 @@ namespace Net.Component
                 _client.Close();
         }
 
+        /// <summary>
+        /// 发起场景同步操作, 在同一个场景的所有客户端都会收到该操作参数operation
+        /// </summary>
+        /// <param name="operation"></param>
         public static void AddOperation(Operation operation)
         {
             Instance.client.AddOperation(operation);

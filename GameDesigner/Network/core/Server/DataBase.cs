@@ -16,6 +16,10 @@
         /// 用户标识, 记录玩家键值对, 可以以账号来记录或玩家名称来记录等等
         /// </summary>
         string UIDKey { get; set; }
+        /// <summary>
+        /// 记录数据存储在文件内部的位置索引 (内部自动赋值,不要修改其值)
+        /// </summary>
+        long StreamPosition { get; set; }
     }
 
     /// <summary>
@@ -38,6 +42,15 @@
         public static T Instance = new T();
         public static T I => Instance;
         /// <summary>
+        /// 单个玩家可以存储的数据大小
+        /// </summary>
+        public int DataSize { get; set; } = 1024;
+        /// <summary>
+        /// 当前的流位置
+        /// </summary>
+        public long StreamPosition { get; private set; }
+
+        /// <summary>
         /// 当前程序工作路径, 数据库保存路径
         /// </summary>
         public string rootPath;
@@ -49,6 +62,8 @@
         /// 所有玩家信息
         /// </summary>
         public ConcurrentDictionary<string, Player> PlayerInfos = new ConcurrentDictionary<string, Player>();
+
+        public ConcurrentQueue<Player> deleteList = new ConcurrentQueue<Player>();
 
         /// <summary>
         /// 直接读取数据库玩家对象
@@ -106,49 +121,57 @@
         {
             return Task.Run(() =>
             {
-                string[] playerDataPaths = Directory.GetFiles(rootPath + DataPath, "PlayerInfo.data", SearchOption.AllDirectories);
-                foreach (string path in playerDataPaths)
+                string path = rootPath + DataPath + "UserData.db";
+                using (FileStream fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
                 {
-                    var player = LoadPlayerData(path, lastHandle);
-                    if (player != null)
+                    long position = 0;
+                    while (position < fileStream.Length) 
                     {
-                        lastHandle?.Invoke(player);
-                        if (!PlayerInfos.TryAdd(player.UIDKey, player))
-                            NDebug.LogError($"有账号冲突:{player.UIDKey}");
+                        try 
+                        {
+                            byte[] buffer = new byte[DataSize];
+                            var count = fileStream.Read(buffer, 0, DataSize);
+                            if (count == 0)
+                                break;
+                            Player player = OnDeserialize(buffer, count);
+                            if (player != null)
+                            {
+                                lastHandle?.Invoke(player);
+                                if (!PlayerInfos.TryAdd(player.UIDKey, player))
+                                    NDebug.LogError($"有账号冲突:{player.UIDKey}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            NDebug.LogError($"文件:{path}异常！详细信息:{ex}");
+                        }
+                        position += DataSize;
                     }
+                    StreamPosition = position;
                 }
                 OnLoad();
             });
         }
 
         /// <summary>
-        /// 加载单个玩家数据文件路径
+        /// 当序列化数据, 即将写入磁盘文件时调用
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="lastHandle"></param>
-        public virtual Player LoadPlayerData(string path, Action<Player> lastHandle) 
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public virtual byte[] OnSerialize(Player player)
         {
-            try
-            {
-                FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                byte[] buffer = new byte[fileStream.Length];
-                int count = fileStream.Read(buffer, 0, buffer.Length);
-                fileStream.Close();
-                if (count == 0)
-                    return default;
-                Player player = OnDeserialize(buffer, count);
-                return player;
-            }
-            catch (Exception e) 
-            {
-                NDebug.LogError($"文件:{path}异常！详细信息:{e}");
-            }
-            return default;
+            string jsonStr = Newtonsoft_X.Json.JsonConvert.SerializeObject(player);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(jsonStr);
+            List<byte> list = new List<byte>();
+            list.AddRange(BitConverter.GetBytes(bytes.Length));
+            list.AddRange(bytes);
+            return list.ToArray();
         }
 
         public virtual Player OnDeserialize(byte[] buffer, int count)
         {
-            string jsonStr = System.Text.Encoding.UTF8.GetString(buffer, 0, count);
+            var count1 = BitConverter.ToInt32(buffer, 0);
+            string jsonStr = System.Text.Encoding.UTF8.GetString(buffer, 4, count1);
             return Newtonsoft_X.Json.JsonConvert.DeserializeObject<Player>(jsonStr);
         }
 
@@ -166,9 +189,15 @@
         {
             return Task.Run(() =>
             {
-                foreach (Player p in PlayerInfos.Values)
+                string path = rootPath + DataPath + "UserData.db";
+                using (FileStream fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
                 {
-                    Save(p).Wait();
+                    foreach (Player player in PlayerInfos.Values)
+                    {
+                        fileStream.Seek(player.StreamPosition, SeekOrigin.Begin);
+                        byte[] bytes = OnSerialize(player);
+                        fileStream.Write(bytes, 0, bytes.Length);
+                    }
                 }
             });
         }
@@ -176,59 +205,34 @@
         /// <summary>
         /// 存储单个玩家的数据到文件里
         /// </summary>
-        public virtual Task Save(Player player)
+        public virtual void Save(Player player)
         {
             if (string.IsNullOrEmpty(player.UIDKey))
                 throw new Exception("UIDKey字段必须赋值，UIDKey是记录玩家账号或唯一标识用!");
-            return Task.Run(() =>
+            string path = rootPath + DataPath + "UserData.db";
+            using (FileStream fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                string path = rootPath + DataPath + player.UIDKey;
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-                string path1 = path + "/PlayerInfo.data";
-                FileStream fileStream;
-                if (!File.Exists(path1))
-                    fileStream = new FileStream(path1, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-                else
-                    fileStream = new FileStream(path1, FileMode.Truncate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                fileStream.Seek(player.StreamPosition, SeekOrigin.Begin);
                 byte[] bytes = OnSerialize(player);
                 fileStream.Write(bytes, 0, bytes.Length);
-                fileStream.Close();
-            });
-        }
-
-        /// <summary>
-        /// 当序列化数据, 即将写入磁盘文件时调用
-        /// </summary>
-        /// <param name="player"></param>
-        /// <returns></returns>
-        public virtual byte[] OnSerialize(Player player)
-        {
-            string jsonStr = Newtonsoft_X.Json.JsonConvert.SerializeObject(player);
-            return System.Text.Encoding.UTF8.GetBytes(jsonStr);
+            }
         }
 
         /// <summary>
         /// 删除磁盘里面的单个用户的全部数据
         /// </summary>
-        public virtual Task Delete(Player player)
+        public virtual void Delete(Player player)
         {
-            return Task.Run(() =>
-            {
-                string path = rootPath + DataPath + player.UIDKey;
-                if (!Directory.Exists(path))
-                    return;
-                Directory.Delete(path, true);
-            });
+            deleteList.Enqueue(player);
         }
 
         /// <summary>
         /// 添加网络玩家到数据库
         /// </summary>
         /// <param name="player"></param>
-        public void AddPlayer(Player player)
+        public bool AddPlayer(Player player)
         {
-            AddPlayer(player.UIDKey, player);
+            return AddPlayer(player.UIDKey, player);
         }
 
         /// <summary>
@@ -236,10 +240,22 @@
         /// </summary>
         /// <param name="playerID"></param>
         /// <param name="player"></param>
-        public void AddPlayer(string playerID, Player player)
+        public bool AddPlayer(string playerID, Player player)
         {
-            PlayerInfos.TryAdd(playerID, player);
-            OnAddPlayer(playerID, player);
+            if (PlayerInfos.TryAdd(playerID, player))
+            {
+                if (deleteList.TryDequeue(out Player player1)) 
+                {
+                    player.StreamPosition = player1.StreamPosition;
+                    OnAddPlayer(playerID, player);
+                    return true;
+                }
+                player.StreamPosition = StreamPosition;
+                StreamPosition += DataSize;
+                OnAddPlayer(playerID, player);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -285,20 +301,24 @@
         /// 尝试移除网络玩家
         /// </summary>
         /// <param name="player"></param>
-        public void Remove(Player player)
+        public bool Remove(Player player)
         {
-            Remove(player.UIDKey);
+            return Remove(player.UIDKey);
         }
 
         /// <summary>
         /// 尝试移除网络玩家
         /// </summary>
         /// <param name="playerID"></param>
-        public void Remove(string playerID)
+        public bool Remove(string playerID)
         {
-            PlayerInfos.TryRemove(playerID, out Player player);
-            Delete(player);
-            OnDelete(player);
+            if (PlayerInfos.TryRemove(playerID, out Player player)) 
+            {
+                Delete(player);
+                OnDelete(player);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

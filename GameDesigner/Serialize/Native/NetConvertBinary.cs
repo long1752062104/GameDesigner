@@ -974,6 +974,30 @@
             return stream;
         }
 
+        /// <summary>
+        /// 序列化对象, 不记录反序列化类型
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static void SerializeObject<T>(Segment stream, T obj, bool recordType = false, bool ignore = false)
+        {
+            try
+            {
+                if (obj == null)
+                    return;
+                Type type = obj.GetType();
+                WriteObject(stream, type, obj, recordType, ignore);
+            }
+            catch (Exception ex)
+            {
+                NDebug.LogError("序列化:" + obj + "出错 详细信息:" + ex);
+            }
+            finally
+            {
+                stream.Count = stream.Position;
+            }
+        }
+
         private class Member
         {
             internal string name;
@@ -1224,9 +1248,12 @@
         /// <summary>
         /// 序列化对象
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="stream"></param>
         /// <param name="type"></param>
         /// <param name="target"></param>
+        /// <param name="recordType"></param>
+        /// <param name="ignore">忽略不使用<see cref="AddBaseType"/>方法也会被序列化</param>
         private static void WriteObject<T>(Segment stream, Type type, T target, bool recordType, bool ignore)
         {
             var members = GetMembers(type);
@@ -1351,11 +1378,19 @@
             return obj;
         }
 
+        /// <summary>
+        /// 反序列化
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="segment"></param>
+        /// <param name="recordType"></param>
+        /// <param name="ignore">忽略不使用<see cref="AddBaseType"/>方法也会被序列化</param>
+        /// <returns></returns>
         public static T DeserializeObject<T>(Segment segment, bool recordType = false, bool ignore = false)
         {
             T obj = default;
-            int index = segment.Index;
-            int count = segment.Count + index;
+            int index = segment.Index + segment.Position;
+            int count = segment.Index + segment.Count;
             while (index < count)
             {
                 Type type = typeof(T);
@@ -1365,6 +1400,16 @@
             return obj;
         }
 
+        /// <summary>
+        /// 反序列化
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer"></param>
+        /// <param name="index"></param>
+        /// <param name="count"></param>
+        /// <param name="recordType">序列化的类型字段是 object[]字段时, 可以帮你记录object的绝对类型</param>
+        /// <param name="ignore">忽略不使用<see cref="AddBaseType"/>方法也会被序列化</param>
+        /// <returns></returns>
         public static T DeserializeObject<T>(byte[] buffer, int index, int count, bool recordType = false, bool ignore = false)
         {
             T obj = default;
@@ -1399,8 +1444,8 @@
         public static object Deserialize(Segment segment, bool ignore = false)
         {
             object obj = null;
-            int index = segment.Index;
-            int count = segment.Count + index;
+            int index = segment.Index + segment.Position;
+            int count = segment.Index + segment.Count;
             while (index < count)
             {
                 Type type = IndexToType(BitConverter.ToUInt16(segment.Buffer, index));

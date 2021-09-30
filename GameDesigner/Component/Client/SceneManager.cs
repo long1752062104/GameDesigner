@@ -35,6 +35,15 @@ namespace Net.Component
                     case Command.Destroy:
                         DestroyTransform(opt);
                         break;
+                    case Command.Animator:
+                        AnimatorSync(opt);
+                        break;
+                    case Command.AnimatorParameter:
+                        AnimatorParameterSync(opt);
+                        break;
+                    case Command.Animation:
+                        AnimationSync(opt);
+                        break;
                     default:
                         OnOperationOther(opt);
                         break;
@@ -118,6 +127,24 @@ namespace Net.Component
         /// <param name="opt"></param>
         public virtual void OnTransformSync(Operation opt)
         {
+        }
+
+        protected void AnimatorSync(Operation opt) 
+        {
+            if (transforms.TryGetValue(opt.index, out NetworkTransformBase t)) 
+                t.GetComponent<NetworkAnimator>().Play(opt.index1);
+        }
+
+        protected void AnimatorParameterSync(Operation opt)
+        {
+            if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+                t.GetComponent<NetworkAnimator>().SyncAnimatorParameter(opt);
+        }
+
+        protected void AnimationSync(Operation opt) 
+        {
+            if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+                t.GetComponent<NetworkAnimation>().Play(opt.index1);
         }
 
         void OnDestroy()

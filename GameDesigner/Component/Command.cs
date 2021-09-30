@@ -53,11 +53,17 @@
         /// TransformComponent组件被销毁指令
         /// </summary>
         public const byte Destroy = 41;
-
-        public const byte EnemyDeath = 42;
-
-        public const byte PlayerDeath = 43;
-
-        public const byte EnemyDamage = 44;
+        /// <summary>
+        /// 新版动画同步命令
+        /// </summary>
+        public const byte Animator = 42;
+        /// <summary>
+        /// 新版动画参数同步命令
+        /// </summary>
+        public const byte AnimatorParameter = 43;
+        /// <summary>
+        /// 旧版动画同步命令
+        /// </summary>
+        public const byte Animation = 44;
     }
 }
