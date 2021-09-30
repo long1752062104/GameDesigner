@@ -2,6 +2,7 @@
 namespace Net.Component
 {
     using Net.Share;
+    using System.Collections.Generic;
     using UnityEngine;
 
     public enum SyncMode
@@ -72,7 +73,9 @@ namespace Net.Component
         public bool fixedSync;
         public float fixedSendTime = 1f;//固定发送时间
         private float fixedTime;
-        
+        internal List<NetworkAnimation> animations = new List<NetworkAnimation>();
+        internal List<NetworkAnimator> animators = new List<NetworkAnimator>();
+
         public virtual void Start()
         {
             mode = syncMode;

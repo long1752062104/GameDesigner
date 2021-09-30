@@ -12,6 +12,7 @@ namespace Net.Component
         private AnimatorControllerParameter[] parameters;
         private float sendTime;
         public float rate = 30f;//网络帧率, 一秒30次
+        internal int id;
 
         private void Awake()
         {
@@ -28,6 +29,8 @@ namespace Net.Component
                     defaultInt = animator.parameters[i].defaultInt
                 };
             }
+            nt.animators.Add(this);
+            id = nt.animators.Count - 1;
         }
 
         // Update is called once per frame
@@ -50,7 +53,8 @@ namespace Net.Component
                             parameters[i].defaultBool = bvalue;
                             ClientManager.AddOperation(new Operation(Command.AnimatorParameter, nt.identity)
                             {
-                                cmd1 = 1,
+                                cmd1 = (byte)id,
+                                cmd2 = 1,
                                 index1 = i,
                                 index2 = bvalue ? 1 : 0
                             });
@@ -63,7 +67,8 @@ namespace Net.Component
                             parameters[i].defaultFloat = fvalue;
                             ClientManager.AddOperation(new Operation(Command.AnimatorParameter, nt.identity)
                             {
-                                cmd1 = 2,
+                                cmd1 = (byte)id,
+                                cmd2 = 2,
                                 index1 = i,
                                 direction = new Net.Vector3(fvalue, 0,0)
                             });
@@ -76,7 +81,8 @@ namespace Net.Component
                             parameters[i].defaultInt = ivalue;
                             ClientManager.AddOperation(new Operation(Command.AnimatorParameter, nt.identity)
                             {
-                                cmd1 = 3,
+                                cmd1 = (byte)id,
+                                cmd2 = 3,
                                 index1 = i,
                                 index2 = ivalue
                             });
@@ -89,7 +95,8 @@ namespace Net.Component
                 nameHash = nameHash1;
                 ClientManager.AddOperation(new Operation(Command.Animator, nt.identity)
                 {
-                    index1 = nameHash1
+                    index1 = id,
+                    index2 = nameHash1
                 });
             }
         }
@@ -101,7 +108,7 @@ namespace Net.Component
 
         public void SyncAnimatorParameter(Operation opt) 
         {
-            switch (opt.cmd1)
+            switch (opt.cmd2)
             {
                 case 1:
                     parameters[opt.index1].defaultBool = opt.index2 == 1;

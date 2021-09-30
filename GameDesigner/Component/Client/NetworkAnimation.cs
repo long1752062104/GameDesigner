@@ -14,12 +14,15 @@ namespace Net.Component
         private float sendTime;
         public float rate = 30f;//网络帧率, 一秒30次
         private bool beinPlay;
+        internal int id;
 
         private void Awake()
         {
             anim = GetComponent<Animation>();
             foreach (AnimationState item in anim)
                 clips.Add(item.clip);
+            nt.animations.Add(this);
+            id = nt.animations.Count - 1;
         }
 
         void Update()
@@ -46,7 +49,8 @@ namespace Net.Component
                     }
                     ClientManager.AddOperation(new Operation(Command.Animation, nt.identity)
                     {
-                        index1 = index
+                        index1 = id,
+                        index2 = index
                     });
                 }
             }
@@ -58,7 +62,6 @@ namespace Net.Component
 
         public void Play(int index)
         {
-            Debug.Log(clips[index].name);
             anim.Play(clips[index].name);
         }
     }

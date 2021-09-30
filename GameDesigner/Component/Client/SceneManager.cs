@@ -132,19 +132,19 @@ namespace Net.Component
         protected void AnimatorSync(Operation opt) 
         {
             if (transforms.TryGetValue(opt.index, out NetworkTransformBase t)) 
-                t.GetComponent<NetworkAnimator>().Play(opt.index1);
+                t.animators[opt.index1].Play(opt.index2);
         }
 
         protected void AnimatorParameterSync(Operation opt)
         {
             if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
-                t.GetComponent<NetworkAnimator>().SyncAnimatorParameter(opt);
+                t.animators[opt.cmd1].SyncAnimatorParameter(opt);
         }
 
         protected void AnimationSync(Operation opt) 
         {
             if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
-                t.GetComponent<NetworkAnimation>().Play(opt.index1);
+                t.animations[opt.index1].Play(opt.index2);
         }
 
         void OnDestroy()
