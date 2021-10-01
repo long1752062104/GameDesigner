@@ -9,18 +9,27 @@ namespace Net.Component
         public NetworkTransformBase nt;
         private Animator animator;
         private int nameHash = -1;
-        private AnimatorControllerParameter[] parameters;
+        private AnimatorParameter[] parameters;
         private float sendTime;
         public float rate = 30f;//网络帧率, 一秒30次
         internal int id;
 
+        private class AnimatorParameter 
+        {
+            internal string name;
+            internal AnimatorControllerParameterType type;
+            internal float defaultFloat;
+            internal int defaultInt;
+            internal bool defaultBool;
+        }
+
         private void Awake()
         {
             animator = GetComponent<Animator>();
-            parameters = new AnimatorControllerParameter[animator.parameters.Length];
+            parameters = new AnimatorParameter[animator.parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                parameters[i] = new AnimatorControllerParameter()
+                parameters[i] = new AnimatorParameter()
                 {
                     type = animator.parameters[i].type,
                     name = animator.parameters[i].name,

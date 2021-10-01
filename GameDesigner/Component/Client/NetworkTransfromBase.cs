@@ -31,17 +31,6 @@ namespace Net.Component
         SynchronizedAll
     }
 
-    public enum SyncProperty
-    {
-        All,
-        position,
-        rotation,
-        localScale,
-        position_rotation,
-        position_localScale,
-        rotation_localScale,
-    }
-
     /// <summary>
     /// 网络Transform同步组件基类
     /// </summary>
@@ -55,7 +44,9 @@ namespace Net.Component
         protected Net.Quaternion rotation;
         protected Net.Vector3 localScale;
         public SyncMode syncMode = SyncMode.Control;
-        public SyncProperty property = SyncProperty.All;
+        public bool syncPosition = true;
+        public bool syncRotation = true;
+        public bool syncScale = false;
         [DisplayOnly]
         public SyncMode mode = SyncMode.Synchronized;
         [DisplayOnly]
@@ -65,8 +56,9 @@ namespace Net.Component
         internal Net.Vector3 netPosition;
         internal Net.Quaternion netRotation;
         internal Net.Vector3 netLocalScale;
+        [Tooltip("对应SceneManager组件的prefabs数组元素索引")]
         public byte index;//在SceneManager的prefabs数组的索引
-        public bool setID;
+        [Tooltip("设置自定义的唯一ID,注意:不要让唯一ID冲突,否则会出现问题!")]
         public int m_identity;
         public float rate = 30f;//网络帧率, 一秒30次
         public float lerpSpeed = 0.3f;
@@ -92,7 +84,7 @@ namespace Net.Component
                 Destroy(gameObject);
                 return;
             }
-            if (setID) 
+            if (m_identity != 0) 
             {
                 identity = m_identity;
                 if (!sm.transforms.ContainsKey(identity))
@@ -127,143 +119,34 @@ namespace Net.Component
                 rotation = transform.rotation;
                 localScale = transform.localScale;
                 fixedTime = Time.time + fixedSendTime;
-                switch (property)
+                ClientManager.AddOperation(new Operation(Command.Transform, identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
                 {
-                    case SyncProperty.All:
-                        ClientManager.AddOperation(new Operation(Command.Transform, identity, localScale, position, rotation)
-                        {
-                            cmd1 = (byte)mode,
-                            cmd2 = index,
-                            index1 = ClientManager.UID
-                        });
-                        break;
-                    case SyncProperty.position:
-                        ClientManager.AddOperation(new Operation(Command.Transform, identity)
-                        {
-                            position = position,
-                            cmd1 = (byte)mode,
-                            cmd2 = index,
-                            index1 = ClientManager.UID
-                        });
-                        break;
-                    case SyncProperty.rotation:
-                        ClientManager.AddOperation(new Operation(Command.Transform, identity)
-                        {
-                            rotation = rotation,
-                            cmd1 = (byte)mode,
-                            cmd2 = index,
-                            index1 = ClientManager.UID
-                        });
-                        break;
-                    case SyncProperty.localScale:
-                        ClientManager.AddOperation(new Operation(Command.Transform, identity)
-                        {
-                            direction = localScale,
-                            cmd1 = (byte)mode,
-                            cmd2 = index,
-                            index1 = ClientManager.UID
-                        });
-                        break;
-                    case SyncProperty.position_rotation:
-                        ClientManager.AddOperation(new Operation(Command.Transform, identity, position, rotation)
-                        {
-                            cmd1 = (byte)mode,
-                            cmd2 = index,
-                            index1 = ClientManager.UID
-                        });
-                        break;
-                    case SyncProperty.position_localScale:
-                        ClientManager.AddOperation(new Operation(Command.Transform, identity)
-                        {
-                            position = position,
-                            direction = localScale,
-                            cmd1 = (byte)mode,
-                            cmd2 = index,
-                            index1 = ClientManager.UID
-                        });
-                        break;
-                    case SyncProperty.rotation_localScale:
-                        ClientManager.AddOperation(new Operation(Command.Transform, identity)
-                        {
-                            rotation = rotation,
-                            direction = localScale,
-                            cmd1 = (byte)mode,
-                            cmd2 = index,
-                            index1 = ClientManager.UID
-                        });
-                        break;
-                }
+                    cmd1 = (byte)mode,
+                    cmd2 = index,
+                    index1 = ClientManager.UID
+                });
             }
         }
 
         public virtual void SyncTransform()
         {
-            switch (property)
-            {
-                case SyncProperty.All:
-                    transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
-                    if (netRotation != Net.Quaternion.identity)
-                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
-                    transform.localScale = netLocalScale;
-                    break;
-                case SyncProperty.position:
-                    transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
-                    break;
-                case SyncProperty.rotation:
-                    if (netRotation != Net.Quaternion.identity)
-                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
-                    break;
-                case SyncProperty.localScale:
-                    transform.localScale = netLocalScale;
-                    break;
-                case SyncProperty.position_rotation:
-                    transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
-                    if (netRotation != Net.Quaternion.identity)
-                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
-                    break;
-                case SyncProperty.position_localScale:
-                    transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
-                    transform.localScale = netLocalScale;
-                    break;
-                case SyncProperty.rotation_localScale:
-                    if (netRotation != Net.Quaternion.identity)
-                        transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
-                    transform.localScale = netLocalScale;
-                    break;
-            }
+            if (syncPosition)
+                transform.position = Vector3.Lerp(transform.position, netPosition, lerpSpeed);
+            if (syncRotation)
+                if (netRotation != Net.Quaternion.identity)
+                    transform.rotation = Quaternion.Lerp(transform.rotation, netRotation, lerpSpeed);
+            if(syncScale)
+                transform.localScale = netLocalScale;
         }
 
         public virtual void SyncControlTransform()
         {
-            switch (property)
-            {
-                case SyncProperty.All:
-                    transform.position = netPosition;
-                    transform.rotation = netRotation;
-                    transform.localScale = netLocalScale;
-                    break;
-                case SyncProperty.position:
-                    transform.position = netPosition;
-                    break;
-                case SyncProperty.rotation:
-                    transform.rotation = netRotation;
-                    break;
-                case SyncProperty.localScale:
-                    transform.localScale = netLocalScale;
-                    break;
-                case SyncProperty.position_rotation:
-                    transform.position = netPosition;
-                    transform.rotation = netRotation;
-                    break;
-                case SyncProperty.position_localScale:
-                    transform.position = netPosition;
-                    transform.localScale = netLocalScale;
-                    break;
-                case SyncProperty.rotation_localScale:
-                    transform.rotation = netRotation;
-                    transform.localScale = netLocalScale;
-                    break;
-            }
+            if (syncPosition)
+                transform.position = netPosition;
+            if (syncRotation) 
+                transform.rotation = netRotation;
+            if (syncScale) 
+                transform.localScale = netLocalScale;
         }
 
         public virtual void OnDestroy()
