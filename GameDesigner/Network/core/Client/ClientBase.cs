@@ -487,6 +487,12 @@ namespace Net.Client
                         continue;
                     if(info is FieldInfo field)
                     {
+                        var code = Type.GetTypeCode(field.FieldType);
+                        if (code == TypeCode.Object & !field.FieldType.IsEnum)
+                        {
+                            NDebug.LogError($"错误! 尚未支持同步字段,属性的{field.FieldType}类型! 错误定义:{target.GetType().Name}类的{field.Name}字段");
+                            continue;
+                        }
                         if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
                         {
                             varSyncInfos.Add(varSync.id, new VarSyncFieldInfo()
@@ -510,6 +516,17 @@ namespace Net.Client
                     }
                     else if (info is PropertyInfo property)
                     {
+                        if (!property.CanRead | !property.CanWrite)
+                        {
+                            NDebug.LogError($"错误! {target.GetType().Name}类的{property.Name}属性不能完全读写!");
+                            continue;
+                        }
+                        var code = Type.GetTypeCode(property.PropertyType);
+                        if (code == TypeCode.Object & !property.PropertyType.IsEnum)
+                        {
+                            NDebug.LogError($"错误! 尚未支持同步字段,属性的{property.PropertyType}类型! 错误定义:{target.GetType().Name}类的{property.Name}属性字段");
+                            continue;
+                        }
                         if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
                         {
                             varSyncInfos.Add(varSync.id, new VarSyncPropertyInfo()
