@@ -1609,6 +1609,8 @@
     <Compile Include="GameDesigner\Network\core\Share\SendBuffer.cs" />
     <Compile Include="GameDesigner\Network\core\Share\TransportMode.cs" />
     <Compile Include="GameDesigner\Network\core\Share\UnZipHelper.cs" />
+    <Compile Include="GameDesigner\Network\core\Share\VarSync.cs" />
+    <Compile Include="GameDesigner\Network\core\Share\VarSyncInfo.cs" />
     <Compile Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs" />
     <Compile Include="GameDesigner\Network\core\System\ActionEvent.cs" />
     <Compile Include="GameDesigner\Network\core\System\BufferPool.cs" />

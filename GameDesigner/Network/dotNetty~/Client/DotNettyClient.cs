@@ -100,6 +100,7 @@ namespace Net.Client
             StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
             StartThread("HeartHandle", HeartHandle);
+            StartThread("VarSyncHandler", VarSyncHandler);
             if (!UseUnityThread)
                 StartThread("UpdateHandle", UpdateHandle);
 #if UNITY_ANDROID

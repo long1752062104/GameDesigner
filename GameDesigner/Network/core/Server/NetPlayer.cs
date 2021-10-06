@@ -107,6 +107,8 @@
         /// </summary>
         internal EndPoint TcpRemoteEndPoint { get; set; }
 
+        internal MyDictionary<ushort, VarSyncInfo> varSyncInfos = new MyDictionary<ushort, VarSyncInfo>();
+
         #region 创建网络客户端(玩家)
         /// <summary>
         /// 构造网络客户端
@@ -196,17 +198,69 @@
                 foreach (RPCMethod o in Rpcs.Values)
                     if (o.target == target)
                         return;
-
-            foreach (MethodInfo info in target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            var members = target.GetType().GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var info in members)
             {
                 RPCFun rpc = info.GetCustomAttribute<RPCFun>();
-                if (rpc == null)
-                    continue;
-                if (Rpcs.ContainsKey(info.Name))
+                if (rpc != null)
                 {
-                    throw new TargetException($"添加客户端私有Rpc错误！Rpc方法{info.Name}使用同一函数名，这是不允许的，字典键值无法添加相同的函数名！");
+                    if (!Rpcs.ContainsKey(info.Name))
+                        Rpcs.Add(info.Name, new RPCMethod(target, info as MethodInfo, rpc.cmd));
+                    else
+                        NDebug.LogError($"添加客户端私有Rpc错误！Rpc方法{info.Name}使用同一函数名，这是不允许的，字典键值无法添加相同的函数名！");
                 }
-                Rpcs.Add(info.Name, new RPCMethod(target, info, rpc.cmd));
+                else 
+                {
+                    VarSync varSync = info.GetCustomAttribute<VarSync>();
+                    if (varSync == null)
+                        continue;
+                    if (info is FieldInfo field)
+                    {
+                        if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
+                        {
+                            varSyncInfos.Add(varSync.id, new VarSyncFieldInfo()
+                            {
+                                id = varSync.id,
+                                type = field.FieldType,
+                                target = target,
+                                fieldInfo = field,
+                                value = field.GetValue(target),
+                                passive = varSync.passive
+                            });
+                        }
+                        else if (varSyncInfo is VarSyncFieldInfo field1)
+                        {
+                            NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
+                        }
+                        else if (varSyncInfo is VarSyncPropertyInfo property)
+                        {
+                            NDebug.LogError($"错误! 变量同步唯一id冲突, {property.target.GetType().Name}类的{property.propertyInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
+                        }
+                    }
+                    else if (info is PropertyInfo property)
+                    {
+                        if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
+                        {
+                            varSyncInfos.Add(varSync.id, new VarSyncPropertyInfo()
+                            {
+                                id = varSync.id,
+                                type = property.PropertyType,
+                                target = target,
+                                propertyInfo = property,
+                                value = property.GetValue(target),
+                                passive = varSync.passive
+                            });
+                        }
+                        else if (varSyncInfo is VarSyncFieldInfo field1)
+                        {
+                            NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
+                        }
+                        else if (varSyncInfo is VarSyncPropertyInfo property1)
+                        {
+                            NDebug.LogError($"错误! 变量同步唯一id冲突, {property1.target.GetType().Name}类的{property1.propertyInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
+                        }
+                    }
+                }
             }
         }
 

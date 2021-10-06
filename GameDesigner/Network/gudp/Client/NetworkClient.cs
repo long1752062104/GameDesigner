@@ -133,6 +133,7 @@ namespace Net.Client
             StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
             StartThread("HeartHandle", HeartHandle);
+            StartThread("VarSyncHandler", VarSyncHandler);
             if (!UseUnityThread)
                 StartThread("UpdateHandle", UpdateHandle);
         }
@@ -326,6 +327,7 @@ namespace Net.Client
             stackStreamName = "";
             if (Instance == this)
                 Instance = null;
+            BufferPool.RUN = false;
             NDebug.Log("客户端已关闭！");
         }
 

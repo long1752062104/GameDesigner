@@ -216,10 +216,14 @@ namespace Net.Share
             return num;
         }
 
-        public T ReadValue<T>() 
+        public T ReadValue<T>()
+        {
+            return (T)ReadValue(typeof(T));
+        }
+
+        public object ReadValue(Type type) 
         {
             object value = null;
-            var type = typeof(T);
             switch (Type.GetTypeCode(type)) 
             {
                 case TypeCode.Byte:
@@ -268,7 +272,7 @@ namespace Net.Share
                     value = ReadString();
                     break;
             }
-            return (T)value;
+            return value;
         }
         public unsafe ulong ReadUInt64()
         {
@@ -720,7 +724,7 @@ namespace Net.Share
         private static readonly int[] TABLE = new int[] {
             256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576,2097152,4194304,8388608,16777216,33554432,67108864,134217728,268435456,536870912,1073741824
         };
-        private static readonly bool RUN;
+        internal static bool RUN;
 
         static BufferPool() 
         {
@@ -733,7 +737,8 @@ namespace Net.Share
             {
                 while (RUN) 
                 {
-                    try {
+                    try
+                    {
                         Thread.Sleep(1000);
                         for (int i = 0; i < STACKS.Length; i++)
                         {

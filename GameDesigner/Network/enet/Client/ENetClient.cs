@@ -230,6 +230,7 @@
                 Library.Deinitialize();
                 Library.INIT = false;
             }
+            BufferPool.RUN = false;
             NDebug.Log("客户端已关闭！");
         }
 

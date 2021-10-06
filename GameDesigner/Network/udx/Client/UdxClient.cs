@@ -103,6 +103,7 @@
             StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
             StartThread("HeartHandle", HeartHandle);
+            StartThread("VarSyncHandler", VarSyncHandler);
             if (!UseUnityThread)
                 StartThread("UpdateHandle", UpdateHandle);
 #if UNITY_ANDROID
@@ -224,6 +225,7 @@
                 UdxLib.UUnInit();
                 UdxLib.INIT = false;
             }
+            BufferPool.RUN = false;
             NDebug.Log("客户端已关闭！");
         }
 

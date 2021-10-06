@@ -62,6 +62,8 @@
             dtt.Start();
             Thread suh = new Thread(SceneUpdateHandle) { IsBackground = true, Name = "SceneUpdateHandle" };
             suh.Start();
+            Thread vsh = new Thread(VarSyncHandler) { IsBackground = true, Name = "VarSyncHandler" };
+            vsh.Start();
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -79,6 +81,7 @@
             threads.Add("HeartUpdate", hupdate);
             threads.Add("DataTrafficThread", dtt);
             threads.Add("SceneUpdateHandle", suh);
+            threads.Add("VarSyncHandler", vsh);
             KeyValuePair<string, Scene> scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
             scene.Value.Name = scene.Key;

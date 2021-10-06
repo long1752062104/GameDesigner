@@ -588,6 +588,8 @@ namespace Net.Server
             dtt.Start();
             Thread suh = new Thread(SceneUpdateHandle) { IsBackground = true, Name = "SceneUpdateHandle" };
             suh.Start();
+            Thread vsh = new Thread(VarSyncHandler) { IsBackground = true, Name = "VarSyncHandler" };
+            vsh.Start();
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -605,6 +607,7 @@ namespace Net.Server
             threads.Add("HeartUpdate", hupdate);
             threads.Add("DataTrafficThread", dtt);
             threads.Add("SceneUpdateHandle", suh);
+            threads.Add("VarSyncHandler", vsh);
             KeyValuePair<string, Scene> scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
             scene.Value.Name = scene.Key;
@@ -1102,6 +1105,23 @@ namespace Net.Server
 #pragma warning restore CS0618 // 类型或成员已过时
                         segment.WriteValue(iPEndPoint.Port);
                         SendRT(client, NetCmd.P2P, segment.ToArray(false));
+                    }
+                    break;
+                case NetCmd.VarSync:
+                    Segment segment1 = new Segment(model.buffer, model.index, model.count, false);
+                    while (segment1.Position < segment1.Index + segment1.Count)
+                    {
+                        var id = segment1.ReadValue<ushort>();
+                        if (client.varSyncInfos.TryGetValue(id, out VarSyncInfo varSync))
+                        {
+                            var value = segment1.ReadValue(varSync.type);
+                            varSync.SetValue(value);
+                        }
+                        else 
+                        {
+                            Debug.LogWarning($"未定义同步变量ID={id}, 请定义或收集同步变量, 使用{typeof(Player)}.AddRpc(xxx)方法收集!");
+                            break;
+                        }
                     }
                     break;
                 default:
@@ -2641,6 +2661,58 @@ namespace Net.Server
                     OnRPCExecute = rpc.OnRpcExecute;
                     OnRemoveRpc = rpc.RemoveRpc;
                     break;
+            }
+        }
+
+        /// <summary>
+        /// 字段,属性同步线程
+        /// </summary>
+        protected virtual void VarSyncHandler()
+        {
+            while (IsRunServer)
+            {
+                try
+                {
+                    Thread.Sleep(1);
+                    foreach (var client in AllClients)
+                    {
+                        if (client.Value == null)
+                            continue;
+                        Segment segment = null;
+                        var entries = client.Value.varSyncInfos.entries;
+                        for (int i = 0; i < client.Value.varSyncInfos.count; i++)
+                        {
+                            if (entries[i].hashCode >= 0)
+                            {
+                                var varSync = entries[i].value;
+                                if (varSync == null)
+                                    continue;
+                                var value = varSync.GetValue();
+                                if (value == null)
+                                    continue;
+                                if (varSync.passive)
+                                    continue;
+                                if (!value.Equals(varSync.value))
+                                {
+                                    if(segment == null)
+                                        segment = BufferPool.Take();
+                                    segment.WriteValue(varSync.id);
+                                    segment.WriteValue(value);
+                                    varSync.value = value;
+                                }
+                            }
+                        }
+                        if (segment != null)
+                        {
+                            var buffer = segment.ToArray(true);
+                            SendRT(client.Value, NetCmd.VarSync, buffer);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
             }
         }
     }

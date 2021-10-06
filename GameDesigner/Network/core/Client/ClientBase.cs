@@ -397,6 +397,7 @@ namespace Net.Client
         internal string persistentDataPath;
         private readonly MyDictionary<uint, FrameList> revdFrames = new MyDictionary<uint, FrameList>();
         private long fileStreamCurrPos;
+        private readonly MyDictionary<ushort, VarSyncInfo> varSyncInfos = new MyDictionary<ushort, VarSyncInfo>();
 
         /// <summary>
         /// 构造函数
@@ -422,6 +423,8 @@ namespace Net.Client
         {
 #if !UNITY_EDITOR || BUILT_UNITY
             Close();
+#elif UNITY_EDITOR
+            Close(false, 1);
 #endif
         }
 
@@ -461,13 +464,13 @@ namespace Net.Client
                 }
             }
             Type type = target.GetType();
-            MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            foreach (MethodInfo info in methods)
+            var members = type.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var info in members)
             {
                 RPCFun rpc = info.GetCustomAttribute<RPCFun>();
                 if (rpc != null)
                 {
-                    RPCMethod item = new RPCMethod(target, info, rpc.cmd);
+                    RPCMethod item = new RPCMethod(target, info as MethodInfo, rpc.cmd);
                     if (rpc.mask != 0)
                     {
                         if (!RpcMaskDic.TryGetValue(rpc.mask, out string func))
@@ -476,6 +479,58 @@ namespace Net.Client
                             NDebug.LogError($"错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
                     }
                     AddRpc(RpcsDic, Rpcs, item);
+                }
+                else
+                {
+                    VarSync varSync = info.GetCustomAttribute<VarSync>();
+                    if (varSync == null)
+                        continue;
+                    if(info is FieldInfo field)
+                    {
+                        if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
+                        {
+                            varSyncInfos.Add(varSync.id, new VarSyncFieldInfo()
+                            {
+                                id = varSync.id,
+                                type = field.FieldType,
+                                target = target,
+                                fieldInfo = field,
+                                value = field.GetValue(target),
+                                passive = varSync.passive
+                            });
+                        }
+                        else if (varSyncInfo is VarSyncFieldInfo field1)
+                        {
+                            NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
+                        }
+                        else if (varSyncInfo is VarSyncPropertyInfo property)
+                        {
+                            NDebug.LogError($"错误! 变量同步唯一id冲突, {property.target.GetType().Name}类的{property.propertyInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
+                        }
+                    }
+                    else if (info is PropertyInfo property)
+                    {
+                        if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
+                        {
+                            varSyncInfos.Add(varSync.id, new VarSyncPropertyInfo()
+                            {
+                                id = varSync.id,
+                                type = property.PropertyType,
+                                target = target,
+                                propertyInfo = property,
+                                value = property.GetValue(target),
+                                passive = varSync.passive
+                            });
+                        }
+                        else if (varSyncInfo is VarSyncFieldInfo field1)
+                        {
+                            NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
+                        }
+                        else if (varSyncInfo is VarSyncPropertyInfo property1)
+                        {
+                            NDebug.LogError($"错误! 变量同步唯一id冲突, {property1.target.GetType().Name}类的{property1.propertyInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
+                        }
+                    }
                 }
             }
         }
@@ -1050,6 +1105,7 @@ namespace Net.Client
             StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
             StartThread("HeartHandle", HeartHandle);
+            StartThread("VarSyncHandler", VarSyncHandler);
             if (!UseUnityThread)
                 StartThread("UpdateHandle", UpdateHandle);
 #if UNITY_ANDROID
@@ -1894,6 +1950,23 @@ namespace Net.Client
                         return;
                     InvokeContext(() => { OnP2PCallback(iPEndPoint); });
                     break;
+                case NetCmd.VarSync:
+                    Segment segment1 = new Segment(model.buffer, model.index, model.count, false);
+                    while (segment1.Position < segment1.Index + segment1.Count)
+                    {
+                        var id = segment1.ReadValue<ushort>();
+                        if (varSyncInfos.TryGetValue(id, out VarSyncInfo varSync))
+                        {
+                            var value = segment1.ReadValue(varSync.type);
+                            varSync.SetValue(value);
+                        }
+                        else
+                        {
+                            NDebug.LogWarning($"未定义同步变量ID={id}, 请定义或收集同步变量, 使用ClientManager.I.client.AddRpcHandle(xxx)方法收集!");
+                            break;
+                        }
+                    }
+                    break;
                 default:
                     InvokeOnRevdBufferHandle(model);
                     break;
@@ -2094,6 +2167,7 @@ namespace Net.Client
                 Instance = null;
             sendReliableFrame = 0;
             revdReliableFrame = 0;
+            BufferPool.RUN = false;
             NDebug.Log("客户端关闭成功!");
         }
 
@@ -2776,6 +2850,53 @@ namespace Net.Client
                 case NetworkState.TryToConnect:
                     OnTryToConnectHandle += action;
                     break;
+            }
+        }
+
+        /// <summary>
+        /// 字段,属性同步处理线程
+        /// </summary>
+        protected virtual void VarSyncHandler()
+        {
+            while (Connected)
+            {
+                try
+                {
+                    Thread.Sleep(1);
+                    Segment segment = null;
+                    var entries = varSyncInfos.entries;
+                    for (int i = 0; i < varSyncInfos.count; i++)
+                    {
+                        if (entries[i].hashCode >= 0)
+                        {
+                            var varSync = entries[i].value;
+                            if (varSync == null)
+                                continue;
+                            if (varSync.passive)
+                                continue;
+                            var value = varSync.GetValue();
+                            if (value == null)
+                                continue;
+                            if (!value.Equals(varSync.value))
+                            {
+                                if (segment == null)
+                                    segment = BufferPool.Take();
+                                segment.WriteValue(varSync.id);
+                                segment.WriteValue(value);
+                                varSync.value = value;
+                            }
+                        }
+                    }
+                    if (segment != null) 
+                    {
+                        var buffer = segment.ToArray(true);
+                        SendRT(NetCmd.VarSync, buffer);
+                    }
+                }
+                catch (Exception e)
+                {
+                    NDebug.LogError(e);
+                }
             }
         }
     }

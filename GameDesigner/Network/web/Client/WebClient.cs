@@ -201,6 +201,7 @@ namespace Net.Client
             stack = 0;
             if (Instance == this)
                 Instance = null;
+            BufferPool.RUN = false;
             NDebug.Log("客户端已关闭！");
         }
 
