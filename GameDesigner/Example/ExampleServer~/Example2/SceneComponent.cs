@@ -45,7 +45,7 @@ namespace Example2
         /// <summary>
         /// 网络帧同步, 状态同步更新
         /// </summary>
-        public override void Update(IServerSendHandle<PlayerComponent> handle, byte cmd = 18)
+        public override void Update(IServerSendHandle<PlayerComponent> handle, byte cmd = 19)
         {
             var players = Clients;
             int playerCount = players.Count;

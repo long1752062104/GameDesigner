@@ -225,7 +225,7 @@
                 UdxLib.UUnInit();
                 UdxLib.INIT = false;
             }
-            BufferPool.RUN = false;
+            Config.GlobalConfig.ThreadPoolRun = false;
             NDebug.Log("客户端已关闭！");
         }
 

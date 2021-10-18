@@ -21,6 +21,7 @@ namespace MVC.Control
 #endif
         public string dllPath;
         public string pdbPath;
+        public Action<AppDomain> OnRegisterDelegate;
 
         // Start is called before the first frame update
         void Start()
@@ -82,6 +83,7 @@ namespace MVC.Control
             });
             appdomain.DelegateManager.RegisterMethodDelegate<bool>();
             appdomain.DelegateManager.RegisterMethodDelegate<bool, ILRuntime.Runtime.Intepreter.ILTypeInstance>();
+            OnRegisterDelegate?.Invoke(appdomain);
             var method = appdomain.LoadedTypes["Hotfix.GameEntry"].GetMethod("Init", 0);
             appdomain.Invoke(method, null);
             updateMethod = appdomain.LoadedTypes["Hotfix.GameEntry"].GetMethod("Update", 0);

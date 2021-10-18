@@ -1,8 +1,10 @@
 ﻿namespace Net.Event
 {
+    using Net.Config;
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// 事件处理静态类, 此类可以用于计时调用事件
@@ -20,14 +22,14 @@
             public int actionId;
         }
         private static readonly List<TimeAct> timeActs = new List<TimeAct>();
-        private static readonly Thread thread;
         private static int actionId;
 
         static EventSystem()
         {
-            thread = new Thread(() =>
+            GlobalConfig.ThreadPoolRun = true;
+            Task.Run(() =>
             {
-                while (thread != null)
+                while (GlobalConfig.ThreadPoolRun)
                 {
                     Thread.Sleep(1);
                     for (int i = 0; i < timeActs.Count; i++)
@@ -57,7 +59,6 @@
                     }
                 }
             });
-            thread.Start();
         }
 
         /// <summary>

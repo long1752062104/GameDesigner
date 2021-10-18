@@ -2184,7 +2184,7 @@ namespace Net.Client
                 Instance = null;
             sendReliableFrame = 0;
             revdReliableFrame = 0;
-            BufferPool.RUN = false;
+            Config.GlobalConfig.ThreadPoolRun = false;
             NDebug.Log("客户端关闭成功!");
         }
 

@@ -106,9 +106,10 @@ namespace ILRuntime.Mono.Cecil
 
         protected BaseAssemblyResolver()
         {
-            directories = new Collection<string>(2) { ".", "bin",
+            directories = new Collection<string>() { ".", "bin",
 #if UNITY_EDITOR //unity±à¼­Æ÷ÓÃµ½
-                @"Library\ScriptAssemblies" 
+                @"Library\ScriptAssemblies",
+                Path.GetDirectoryName(UnityEditor.EditorApplication.applicationPath) + @"\Data\Managed\UnityEngine"
 #endif
             };
         }

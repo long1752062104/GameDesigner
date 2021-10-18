@@ -901,22 +901,40 @@ namespace Net.Server
             }
             if (client.Login)//当有客户端连接时,如果允许用户添加此客户端
             {
-                if (ignoranceNumber > 0)
-                    Interlocked.Decrement(ref ignoranceNumber);
-                Interlocked.Increment(ref onlineNumber);
-                Players.TryAdd(client.playerID, client);
-                UIDClients.TryAdd(client.UserID, client);
-                client.OnStart();
-                OnAddPlayerToScene(client);
-                client.AddRpc(client);
-                OnAddClientHandle?.Invoke(client);
-                byte[] uidbytes = BitConverter.GetBytes(client.UserID);
-                byte[] identify = Encoding.Unicode.GetBytes(client.playerID);
-                byte[] buffer = new byte[identify.Length + 4];
-                Buffer.BlockCopy(uidbytes, 0, buffer, 0, 4);
-                Buffer.BlockCopy(identify, 0, buffer, 4, identify.Length);
-                SendRT(client, NetCmd.Identify, buffer);
+                LoginInternal(client);
             }
+        }
+
+        /// <summary>
+        /// 主动登录服务器, 类似OnUnClientRequest重写方法的返回值为true
+        /// </summary>
+        /// <param name="client"></param>
+        protected void LoginHandle(Player client) 
+        {
+            if (!client.Login) 
+            {
+                client.Login = true;
+                LoginInternal(client);
+            }
+        }
+
+        private void LoginInternal(Player client) 
+        {
+            if (ignoranceNumber > 0)
+                Interlocked.Decrement(ref ignoranceNumber);
+            Interlocked.Increment(ref onlineNumber);
+            Players.TryAdd(client.playerID, client);
+            UIDClients.TryAdd(client.UserID, client);
+            client.OnStart();
+            OnAddPlayerToScene(client);
+            client.AddRpc(client);
+            OnAddClientHandle?.Invoke(client);
+            byte[] uidbytes = BitConverter.GetBytes(client.UserID);
+            byte[] identify = Encoding.Unicode.GetBytes(client.playerID);
+            byte[] buffer = new byte[identify.Length + 4];
+            Buffer.BlockCopy(uidbytes, 0, buffer, 0, 4);
+            Buffer.BlockCopy(identify, 0, buffer, 4, identify.Length);
+            SendRT(client, NetCmd.Identify, buffer);
         }
 
         protected virtual void RpcDataHandle(Player client, RPCModel model)
@@ -2581,6 +2599,7 @@ namespace Net.Server
             SendDirect(client);
             if (onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
             Players.TryRemove(client.playerID, out _);
+            UIDClients.TryRemove(client.UserID, out _);
             ExitScene(client, false);
             client.playerID = client.UserID.ToString();
             client.Login = false;

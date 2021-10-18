@@ -3,7 +3,6 @@
     using Net.Event;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
 
     /// <summary>
@@ -66,7 +65,7 @@
             Types1.Clear();
             Types2.Clear();
             BindTypes.Clear();
-            GetInterfaces();
+            InitBindInterfaces();
             AddBaseType();
             return true;
         }
@@ -76,122 +75,40 @@
         /// </summary>
         public static void AddBaseType()
         {
-            AddBaseType<short>();
-            AddBaseType<int>();
-            AddBaseType<long>();
-            AddBaseType<ushort>();
-            AddBaseType<uint>();
-            AddBaseType<ulong>();
-            AddBaseType<float>();
-            AddBaseType<double>();
-            AddBaseType<bool>();
-            AddBaseType<char>();
-            AddBaseType<string>();
-            AddBaseType<byte>();
-            AddBaseType<sbyte>();
-            AddBaseType<DateTime>();
-            AddBaseType<decimal>();
-            AddBaseType<DBNull>();
-            //基础序列化数组
-            AddBaseType<short[]>();
-            AddBaseType<int[]>();
-            AddBaseType<long[]>();
-            AddBaseType<ushort[]>();
-            AddBaseType<uint[]>();
-            AddBaseType<ulong[]>();
-            AddBaseType<float[]>();
-            AddBaseType<double[]>();
-            AddBaseType<bool[]>();
-            AddBaseType<char[]>();
-            AddBaseType<string[]>();
-            AddBaseType<byte[]>();
-            AddBaseType<sbyte[]>();
-            AddBaseType<DateTime[]>();
-            AddBaseType<decimal[]>();
-            //基础序列化List
-            AddBaseType<List<short>>();
-            AddBaseType<List<int>>();
-            AddBaseType<List<long>>();
-            AddBaseType<List<ushort>>();
-            AddBaseType<List<uint>>();
-            AddBaseType<List<ulong>>();
-            AddBaseType<List<float>>();
-            AddBaseType<List<double>>();
-            AddBaseType<List<bool>>();
-            AddBaseType<List<char>>();
-            AddBaseType<List<string>>();
-            AddBaseType<List<byte>>();
-            AddBaseType<List<sbyte>>();
-            AddBaseType<List<DateTime>>();
-            AddBaseType<List<decimal>>();
-            //基础序列化List
-            AddBaseType<List<short[]>>();
-            AddBaseType<List<int[]>>();
-            AddBaseType<List<long[]>>();
-            AddBaseType<List<ushort[]>>();
-            AddBaseType<List<uint[]>>();
-            AddBaseType<List<ulong[]>>();
-            AddBaseType<List<float[]>>();
-            AddBaseType<List<double[]>>();
-            AddBaseType<List<bool[]>>();
-            AddBaseType<List<char[]>>();
-            AddBaseType<List<string[]>>();
-            AddBaseType<List<byte[]>>();
-            AddBaseType<List<sbyte[]>>();
-            AddBaseType<List<DateTime[]>>();
-            AddBaseType<List<decimal[]>>();
+            AddBaseType3<short>();
+            AddBaseType3<int>();
+            AddBaseType3<long>();
+            AddBaseType3<ushort>();
+            AddBaseType3<uint>();
+            AddBaseType3<ulong>();
+            AddBaseType3<float>();
+            AddBaseType3<double>();
+            AddBaseType3<bool>();
+            AddBaseType3<char>();
+            AddBaseType3<string>();
+            AddBaseType3<byte>();
+            AddBaseType3<sbyte>();
+            AddBaseType3<DateTime>();
+            AddBaseType3<decimal>();
+            AddBaseType3<DBNull>();
             //其他可能用到的
-            AddSerializeType<Vector2>();
-            AddSerializeType<Vector3>();
-            AddSerializeType<Vector4>();
-            AddSerializeType<Quaternion>();
-            AddSerializeType<Rect>();
-            AddSerializeType<Color>();
-            AddSerializeType<Color32>();
-            AddSerializeType<UnityEngine.Vector2>();
-            AddSerializeType<UnityEngine.Vector3>();
-            AddSerializeType<UnityEngine.Vector4>();
-            AddSerializeType<UnityEngine.Quaternion>();
-            AddSerializeType<UnityEngine.Rect>();
-            AddSerializeType<UnityEngine.Color>();
-            AddSerializeType<UnityEngine.Color32>();
-            //其他数组
-            AddSerializeType<Vector2[]>();
-            AddSerializeType<Vector3[]>();
-            AddSerializeType<Vector4[]>();
-            AddSerializeType<Quaternion[]>();
-            AddSerializeType<Rect[]>();
-            AddSerializeType<Color[]>();
-            AddSerializeType<Color32[]>();
-            AddSerializeType<UnityEngine.Vector2[]>();
-            AddSerializeType<UnityEngine.Vector3[]>();
-            AddSerializeType<UnityEngine.Vector4[]>();
-            AddSerializeType<UnityEngine.Quaternion[]>();
-            AddSerializeType<UnityEngine.Rect[]>();
-            AddSerializeType<UnityEngine.Color[]>();
-            AddSerializeType<UnityEngine.Color32[]>();
-            //其他泛型
-            AddSerializeType<List<Vector2>>();
-            AddSerializeType<List<Vector3>>();
-            AddSerializeType<List<Vector4>>();
-            AddSerializeType<List<Quaternion>>();
-            AddSerializeType<List<Rect>>();
-            AddSerializeType<List<Color>>();
-            AddSerializeType<List<Color32>>();
-            AddSerializeType<List<UnityEngine.Vector2>>();
-            AddSerializeType<List<UnityEngine.Vector3>>();
-            AddSerializeType<List<UnityEngine.Vector4>>();
-            AddSerializeType<List<UnityEngine.Quaternion>>();
-            AddSerializeType<List<UnityEngine.Rect>>();
-            AddSerializeType<List<UnityEngine.Color>>();
-            AddSerializeType<List<UnityEngine.Color32>>();
+            AddSerializeType3<Vector2>();
+            AddSerializeType3<Vector3>();
+            AddSerializeType3<Vector4>();
+            AddSerializeType3<Quaternion>();
+            AddSerializeType3<Rect>();
+            AddSerializeType3<Color>();
+            AddSerializeType3<Color32>();
+            AddSerializeType3<UnityEngine.Vector2>();
+            AddSerializeType3<UnityEngine.Vector3>();
+            AddSerializeType3<UnityEngine.Vector4>();
+            AddSerializeType3<UnityEngine.Quaternion>();
+            AddSerializeType3<UnityEngine.Rect>();
+            AddSerializeType3<UnityEngine.Color>();
+            AddSerializeType3<UnityEngine.Color32>();
             //框架操作同步用到
-            AddSerializeType<Operation>();
-            AddSerializeType<Operation[]>();
-            AddSerializeType<List<Operation>>();
-            AddSerializeType<OperationList>();
-            AddSerializeType<OperationList[]>();
-            AddSerializeType<List<OperationList>>();
+            AddSerializeType3<Operation>();
+            AddSerializeType3<OperationList>();
         }
 
         /// <summary>
@@ -217,7 +134,6 @@
         /// <summary>
         /// 添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
         /// </summary>
-        /// <typeparam name="T">要添加的网络类型</typeparam>
         public static void AddSerializeType3(Type type)
         {
             AddSerializeType(type);
@@ -241,6 +157,13 @@
             Types2.Add(type, new TypeBind() { type = bindType, hashCode = hashType } );
         }
 
+        private static void AddBaseType3<T>()
+        {
+            AddBaseType<T>();
+            AddBaseArrayType<T>();
+            AddBaseListType<T>();
+        }
+
         private static void AddBaseType<T>()
         {
             var type = typeof(T);
@@ -252,9 +175,32 @@
             Types2.Add(type, new TypeBind() { type = typeof(BaseBind<T>), hashCode = hashType });
         }
 
-        public static void GetInterfaces()
+        private static void AddBaseArrayType<T>()
         {
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            var type = typeof(T[]);
+            if (Types2.ContainsKey(type))
+                return;
+            ushort hashType = (ushort)Types.Count;
+            Types.Add(hashType, type);
+            Types1.Add(type, hashType);
+            Types2.Add(type, new TypeBind() { type = typeof(BaseArrayBind<T>), hashCode = hashType });
+        }
+
+        private static void AddBaseListType<T>()
+        {
+            var type = typeof(List<T>);
+            if (Types2.ContainsKey(type))
+                return;
+            ushort hashType = (ushort)Types.Count;
+            Types.Add(hashType, type);
+            Types1.Add(type, hashType);
+            Types2.Add(type, new TypeBind() { type = typeof(BaseListBind<T>), hashCode = hashType });
+        }
+
+        public static void InitBindInterfaces()
+        { 
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly assembly in assemblies)
             {
                 var types = assembly.GetTypes();
                 foreach (var type in types)
@@ -282,23 +228,67 @@
 
         internal struct BaseBind<T> : ISerialize<T>, ISerialize
         {
-            public void Write(T value, Segment strem)
+            public void Write(T value, Segment stream)
             {
-                strem.WriteValue(value);
+                stream.WriteValue(value);
             }
-            public T Read(Segment strem)
+            public T Read(Segment stream)
             {
-                return strem.ReadValue<T>();
-            }
-
-            public void WriteValue(object value, Segment strem)
-            {
-                strem.WriteValue(value);
+                return stream.ReadValue<T>();
             }
 
-            object ISerialize.ReadValue(Segment strem)
+            public void WriteValue(object value, Segment stream)
             {
-                return strem.ReadValue<T>();
+                stream.WriteValue(value);
+            }
+
+            object ISerialize.ReadValue(Segment stream)
+            {
+                return stream.ReadValue<T>();
+            }
+        }
+
+        internal struct BaseArrayBind<T> : ISerialize<T[]>, ISerialize
+        {
+            public void Write(T[] value, Segment stream)
+            {
+                stream.WriteArray(value);
+            }
+            public T[] Read(Segment stream)
+            {
+                return stream.ReadArray<T>();
+            }
+
+            public void WriteValue(object value, Segment stream)
+            {
+                stream.WriteArray(value);
+            }
+
+            object ISerialize.ReadValue(Segment stream)
+            {
+                return stream.ReadArray<T>();
+            }
+        }
+
+        internal struct BaseListBind<T> : ISerialize<List<T>>, ISerialize
+        {
+            public void Write(List<T> value, Segment stream)
+            {
+                stream.WriteList(value);
+            }
+            public List<T> Read(Segment stream)
+            {
+                return stream.ReadList<T>();
+            }
+
+            public void WriteValue(object value, Segment stream)
+            {
+                stream.WriteList(value);
+            }
+
+            object ISerialize.ReadValue(Segment stream)
+            {
+                return stream.ReadList<T>();
             }
         }
 

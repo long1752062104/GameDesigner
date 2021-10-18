@@ -2349,6 +2349,21 @@
             TransformComponent组件被销毁指令
             </summary>
         </member>
+        <member name="F:Net.Component.Command.Animator">
+            <summary>
+            新版动画同步命令
+            </summary>
+        </member>
+        <member name="F:Net.Component.Command.AnimatorParameter">
+            <summary>
+            新版动画参数同步命令
+            </summary>
+        </member>
+        <member name="F:Net.Component.Command.Animation">
+            <summary>
+            旧版动画同步命令
+            </summary>
+        </member>
         <member name="T:Net.Component.NTransform">
             <summary>
             游戏物体转换实体组建
@@ -2424,7 +2439,7 @@
         </member>
         <member name="T:Net.Client.ClientBase">
             <summary>
-            网络客户端核心虚类 2019.3.3
+            网络客户端核心基类 2019.3.3
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.Client">
@@ -2627,7 +2642,7 @@
         </member>
         <member name="E:Net.Client.ClientBase.OnOperationSync">
             <summary>
-            当使用服务器的<see cref="M:Net.Server.NetScene`1.AddOperation(Net.Share.Operation)"/>方法时调用， 场景内的所有演员行为同步
+            当使用服务器的NetScene.AddOperation方法时调用， 场景内的所有演员行为同步
             </summary>
         </member>
         <member name="E:Net.Client.ClientBase.OnRevdRTProgress">
@@ -2744,12 +2759,12 @@
         </member>
         <member name="P:Net.Client.ClientBase.Identify">
             <summary>
-            客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是<see cref="F:Net.Server.NetPlayer.playerID"/>值
+            客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是NetPlayer.playerID值
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.UID">
             <summary>
-            用户唯一标识, 对应服务器的<see cref="P:Net.Server.NetPlayer.UserID"/>值
+            用户唯一标识, 对应服务器的NetPlayer.UID
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.SyncFrequency">
@@ -3467,12 +3482,12 @@
         </member>
         <member name="M:Net.Client.ClientBase.Ping">
             <summary>
-            ping测试网络延迟, 通过OnPingCallBack事件回调
+            ping测试网络延迟, 通过<see cref="E:Net.Client.ClientBase.OnPingCallback"/>事件回调
             </summary>
         </member>
         <member name="M:Net.Client.ClientBase.Ping(System.Action{System.Double})">
             <summary>
-            ping测试网络延迟, 此方法帮你监听OnPingCallback事件, 如果不使用的时候必须保证能移除委托, 建议不要用框名函数, 那么会无法移除委托
+            ping测试网络延迟, 此方法帮你监听<see cref="E:Net.Client.ClientBase.OnPingCallback"/>事件, 如果不使用的时候必须保证能移除委托, 建议不要用框名函数, 那样会无法移除委托
             </summary>
             <param name="callback"></param>
         </member>
@@ -3495,6 +3510,11 @@
             </summary>
             <param name="listen">要监听的网络状态</param>
             <param name="action">监听网络状态的回调方法</param>
+        </member>
+        <member name="M:Net.Client.ClientBase.VarSyncHandler">
+            <summary>
+            字段,属性同步处理线程
+            </summary>
         </member>
         <member name="T:Net.Client.NetBehaviour">
             <summary>
@@ -3948,6 +3968,16 @@
             用户标识, 记录玩家键值对, 可以以账号来记录或玩家名称来记录等等
             </summary>
         </member>
+        <member name="P:Net.Server.ISerializableData.StreamPosition">
+            <summary>
+            记录数据存储在文件内部的位置索引 (内部自动赋值,不要修改其值)
+            </summary>
+        </member>
+        <member name="P:Net.Server.ISerializableData.Row">
+            <summary>
+            每个玩家的数据在mysql,sqlserver数据库的数据行
+            </summary>
+        </member>
         <member name="T:Net.Server.DataBase`1">
             <summary>
             服务器运行时数据库 19.10.4
@@ -3965,6 +3995,16 @@
             数据库单例
             </summary>
         </member>
+        <member name="P:Net.Server.DataBase`2.DataSize">
+            <summary>
+            单个玩家可以存储的数据大小
+            </summary>
+        </member>
+        <member name="P:Net.Server.DataBase`2.StreamPosition">
+            <summary>
+            当前的流位置
+            </summary>
+        </member>
         <member name="F:Net.Server.DataBase`2.rootPath">
             <summary>
             当前程序工作路径, 数据库保存路径
@@ -3978,6 +4018,11 @@
         <member name="F:Net.Server.DataBase`2.PlayerInfos">
             <summary>
             所有玩家信息
+            </summary>
+        </member>
+        <member name="F:Net.Server.DataBase`2.Table">
+            <summary>
+            数据表, 接入mysql, sqlserver数据库后可以批量处理数据库
             </summary>
         </member>
         <member name="P:Net.Server.DataBase`2.Item(System.String)">
@@ -4010,12 +4055,12 @@
             <param name="lastHandle">需要做最后的处理的, Player.playerID必须指定 </param>
             <returns></returns>
         </member>
-        <member name="M:Net.Server.DataBase`2.LoadPlayerData(System.String,System.Action{`1})">
+        <member name="M:Net.Server.DataBase`2.OnSerialize(`1)">
             <summary>
-            加载单个玩家数据文件路径
+            当序列化数据, 即将写入磁盘文件时调用
             </summary>
-            <param name="path"></param>
-            <param name="lastHandle"></param>
+            <param name="player"></param>
+            <returns></returns>
         </member>
         <member name="M:Net.Server.DataBase`2.OnLoad">
             <summary>
@@ -4031,13 +4076,6 @@
             <summary>
             存储单个玩家的数据到文件里
             </summary>
-        </member>
-        <member name="M:Net.Server.DataBase`2.OnSerialize(`1)">
-            <summary>
-            当序列化数据, 即将写入磁盘文件时调用
-            </summary>
-            <param name="player"></param>
-            <returns></returns>
         </member>
         <member name="M:Net.Server.DataBase`2.Delete(`1)">
             <summary>
@@ -4285,7 +4323,7 @@
         </member>
         <member name="M:Net.Server.NetPlayer.OnUnClientRequest(Net.Share.RPCModel)">
             <summary>
-            当未知客户端发送数据请求，返回null，不添加到clients，返回对象，添加到clients中
+            当未知客户端发送数据请求，返回<see langword="false"/>，不做任何事，返回<see langword="true"/>，添加到<see cref="P:Net.Server.ServerBase`2.Players"/>中
             客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互
             在这里可以用来判断客户端登录和注册等等进站许可
             </summary>
@@ -4294,7 +4332,7 @@
         </member>
         <member name="M:Net.Server.NetPlayer.OnWSUnClientRequest(Net.Share.MessageModel)">
             <summary>
-            当web服务器未知客户端发送数据请求，返回null，不添加到clients，返回对象，添加到clients中
+            当web服务器未知客户端发送数据请求，返回<see langword="false"/>，不做任何事，返回<see langword="true"/>，添加到<see cref="P:Net.Server.ServerBase`2.Players"/>中
             客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互
             在这里可以用来判断客户端登录和注册等等进站许可
             </summary>
@@ -4351,8 +4389,8 @@
         </member>
         <member name="M:Net.Server.NetPlayer.OnOperationSync(Net.Share.OperationList)">
             <summary>
-            当接收到客户端使用Client.AddOperation方法发送的请求时调用. 如果重写此方法, 
-            <code>返回false, 则服务器对象类会重新把操作列表加入到场景中, 你可以重写服务器的OnOperationSync方法让此次失效</code>
+            当接收到客户端使用<see cref="M:Net.Client.ClientBase.AddOperation(Net.Share.Operation)"/>方法发送的请求时调用. 如果重写此方法, 
+            <code>返回false, 则服务器对象类会重新把操作列表加入到场景中, 你可以重写服务器的<see cref="M:Net.Server.ServerBase`2.OnOperationSync(`0,Net.Share.OperationList)"/>方法让此方法失效</code>
             <code>返回true, 服务器不再把数据加入到场景列表, 认为你已经在此处把数据处理了</code>
             </summary>
             <param name="list"></param>
@@ -4366,7 +4404,7 @@
         </member>
         <member name="M:Net.Server.NetPlayer.Close">
             <summary>
-            此方法需要自己实现, 实现内容如下: Server.Instance.RemoveClient(this);
+            此方法需要自己实现, 实现内容如下: <see langword="xxServer.Instance.RemoveClient(this);"/>
             </summary>
         </member>
         <member name="T:Net.Server.NetPort">
@@ -4526,7 +4564,7 @@
         </member>
         <member name="M:Net.Server.NetScene`1.OnOperationSync(`0,Net.Share.OperationList)">
             <summary>
-            当接收到客户端使用<see cref="M:Net.Client.ClientBase.AddOperation(Net.Share.Operation)"/>方法发送的请求时调用
+            当接收到客户端使用Client.AddOperation方法发送的请求时调用
             </summary>
         </member>
         <member name="M:Net.Server.NetScene`1.AddPlayerRange(System.Collections.Generic.IEnumerable{`0})">
@@ -4659,12 +4697,12 @@
         </member>
         <member name="P:Net.Server.ServerBase`2.Players">
             <summary>
-            所有在线的客户端 与Clients为互助字典 所添加的键值为NetPlayer.playerID
+            所有在线的客户端 与<see cref="P:Net.Server.ServerBase`2.UIDClients"/>为互助字典 所添加的键值为<see cref="F:Net.Server.NetPlayer.playerID"/>
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.UIDClients">
             <summary>
-            所有在线的客户端 与Clients为互助字典 所添加的键值为NetPlayer.UserID
+            所有在线的客户端 与<see cref="P:Net.Server.ServerBase`2.Players"/>为互助字典 所添加的键值为<see cref="P:Net.Server.NetPlayer.UserID"/>
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.UnClients">
@@ -4899,7 +4937,7 @@
         </member>
         <member name="P:Net.Server.ServerBase`2.OnOperationSyncHandle">
             <summary>
-            当客户端在时间帧发送的操作数据， 当使用客户端的UdpClient.AddOperation方法时调用
+            当客户端在时间帧发送的操作数据， 当使用客户端的<see cref="M:Net.Client.ClientBase.AddOperation(Net.Share.Operation)"/>方法时调用
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.OnRevdRTProgressHandle">
@@ -4919,12 +4957,12 @@
         </member>
         <member name="F:Net.Server.ServerBase`2.OnPingCallback">
             <summary>
-            ping服务器回调 参数double为延迟毫秒单位 当RTOMode属性为可变重传时, 内核将会每秒自动ping一次
+            ping服务器回调 参数double为延迟毫秒单位 当<see cref="P:Net.Server.ServerBase`2.RTOMode"/>=<see cref="F:Net.Share.RTOMode.Variable"/>可变重传时, 内核将会每秒自动ping一次
             </summary>
         </member>
         <member name="F:Net.Server.ServerBase`2.OnSendErrorHandle">
             <summary>
-            当socket发送失败调用.参数1:玩家对象, 参数2:发送的字节数组, 参数3:发送标志(可靠和不可靠)  ->可通过SendByteData方法重新发送
+            当socket发送失败调用.参数1:玩家对象, 参数2:发送的字节数组, 参数3:发送标志(可靠和不可靠)  ->可通过<see cref="M:Net.Server.ServerBase`2.SendByteData(`0,System.Byte[],System.Boolean)"/>方法重新发送
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.OnAddRpcHandle">
@@ -5012,8 +5050,9 @@
         </member>
         <member name="M:Net.Server.ServerBase`2.OnUnClientRequest(`0,Net.Share.RPCModel)">
             <summary>
-            当未知客户端发送数据请求，返回false，不允许unClient进入服务器!，如果返回的是true，则允许unClient客户端进入服务器
-            客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互
+            当未知客户端发送数据请求，返回<see langword="false"/>，不允许<see langword="unClient"/>进入服务器!，如果返回的是<see langword="true"/>，则允许<see langword="unClient"/>客户端进入服务器
+            同时会将<see langword="unClient"/>添加到<see cref="P:Net.Server.ServerBase`2.Players"/>和<see cref="P:Net.Server.ServerBase`2.UIDClients"/>在线字典中.
+            <code>客户端玩家的入口点，在这里可以控制客户端是否可以进入服务器与其他客户端进行网络交互</code>
             在这里可以用来判断客户端登录和注册等等进站许可 (默认是允许进入服务器)
             </summary>
             <param name="unClient">尚未登录的客户端对象</param>
@@ -5057,7 +5096,7 @@
         <member name="M:Net.Server.ServerBase`2.OnInvokeRpc(`0)">
             <summary>
             当开始调用服务器RPC函数 或 开始调用自定义网络命令时 可设置请求客户端的client为全局字段，方便在服务器RPC函数内引用!!!
-            在多线程时有1%不安全，当出现client赋值到其他玩家对象时，可在网络函数头加 [Rpc(NetCmd.SafeCall)] 特性
+            在多线程时有1%不安全，当出现client赋值到其他玩家对象时，可在网络方法加<see langword="[Rpc(NetCmd.SafeCall)]"/>特性
             </summary>
             <param name="client">发送请求数据的客户端</param>
         </member>
@@ -5070,7 +5109,7 @@
         </member>
         <member name="M:Net.Server.ServerBase`2.OnOperationSync(`0,Net.Share.OperationList)">
             <summary>
-            当接收到客户端使用Client.AddOperation方法发送的请求时调用
+            当接收到客户端使用<see cref="M:Net.Client.ClientBase.AddOperation(Net.Share.Operation)"/>方法发送的请求时调用
             </summary>
             <param name="client">当前客户端</param>
             <param name="list">操作列表</param>
@@ -5129,6 +5168,12 @@
             <summary>
             Udp开始接收数据
             </summary>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.LoginHandle(`0)">
+            <summary>
+            主动登录服务器, 类似OnUnClientRequest重写方法的返回值为true
+            </summary>
+            <param name="client"></param>
         </member>
         <member name="M:Net.Server.ServerBase`2.OnExceededNumber(System.Net.EndPoint)">
             <summary>
@@ -5535,13 +5580,13 @@
         </member>
         <member name="M:Net.Server.ServerBase`2.OfflineHandle(`0)">
             <summary>
-            强制下线处理, 将client客户端从在线字段clients和Players字段中移除
+            强制下线处理, 将client客户端从在线字段<see cref="P:Net.Server.ServerBase`2.Players"/>和<see cref="P:Net.Server.ServerBase`2.UIDClients"/>和<see cref="P:Net.Server.ServerBase`2.AllClients"/>字段中移除
             </summary>
             <param name="client"></param>
         </member>
         <member name="M:Net.Server.ServerBase`2.SignOut(`0)">
             <summary>
-            退出登录, 将client客户端从在线字段clients和Players字段中移除
+            退出登录, 将client客户端从在线字段<see cref="P:Net.Server.ServerBase`2.Players"/>和<see cref="P:Net.Server.ServerBase`2.UIDClients"/>字段中移除
             </summary>
             <param name="client"></param>
         </member>
@@ -5554,13 +5599,13 @@
         </member>
         <member name="M:Net.Server.ServerBase`2.Ping(`0)">
             <summary>
-            ping测试网络延迟, 通过OnPingCallBack事件回调
+            ping测试网络延迟, 通过<see cref="F:Net.Server.ServerBase`2.OnPingCallback"/>事件回调
             </summary>
             <param name="client"></param>
         </member>
         <member name="M:Net.Server.ServerBase`2.Ping(`0,System.Action{`0,System.Double})">
             <summary>
-            ping测试网络延迟, 此方法帮你监听OnPingCallback事件, 如果不使用的时候必须保证能移除委托, 建议不要用框名函数, 那么会无法移除委托
+            ping测试网络延迟, 此方法帮你监听<see cref="F:Net.Server.ServerBase`2.OnPingCallback"/>事件, 如果不使用的时候必须保证能移除委托, 建议不要用框名函数, 那样会无法移除委托
             </summary>
             <param name="client"></param>
             <param name="callback"></param>
@@ -5577,6 +5622,11 @@
             </summary>
             <param name="type"></param>
             <param name="adapter"></param>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.VarSyncHandler">
+            <summary>
+            字段,属性同步线程
+            </summary>
         </member>
         <member name="T:Net.Server.DNPlayer">
             <summary>
@@ -6868,6 +6918,11 @@
             可靠传输取帧列表 内部指令
             </summary>
         </member>
+        <member name="F:Net.Share.NetCmd.VarSync">
+            <summary>
+            字段或属性同步指令 内部指令
+            </summary>
+        </member>
         <member name="T:Net.Share.RPCMethod">
             <summary>
             远程过程调用方法
@@ -7715,6 +7770,35 @@
             <param name="count"></param>
             <returns></returns>
         </member>
+        <member name="T:Net.Share.VarSync">
+            <summary>
+            变量或属性同步特性
+            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
+            </summary>
+        </member>
+        <member name="F:Net.Share.VarSync.id">
+            <summary>
+            变量或属性的唯一标识
+            </summary>
+        </member>
+        <member name="F:Net.Share.VarSync.passive">
+            <summary>
+            你的字段,属性不能主动同步, 只能被对方同步
+            </summary>
+        </member>
+        <member name="M:Net.Share.VarSync.#ctor">
+            <summary>
+            构造字段,属性同步特性
+            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
+            </summary>
+        </member>
+        <member name="M:Net.Share.VarSync.#ctor(System.UInt16)">
+            <summary>
+            构造字段,属性同步特性
+            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
+            </summary>
+            <param name="id">唯一id, 不能重复</param>
+        </member>
         <member name="T:Net.Share.Win32KernelAPI">
             <summary>
             系统时钟间隔是个很少被关心到的系统标量，
@@ -8428,13 +8512,45 @@
             <param name="obj"></param>
             <returns></returns>
         </member>
+        <member name="M:Net.Share.NetConvertBinary.SerializeObject``1(Net.Share.Segment,``0,System.Boolean,System.Boolean)">
+            <summary>
+            序列化对象, 不记录反序列化类型
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
         <member name="M:Net.Share.NetConvertBinary.WriteObject``1(Net.Share.Segment,System.Type,``0,System.Boolean,System.Boolean)">
             <summary>
             序列化对象
             </summary>
+            <typeparam name="T"></typeparam>
             <param name="stream"></param>
             <param name="type"></param>
             <param name="target"></param>
+            <param name="recordType"></param>
+            <param name="ignore">忽略不使用<see cref="M:Net.Share.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
+        </member>
+        <member name="M:Net.Share.NetConvertBinary.DeserializeObject``1(Net.Share.Segment,System.Boolean,System.Boolean)">
+            <summary>
+            反序列化
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="segment"></param>
+            <param name="recordType"></param>
+            <param name="ignore">忽略不使用<see cref="M:Net.Share.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Share.NetConvertBinary.DeserializeObject``1(System.Byte[],System.Int32,System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            反序列化
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="count"></param>
+            <param name="recordType">序列化的类型字段是 object[]字段时, 可以帮你记录object的绝对类型</param>
+            <param name="ignore">忽略不使用<see cref="M:Net.Share.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
+            <returns></returns>
         </member>
         <member name="M:Net.Share.NetConvertBinary.DeserializeComplex(System.Byte[],System.Int32,System.Int32,System.Boolean,System.Boolean)">
             <summary>
@@ -8563,7 +8679,6 @@
             <summary>
             添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
             </summary>
-            <typeparam name="T">要添加的网络类型</typeparam>
         </member>
         <member name="M:Net.Share.NetConvertFast2.AddSerializeType(System.Type)">
             <summary>
@@ -10325,6 +10440,16 @@
         <member name="F:Microsoft.Cci.Pdb.PdbInfo.SourceLinkData">
             <summary>
             Source link data information.
+            </summary>
+        </member>
+        <member name="T:Binding.Dictionary_String_List1__Bind">
+            <summary>
+            这是要开发者自己写的绑定代码, 生成工具目前还没能生成这样的代码
+            </summary>
+        </member>
+        <member name="T:Binding.Dictionary_Int32_Boolean__Bind">
+            <summary>
+            这是要开发者自己写的绑定代码, 生成工具目前还没能生成这样的代码
             </summary>
         </member>
         <member name="M:Fast2BuildMethod.DynamicBuild(System.Type[])">

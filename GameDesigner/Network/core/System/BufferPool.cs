@@ -1,4 +1,5 @@
-﻿using Net.Event;
+﻿using Net.Config;
+using Net.Event;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -198,8 +199,9 @@ namespace Net.Share
                     return WriteValue(value1);
                 case Enum value1:
                     return WriteValue((ulong)(uint)value1.GetHashCode());
+                default:
+                    throw new Exception($"错误!基类不能序列化这个类:{value}");
             }
-            return 0;
         }
         public unsafe int WriteValue(ulong value)
         {
@@ -523,15 +525,26 @@ namespace Net.Share
         {
             WriteArray(array.ToArray());
         }
-        public unsafe void WriteArray<T>(T[] array)
+        public unsafe void WriteList(object value)
         {
+            var array = value.GetType().GetMethod("ToArray").Invoke(value, null);
+            WriteArray(array);
+        }
+        public void WriteArray<T>(T[] array)
+        {
+            WriteArray(value:array);
+        }
+        public unsafe void WriteArray(object value)
+        {
+            if (!(value is Array array))
+                throw new Exception($"错误!{value}类转换数组失败!");
             int count = array.Length;
             WriteValue(count);
             if (count == 0)
-                return; 
+                return;
             void* ptr = null;
             int num = 0;
-            switch (array)
+            switch (value)
             {
                 case byte[] array1:
                     fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
@@ -594,7 +607,7 @@ namespace Net.Share
                         WriteValue(str);
                     return;
                 default:
-                    throw new Exception("错误!");
+                    throw new Exception($"错误!基类不能序列化这个类:{value}");
             }
             fixed (void* ptr1 = &Buffer[Position])
             {
@@ -724,7 +737,6 @@ namespace Net.Share
         private static readonly int[] TABLE = new int[] {
             256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576,2097152,4194304,8388608,16777216,33554432,67108864,134217728,268435456,536870912,1073741824
         };
-        internal static bool RUN;
 
         static BufferPool() 
         {
@@ -732,10 +744,10 @@ namespace Net.Share
             {
                 STACKS[i] = new StackSafe<Segment>();
             }
-            RUN = true;
+            GlobalConfig.ThreadPoolRun = true;
             Task.Run(()=> 
             {
-                while (RUN) 
+                while (GlobalConfig.ThreadPoolRun) 
                 {
                     try
                     {

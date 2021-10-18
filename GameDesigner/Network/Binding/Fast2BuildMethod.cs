@@ -19,6 +19,7 @@ public static class Fast2BuildMethod
         internal Type Type;
         internal TypeCode TypeCode;
         internal Type ItemType;
+        internal Type ItemType1;
     }
 
     /// <summary>
@@ -135,7 +136,11 @@ public static class Fast2BuildMethod
             }
             else if (field.FieldType.GenericTypeArguments.Length == 2)
             {
-                throw new Exception("尚未支持字典类型!");
+                Type itemType = field.FieldType.GenericTypeArguments[0]; 
+                Type itemType1 = field.FieldType.GenericTypeArguments[1];
+                member.ItemType = itemType;
+                member.ItemType1 = itemType1;
+                //throw new Exception("尚未支持字典类型!");
             }
             members.Add(member);
         }
@@ -170,7 +175,11 @@ public static class Fast2BuildMethod
             }
             else if (property.PropertyType.GenericTypeArguments.Length == 2)
             {
-                throw new Exception("尚未支持字典类型!");
+                Type itemType = property.PropertyType.GenericTypeArguments[0]; 
+                Type itemType1 = property.PropertyType.GenericTypeArguments[1];
+                member.ItemType = itemType;
+                member.ItemType1 = itemType1;
+                //throw new Exception("尚未支持字典类型!");
             }
             members.Add(member);
         }
@@ -226,25 +235,38 @@ public static class Fast2BuildMethod
             }
             else if (members[i].IsGenericType)
             {
-                typecode = Type.GetTypeCode(members[i].ItemType);
-                if (typecode != TypeCode.Object)
+                if (members[i].ItemType1 == null)
+                {
+                    typecode = Type.GetTypeCode(members[i].ItemType);
+                    if (typecode != TypeCode.Object)
+                    {
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}stream.WriteList(value.{members[i].Name});");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+                    }
+                    else
+                    {
+                        if (members[i].Type.IsValueType)
+                            str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != default)");
+                        else
+                            str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                        var local = members[i].ItemType.FullName.Replace(".", "").Replace("+", "") + "GenericBind";
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value.{members[i].Name}, stream);");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+                    }
+                }
+                else 
                 {
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                    var local = $"Dictionary_{members[i].ItemType.Name}_{members[i].ItemType1.Name.Replace("`", "")}__Bind";
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}stream.WriteList(value.{members[i].Name});");
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
-                }
-                else
-                {
-                    if (members[i].Type.IsValueType)
-                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != default)");
-                    else
-                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
-                    var local = members[i].ItemType.FullName.Replace(".", "").Replace("+", "") + "GenericBind";
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
+                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();//请定义这个字典结构类来实现字典序列化");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value.{members[i].Name}, stream);");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
                 }
@@ -258,7 +280,7 @@ public static class Fast2BuildMethod
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
                 var local = members[i].Type.FullName.Replace(".", "").Replace("+", "") + "Bind";
-                str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
+                str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();");
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value.{members[i].Name}, stream);");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
             }
@@ -300,25 +322,37 @@ public static class Fast2BuildMethod
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
                     var local = members[i].ItemType.FullName.Replace(".", "").Replace("+", "") + "ArrayBind";
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
+                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = bind.Read(stream);");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
                 }
             }
             else if (members[i].IsGenericType)
             {
-                typecode = Type.GetTypeCode(members[i].ItemType);
-                if (typecode != TypeCode.Object)
+                if (members[i].ItemType1 == null)
                 {
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = stream.ReadList<{members[i].ItemType.FullName}>();");
+                    typecode = Type.GetTypeCode(members[i].ItemType);
+                    if (typecode != TypeCode.Object)
+                    {
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = stream.ReadList<{members[i].ItemType.FullName}>();");
+                    }
+                    else
+                    {
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                        var local = members[i].ItemType.FullName.Replace(".", "").Replace("+", "") + "GenericBind";
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = bind.Read(stream);");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+                    }
                 }
-                else
+                else 
                 {
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
-                    var local = members[i].ItemType.FullName.Replace(".", "").Replace("+", "") + "GenericBind";
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
+                    var local = $"Dictionary_{members[i].ItemType.Name}_{members[i].ItemType1.Name.Replace("`", "")}__Bind";
+                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();//请定义这个字典结构类来实现字典反序列化");
                     str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = bind.Read(stream);");
                     str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
                 }
@@ -328,7 +362,7 @@ public static class Fast2BuildMethod
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
                 var local = members[i].Type.FullName.Replace(".", "").Replace("+", "") + "Bind";
-                str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}{local} bind = new {local}();");
+                str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();");
                 str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = bind.Read(stream);");
                 str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
             }
@@ -375,7 +409,7 @@ public static class Fast2BuildMethod
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}stream.WriteValue(count);");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (count == 0) return;");
         var local = type.FullName.Replace(".", "").Replace("+", "") + "Bind";
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}{local} bind = new {local}();");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var bind = new {local}();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}foreach (var value1 in value)");
         str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value1, stream);");
         str.AppendLine($"{(hasns ? "\t\t}" : "\t}")}");
@@ -386,7 +420,7 @@ public static class Fast2BuildMethod
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var count = stream.ReadValue<int>();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var value = new {type.FullName.Replace("+", ".")}[count];");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (count == 0) return value;");
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}{local} bind = new {local}();");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var bind = new {local}();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}for (int i = 0; i < count; i++)");
         str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value[i] = bind.Read(stream);");
 
@@ -432,7 +466,7 @@ public static class Fast2BuildMethod
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}stream.WriteValue(count);");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (count == 0) return;");
         var local = type.FullName.Replace(".", "").Replace("+", "") + "Bind";
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}{local} bind = new {local}();");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var bind = new {local}();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}foreach (var value1 in value)");
         str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value1, stream);");
         str.AppendLine($"{(hasns ? "\t\t}" : "\t}")}");
@@ -443,7 +477,7 @@ public static class Fast2BuildMethod
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var count = stream.ReadValue<int>();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var value = new List<{type.FullName.Replace("+", ".")}>();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if (count == 0) return value;");
-        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}{local} bind = new {local}();");
+        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}var bind = new {local}();");
         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}for (int i = 0; i < count; i++)");
         str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.Add(bind.Read(stream));");
 

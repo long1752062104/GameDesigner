@@ -86,7 +86,7 @@ namespace Net.Share
                     if (actions[i].invokeNum <= 0)
                     {
                         actions.RemoveAt(i);
-                        if (i > 0) i--;
+                        if (i >= 0) i--;
                     }
                     else
                     {

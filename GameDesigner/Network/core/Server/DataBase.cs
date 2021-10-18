@@ -4,6 +4,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Data;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -20,6 +21,12 @@
         /// 记录数据存储在文件内部的位置索引 (内部自动赋值,不要修改其值)
         /// </summary>
         long StreamPosition { get; set; }
+        /// <summary>
+        /// 每个玩家的数据在mysql,sqlserver数据库的数据行
+        /// </summary>
+        [Newtonsoft_X.Json.JsonIgnore]
+        [ProtoBuf.ProtoIgnore]
+        DataRow Row { get; set; }
     }
 
     /// <summary>
@@ -64,6 +71,10 @@
         public ConcurrentDictionary<string, Player> PlayerInfos = new ConcurrentDictionary<string, Player>();
 
         public ConcurrentQueue<Player> deleteList = new ConcurrentQueue<Player>();
+        /// <summary>
+        /// 数据表, 接入mysql, sqlserver数据库后可以批量处理数据库
+        /// </summary>
+        public DataTable Table;
 
         /// <summary>
         /// 直接读取数据库玩家对象

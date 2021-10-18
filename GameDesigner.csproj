@@ -96,6 +96,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Collections.Immutable.dll</HintPath>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>GameDesigner\Network\dotNetty~\Plugins\System.Diagnostics.DiagnosticSource.dll</HintPath>
@@ -574,6 +575,7 @@
     <None Include="GameDesigner\Network\Adapter\SerializeAdapter.cs.meta" />
     <None Include="GameDesigner\Network\Binding.meta" />
     <None Include="GameDesigner\Network\Binding\BindingEntry.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\CustomBind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\Fast2BuildMethod.cs.meta" />
     <None Include="GameDesigner\Network\Binding\NetColor32Bind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\NetColorBind.cs.meta" />
@@ -597,6 +599,8 @@
     <None Include="GameDesigner\Network\core\Client\NetBehaviour.cs.meta" />
     <None Include="GameDesigner\Network\core\Client\NetEvent.cs.meta" />
     <None Include="GameDesigner\Network\core\Client\NetworkCondition.cs.meta" />
+    <None Include="GameDesigner\Network\core\Config.meta" />
+    <None Include="GameDesigner\Network\core\Config\GlobalConfig.cs.meta" />
     <None Include="GameDesigner\Network\core\Event.meta" />
     <None Include="GameDesigner\Network\core\Event\EventSystem.cs.meta" />
     <None Include="GameDesigner\Network\core\Event\NDebug.cs.meta" />
@@ -644,6 +648,8 @@
     <None Include="GameDesigner\Network\core\Share\SendBuffer.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\TransportMode.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\UnZipHelper.cs.meta" />
+    <None Include="GameDesigner\Network\core\Share\VarSync.cs.meta" />
+    <None Include="GameDesigner\Network\core\Share\VarSyncInfo.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs.meta" />
     <None Include="GameDesigner\Network\core\System.meta" />
     <None Include="GameDesigner\Network\core\System\ActionEvent.cs.meta" />
@@ -1544,6 +1550,7 @@
     <Compile Include="GameDesigner\Network\Adapter\ListenerAdapter.cs" />
     <Compile Include="GameDesigner\Network\Adapter\SerializeAdapter.cs" />
     <Compile Include="GameDesigner\Network\Binding\BindingEntry.cs" />
+    <Compile Include="GameDesigner\Network\Binding\CustomBind.cs" />
     <Compile Include="GameDesigner\Network\Binding\Fast2BuildMethod.cs" />
     <Compile Include="GameDesigner\Network\Binding\NetColor32Bind.cs" />
     <Compile Include="GameDesigner\Network\Binding\NetColorBind.cs" />
@@ -1565,6 +1572,7 @@
     <Compile Include="GameDesigner\Network\core\Client\NetBehaviour.cs" />
     <Compile Include="GameDesigner\Network\core\Client\NetEvent.cs" />
     <Compile Include="GameDesigner\Network\core\Client\NetworkCondition.cs" />
+    <Compile Include="GameDesigner\Network\core\Config\GlobalConfig.cs" />
     <Compile Include="GameDesigner\Network\core\Event\EventSystem.cs" />
     <Compile Include="GameDesigner\Network\core\Event\NDebug.cs" />
     <Compile Include="GameDesigner\Network\core\Server\DataBase.cs" />

@@ -62,3 +62,30 @@ D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\Exampl
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.pdb
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form3.resources
 D:\New Unity Project\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form4.resources
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.csprojAssemblyReference.cache
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form1.resources
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form2.resources
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form3.resources
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Form4.resources
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.Properties.Resources.resources
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.csproj.GenerateResource.cache
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.csproj.CoreCompileInputs.cache
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.exe
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.pdb
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\ExampleServer.exe.config
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\ExampleServer.exe
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\ExampleServer.pdb
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\UnityEngine.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Transport.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Transport.Libuv.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Buffers.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\DotNetty.Common.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Threading.Tasks.Extensions.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Microsoft.Extensions.Logging.Abstractions.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Microsoft.Extensions.Logging.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.pdb
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\GameDesigner.xml
+D:\DeadStrike\Client\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.csproj.CopyComplete

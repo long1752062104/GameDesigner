@@ -50,8 +50,6 @@ public static class InjectTool
             return;
         if (targetAssembly.Contains("com.unity") || Path.GetFileName(targetAssembly).StartsWith("Unity"))
             return;
-
-        // 按路径读取程序集
         var readerParameters = new ReaderParameters { ReadWrite = true };
         m_ScriptDef = AssemblyDefinition.ReadAssembly(AssemblyPath, readerParameters);
         if (m_ScriptDef == null)
@@ -59,7 +57,6 @@ public static class InjectTool
             Debug.LogError(string.Format("InjectTool Inject Load assembly failed: {0}", AssemblyPath));
             return;
         }
-
         try
         {
             var module = m_ScriptDef.MainModule;
@@ -76,7 +73,6 @@ public static class InjectTool
                         {
                             var met = InjectMethod(module, method, item);
                             mets.Add(met);
-                            //Debug.Log("注入了" + method.Name);
                             break;
                         }
                     }

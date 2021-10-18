@@ -3,6 +3,7 @@ using Net.Component;
 using Net.Server;
 using Net.Share;
 using System;
+using System.Data;
 using System.Threading;
 
 namespace Example2
@@ -11,6 +12,9 @@ namespace Example2
     {
         public string UIDKey { get; set; }
         public string account { get => UIDKey; set => UIDKey = value; }
+        public long StreamPosition { get; set; }
+        public DataRow Row { get; set; }
+
         public string password;
         public float moveSpeed = 5f;
         public Vector3 position;

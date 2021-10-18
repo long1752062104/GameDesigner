@@ -128,7 +128,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\GameDesigner\GameDesigner.csproj">
+    <ProjectReference Include="..\..\..\..\..\..\GameDesigner\GameDesigner.csproj">
       <Project>{25dee685-3111-40e0-a9bc-45bc6fd5c61d}</Project>
       <Name>GameDesigner</Name>
     </ProjectReference>
