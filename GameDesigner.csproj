@@ -602,6 +602,7 @@
     <None Include="GameDesigner\Network\core\Config.meta" />
     <None Include="GameDesigner\Network\core\Config\GlobalConfig.cs.meta" />
     <None Include="GameDesigner\Network\core\Event.meta" />
+    <None Include="GameDesigner\Network\core\Event\ActionEvent.cs.meta" />
     <None Include="GameDesigner\Network\core\Event\EventSystem.cs.meta" />
     <None Include="GameDesigner\Network\core\Event\NDebug.cs.meta" />
     <None Include="GameDesigner\Network\core\Server.meta" />
@@ -652,7 +653,6 @@
     <None Include="GameDesigner\Network\core\Share\VarSyncInfo.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs.meta" />
     <None Include="GameDesigner\Network\core\System.meta" />
-    <None Include="GameDesigner\Network\core\System\ActionEvent.cs.meta" />
     <None Include="GameDesigner\Network\core\System\BufferPool.cs.meta" />
     <None Include="GameDesigner\Network\core\System\Dictionary.cs.meta" />
     <None Include="GameDesigner\Network\core\System\ExceptionArgument.cs.meta" />
@@ -1573,6 +1573,7 @@
     <Compile Include="GameDesigner\Network\core\Client\NetEvent.cs" />
     <Compile Include="GameDesigner\Network\core\Client\NetworkCondition.cs" />
     <Compile Include="GameDesigner\Network\core\Config\GlobalConfig.cs" />
+    <Compile Include="GameDesigner\Network\core\Event\ActionEvent.cs" />
     <Compile Include="GameDesigner\Network\core\Event\EventSystem.cs" />
     <Compile Include="GameDesigner\Network\core\Event\NDebug.cs" />
     <Compile Include="GameDesigner\Network\core\Server\DataBase.cs" />
@@ -1586,6 +1587,7 @@
     <Compile Include="GameDesigner\Network\core\Share\Constituency.cs" />
     <Compile Include="GameDesigner\Network\core\Share\DataModel.cs" />
     <Compile Include="GameDesigner\Network\core\Share\EventHandle.cs" />
+    <Compile Include="GameDesigner\Network\core\Share\FileData.cs" />
     <Compile Include="GameDesigner\Network\core\Share\IAdapter.cs" />
     <Compile Include="GameDesigner\Network\core\Share\IDebugHandle.cs" />
     <Compile Include="GameDesigner\Network\core\Share\INetClient.cs" />
@@ -1620,7 +1622,6 @@
     <Compile Include="GameDesigner\Network\core\Share\VarSync.cs" />
     <Compile Include="GameDesigner\Network\core\Share\VarSyncInfo.cs" />
     <Compile Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs" />
-    <Compile Include="GameDesigner\Network\core\System\ActionEvent.cs" />
     <Compile Include="GameDesigner\Network\core\System\BufferPool.cs" />
     <Compile Include="GameDesigner\Network\core\System\Dictionary.cs" />
     <Compile Include="GameDesigner\Network\core\System\ExceptionArgument.cs" />

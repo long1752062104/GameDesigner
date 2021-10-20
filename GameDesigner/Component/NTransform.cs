@@ -1,7 +1,7 @@
 ﻿namespace Net.Component
 {
-    using System;
-    using System.ComponentModel;
+    using global::System;
+    using global::System.ComponentModel;
     using UnityEngine;
     using Matrix4x4 = Matrix4x4;
     using Quaternion = Quaternion;

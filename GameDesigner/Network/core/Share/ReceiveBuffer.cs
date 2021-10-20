@@ -1,7 +1,7 @@
 ﻿namespace Net.Share
 {
     using Net.Server;
-    using System.Net;
+    using global::System.Net;
 
     /// <summary>
     /// 服务器接收数据缓存

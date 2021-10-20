@@ -1,9 +1,8 @@
 ﻿using Net.Event;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
+using global::System;
+using global::System.Collections.Generic;
+using global::System.Diagnostics;
+using global::System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
@@ -89,7 +88,7 @@ namespace SerializeTestExample
                 stopwatch.Start();
                 for (int i = 0; i < 1000000; i++)
                 {
-                    var seg = Net.Share.NetConvertFast2.SerializeObject(new test()
+                    var seg = Net.Serialize.NetConvertFast2.SerializeObject(new test()
                     {
                         name = "dsad",
                         vector3 = new Net.Vector3(5, 6, 7),
@@ -98,7 +97,7 @@ namespace SerializeTestExample
                         test1s = new test1[] { new test1() { str = "dsad" } },
                         test1s1 = new List<test1>() { new test1() { str = "2222qwewqe" } }
                     });
-                    var obj = Net.Share.NetConvertFast2.DeserializeObject<test>(seg);
+                    var obj = Net.Serialize.NetConvertFast2.DeserializeObject<test>(seg);
                     index = i;
                 }
                 stopwatch.Stop();

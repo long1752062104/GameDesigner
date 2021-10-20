@@ -195,7 +195,7 @@ public class Fast2BuildTools2 : EditorWindow
             }
             foreach (var type1 in typeNames)
             {
-                Type type = Net.Share.NetConvertOld.GetType(type1);
+                Type type = Net.Serialize.NetConvertOld.GetType(type1);
                 Fast2BuildMethod.Build(type, true, savePath);
                 Fast2BuildMethod.BuildArray(type, true, savePath);
                 Fast2BuildMethod.BuildGeneric(type, true, savePath);

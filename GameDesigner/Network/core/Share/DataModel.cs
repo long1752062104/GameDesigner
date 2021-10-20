@@ -1,6 +1,6 @@
 ﻿namespace Net.Share
 {
-    using System.Collections.Generic;
+    using global::System.Collections.Generic;
 
     [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllPublic)]
     public class DataModel

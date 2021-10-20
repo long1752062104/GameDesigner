@@ -1,14 +1,16 @@
-﻿namespace Net.Share
+﻿namespace Net.Serialize
 {
     using Net.Event;
     using Newtonsoft_X.Json;
     using Newtonsoft_X.Json.Serialization;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Linq;
+    using global::System.Reflection;
+    using global::System.Text;
+    using Net.Share;
+    using Net.System;
 
     /// <summary>
     /// 序列化数据标示

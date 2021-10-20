@@ -1,4 +1,6 @@
-﻿using Net.Share;
+﻿using Net.Serialize;
+using Net.Share;
+using Net.System;
 
 namespace Net.Adapter
 {

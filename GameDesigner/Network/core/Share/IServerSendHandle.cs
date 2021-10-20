@@ -1,7 +1,7 @@
 ﻿namespace Net.Share
 {
     using Net.Server;
-    using System.Collections.Generic;
+    using global::System.Collections.Generic;
 
     /// <summary>
     /// 服务器发送处理接口

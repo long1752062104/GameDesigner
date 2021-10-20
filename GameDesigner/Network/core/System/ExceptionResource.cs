@@ -1,4 +1,4 @@
-﻿namespace Net.Share
+﻿namespace Net.System
 {
     // Token: 0x0200005D RID: 93
     internal enum ExceptionResource

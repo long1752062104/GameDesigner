@@ -1,6 +1,6 @@
 ﻿namespace Net.Share
 {
-    using System;
+    using global::System;
 
     /// <summary>
     /// 网络客户端接口处理 2019.7.9

@@ -4,9 +4,9 @@ namespace Net.Component
     using Net.Client;
     using Net.Event;
     using Net.Share;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Threading;
     using UnityEngine;
 
     public enum TransportProtocol

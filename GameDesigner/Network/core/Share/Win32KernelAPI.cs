@@ -1,8 +1,8 @@
 ﻿namespace Net.Share
 {
-    using System;
-    using System.Net.Sockets;
-    using System.Runtime.InteropServices;
+    using global::System;
+    using global::System.Net.Sockets;
+    using global::System.Runtime.InteropServices;
 
     /// <summary>
     /// 系统时钟间隔是个很少被关心到的系统标量，

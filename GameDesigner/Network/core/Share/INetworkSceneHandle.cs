@@ -1,7 +1,7 @@
 ﻿namespace Net.Share
 {
     using Net.Server;
-    using System;
+    using global::System;
 
     /// <summary>
     /// 网络场景处理接口

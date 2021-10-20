@@ -1,17 +1,18 @@
 ﻿namespace Net.Server
 {
     using Net.Share;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Reflection;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Concurrent;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Reflection;
+    using global::System.Text;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
     using Debug = Event.NDebug;
+    using Net.System;
 
     /// <summary>
     /// tcp 输入输出完成端口服务器
@@ -31,6 +32,7 @@
             OnRemoveClientHandle += OnRemoveClient;
             OnOperationSyncHandle += OnOperationSync;
             OnRevdBufferHandle += OnReceiveBuffer;
+            OnReceiveFileHandle += OnReceiveFile;
             OnRevdRTProgressHandle += OnRevdRTProgress;
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托

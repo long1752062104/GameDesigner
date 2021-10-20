@@ -6,6 +6,7 @@ using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Libuv;
 using Net.Share;
+using Net.System;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -71,6 +72,7 @@ namespace Net.Server
             OnRemoveClientHandle += OnRemoveClient;
             OnOperationSyncHandle += OnOperationSync;
             OnRevdBufferHandle += OnReceiveBuffer;
+            OnReceiveFileHandle += OnReceiveFile;
             OnRevdRTProgressHandle += OnRevdRTProgress;
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托

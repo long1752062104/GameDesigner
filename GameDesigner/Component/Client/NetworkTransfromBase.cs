@@ -2,7 +2,7 @@
 namespace Net.Component
 {
     using Net.Share;
-    using System.Collections.Generic;
+    using global::System.Collections.Generic;
     using UnityEngine;
 
     public enum SyncMode

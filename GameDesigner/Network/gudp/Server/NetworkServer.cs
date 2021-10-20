@@ -1,17 +1,18 @@
 ﻿namespace Net.Server
 {
     using Net.Share;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Concurrent;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Linq;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Text;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
     using Debug = Event.NDebug;
+    using Net.System;
 
     /// <summary>
     /// 双通讯(tcp, udp)服务器 当使用Send发送数据时, 使用udp协议发送. 当使用SendRT发送数据时, 使用tcp协议发送
@@ -47,6 +48,7 @@
             OnRemoveClientHandle += OnRemoveClient;
             OnOperationSyncHandle += OnOperationSync;
             OnRevdBufferHandle += OnReceiveBuffer;
+            OnReceiveFileHandle += OnReceiveFile;
             OnRevdRTProgressHandle += OnRevdRTProgress;
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托

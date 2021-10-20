@@ -1,6 +1,7 @@
 ﻿#if !CLOSE_ILR
 using ILRuntime.Runtime.Intepreter;
 using Net.Share;
+using Net.System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -34,7 +35,7 @@ namespace Net.Client
                 }
             }
             ILTypeInstance ilInstace = target as ILTypeInstance;
-            System.Type type = ilInstace.Type.ReflectionType;
+            global::System.Type type = ilInstace.Type.ReflectionType;
             MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (MethodInfo info in methods)
             {

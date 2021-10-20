@@ -1,6 +1,6 @@
 ﻿namespace Net.Share
 {
-    using System;
+    using global::System;
 
     /// <summary>
     /// 发送数据缓冲区

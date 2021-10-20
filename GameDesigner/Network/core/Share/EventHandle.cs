@@ -1,6 +1,6 @@
 ﻿namespace Net.Share
 {
-    using System;
+    using global::System;
 
     /// <summary>
     /// 事件处理结构

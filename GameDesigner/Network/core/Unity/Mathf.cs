@@ -1,4 +1,4 @@
-﻿using System;
+﻿using global::System;
 
 namespace Net
 {
@@ -552,27 +552,27 @@ namespace Net
 
         public static float Rad2Deg(float radians)
         {
-            return (float)(radians * 180 / System.Math.PI);
+            return (float)(radians * 180 / Math.PI);
         }
 
         public static float Deg2Rad(float degrees)
         {
-            return (float)(degrees * System.Math.PI / 180);
+            return (float)(degrees * Math.PI / 180);
         }
 
         public static Vector3 Rad2Deg(Vector3 radians)
         {
             return new Vector3(
-                               (float)(radians.x * 180 / System.Math.PI),
-                               (float)(radians.y * 180 / System.Math.PI),
-                               (float)(radians.z * 180 / System.Math.PI));
+                               (float)(radians.x * 180 / Math.PI),
+                               (float)(radians.y * 180 / Math.PI),
+                               (float)(radians.z * 180 / Math.PI));
         }
         public static Vector3 Deg2Rad(Vector3 degrees)
         {
             return new Vector3(
-                               (float)(degrees.x * System.Math.PI / 180),
-                               (float)(degrees.y * System.Math.PI / 180),
-                               (float)(degrees.z * System.Math.PI / 180));
+                               (float)(degrees.x * Math.PI / 180),
+                               (float)(degrees.y * Math.PI / 180),
+                               (float)(degrees.z * Math.PI / 180));
         }
 
         public const float CosAngle20 = 0.9396926208f;
@@ -580,11 +580,11 @@ namespace Net
 
         public static bool CompareApproximate(float f0, float f1, float epsilon = CompareEpsilon)
         {
-            return System.Math.Abs(f0 - f1) < epsilon;
+            return Math.Abs(f0 - f1) < epsilon;
         }
         public static bool CompareApproximate(double f0, double f1, float epsilon = CompareEpsilon)
         {
-            return System.Math.Abs(f0 - f1) < epsilon;
+            return Math.Abs(f0 - f1) < epsilon;
         }
         #endregion
     }

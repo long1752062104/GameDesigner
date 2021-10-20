@@ -1,11 +1,10 @@
 ﻿namespace Net
 {
-    using Net.Share;
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
+    using global::System;
+    using global::System.Collections;
+    using global::System.Collections.Generic;
+    using global::System.Reflection;
+    using Net.Serialize;
 
     /// <summary>
     /// 克隆工具类

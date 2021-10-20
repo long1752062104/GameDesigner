@@ -1,13 +1,14 @@
 ﻿namespace Net.Client
 {
     using Net.Share;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net.Sockets;
-    using System.Reflection;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Net.Sockets;
+    using global::System.Reflection;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
+    using Net.System;
 
     /// <summary>
     /// Udp网络客户端

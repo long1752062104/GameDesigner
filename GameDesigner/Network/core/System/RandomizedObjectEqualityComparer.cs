@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Security;
 
-namespace Net.Share
+namespace Net.System
 {
     // Token: 0x0200049D RID: 1181
     internal sealed class RandomizedObjectEqualityComparer : IEqualityComparer, IWellKnownStringEqualityComparer

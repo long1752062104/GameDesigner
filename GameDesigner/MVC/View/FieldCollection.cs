@@ -20,7 +20,7 @@ namespace MVC.View
                 get
                 {
                     if (type == null)
-                        type = Net.Share.NetConvertOld.GetType(typeName);
+                        type = Net.Serialize.NetConvertOld.GetType(typeName);
                     return type;
                 }
                 internal set { type = value; }

@@ -1,10 +1,10 @@
 ﻿namespace Net.Event
 {
     using Net.Config;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
 
     /// <summary>
     /// 事件处理静态类, 此类可以用于计时调用事件

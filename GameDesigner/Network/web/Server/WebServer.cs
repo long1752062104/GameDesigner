@@ -1,15 +1,17 @@
 ﻿namespace Net.Server
 {
     using Fleck;
+    using Net.Serialize;
     using Net.Share;
     using Newtonsoft_X.Json;
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Text;
-    using System.Threading;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Text;
+    using global::System.Threading;
     using Debug = Event.NDebug;
+    using Net.System;
 
     /// <summary>
     /// web网络服务器 2020.8.25 七夕
@@ -66,6 +68,7 @@
             OnWSRevdBufferHandle += OnWSReceiveBuffer;
             OnOperationSyncHandle += OnOperationSync;
             OnRevdBufferHandle += OnReceiveBuffer;
+            OnReceiveFileHandle += OnReceiveFile;
             OnRevdRTProgressHandle += OnRevdRTProgress;
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle += AddRpcInternal;//在start之前就要添加你的委托

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Net.Share
+namespace Net.System
 {
     // Token: 0x0200007A RID: 122
     internal interface IWellKnownStringEqualityComparer

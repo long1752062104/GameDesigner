@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Net.Share;
+using Net.Serialize;
+using Net.System;
 
 namespace Binding
 {
@@ -80,7 +81,7 @@ namespace Binding
 			int count = value.Length;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			NetColorBind bind = new NetColorBind();
+			var bind = new NetColorBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -90,7 +91,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new Net.Color[count];
 			if (count == 0) return value;
-			NetColorBind bind = new NetColorBind();
+			var bind = new NetColorBind();
 			for (int i = 0; i < count; i++)
 				value[i] = bind.Read(stream);
 			return value;
@@ -117,7 +118,7 @@ namespace Binding
 			int count = value.Count;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			NetColorBind bind = new NetColorBind();
+			var bind = new NetColorBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -127,7 +128,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new List<Net.Color>();
 			if (count == 0) return value;
-			NetColorBind bind = new NetColorBind();
+			var bind = new NetColorBind();
 			for (int i = 0; i < count; i++)
 				value.Add(bind.Read(stream));
 			return value;

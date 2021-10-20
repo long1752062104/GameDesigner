@@ -28,7 +28,7 @@
                 if (count == 0)
                     return new byte[0];//byte[]不能为空,否则出错
                 byte[] buffer1 = new byte[count];
-                System.Buffer.BlockCopy(buffer, index, buffer1, 0, count);
+                global::System.Buffer.BlockCopy(buffer, index, buffer1, 0, count);
                 return buffer1;
             }
             set
@@ -219,7 +219,7 @@
         /// <returns></returns>
         public override string ToString()
         {
-            System.Reflection.FieldInfo[] fields = typeof(NetCmd).GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            global::System.Reflection.FieldInfo[] fields = typeof(NetCmd).GetFields(global::System.Reflection.BindingFlags.Static | global::System.Reflection.BindingFlags.Public);
             string cmdStr = "";
             if (cmd < fields.Length)
                 cmdStr = fields[cmd].Name;

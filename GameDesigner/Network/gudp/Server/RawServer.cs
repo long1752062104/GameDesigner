@@ -1,14 +1,15 @@
 ﻿namespace Net.Server
 {
     using Net.Share;
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Runtime.InteropServices;
-    using System.Text;
-    using System.Threading;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Runtime.InteropServices;
+    using global::System.Text;
+    using global::System.Threading;
     using Debug = Event.NDebug;
+    using Net.System;
 
     [StructLayout(LayoutKind.Explicit)]
     public struct IPHeader
@@ -55,6 +56,7 @@
             OnRemoveClientHandle += OnRemoveClient;
             OnOperationSyncHandle += OnOperationSync;
             OnRevdBufferHandle += OnReceiveBuffer;
+            OnReceiveFileHandle += OnReceiveFile;
             OnRevdRTProgressHandle += OnRevdRTProgress;
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托

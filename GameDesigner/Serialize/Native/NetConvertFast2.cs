@@ -1,9 +1,11 @@
-﻿namespace Net.Share
+﻿namespace Net.Serialize
 {
     using Net.Event;
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Reflection;
+    using Net.System;
+    using Net.Share;
 
     /// <summary>
     /// 快速序列化2接口--动态匹配

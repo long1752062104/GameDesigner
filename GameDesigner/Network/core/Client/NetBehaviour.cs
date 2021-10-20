@@ -1,8 +1,8 @@
 ﻿namespace Net.Client
 {
     using Net.Share;
-    using System;
-    using System.Threading;
+    using global::System;
+    using global::System.Threading;
     using UnityEngine;
 
     /// <summary>

@@ -28,7 +28,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 
-namespace Net.Share
+namespace Net.System
 {
     /// <summary>
     /// A debugger view of the IProducerConsumerCollection that makes it simple to browse the

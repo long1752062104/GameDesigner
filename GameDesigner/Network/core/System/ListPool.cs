@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Threading;
 
-namespace Net.Share
+namespace Net.System
 {
     internal sealed class Mscorlib_CollectionDebugView<T>
     {

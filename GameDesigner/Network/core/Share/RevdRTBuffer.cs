@@ -40,6 +40,10 @@
     public struct RTProgress
     {
         /// <summary>
+        /// 进度名称
+        /// </summary>
+        public string name;
+        /// <summary>
         /// 进度值
         /// </summary>
         public float progress;
@@ -57,6 +61,11 @@
         {
             this.progress = progress;
             this.state = state;
+        }
+
+        public RTProgress(string name, float progress, RTState state) : this(progress, state)
+        {
+            this.name = name;
         }
     }
 }

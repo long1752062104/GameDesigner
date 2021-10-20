@@ -1,14 +1,15 @@
 ﻿namespace Net.Server
 {
     using Net.Share;
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Text;
-    using System.Threading;
+    using global::System;
+    using global::System.IO;
+    using global::System.Linq;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Text;
+    using global::System.Threading;
     using Debug = Event.NDebug;
+    using Net.System;
 
     /// <summary>
     /// TCP服务器类型
@@ -29,6 +30,7 @@
             OnRemoveClientHandle += OnRemoveClient;
             OnOperationSyncHandle += OnOperationSync;
             OnRevdBufferHandle += OnReceiveBuffer;
+            OnReceiveFileHandle += OnReceiveFile;
             OnRevdRTProgressHandle += OnRevdRTProgress;
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托
@@ -85,7 +87,7 @@
             threads.Add("DataTrafficThread", dtt);
             threads.Add("SceneUpdateHandle", suh);
             threads.Add("VarSyncHandler", vsh);
-            System.Collections.Generic.KeyValuePair<string, Scene> scene = OnAddDefaultScene();
+            var scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
             scene.Value.Name = scene.Key;
             Scenes.TryAdd(scene.Key, scene.Value);

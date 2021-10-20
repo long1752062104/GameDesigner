@@ -1,16 +1,17 @@
 ﻿namespace Net.Client
 {
     using Net.Share;
-    using System;
-    using System.IO;
-    using System.Net.Sockets;
-    using System.Runtime.InteropServices;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.IO;
+    using global::System.Net.Sockets;
+    using global::System.Runtime.InteropServices;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
     using Kcp;
     using static Kcp.KcpLib;
-    using System.Net;
-    using System.Reflection;
+    using global::System.Net;
+    using global::System.Reflection;
+    using Net.System;
 
     /// <summary>
     /// kcp客户端

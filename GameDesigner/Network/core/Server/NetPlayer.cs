@@ -3,14 +3,15 @@
     using Net.Component;
     using Net.Event;
     using Net.Share;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Reflection;
-    using System.Threading;
+    using global::System;
+    using global::System.Collections.Concurrent;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Reflection;
+    using global::System.Threading;
+    using Net.System;
 
     /// <summary>
     /// 网络玩家 - 当客户端连接服务器后都会为每个客户端生成一个网络玩家对象，(玩家对象由服务器管理) 2019.9.9
@@ -108,6 +109,8 @@
         internal EndPoint TcpRemoteEndPoint { get; set; }
 
         internal MyDictionary<ushort, VarSyncInfo> varSyncInfos = new MyDictionary<ushort, VarSyncInfo>();
+
+        internal MyDictionary<int, FileData> ftpDic = new MyDictionary<int, FileData>();
 
         #region 创建网络客户端(玩家)
         /// <summary>

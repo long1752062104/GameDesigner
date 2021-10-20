@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Net.Share
+namespace Net.Event
 {
     public class ActionEvent
     {

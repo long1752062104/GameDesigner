@@ -1,9 +1,9 @@
 ﻿namespace Net.Client
 {
     using Net.Share;
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
 
     /// <summary>
     /// 检测网络状况

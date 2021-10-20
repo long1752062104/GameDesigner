@@ -1,6 +1,7 @@
 ﻿namespace Net.Share
 {
-    using System;
+    using global::System;
+    using Net.System;
 
     /// <summary>
     /// 随机帮助类 (多线程安全)

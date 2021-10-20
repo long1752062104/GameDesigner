@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Net.Share
+namespace Net.System
 {
     /// <summary>
     /// 随机类 (多线程安全)

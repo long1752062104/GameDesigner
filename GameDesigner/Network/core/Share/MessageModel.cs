@@ -1,7 +1,8 @@
 ﻿namespace Net.Share
 {
     using Newtonsoft_X.Json;
-    using System.Collections.Generic;
+    using global::System.Collections.Generic;
+    using Net.Serialize;
 
     /// <summary>
     /// web服务器json参数类
@@ -65,7 +66,7 @@
             object[] pars1 = new object[pars.Length];
             for (int i = 0; i < pars.Length; i++)
             {
-                System.Type type = NetConvertOld.GetType(pars[i].typeName);
+                global::System.Type type = NetConvertOld.GetType(pars[i].typeName);
                 object obj = JsonConvert.DeserializeObject(pars[i].jsonStr, type);
                 pars1[i] = obj;
             }
@@ -105,7 +106,7 @@
                     pars1.Add(null);
                     continue;
                 }
-                System.Type type = p.GetType();
+                global::System.Type type = p.GetType();
                 string json = JsonConvert.SerializeObject(p);
                 Parameter par = new Parameter(type.FullName, json);
                 pars1.Add(par);

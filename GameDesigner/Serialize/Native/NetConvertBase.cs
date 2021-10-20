@@ -1,6 +1,6 @@
-﻿namespace Net.Share
+﻿namespace Net.Serialize
 {
-    using System;
+    using global::System;
     using UnityEngine;
 
     /// <summary>

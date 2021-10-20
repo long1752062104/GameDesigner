@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Net.Share;
+using Net.Serialize;
+using Net.System;
 
 namespace Binding
 {
@@ -66,7 +67,7 @@ namespace Binding
 			int count = value.Length;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			UnityEngineVector3Bind bind = new UnityEngineVector3Bind();
+			var bind = new UnityEngineVector3Bind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -76,7 +77,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new UnityEngine.Vector3[count];
 			if (count == 0) return value;
-			UnityEngineVector3Bind bind = new UnityEngineVector3Bind();
+			var bind = new UnityEngineVector3Bind();
 			for (int i = 0; i < count; i++)
 				value[i] = bind.Read(stream);
 			return value;
@@ -103,7 +104,7 @@ namespace Binding
 			int count = value.Count;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			UnityEngineVector3Bind bind = new UnityEngineVector3Bind();
+			var bind = new UnityEngineVector3Bind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -113,7 +114,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new List<UnityEngine.Vector3>();
 			if (count == 0) return value;
-			UnityEngineVector3Bind bind = new UnityEngineVector3Bind();
+			var bind = new UnityEngineVector3Bind();
 			for (int i = 0; i < count; i++)
 				value.Add(bind.Read(stream));
 			return value;

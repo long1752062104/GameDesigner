@@ -4,13 +4,15 @@ namespace Net.Client
     using Net.Event;
     using Net.Share;
     using Newtonsoft_X.Json;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Text;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
     using WebSocket4Net;
+    using Net.Serialize;
+    using Net.System;
 
     /// <summary>
     /// web客户端类型

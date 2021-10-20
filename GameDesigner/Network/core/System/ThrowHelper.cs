@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
 
-namespace Net.Share
+namespace Net.System
 {
     // Token: 0x0200005B RID: 91
     internal static class ThrowHelper

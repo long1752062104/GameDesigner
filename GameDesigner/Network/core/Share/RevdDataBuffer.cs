@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Net.Sockets;
+﻿using Net.System;
 
 namespace Net.Share
 {
@@ -76,7 +75,7 @@ namespace Net.Share
 
         public override string ToString()
         {
-            System.Reflection.FieldInfo[] fields = typeof(NetCmd).GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            global::System.Reflection.FieldInfo[] fields = typeof(NetCmd).GetFields(global::System.Reflection.BindingFlags.Static | global::System.Reflection.BindingFlags.Public);
             return $"{client} - buffer:{buffer.Length} - reliable:{reliable} - cmd:{fields[buffer[7]].Name}";
         }
     }

@@ -203,8 +203,8 @@ namespace GameDesigner
         static public T Instance<T>(object target) where T : class
         {
             T t = Activator.CreateInstance<T>();
-            string str = Net.Share.NetConvertOld.Serialize(target);
-            object obj = Net.Share.NetConvertOld.Deserialize(str).pars[0];
+            string str = Net.Serialize.NetConvertOld.Serialize(target);
+            object obj = Net.Serialize.NetConvertOld.Deserialize(str).pars[0];
             foreach (FieldInfo field in target.GetType().GetFields())
             {
                 if (field.IsStatic | field.IsPrivate | field.FieldType.IsAbstract)

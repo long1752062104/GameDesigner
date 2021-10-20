@@ -1,7 +1,7 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Net.Component
 {
-    using System;
+    using global::System;
     using UnityEngine.UI;
 
     public class MessageBox : SingleCase<MessageBox>

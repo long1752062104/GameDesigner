@@ -1,8 +1,7 @@
 ﻿namespace Net.Share
 {
-    using System;
-    using System.IO;
-    using System.IO.Compression;
+    using global::System.IO;
+    using global::System.IO.Compression;
 
     /// <summary>
     /// 压缩数据传输

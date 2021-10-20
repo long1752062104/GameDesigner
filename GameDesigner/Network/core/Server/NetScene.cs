@@ -1,8 +1,11 @@
 ﻿namespace Net.Server
 {
     using Net.Share;
-    using System;
-    using System.Collections.Generic;
+    using global::System;
+    using global::System.Collections.Generic;
+    using Net.System;
+    using Net.Event;
+    using Net.Serialize;
 
     /// <summary>
     /// 网络场景

@@ -2,12 +2,13 @@
 {
     using Kcp;
     using Net.Share;
-    using System;
-    using System.IO;
-    using System.Net;
-    using System.Runtime.InteropServices;
-    using System.Threading;
+    using global::System;
+    using global::System.IO;
+    using global::System.Net;
+    using global::System.Runtime.InteropServices;
+    using global::System.Threading;
     using static Kcp.KcpLib;
+    using Net.System;
 
     /// <summary>
     /// kcp服务器

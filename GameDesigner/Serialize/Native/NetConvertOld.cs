@@ -1,11 +1,11 @@
-﻿namespace Net.Share
+﻿namespace Net.Serialize
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
+    using global::System;
+    using global::System.Collections.Concurrent;
+    using global::System.Collections.Generic;
+    using global::System.Linq;
+    using global::System.Reflection;
+    using global::System.Text;
 
     /// <summary>
     /// 函数数据
@@ -151,7 +151,7 @@
                 }
             }
 #if !CLOSE_ILR
-            Type type3 = ObjectExtensions.GetType(typeName);
+            Type type3 = Share.ObjectExtensions.GetType(typeName);
             if (type3 != null)
             {
                 Types.TryAdd(typeName, type3);

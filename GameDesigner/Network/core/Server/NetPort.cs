@@ -1,8 +1,8 @@
 ﻿namespace Net.Server
 {
-    using System.Collections;
-    using System.Net;
-    using System.Net.NetworkInformation;
+    using global::System.Collections;
+    using global::System.Net;
+    using global::System.Net.NetworkInformation;
 
     /// <summary>
     /// 网络端口检测类

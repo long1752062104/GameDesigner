@@ -1,6 +1,6 @@
 ﻿namespace Net.Share
 {
-    using System;
+    using global::System;
 
     /// <summary>
     /// 标注为远程过程调用函数

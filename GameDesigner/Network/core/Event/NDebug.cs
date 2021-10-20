@@ -1,9 +1,9 @@
 ﻿namespace Net.Event
 {
-    using Net.Share;
-    using System;
-    using System.Reflection;
-    using System.Threading;
+    using global::System;
+    using global::System.Reflection;
+    using global::System.Threading;
+    using Net.System;
 
     /// <summary>
     /// 消息输入输出处理类

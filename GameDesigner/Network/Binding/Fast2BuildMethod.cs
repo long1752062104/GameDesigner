@@ -73,9 +73,9 @@ public static class Fast2BuildMethod
                 NDebug.LogError(err.ErrorText);
             return false;
         }
-        Net.Share.NetConvertFast2.Init();
+        Net.Serialize.NetConvertFast2.Init();
         foreach (var type in types)
-            Net.Share.NetConvertFast2.AddSerializeType3(type);
+            Net.Serialize.NetConvertFast2.AddSerializeType3(type);
         NDebug.Log("编译成功");
         return true;
     }
@@ -100,7 +100,8 @@ public static class Fast2BuildMethod
         bool hasns = !string.IsNullOrEmpty(type.Namespace) | addNs;
         str.AppendLine("using System;");
         str.AppendLine("using System.Collections.Generic;");
-        str.AppendLine("using Net.Share;");
+        str.AppendLine("using Net.Serialize;");
+        str.AppendLine("using Net.System;");
         str.AppendLine("");
         str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
         var className = type.FullName.Replace(".", "").Replace("+", "");

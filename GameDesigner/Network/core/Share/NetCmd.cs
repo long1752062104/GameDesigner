@@ -129,5 +129,13 @@
         /// 字段或属性同步指令 内部指令
         /// </summary>
         public const byte VarSync = 29;
+        /// <summary>
+        /// 发送文件
+        /// </summary>
+        public const byte SendFile = 30;
+        /// <summary>
+        /// 下载文件
+        /// </summary>
+        public const byte Download = 31;
     }
 }

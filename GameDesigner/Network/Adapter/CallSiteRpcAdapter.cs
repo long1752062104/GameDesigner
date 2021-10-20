@@ -4,6 +4,7 @@ using System.Reflection;
 using Net.Server;
 using System.Threading;
 using Net.Event;
+using Net.System;
 
 namespace Net.Adapter
 {

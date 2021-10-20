@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Net.Share
+namespace Net.System
 {
     internal sealed class StackSafeDebugView<T>
     {

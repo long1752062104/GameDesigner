@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Net.Share;
+using Net.Serialize;
+using Net.System;
 
 namespace Binding
 {
@@ -24,25 +25,25 @@ namespace Binding
 			if(value.position != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 3, true);
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				bind.Write(value.position, stream);
 			}
 			if(value.center != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 4, true);
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				bind.Write(value.center, stream);
 			}
 			if(value.min != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 5, true);
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				bind.Write(value.min, stream);
 			}
 			if(value.max != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 6, true);
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				bind.Write(value.max, stream);
 			}
 			if(value.width != 0)
@@ -58,7 +59,7 @@ namespace Binding
 			if(value.size != default)
 			{
 				NetConvertBase.SetBit(ref bits[1], 1, true);
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				bind.Write(value.size, stream);
 			}
 			if(value.xMin != 0)
@@ -97,22 +98,22 @@ namespace Binding
 				value.y = stream.ReadValue<Single>();
 			if(NetConvertBase.GetBit(bits[0], 3))
 			{
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				value.position = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[0], 4))
 			{
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				value.center = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[0], 5))
 			{
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				value.min = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[0], 6))
 			{
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				value.max = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[0], 7))
@@ -121,7 +122,7 @@ namespace Binding
 				value.height = stream.ReadValue<Single>();
 			if(NetConvertBase.GetBit(bits[1], 1))
 			{
-				NetVector2Bind bind = new NetVector2Bind();
+				var bind = new NetVector2Bind();
 				value.size = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[1], 2))
@@ -156,7 +157,7 @@ namespace Binding
 			int count = value.Length;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			NetRectBind bind = new NetRectBind();
+			var bind = new NetRectBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -166,7 +167,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new Net.Rect[count];
 			if (count == 0) return value;
-			NetRectBind bind = new NetRectBind();
+			var bind = new NetRectBind();
 			for (int i = 0; i < count; i++)
 				value[i] = bind.Read(stream);
 			return value;
@@ -193,7 +194,7 @@ namespace Binding
 			int count = value.Count;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			NetRectBind bind = new NetRectBind();
+			var bind = new NetRectBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -203,7 +204,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new List<Net.Rect>();
 			if (count == 0) return value;
-			NetRectBind bind = new NetRectBind();
+			var bind = new NetRectBind();
 			for (int i = 0; i < count; i++)
 				value.Add(bind.Read(stream));
 			return value;

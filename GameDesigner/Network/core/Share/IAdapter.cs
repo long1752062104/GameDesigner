@@ -1,4 +1,5 @@
-﻿using Net.Server;
+﻿using Net.Serialize;
+using Net.Server;
 
 namespace Net.Share
 {

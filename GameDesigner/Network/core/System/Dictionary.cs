@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Threading;
 
-namespace Net.Share
+namespace Net.System
 {
     internal sealed class Mscorlib_DictionaryDebugView<K, V>
     {

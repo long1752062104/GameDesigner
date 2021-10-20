@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Net.Share;
+using Net.Serialize;
+using Net.System;
 
 namespace Binding
 {
@@ -34,7 +35,7 @@ namespace Binding
 			if(value.eulerAngles != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 5, true);
-				UnityEngineVector3Bind bind = new UnityEngineVector3Bind();
+				var bind = new UnityEngineVector3Bind();
 				bind.Write(value.eulerAngles, stream);
 			}
 			int pos1 = stream.Position;
@@ -57,7 +58,7 @@ namespace Binding
 				value.w = stream.ReadValue<Single>();
 			if(NetConvertBase.GetBit(bits[0], 5))
 			{
-				UnityEngineVector3Bind bind = new UnityEngineVector3Bind();
+				var bind = new UnityEngineVector3Bind();
 				value.eulerAngles = bind.Read(stream);
 			}
 			return value;
@@ -84,7 +85,7 @@ namespace Binding
 			int count = value.Length;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			UnityEngineQuaternionBind bind = new UnityEngineQuaternionBind();
+			var bind = new UnityEngineQuaternionBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -94,7 +95,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new UnityEngine.Quaternion[count];
 			if (count == 0) return value;
-			UnityEngineQuaternionBind bind = new UnityEngineQuaternionBind();
+			var bind = new UnityEngineQuaternionBind();
 			for (int i = 0; i < count; i++)
 				value[i] = bind.Read(stream);
 			return value;
@@ -121,7 +122,7 @@ namespace Binding
 			int count = value.Count;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			UnityEngineQuaternionBind bind = new UnityEngineQuaternionBind();
+			var bind = new UnityEngineQuaternionBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -131,7 +132,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new List<UnityEngine.Quaternion>();
 			if (count == 0) return value;
-			UnityEngineQuaternionBind bind = new UnityEngineQuaternionBind();
+			var bind = new UnityEngineQuaternionBind();
 			for (int i = 0; i < count; i++)
 				value.Add(bind.Read(stream));
 			return value;

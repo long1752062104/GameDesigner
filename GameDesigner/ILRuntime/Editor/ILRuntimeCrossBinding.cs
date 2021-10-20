@@ -89,7 +89,7 @@ public class ILRuntimeCrossBinding : EditorWindow
                     Directory.CreateDirectory("Assets/Scripts/Generated/");
                 using (StreamWriter sw = new StreamWriter($"Assets/Scripts/Generated/{fn}_Adapter.cs"))
                 {
-                    Type type = Net.Share.NetConvertOld.GetType(type1);
+                    Type type = Net.Serialize.NetConvertOld.GetType(type1);
                     sw.WriteLine(ILRuntime.Runtime.Enviorment.CrossBindingCodeGenerator.GenerateCrossBindingAdapterCode(type, "ILRuntime.Runtime.Generated"));
                 }
             }

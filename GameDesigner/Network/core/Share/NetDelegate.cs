@@ -1,8 +1,8 @@
 ﻿namespace Net.Share
 {
-    using System;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
+    using global::System;
+    using global::System.Reflection;
+    using global::System.Runtime.InteropServices;
 
     /// <summary>
     /// 远程过程调用方法

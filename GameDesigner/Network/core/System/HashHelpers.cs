@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Threading;
 
-namespace Net.Share
+namespace Net.System
 {
     // Token: 0x0200046B RID: 1131
     //[FriendAccessAllowed]
@@ -96,7 +96,7 @@ namespace Net.Share
         }
 
         // Token: 0x06003779 RID: 14201 RVA: 0x000D50A4 File Offset: 0x000D32A4
-        public static System.Collections.IEqualityComparer GetRandomizedEqualityComparer(object comparer)
+        public static global::System.Collections.IEqualityComparer GetRandomizedEqualityComparer(object comparer)
         {
             if (comparer == null)
             {

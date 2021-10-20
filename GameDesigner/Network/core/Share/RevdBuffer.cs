@@ -1,8 +1,8 @@
 ﻿namespace Net.Share
 {
-    using System;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
+    using global::System;
+    using global::System.Reflection;
+    using global::System.Runtime.InteropServices;
 
     /// <summary>
     /// 网络接收缓存结构体

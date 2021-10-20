@@ -1,19 +1,21 @@
-﻿namespace Net.Share
+﻿namespace Net.Serialize
 {
     using Net.Event;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Linq;
+    using global::System.Reflection;
+    using global::System.Text;
 #if SERVICE
-    using System.Runtime.CompilerServices;
+    using global::System.Runtime.CompilerServices;
     using Microsoft.CSharp.RuntimeBinder;
     using Binder = Microsoft.CSharp.RuntimeBinder.Binder;
 #endif
-    using System.Collections;
-    using System.Runtime.InteropServices;
+    using global::System.Collections;
+    using global::System.Runtime.InteropServices;
+    using Net.Share;
+    using Net.System;
 
     /// <summary>
     /// 提供序列化二进制类

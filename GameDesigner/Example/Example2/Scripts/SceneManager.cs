@@ -3,6 +3,7 @@ namespace Example2
 {
     using Net.Component;
     using Net.Share;
+    using Net.System;
 
     public class SceneManager : Net.Component.SceneManager
     {

@@ -19,17 +19,19 @@ namespace Net.Client
 {
     using Net.Event;
     using Net.Share;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net;
-    using System.Net.NetworkInformation;
-    using System.Net.Sockets;
-    using System.Reflection;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Concurrent;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Net;
+    using global::System.Net.NetworkInformation;
+    using global::System.Net.Sockets;
+    using global::System.Reflection;
+    using global::System.Text;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
+    using Net.System;
+    using Net.Serialize;
 
     /// <summary>
     /// 网络客户端核心基类 2019.3.3
@@ -258,6 +260,18 @@ namespace Net.Client
         /// </summary>
         public Action<string, ushort> OnSwitchPortHandle;
         /// <summary>
+        /// 当客户端发送的文件完成, 接收到文件后调用, 返回true:框架内部释放文件流和删除临时文件(默认) false:使用者处理
+        /// </summary>
+        public Func<FileData, bool> OnReceiveFileHandle;
+        /// <summary>
+        /// 当接收到发送的文件进度
+        /// </summary>
+        public Action<RTProgress> OnRevdFileProgress;
+        /// <summary>
+        /// 当发送的文件进度
+        /// </summary>
+        public Action<RTProgress> OnSendFileProgress;
+        /// <summary>
         /// 发送可靠传输缓冲
         /// </summary>
         protected ConcurrentDictionary<uint, MyDictionary<ushort, RTBuffer>> sendRTList = new ConcurrentDictionary<uint, MyDictionary<ushort, RTBuffer>>();
@@ -349,6 +363,7 @@ namespace Net.Client
         /// <para>1.链路层：以太网的数据帧的长度为(64+18)~(1500+18)字节，其中18是数据帧的帧头和帧尾，所以数据帧的内容最大为1500字节（不包括帧头和帧尾），即MUT为1500字节</para>
         /// <para>2.网络层：IP包的首部要占用20字节，所以这里的MTU＝1500－20＝1480字节</para>
         /// <para>3.传输层：UDP包的首部要占有8字节，所以这里的MTU＝1480－8＝1472字节</para>
+        /// <see langword="注意:服务器和客户端的MTU属性的值必须保持一致性,否则分包的数据将解析错误!"/> <see cref="Server.ServerBase{Player, Scene}.MTU"/>
         /// </summary>
         public int MTU { get; set; } = 1300;
         /// <summary>
@@ -398,6 +413,7 @@ namespace Net.Client
         private readonly MyDictionary<uint, FrameList> revdFrames = new MyDictionary<uint, FrameList>();
         private long fileStreamCurrPos;
         private readonly MyDictionary<ushort, VarSyncInfo> varSyncInfos = new MyDictionary<ushort, VarSyncInfo>();
+        private readonly MyDictionary<int, FileData> ftpDic = new MyDictionary<int, FileData>();
 
         /// <summary>
         /// 构造函数
@@ -1959,13 +1975,15 @@ namespace Net.Client
                     InvokeContext(() => { OnPingCallback((currRto - 100d) / 2); });
                     break;
                 case NetCmd.P2P:
-                    Segment segment = new Segment(model.buffer, model.index, 10, false);
-                    var address = segment.ReadValue<long>();
-                    var port = segment.ReadValue<int>();
-                    IPEndPoint iPEndPoint = new IPEndPoint(address, port);
-                    if (OnP2PCallback == null)
-                        return;
-                    InvokeContext(() => { OnP2PCallback(iPEndPoint); });
+                    {
+                        Segment segment = new Segment(model.buffer, model.index, 10, false);
+                        var address = segment.ReadValue<long>();
+                        var port = segment.ReadValue<int>();
+                        IPEndPoint iPEndPoint = new IPEndPoint(address, port);
+                        if (OnP2PCallback == null)
+                            return;
+                        InvokeContext(() => { OnP2PCallback(iPEndPoint); });
+                    }
                     break;
                 case NetCmd.VarSync:
                     Segment segment1 = new Segment(model.buffer, model.index, model.count, false);
@@ -1982,6 +2000,56 @@ namespace Net.Client
                             NDebug.LogWarning($"未定义同步变量ID={id}, 请定义或收集同步变量, 使用ClientManager.I.client.AddRpcHandle(xxx)方法收集!");
                             break;
                         }
+                    }
+                    break;
+                case NetCmd.SendFile:
+                    {
+                        Segment segment = new Segment(model.Buffer, false);
+                        var key = segment.ReadValue<int>();
+                        var length = segment.ReadValue<long>();
+                        var fileName = segment.ReadValue<string>();
+                        var buffer = segment.ReadArray<byte>();
+                        if (!ftpDic.TryGetValue(key, out FileData fileData))
+                        {
+                            fileData = new FileData();
+                            var path = Path.GetTempFileName();
+                            fileData.ID = key;
+                            fileData.fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                            fileData.fileName = fileName;
+                            ftpDic.Add(key, fileData);
+                        }
+                        fileData.fileStream.Write(buffer, 0, buffer.Length);
+                        fileData.Length += buffer.Length;
+                        if (fileData.Length >= length)
+                        {
+                            ftpDic.Remove(key);
+                            if (OnReceiveFileHandle != null)
+                                InvokeContext(() => {
+                                    if (OnReceiveFileHandle(fileData))
+                                    {
+                                        fileData.fileStream.Close();
+                                        File.Delete(fileData.fileStream.Name);
+                                    }
+                                });
+                            if (OnRevdFileProgress != null)
+                                InvokeContext(() => { OnRevdFileProgress(new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Complete)); });
+                        }
+                        else
+                        {
+                            segment.Position = 0;
+                            segment.WriteValue(key);
+                            SendRT(NetCmd.Download, segment.ToArray());
+                            if (OnRevdFileProgress != null)
+                                InvokeContext(() => { OnRevdFileProgress(new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Download)); });
+                        }
+                    }
+                    break;
+                case NetCmd.Download:
+                    {
+                        Segment segment = new Segment(model.Buffer, false);
+                        var key = segment.ReadValue<int>();
+                        if (ftpDic.TryGetValue(key, out FileData fileData))
+                            SendFile(key, fileData);
                     }
                     break;
                 default:
@@ -2914,6 +2982,64 @@ namespace Net.Client
                 {
                     NDebug.LogError(e);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 发送文件, 服务器可以通过重写<see cref="Server.ServerBase{Player, Scene}.OnReceiveFile"/>方法来接收 或 使用事件<see cref="Server.ServerBase{Player, Scene}.OnReceiveFileHandle"/>来监听并处理
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="bufferSize">每次发送数据大小</param>
+        /// <returns></returns>
+        public bool SendFile(string filePath, int bufferSize = 50000)
+        {
+            if (!File.Exists(filePath))
+            {
+                NDebug.LogError("文件不存在! 或者文件路径字符串编码错误!");
+                return false;
+            }
+            FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, bufferSize);
+            var fileData = new FileData
+            {
+                ID = fileStream.GetHashCode(),
+                fileStream = fileStream,
+                fileName = Path.GetFileName(filePath),
+                bufferSize = bufferSize
+            };
+            ftpDic.Add(fileData.ID, fileData);
+            SendFile(fileData.ID, fileData);
+            return true;
+        }
+
+        private void SendFile(int key, FileData fileData)
+        {
+            var fileStream = fileData.fileStream;
+            bool complete = false;
+            long bufferSize = fileData.bufferSize;
+            if (fileStream.Position + fileData.bufferSize > fileStream.Length)
+            {
+                bufferSize = fileStream.Length - fileStream.Position;
+                complete = true;
+            }
+            byte[] buffer = new byte[bufferSize];
+            fileStream.Read(buffer, 0, buffer.Length);
+            Segment segment1 = BufferPool.Take((int)bufferSize + 50);
+            segment1.WriteValue(fileData.ID);
+            segment1.WriteValue(fileData.fileStream.Length);
+            segment1.WriteValue(fileData.fileName);
+            segment1.WriteArray(buffer);
+            SendRT(NetCmd.SendFile, segment1.ToArray(true));
+            if (complete)
+            {
+                if (OnSendFileProgress != null)
+                    InvokeContext(() => { OnSendFileProgress(new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Complete)); });
+                ftpDic.Remove(key);
+                fileData.fileStream.Close();
+            }
+            else 
+            {
+                if (OnSendFileProgress != null)
+                    InvokeContext(() => { OnSendFileProgress(new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Sending)); });
             }
         }
     }

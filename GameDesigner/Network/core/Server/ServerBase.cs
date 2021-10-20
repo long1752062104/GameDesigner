@@ -18,18 +18,20 @@
 namespace Net.Server
 {
     using Net.Share;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Reflection;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Concurrent;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Linq;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Reflection;
+    using global::System.Text;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
     using Debug = Event.NDebug;
+    using Net.System;
+    using Net.Serialize;
 
     /// <summary>
     /// 网络服务器核心基类 2019.11.22
@@ -217,6 +219,7 @@ namespace Net.Server
         /// <para>1.链路层：以太网的数据帧的长度为(64+18)~(1500+18)字节，其中18是数据帧的帧头和帧尾，所以数据帧的内容最大为1500字节（不包括帧头和帧尾），即MUT为1500字节</para>
         /// <para>2.网络层：IP包的首部要占用20字节，所以这里的MTU＝1500－20＝1480字节</para>
         /// <para>3.传输层：UDP包的首部要占有8字节，所以这里的MTU＝1480－8＝1472字节</para>
+        /// <see langword="注意:服务器和客户端的MTU属性的值必须保持一致性,否则分包的数据将解析错误!"/> <see cref="Client.ClientBase.MTU"/>
         /// </summary>
         public int MTU { get; set; } = 1300;
         /// <summary>
@@ -339,6 +342,18 @@ namespace Net.Server
         /// 当反序列化远程过程调用操作
         /// </summary>
         public Func<byte[], int, int, OperationList> OnDeserializeOPT { get; set; }
+        /// <summary>
+        /// 当客户端发送的文件完成, 接收到文件后调用, 返回true:框架内部释放文件流和删除临时文件(默认) false:使用者处理
+        /// </summary>
+        public Func<Player, FileData, bool> OnReceiveFileHandle { get; set; }
+        /// <summary>
+        /// 当接收到发送的文件进度
+        /// </summary>
+        public Action<Player, RTProgress> OnRevdFileProgress { get; set; }
+        /// <summary>
+        /// 当发送的文件进度
+        /// </summary>
+        public Action<Player, RTProgress> OnSendFileProgress { get; set; }
         /// <summary>
         /// 可靠传输是排队模式? 排队模式下, 可靠包是一个一个处理. 不排队模式: 可靠传输数据组成多列并发 ---> 默认是无排队模式
         /// </summary>
@@ -487,6 +502,13 @@ namespace Net.Server
         protected virtual void OnReceiveBuffer(Player client, RPCModel model) { }
 
         /// <summary>
+        /// 当接收到客户端发送的文件
+        /// </summary>
+        /// <param name="client">当前客户端</param>
+        /// <param name="fileData"></param>
+        protected virtual bool OnReceiveFile(Player client, FileData fileData) { return true; }
+
+        /// <summary>
         /// 当接收到客户端使用<see cref="Client.ClientBase.AddOperation(Operation)"/>方法发送的请求时调用
         /// </summary>
         /// <param name="client">当前客户端</param>
@@ -553,6 +575,7 @@ namespace Net.Server
             OnRemoveClientHandle += OnRemoveClient;
             OnOperationSyncHandle += OnOperationSync;
             OnRevdBufferHandle += OnReceiveBuffer;
+            OnReceiveFileHandle += OnReceiveFile;
             OnRevdRTProgressHandle += OnRevdRTProgress;
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托
@@ -1140,6 +1163,50 @@ namespace Net.Server
                             Debug.LogWarning($"未定义同步变量ID={id}, 请定义或收集同步变量, 使用{typeof(Player)}.AddRpc(xxx)方法收集!");
                             break;
                         }
+                    }
+                    break;
+                case NetCmd.SendFile:
+                    {
+                        Segment segment = new Segment(model.Buffer, false);
+                        var key = segment.ReadValue<int>();
+                        var length = segment.ReadValue<long>();
+                        var fileName = segment.ReadValue<string>();
+                        var buffer = segment.ReadArray<byte>();
+                        if (!client.ftpDic.TryGetValue(key, out FileData fileData))
+                        {
+                            fileData = new FileData();
+                            var path = Path.GetTempFileName();
+                            fileData.fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                            fileData.fileName = fileName;
+                            client.ftpDic.Add(key, fileData);
+                        }
+                        fileData.fileStream.Write(buffer, 0, buffer.Length);
+                        fileData.Length += buffer.Length;
+                        if (fileData.Length >= length)
+                        {
+                            client.ftpDic.Remove(key);
+                            OnRevdFileProgress?.Invoke(client, new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Complete));
+                            if (OnReceiveFileHandle(client, fileData))
+                            {
+                                fileData.fileStream.Close();
+                                File.Delete(fileData.fileStream.Name);
+                            }
+                        }
+                        else 
+                        {
+                            segment.Position = 0;
+                            segment.WriteValue(key);
+                            SendRT(client, NetCmd.Download, segment.ToArray());
+                            OnRevdFileProgress?.Invoke(client, new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Download));
+                        }
+                    }
+                    break;
+                case NetCmd.Download:
+                    {
+                        Segment segment = new Segment(model.Buffer, false);
+                        var key = segment.ReadValue<int>();
+                        if (client.ftpDic.TryGetValue(key, out FileData fileData))
+                            SendFile(client, key, fileData);
                     }
                     break;
                 default:
@@ -1897,6 +1964,7 @@ namespace Net.Server
             OnRemoveClientHandle -= OnRemoveClient;
             OnOperationSyncHandle -= OnOperationSync;
             OnRevdBufferHandle -= OnReceiveBuffer;
+            OnReceiveFileHandle -= OnReceiveFile;
             OnRevdRTProgressHandle -= OnRevdRTProgress;
             OnSendRTProgressHandle -= OnSendRTProgress;
             Debug.Log("服务器已关闭！");//先打印在移除事件
@@ -2732,6 +2800,63 @@ namespace Net.Server
                 {
                     Debug.LogError(e);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 发送文件, 客户端可以使用事件<see cref="Client.ClientBase.OnReceiveFileHandle"/>来监听并处理
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="filePath"></param>
+        /// <param name="bufferSize">每次发送数据大小</param>
+        /// <returns></returns>
+        public bool SendFile(Player client, string filePath, int bufferSize = 50000)
+        {
+            if (!File.Exists(filePath))
+            {
+                Debug.LogError("文件不存在! 或者文件路径字符串编码错误!");
+                return false;
+            }
+            FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, bufferSize);
+            var fileData = new FileData
+            {
+                ID = fileStream.GetHashCode(),
+                fileStream = fileStream,
+                fileName = Path.GetFileName(filePath),
+                bufferSize = bufferSize
+            };
+            client.ftpDic.Add(fileData.ID, fileData);
+            SendFile(client, fileData.ID, fileData);
+            return true;
+        }
+
+        private void SendFile(Player client, int key, FileData fileData)
+        {
+            var fileStream = fileData.fileStream;
+            bool complete = false;
+            long bufferSize = fileData.bufferSize;
+            if (fileStream.Position + fileData.bufferSize > fileStream.Length)
+            {
+                bufferSize = fileStream.Length - fileStream.Position;
+                complete = true;
+            }
+            byte[] buffer = new byte[bufferSize];
+            fileStream.Read(buffer, 0, buffer.Length);
+            Segment segment1 = BufferPool.Take((int)bufferSize + 50);
+            segment1.WriteValue(fileData.ID);
+            segment1.WriteValue(fileData.fileStream.Length);
+            segment1.WriteValue(fileData.fileName);
+            segment1.WriteArray(buffer);
+            SendRT(client, NetCmd.SendFile, segment1.ToArray(true));
+            if (complete)
+            {
+                OnSendFileProgress?.Invoke(client, new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Complete));
+                client.ftpDic.Remove(key);
+                fileData.fileStream.Close();
+            }
+            else 
+            {
+                OnSendFileProgress?.Invoke(client, new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Sending));
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Net.Component
 {
-    using System;
-    using System.Threading;
+    using global::System;
+    using global::System.Threading;
 
     /// <summary>
     /// 提供对unity主线程的访问

@@ -1,11 +1,12 @@
 ﻿namespace Net.Server
 {
     using Net.Share;
-    using System;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Threading;
+    using global::System;
+    using global::System.Net;
+    using global::System.Net.Sockets;
+    using global::System.Threading;
     using Debug = Event.NDebug;
+    using Net.System;
 
     /// <summary>
     /// Udp网络服务器
@@ -29,6 +30,7 @@
             OnRemoveClientHandle += OnRemoveClient;
             OnOperationSyncHandle += OnOperationSync;
             OnRevdBufferHandle += OnReceiveBuffer;
+            OnReceiveFileHandle += OnReceiveFile;
             OnRevdRTProgressHandle += OnRevdRTProgress;
             OnSendRTProgressHandle += OnSendRTProgress;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;//在start之前就要添加你的委托
@@ -86,7 +88,7 @@
             threads.Add("DataTrafficThread", dtt);
             threads.Add("SceneUpdateHandle", suh);
             threads.Add("VarSyncHandler", vsh);
-            System.Collections.Generic.KeyValuePair<string, Scene> scene = OnAddDefaultScene();
+            global::System.Collections.Generic.KeyValuePair<string, Scene> scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
             scene.Value.Name = MainSceneName;
             Scenes.TryAdd(scene.Key, scene.Value);

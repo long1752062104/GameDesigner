@@ -1,12 +1,12 @@
 ﻿namespace Net.Server
 {
     using Net.Event;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.IO;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Concurrent;
+    using global::System.Collections.Generic;
+    using global::System.Data;
+    using global::System.IO;
+    using global::System.Threading.Tasks;
 
     /// <summary>
     /// 序列化数据接口, 需要序列化的主类要继承此接口
@@ -172,7 +172,7 @@
         public virtual byte[] OnSerialize(Player player)
         {
             string jsonStr = Newtonsoft_X.Json.JsonConvert.SerializeObject(player);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(jsonStr);
+            var bytes = global::System.Text.Encoding.UTF8.GetBytes(jsonStr);
             List<byte> list = new List<byte>();
             list.AddRange(BitConverter.GetBytes(bytes.Length));
             list.AddRange(bytes);
@@ -182,7 +182,7 @@
         public virtual Player OnDeserialize(byte[] buffer, int count)
         {
             var count1 = BitConverter.ToInt32(buffer, 0);
-            string jsonStr = System.Text.Encoding.UTF8.GetString(buffer, 4, count1);
+            string jsonStr = global::System.Text.Encoding.UTF8.GetString(buffer, 4, count1);
             return Newtonsoft_X.Json.JsonConvert.DeserializeObject<Player>(jsonStr);
         }
 

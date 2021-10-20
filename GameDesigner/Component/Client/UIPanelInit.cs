@@ -1,8 +1,8 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Net.Component
 {
-    using System;
-    using System.Reflection;
+    using global::System;
+    using global::System.Reflection;
     using UnityEngine;
 
     public class UIPanelInit : MonoBehaviour

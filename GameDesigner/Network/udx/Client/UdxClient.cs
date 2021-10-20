@@ -2,15 +2,16 @@
 {
     using Net.Event;
     using Net.Share;
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net.Sockets;
-    using System.Runtime.InteropServices;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using global::System;
+    using global::System.Collections.Concurrent;
+    using global::System.Collections.Generic;
+    using global::System.IO;
+    using global::System.Net.Sockets;
+    using global::System.Runtime.InteropServices;
+    using global::System.Threading;
+    using global::System.Threading.Tasks;
     using Udx;
+    using Net.System;
 
     /// <summary>
     /// udx客户端类型 -> 只能300人以下连接, 如果想要300个客户端以上, 请进入udx网址:www.goodudx.com 联系作者下载专业版FastUdxApi.dll, 然后更换下框架内的FastUdxApi.dll即可
@@ -114,7 +115,7 @@
                 fileStreamName = UnityEngine.Application.persistentDataPath + "/rtTemp" + randomName + ".tmp";
             }),null);
 #else
-            fileStreamName = System.IO.Path.GetTempFileName();
+            fileStreamName = global::System.IO.Path.GetTempFileName();
 #endif
         }
 

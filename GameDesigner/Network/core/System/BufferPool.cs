@@ -1,12 +1,13 @@
 ﻿using Net.Config;
 using Net.Event;
+using Net.Serialize;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Net.Share
+namespace Net.System
 {
     /// <summary>
     /// 内存数据片段
@@ -53,6 +54,14 @@ namespace Net.Share
         /// </summary>
         /// <param name="buffer"></param>
         public Segment(byte[] buffer) : this(buffer, 0, buffer.Length)
+        {
+        }
+
+        /// <summary>
+        /// 构造内存分片
+        /// </summary>
+        /// <param name="buffer"></param>
+        public Segment(byte[] buffer, bool isRecovery) : this(buffer, 0, buffer.Length, isRecovery)
         {
         }
 
@@ -118,7 +127,7 @@ namespace Net.Share
         {
             if (Position > Count) Count = Position;
             byte[] array = new byte[Count];
-            System.Buffer.BlockCopy(Buffer, Index, array, 0, Count);
+            global::System.Buffer.BlockCopy(Buffer, Index, array, 0, Count);
             if (recovery) BufferPool.Push(this);
             return array;
         }
@@ -136,7 +145,7 @@ namespace Net.Share
 
         public void Write(byte[] buffer, int index, int count)
         {
-            System.Buffer.BlockCopy(buffer, index, Buffer, Position, count);
+            global::System.Buffer.BlockCopy(buffer, index, Buffer, Position, count);
             Position += count;
             Count = Position;
         }
@@ -146,7 +155,7 @@ namespace Net.Share
             fixed (void* ptr = &Buffer[Position]) 
             {
                 void* ptr1 = buffer + index;
-                System.Buffer.MemoryCopy(ptr1, ptr, count, count);
+                global::System.Buffer.MemoryCopy(ptr1, ptr, count, count);
                 Position += count;
                 Count = Position;
             }
@@ -155,7 +164,7 @@ namespace Net.Share
         {
             fixed (void* ptr1 = &Buffer[Position])
             {
-                System.Buffer.MemoryCopy(ptr, ptr1, count, count);
+                global::System.Buffer.MemoryCopy(ptr, ptr1, count, count);
                 Position += count;
                 Count = Position;
             }
@@ -352,7 +361,7 @@ namespace Net.Share
         public byte[] Read(int count)
         {
             byte[] buffer = new byte[count];
-            System.Buffer.BlockCopy(Buffer, Position, buffer, 0, count);
+            global::System.Buffer.BlockCopy(Buffer, Position, buffer, 0, count);
             Position += count;
             return buffer;
         }
@@ -487,7 +496,7 @@ namespace Net.Share
             void* ptr = &value;
             fixed (void* ptr1 = &Buffer[Position]) 
             {
-                System.Buffer.MemoryCopy(ptr1, ptr, 16, 16);
+                global::System.Buffer.MemoryCopy(ptr1, ptr, 16, 16);
             }
             Position += 16;
             return value;
@@ -516,7 +525,7 @@ namespace Net.Share
             void* ptr = &value;
             fixed (void* ptr1 = &Buffer[Position])
             {
-                System.Buffer.MemoryCopy(ptr1, ptr, 8, 8);
+                global::System.Buffer.MemoryCopy(ptr1, ptr, 8, 8);
             }
             Position += 8;
             return value;
@@ -611,8 +620,11 @@ namespace Net.Share
             }
             fixed (void* ptr1 = &Buffer[Position])
             {
-                System.Buffer.MemoryCopy(ptr, ptr1, count * num, count * num);
-                Position += count * num;
+                var count1 = count * num;
+                if(Position + count1 > length)
+                    throw new Exception($"错误!写入的数组大于总内存段!");
+                global::System.Buffer.MemoryCopy(ptr, ptr1, count1, count1);
+                Position += count1;
                 Count = Position;
             }
         }
@@ -698,7 +710,7 @@ namespace Net.Share
             }
             fixed (void* ptr1 = &Buffer[Position])
             {
-                System.Buffer.MemoryCopy(ptr1, ptr, count * num, count * num);
+                global::System.Buffer.MemoryCopy(ptr1, ptr, count * num, count * num);
                 Position += count * num;
                 Count = Position;
             }

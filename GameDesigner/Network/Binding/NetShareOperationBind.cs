@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Net.Share;
+using Net.Serialize;
+using Net.System;
 
 namespace Binding
 {
@@ -34,19 +35,19 @@ namespace Binding
 			if(value.position != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 5, true);
-				NetVector3Bind bind = new NetVector3Bind();
+				var bind = new NetVector3Bind();
 				bind.Write(value.position, stream);
 			}
 			if(value.rotation != Net.Quaternion.zero)
 			{
 				NetConvertBase.SetBit(ref bits[0], 6, true);
-				NetQuaternionBind bind = new NetQuaternionBind();
+				var bind = new NetQuaternionBind();
 				bind.Write(value.rotation, stream);
 			}
 			if(value.direction != default)
 			{
 				NetConvertBase.SetBit(ref bits[0], 7, true);
-				NetVector3Bind bind = new NetVector3Bind();
+				var bind = new NetVector3Bind();
 				bind.Write(value.direction, stream);
 			}
 			if(value.index != 0)
@@ -99,17 +100,17 @@ namespace Binding
 				value.name = stream.ReadValue<String>();
 			if(NetConvertBase.GetBit(bits[0], 5))
 			{
-				NetVector3Bind bind = new NetVector3Bind();
+				var bind = new NetVector3Bind();
 				value.position = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[0], 6))
 			{
-				NetQuaternionBind bind = new NetQuaternionBind();
+				var bind = new NetQuaternionBind();
 				value.rotation = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[0], 7))
 			{
-				NetVector3Bind bind = new NetVector3Bind();
+				var bind = new NetVector3Bind();
 				value.direction = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[0], 8))
@@ -148,7 +149,7 @@ namespace Binding
 			int count = value.Length;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			NetShareOperationBind bind = new NetShareOperationBind();
+			var bind = new NetShareOperationBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -158,7 +159,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new Net.Share.Operation[count];
 			if (count == 0) return value;
-			NetShareOperationBind bind = new NetShareOperationBind();
+			var bind = new NetShareOperationBind();
 			for (int i = 0; i < count; i++)
 				value[i] = bind.Read(stream);
 			return value;
@@ -185,7 +186,7 @@ namespace Binding
 			int count = value.Count;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			NetShareOperationBind bind = new NetShareOperationBind();
+			var bind = new NetShareOperationBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
@@ -195,7 +196,7 @@ namespace Binding
 			var count = stream.ReadValue<int>();
 			var value = new List<Net.Share.Operation>();
 			if (count == 0) return value;
-			NetShareOperationBind bind = new NetShareOperationBind();
+			var bind = new NetShareOperationBind();
 			for (int i = 0; i < count; i++)
 				value.Add(bind.Read(stream));
 			return value;

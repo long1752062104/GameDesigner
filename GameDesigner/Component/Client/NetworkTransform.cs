@@ -2,7 +2,7 @@
 namespace Net.Component
 {
     using Net.Share;
-    using System;
+    using global::System;
     using UnityEngine;
 
     [Serializable]

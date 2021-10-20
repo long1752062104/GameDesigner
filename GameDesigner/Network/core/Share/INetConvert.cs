@@ -1,6 +1,6 @@
 ﻿namespace Net.Share
 {
-    using System;
+    using global::System;
 
     /// <summary>
     /// 序列化处理程序
