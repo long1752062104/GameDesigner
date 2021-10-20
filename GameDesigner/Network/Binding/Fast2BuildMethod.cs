@@ -112,7 +112,7 @@ public static class Fast2BuildMethod
         List<Member> members = new List<Member>();
         foreach (var field in fields)
         {
-            if (field.GetCustomAttribute<NonSerializedAttribute>() != null)
+            if (field.GetCustomAttribute<Net.Serialize.NonSerialized>() != null)
                 continue;
             var member = new Member()
             {
@@ -147,7 +147,7 @@ public static class Fast2BuildMethod
         }
         foreach (var property in properties)
         {
-            if (property.GetCustomAttribute<NonSerializedAttribute>() != null)
+            if (property.GetCustomAttribute<Net.Serialize.NonSerialized>() != null)
                 continue;
             if (!property.CanRead | !property.CanWrite)
                 continue;

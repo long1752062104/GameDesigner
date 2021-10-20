@@ -618,6 +618,7 @@
     <None Include="GameDesigner\Network\core\Share\Constituency.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\DataModel.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\EventHandle.cs.meta" />
+    <None Include="GameDesigner\Network\core\Share\FileData.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\IAdapter.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\IDebugHandle.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\INetClient.cs.meta" />
@@ -826,6 +827,7 @@
     <None Include="GameDesigner\Serialize\Native\NetConvertFast.cs.meta" />
     <None Include="GameDesigner\Serialize\Native\NetConvertFast2.cs.meta" />
     <None Include="GameDesigner\Serialize\Native\NetConvertOld.cs.meta" />
+    <None Include="GameDesigner\Serialize\Native\NonSerialized.cs.meta" />
     <None Include="GameDesigner\Serialize\Newtonsoft.Json.meta" />
     <None Include="GameDesigner\Serialize\Newtonsoft.Json\Bson.meta" />
     <None Include="GameDesigner\Serialize\Newtonsoft.Json\Bson\BsonArray.cs.meta" />
@@ -1717,6 +1719,7 @@
     <Compile Include="GameDesigner\Serialize\Native\NetConvertFast.cs" />
     <Compile Include="GameDesigner\Serialize\Native\NetConvertFast2.cs" />
     <Compile Include="GameDesigner\Serialize\Native\NetConvertOld.cs" />
+    <Compile Include="GameDesigner\Serialize\Native\NonSerialized.cs" />
     <Compile Include="GameDesigner\Serialize\Newtonsoft.Json\Bson\BsonArray.cs" />
     <Compile Include="GameDesigner\Serialize\Newtonsoft.Json\Bson\BsonBinary.cs" />
     <Compile Include="GameDesigner\Serialize\Newtonsoft.Json\Bson\BsonBinaryType.cs" />
