@@ -260,7 +260,11 @@ namespace Net.Client
         /// </summary>
         public Action<string, ushort> OnSwitchPortHandle;
         /// <summary>
-        /// 当客户端发送的文件完成, 接收到文件后调用, 返回true:框架内部释放文件流和删除临时文件(默认) false:使用者处理
+        /// 当开始下载文件时调用, 参数1(string):服务器发送的文件名 返回值(string):开发者指定保存的文件路径(全路径名称)
+        /// </summary>
+        public Func<string, string> OnDownloadFileHandle;
+        /// <summary>
+        /// 当服务器发送的文件完成, 接收到文件后调用, 返回true:框架内部释放文件流和删除临时文件(默认) false:使用者处理
         /// </summary>
         public Func<FileData, bool> OnReceiveFileHandle;
         /// <summary>
@@ -1019,7 +1023,7 @@ namespace Net.Client
                         isDone = true;
                         if (buffer[7] == NetCmd.BlockConnection)
                         {
-                            InvokeContext(() => {
+                            InvokeContext((arg) => {
                                 networkState = NetworkState.BlockConnection;
                                 StateHandle();
                             });
@@ -1027,7 +1031,7 @@ namespace Net.Client
                         }
                         if (buffer[7] == NetCmd.ExceededNumber)
                         {
-                            InvokeContext(() => {
+                            InvokeContext((arg) => {
                                 networkState = NetworkState.ExceededNumber;
                                 StateHandle();
                             });
@@ -1035,7 +1039,7 @@ namespace Net.Client
                         }
                         Connected = true;
                         StartupThread();
-                        InvokeContext(() => {
+                        InvokeContext((arg) => {
                             networkState = NetworkState.Connected;
                             result(true);
                         });
@@ -1045,7 +1049,7 @@ namespace Net.Client
                         isDone = true;
                         Client?.Close();
                         Client = null;
-                        InvokeContext(() => {
+                        InvokeContext((arg) => {
                             networkState = NetworkState.ConnectFailed;
                             result(false);
                         });
@@ -1061,11 +1065,11 @@ namespace Net.Client
             }
         }
 
-        protected void InvokeContext(Action action)
+        protected void InvokeContext(SendOrPostCallback action, object arg = null)
         {
             if (Context != null)
-                Context.Post(new SendOrPostCallback(r => { action(); }), null);
-            else action();
+                Context.Post(action, arg);
+            else action(arg);
         }
 
         /// <summary>
@@ -1110,14 +1114,14 @@ namespace Net.Client
                     isDone = true;
                     client?.Close();
                     client = null;
-                    InvokeContext(() => { result(true, ip); });
+                    InvokeContext((arg) => { result(true, ip); });
                 }
                 catch (Exception ex)
                 {
                     isDone = true;
                     client?.Close();
                     client = null;
-                    InvokeContext(() => { result(false, ex.ToString()); });
+                    InvokeContext((arg) => { result(false, ex.ToString()); });
                 }
             });
         }
@@ -1947,7 +1951,7 @@ namespace Net.Client
                     break;
                 case NetCmd.SwitchPort:
                     Task.Run(() => {
-                        InvokeContext(() => {
+                        InvokeContext((arg) => {
                             if (OnSwitchPortHandle != null)
                                 OnSwitchPortHandle(model.pars[0].ToString(), (ushort)model.pars[1]);
                             else
@@ -1972,7 +1976,7 @@ namespace Net.Client
                     currRto = DateTime.Now.Subtract(time).TotalMilliseconds + 100d;
                     if (OnPingCallback == null)
                         return;
-                    InvokeContext(() => { OnPingCallback((currRto - 100d) / 2); });
+                    InvokeContext((arg) => { OnPingCallback((currRto - 100d) / 2); });
                     break;
                 case NetCmd.P2P:
                     {
@@ -1982,7 +1986,7 @@ namespace Net.Client
                         IPEndPoint iPEndPoint = new IPEndPoint(address, port);
                         if (OnP2PCallback == null)
                             return;
-                        InvokeContext(() => { OnP2PCallback(iPEndPoint); });
+                        InvokeContext((arg) => { OnP2PCallback(iPEndPoint); });
                     }
                     break;
                 case NetCmd.VarSync:
@@ -2012,9 +2016,23 @@ namespace Net.Client
                         if (!ftpDic.TryGetValue(key, out FileData fileData))
                         {
                             fileData = new FileData();
-                            var path = Path.GetTempFileName();
+                            string path;
+                            if (OnDownloadFileHandle != null)
+                            {
+                                path = OnDownloadFileHandle(fileName);
+                                var path1 = Path.GetDirectoryName(path);
+                                if (!Directory.Exists(path1))
+                                {
+                                    NDebug.LogError("文件不存在! 或者文件路径字符串编码错误! 提示:可以使用Notepad++查看, 编码是ANSI,不是UTF8");
+                                    return;
+                                }
+                            }
+                            else 
+                            {
+                                path = Path.GetTempFileName();
+                            }
                             fileData.ID = key;
-                            fileData.fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                            fileData.fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                             fileData.fileName = fileName;
                             ftpDic.Add(key, fileData);
                         }
@@ -2023,8 +2041,9 @@ namespace Net.Client
                         if (fileData.Length >= length)
                         {
                             ftpDic.Remove(key);
+                            fileData.fileStream.Position = 0;
                             if (OnReceiveFileHandle != null)
-                                InvokeContext(() => {
+                                InvokeContext((arg) => {
                                     if (OnReceiveFileHandle(fileData))
                                     {
                                         fileData.fileStream.Close();
@@ -2032,7 +2051,7 @@ namespace Net.Client
                                     }
                                 });
                             if (OnRevdFileProgress != null)
-                                InvokeContext(() => { OnRevdFileProgress(new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Complete)); });
+                                InvokeContext((arg) => { OnRevdFileProgress(new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Complete)); });
                         }
                         else
                         {
@@ -2040,7 +2059,7 @@ namespace Net.Client
                             segment.WriteValue(key);
                             SendRT(NetCmd.Download, segment.ToArray());
                             if (OnRevdFileProgress != null)
-                                InvokeContext(() => { OnRevdFileProgress(new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Download)); });
+                                InvokeContext((arg) => { OnRevdFileProgress(new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Download)); });
                         }
                     }
                     break;
@@ -2070,7 +2089,7 @@ namespace Net.Client
             {
                 float bfb = currValue / (float)dataCount * 100f;
                 RTProgress progress = new RTProgress(bfb, RTState.Sending);
-                InvokeContext(() => { OnRevdRTProgress(progress); });
+                InvokeContext((arg) => { OnRevdRTProgress(progress); });
             }
         }
 
@@ -2080,7 +2099,7 @@ namespace Net.Client
             {
                 float bfb = currValue / (float)dataCount * 100f;
                 RTProgress progress = new RTProgress(bfb, RTState.Sending);
-                InvokeContext(() => { OnSendRTProgress(progress); });
+                InvokeContext((arg) => { OnSendRTProgress(progress); });
             }
         }
 
@@ -2993,9 +3012,10 @@ namespace Net.Client
         /// <returns></returns>
         public bool SendFile(string filePath, int bufferSize = 50000)
         {
-            if (!File.Exists(filePath))
+            var path1 = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(path1))
             {
-                NDebug.LogError("文件不存在! 或者文件路径字符串编码错误!");
+                NDebug.LogError("文件不存在! 或者文件路径字符串编码错误! 提示:可以使用Notepad++查看, 编码是ANSI,不是UTF8");
                 return false;
             }
             FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, bufferSize);
@@ -3032,14 +3052,14 @@ namespace Net.Client
             if (complete)
             {
                 if (OnSendFileProgress != null)
-                    InvokeContext(() => { OnSendFileProgress(new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Complete)); });
+                    InvokeContext((arg) => { OnSendFileProgress(new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Complete)); });
                 ftpDic.Remove(key);
                 fileData.fileStream.Close();
             }
             else 
             {
                 if (OnSendFileProgress != null)
-                    InvokeContext(() => { OnSendFileProgress(new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Sending)); });
+                    InvokeContext((arg) => { OnSendFileProgress(new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Sending)); });
             }
         }
     }

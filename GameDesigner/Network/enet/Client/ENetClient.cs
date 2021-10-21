@@ -4,10 +4,8 @@
     using Net.Event;
     using Net.Share;
     using global::System;
-    using global::System.Collections.Concurrent;
     using global::System.Collections.Generic;
     using global::System.IO;
-    using global::System.Net.Sockets;
     using global::System.Threading;
     using global::System.Threading.Tasks;
     using Net.System;
@@ -86,7 +84,7 @@
                         {
                             ClientHost.Dispose();
                             ClientHost = null;
-                            InvokeContext(() => {
+                            InvokeContext((arg) => {
                                 networkState = NetworkState.ConnectFailed;
                                 result(false); 
                             });
@@ -99,7 +97,7 @@
                         {
                             ClientHost.Dispose();
                             ClientHost = null;
-                            InvokeContext(() => {
+                            InvokeContext((arg) => {
                                 networkState = NetworkState.ConnectFailed;
                                 result(false);
                             });
@@ -109,7 +107,7 @@
                             Connected = true;
                             ChannelID = netEvent.ChannelID;
                             StartupThread();
-                            InvokeContext(() => {
+                            InvokeContext((arg) => {
                                 networkState = NetworkState.Connected;
                                 result(true); 
                             });

@@ -68,7 +68,7 @@ namespace Net.Client
                                 throw new Exception("uid赋值失败!");
                         stackStreamName = persistentDataPath + "/c" + UID + ".stream";
                         StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                        InvokeContext(() => {
+                        InvokeContext((arg) => {
                             networkState = NetworkState.Connected;
                             result(true);
                         });
@@ -78,7 +78,7 @@ namespace Net.Client
                         NDebug.Log("连接错误:" + ex.ToString());
                         TcpClient?.Close();
                         TcpClient = null;
-                        InvokeContext(() => {
+                        InvokeContext((arg) => {
                             networkState = NetworkState.ConnectFailed;
                             result(false); 
                         });
@@ -87,7 +87,7 @@ namespace Net.Client
                 catch (Exception ex)
                 {
                     NDebug.Log("连接错误:" + ex.ToString());
-                    InvokeContext(() => {
+                    InvokeContext((arg) => {
                         networkState = NetworkState.ConnectFailed;
                         result(false); 
                     });

@@ -42,7 +42,7 @@ namespace Net.Client
                         isDone = true;
                         if (buffer[7] == NetCmd.BlockConnection)
                         {
-                            InvokeContext(() => {
+                            InvokeContext((arg) => {
                                 networkState = NetworkState.BlockConnection;
                                 StateHandle();
                             });
@@ -50,7 +50,7 @@ namespace Net.Client
                         }
                         if (buffer[7] == NetCmd.ExceededNumber)
                         {
-                            InvokeContext(() => {
+                            InvokeContext((arg) => {
                                 networkState = NetworkState.ExceededNumber;
                                 StateHandle();
                             });
@@ -58,7 +58,7 @@ namespace Net.Client
                         }
                         Connected = true;
                         StartupThread();
-                        InvokeContext(() => {
+                        InvokeContext((arg) => {
                             networkState = NetworkState.Connected;
                             result(true);
                         });
@@ -68,7 +68,7 @@ namespace Net.Client
                         isDone = true;
                         Client?.Close();
                         Client = null;
-                        InvokeContext(() => {
+                        InvokeContext((arg) => {
                             networkState = NetworkState.ConnectFailed;
                             result(false);
                         });

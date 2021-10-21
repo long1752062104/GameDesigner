@@ -82,7 +82,7 @@
                     while (!Connected & DateTime.Now < timeout) { Thread.Sleep(1); }
                     if (Connected)
                         StartupThread();
-                    InvokeContext(() => {
+                    InvokeContext((arg) => {
                         networkState = Connected ? NetworkState.Connected : NetworkState.ConnectFailed;
                         result(Connected); 
                     });

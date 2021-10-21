@@ -28,7 +28,7 @@ namespace Net.Client
             Client.Connect(host, port);
             Connected = true;
             StartupThread();
-            InvokeContext(() => {
+            InvokeContext((arg) => {
                 networkState = Share.NetworkState.ConnectFailed;
                 result(true);
             });

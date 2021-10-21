@@ -343,6 +343,10 @@ namespace Net.Server
         /// </summary>
         public Func<byte[], int, int, OperationList> OnDeserializeOPT { get; set; }
         /// <summary>
+        /// 当开始下载文件时调用, 参数1(Player):下载哪个玩家上传的文件 参数2(string):客户端上传的文件名 返回值(string):开发者指定保存的文件路径(全路径名称)
+        /// </summary>
+        public Func<Player, string, string> OnDownloadFileHandle { get; set; }
+        /// <summary>
         /// 当客户端发送的文件完成, 接收到文件后调用, 返回true:框架内部释放文件流和删除临时文件(默认) false:使用者处理
         /// </summary>
         public Func<Player, FileData, bool> OnReceiveFileHandle { get; set; }
@@ -1175,7 +1179,21 @@ namespace Net.Server
                         if (!client.ftpDic.TryGetValue(key, out FileData fileData))
                         {
                             fileData = new FileData();
-                            var path = Path.GetTempFileName();
+                            string path;
+                            if (OnDownloadFileHandle != null)
+                            {
+                                path = OnDownloadFileHandle(client, fileName);
+                                var path1 = Path.GetDirectoryName(path);
+                                if (!Directory.Exists(path1))
+                                {
+                                    Debug.LogError("文件不存在! 或者文件路径字符串编码错误! 提示:可以使用Notepad++查看, 编码是ANSI,不是UTF8");
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                path = Path.GetTempFileName();
+                            }
                             fileData.fileStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                             fileData.fileName = fileName;
                             client.ftpDic.Add(key, fileData);
@@ -1186,6 +1204,7 @@ namespace Net.Server
                         {
                             client.ftpDic.Remove(key);
                             OnRevdFileProgress?.Invoke(client, new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Complete));
+                            fileData.fileStream.Position = 0;
                             if (OnReceiveFileHandle(client, fileData))
                             {
                                 fileData.fileStream.Close();
@@ -2812,9 +2831,10 @@ namespace Net.Server
         /// <returns></returns>
         public bool SendFile(Player client, string filePath, int bufferSize = 50000)
         {
-            if (!File.Exists(filePath))
+            var path1 = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(path1))
             {
-                Debug.LogError("文件不存在! 或者文件路径字符串编码错误!");
+                Debug.LogError("文件不存在! 或者文件路径字符串编码错误! 提示:可以使用Notepad++查看, 编码是ANSI,不是UTF8");
                 return false;
             }
             FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, bufferSize);

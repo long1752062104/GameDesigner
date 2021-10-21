@@ -93,7 +93,7 @@ namespace Net.Client
                     while (!Connected & DateTime.Now < timeout) { Thread.Sleep(1); }
                     if (Connected)
                         StartupThread();
-                    InvokeContext(() => { result(Connected); });
+                    InvokeContext((arg) => { result(Connected); });
                 });
             }
             catch (Exception ex)

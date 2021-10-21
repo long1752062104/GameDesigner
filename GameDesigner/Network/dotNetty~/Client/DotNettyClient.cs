@@ -82,14 +82,14 @@ namespace Net.Client
                         }));
                     bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(host), port)).Wait(10000);
                     StartupThread();
-                    InvokeContext(() => { result(true); });
+                    InvokeContext((arg) => { result(true); });
                 }
                 catch (Exception)
                 {
                     channel.CloseAsync();
                     group.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
                     Connected = false;
-                    InvokeContext(() => { result(false); });
+                    InvokeContext((arg) => { result(false); });
                 }
             });
         }
