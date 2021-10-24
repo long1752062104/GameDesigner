@@ -22,7 +22,7 @@ namespace Net.Share
         /// <summary>
         /// 文件总长度
         /// </summary>
-        public int Length;
+        public long Length;
         /// <summary>
         /// 实际文件写入对象
         /// </summary>

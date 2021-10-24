@@ -79,7 +79,7 @@ namespace Net.Client
         /// <summary>
         /// 线程字典
         /// </summary>
-        protected Dictionary<string, Thread> threadDic = new Dictionary<string, Thread>();
+        protected ConcurrentDictionary<string, Thread> threadDic = new ConcurrentDictionary<string, Thread>();
         /// <summary>
         /// 网络连接状态
         /// </summary>
@@ -146,6 +146,10 @@ namespace Net.Client
         /// 当前客户端是否打开(运行)
         /// </summary>
         protected bool openClient;
+        /// <summary>
+        /// 客户端是否处于打开状态
+        /// </summary>
+        public bool IsOpenClient => openClient;
 
         /// <summary>
         /// 输出调用网络函数
@@ -432,7 +436,7 @@ namespace Net.Client
         /// <param name="useUnityThread">
         /// 是否使用unity主线程进行每一帧更新？  
         /// True：使用unity的Update等方法进行更新，unity的组建可以在Rpc函数内进行调用。
-        /// False：使用多线程进行网络更新，使用多线程更新后unity的组件将不能在rpc函数内进行赋值设置等操作，否则会无效
+        /// False：使用多线程进行网络更新，使用多线程更新后unity的组件将不能在rpc函数内进行赋值设置等操作，否则会出错!
         /// </param>
         public ClientBase(bool useUnityThread) : this()
         {
@@ -729,25 +733,22 @@ namespace Net.Client
         /// <param name="start">线程函数</param>
         public void StartThread(string threadKey, ThreadStart start)
         {
-            if (!threadDic.ContainsKey(threadKey))
+            if (!threadDic.TryGetValue(threadKey, out Thread thread))
             {
-                Thread thread = new Thread(start)
+                thread = new Thread(start)
                 {
                     IsBackground = true,
                     Name = threadKey
                 };
                 thread.Start();
-                threadDic.Add(threadKey, thread);
+                threadDic.TryAdd(threadKey, thread);
             }
-            else
+            string str = thread.ThreadState.ToString();
+            if (str.Contains("Abort") | str.Contains("Stop") | str.Contains("WaitSleepJoin"))
             {
-                string str = threadDic[threadKey].ThreadState.ToString();
-                if (str.Contains("Abort") | str.Contains("Stop") | str.Contains("WaitSleepJoin"))
-                {
-                    threadDic[threadKey].Abort();
-                    threadDic.Remove(threadKey);
-                    StartThread(threadKey, start);
-                }
+                thread.Abort();
+                threadDic.TryRemove(threadKey, out _);
+                StartThread(threadKey, start);
             }
         }
 
@@ -766,14 +767,11 @@ namespace Net.Client
         /// </summary>
         public void AbortedThread()
         {
-            lock (threadDic)//当多处线程同时调用Close时发生错误!
+            foreach (Thread thread in threadDic.Values)
             {
-                foreach (Thread thread in threadDic.Values)
-                {
-                    thread?.Abort();
-                }
-                threadDic.Clear();
+                thread?.Abort();
             }
+            threadDic.Clear();
         }
 
         /// <summary>
@@ -1047,6 +1045,7 @@ namespace Net.Client
                     catch (Exception)
                     {
                         isDone = true;
+                        Connected = false;
                         Client?.Close();
                         Client = null;
                         InvokeContext((arg) => {
@@ -2267,6 +2266,9 @@ namespace Net.Client
             revdRTList.Clear();
             rtRPCModels = new QueueSafe<RPCModel>();
             rPCModels = new QueueSafe<RPCModel>();
+            if (File.Exists(stackStreamName) & !string.IsNullOrEmpty(stackStreamName))
+                File.Delete(stackStreamName);
+            stackStreamName = "";
             if (Instance == this)
                 Instance = null;
             sendReliableFrame = 0;

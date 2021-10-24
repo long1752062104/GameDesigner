@@ -325,6 +325,8 @@ namespace Net.Client
             stack = 0;
             stackIndex = 0;
             stackCount = 0;
+            if (File.Exists(stackStreamName) & !string.IsNullOrEmpty(stackStreamName))
+                File.Delete(stackStreamName);
             stackStreamName = "";
             if (Instance == this)
                 Instance = null;

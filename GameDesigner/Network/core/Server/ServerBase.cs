@@ -1977,6 +1977,8 @@ namespace Net.Server
             if (this == Instance)//有多个服务器实例, 需要
                 Instance = null;
             threads.Clear();
+            SendDataBeProcesseds.Clear();
+            RevdDataBeProcesseds.Clear();
             OnStartingHandle -= OnStarting;
             OnStartupCompletedHandle -= OnStartupCompleted;
             OnHasConnectHandle -= OnHasConnect;

@@ -26,6 +26,7 @@
         /// </summary>
         [Newtonsoft_X.Json.JsonIgnore]
         [ProtoBuf.ProtoIgnore]
+        [Serialize.NonSerialized]
         DataRow Row { get; set; }
     }
 
