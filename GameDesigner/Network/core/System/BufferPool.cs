@@ -764,6 +764,10 @@ namespace Net.System
                     try
                     {
                         Thread.Sleep(1000);
+#if UNITY_EDITOR
+                        if (Client.ClientBase.Instance == null)
+                            GlobalConfig.ThreadPoolRun = false;
+#endif
                         for (int i = 0; i < STACKS.Length; i++)
                         {
                             var head = STACKS[i].m_head;
