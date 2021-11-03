@@ -656,12 +656,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   protocol: 1
-  ip: 192.168.0.100
+  ip: 127.0.0.1
   port: 6666
   throwException: 1
   debugRpc: 0
   frameRate: 60
   authorize: 0
+  startConnect: 1
   rpcs: []
 --- !u!4 &1254267027
 Transform:
