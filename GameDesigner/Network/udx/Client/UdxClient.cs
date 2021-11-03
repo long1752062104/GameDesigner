@@ -202,6 +202,7 @@
             Connected = false;
             openClient = false;
             NetworkState = networkState = NetworkState.ConnectClosed;
+            if (await) Thread.Sleep(millisecondsTimeout);//给update线程一秒的时间处理关闭事件
             AbortedThread();
             sendRTList.Clear();
             revdRTList.Clear();

@@ -192,7 +192,7 @@
             Connected = false;
             openClient = false;
             NetworkState = networkState = NetworkState.ConnectClosed;
-            if (await) Thread.Sleep(1000);//给update线程一秒的时间处理关闭事件
+            if (await) Thread.Sleep(millisecondsTimeout);//给update线程一秒的时间处理关闭事件
             AbortedThread();
             Client?.Close();
             Client = null;

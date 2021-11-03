@@ -448,7 +448,7 @@ namespace Net.Client
 #if !UNITY_EDITOR || BUILT_UNITY
             Close();
 #elif UNITY_EDITOR
-            Close(false, 1);
+            Close(true, 100);
 #endif
         }
 
@@ -1705,6 +1705,10 @@ namespace Net.Client
             {
                 Close();
                 NDebug.LogError("客户端已被释放!" + ex);
+            }
+            else if (ex is ThreadAbortException) 
+            {
+                //线程Abort时, 线程还在Thread.Sleep就会出现这个错误, 所以在这里忽略掉
             }
             else if (Connected)
             {
