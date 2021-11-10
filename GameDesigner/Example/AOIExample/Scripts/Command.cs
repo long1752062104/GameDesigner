@@ -3,8 +3,8 @@ namespace AOIExample
 {
     public class Command : Net.Component.Command
     {
-        public const byte Show = 45;
-        public const byte Hide = 46;
+        public const byte Show = 150;
+        public const byte Hide = 151;
     }
 }
 #endif

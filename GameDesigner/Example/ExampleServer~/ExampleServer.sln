@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleServer", "ExampleServer.csproj", "{3AEA46F8-B692-4C73-A285-1D9F8BAAFA84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDesigner", "..\..\..\..\..\GameDesigner\GameDesigner.csproj", "{25DEE685-3111-40E0-A9BC-45BC6FD5C61D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDesigner", "D:\GameDesigner\GameDesigner.csproj", "{25DEE685-3111-40E0-A9BC-45BC6FD5C61D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -12,9 +12,16 @@ namespace Example2
     }
 
     [Serializable]
+    public class MonsterData
+    {
+        public int id;
+        public int health;
+    }
+
+    [Serializable]
     public class MonsterPoint1
     {
-        public int[] monsterIDs;
+        public MonsterData[] monsters;
         public RoamingPath1 roamingPath;
     }
 

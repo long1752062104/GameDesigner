@@ -10,7 +10,7 @@ namespace Example2
         public Transform firePoint;
         public bool IsLocal;
 
-        private void Awake()
+        public virtual void Awake()
         {
             preHealth = health;
 
@@ -42,7 +42,7 @@ namespace Example2
             headBloodBar.image.fillAmount = health / healthMax;
         }
 
-        public void Resurrection()
+        public virtual void Resurrection()
         {
             health = healthMax;
             isDead = false;
@@ -52,7 +52,7 @@ namespace Example2
             headBloodBar.image.fillAmount = health / healthMax;
         }
 
-        internal void Check()
+        public virtual void Check()
         {
             if (health <= 0 & !isDead) 
             {

@@ -21,7 +21,7 @@ public class BuildPathTools
             sceneData.monsterPoints.Add(new MonsterPoint1()
             {
                 roamingPath = new RoamingPath1() { waypointsList = item.waypointsList.ConvertAll(x => (Net.Vector3)x) },
-                monsterIDs = monsterPoint.monsterIds,
+                monsters = monsterPoint.monsters,
             });
         }
         var jsonStr = Newtonsoft_X.Json.JsonConvert.SerializeObject(sceneData);

@@ -2575,6 +2575,11 @@
             当前客户端是否打开(运行)
             </summary>
         </member>
+        <member name="P:Net.Client.ClientBase.IsOpenClient">
+            <summary>
+            客户端是否处于打开状态
+            </summary>
+        </member>
         <member name="P:Net.Client.ClientBase.LogRpc">
             <summary>
             输出调用网络函数
@@ -2715,6 +2720,26 @@
             当网关服务器指定这个客户端连接到一个游戏服务器时调用,回调有游戏服务器的ip和端口
             </summary>
         </member>
+        <member name="F:Net.Client.ClientBase.OnDownloadFileHandle">
+            <summary>
+            当开始下载文件时调用, 参数1(string):服务器发送的文件名 返回值(string):开发者指定保存的文件路径(全路径名称)
+            </summary>
+        </member>
+        <member name="F:Net.Client.ClientBase.OnReceiveFileHandle">
+            <summary>
+            当服务器发送的文件完成, 接收到文件后调用, 返回true:框架内部释放文件流和删除临时文件(默认) false:使用者处理
+            </summary>
+        </member>
+        <member name="F:Net.Client.ClientBase.OnRevdFileProgress">
+            <summary>
+            当接收到发送的文件进度
+            </summary>
+        </member>
+        <member name="F:Net.Client.ClientBase.OnSendFileProgress">
+            <summary>
+            当发送的文件进度
+            </summary>
+        </member>
         <member name="F:Net.Client.ClientBase.sendRTList">
             <summary>
             发送可靠传输缓冲
@@ -2820,6 +2845,7 @@
             <para>1.链路层：以太网的数据帧的长度为(64+18)~(1500+18)字节，其中18是数据帧的帧头和帧尾，所以数据帧的内容最大为1500字节（不包括帧头和帧尾），即MUT为1500字节</para>
             <para>2.网络层：IP包的首部要占用20字节，所以这里的MTU＝1500－20＝1480字节</para>
             <para>3.传输层：UDP包的首部要占有8字节，所以这里的MTU＝1480－8＝1472字节</para>
+            <see langword="注意:服务器和客户端的MTU属性的值必须保持一致性,否则分包的数据将解析错误!"/> <see cref="P:Net.Server.ServerBase`2.MTU"/>
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.RTO">
@@ -2884,7 +2910,7 @@
             <param name="useUnityThread">
             是否使用unity主线程进行每一帧更新？  
             True：使用unity的Update等方法进行更新，unity的组建可以在Rpc函数内进行调用。
-            False：使用多线程进行网络更新，使用多线程更新后unity的组件将不能在rpc函数内进行赋值设置等操作，否则会无效
+            False：使用多线程进行网络更新，使用多线程更新后unity的组件将不能在rpc函数内进行赋值设置等操作，否则会出错!
             </param>
         </member>
         <member name="M:Net.Client.ClientBase.AddRpcHandle(System.Object)">
@@ -3081,7 +3107,7 @@
             打包操作同步马上要发送了
             </summary>
         </member>
-        <member name="M:Net.Client.ClientBase.SendDataHandle(Net.Share.QueueSafe{Net.Share.RPCModel},System.Boolean)">
+        <member name="M:Net.Client.ClientBase.SendDataHandle(Net.System.QueueSafe{Net.Share.RPCModel},System.Boolean)">
             <summary>
             发送处理
             </summary>
@@ -3116,7 +3142,7 @@
             后台线程接收数据
             </summary>
         </member>
-        <member name="M:Net.Client.ClientBase.ReceiveUpdate(Net.Share.Segment)">
+        <member name="M:Net.Client.ClientBase.ReceiveUpdate(Net.System.Segment)">
             <summary>
             接收数据和更新处理
             </summary>
@@ -3128,7 +3154,7 @@
             </summary>
             <param name="ex"></param>
         </member>
-        <member name="M:Net.Client.ClientBase.ResolveBuffer(Net.Share.Segment,System.Int32,System.Int32,System.Boolean)">
+        <member name="M:Net.Client.ClientBase.ResolveBuffer(Net.System.Segment,System.Int32,System.Int32,System.Boolean)">
             <summary>
             解析网络数据包
             </summary>
@@ -3515,6 +3541,14 @@
             <summary>
             字段,属性同步处理线程
             </summary>
+        </member>
+        <member name="M:Net.Client.ClientBase.SendFile(System.String,System.Int32)">
+            <summary>
+            发送文件, 服务器可以通过重写<see cref="M:Net.Server.ServerBase`2.OnReceiveFile(`0,Net.Share.FileData)"/>方法来接收 或 使用事件<see cref="P:Net.Server.ServerBase`2.OnReceiveFileHandle"/>来监听并处理
+            </summary>
+            <param name="filePath"></param>
+            <param name="bufferSize">每次发送数据大小</param>
+            <returns></returns>
         </member>
         <member name="T:Net.Client.NetBehaviour">
             <summary>
@@ -4853,6 +4887,7 @@
             <para>1.链路层：以太网的数据帧的长度为(64+18)~(1500+18)字节，其中18是数据帧的帧头和帧尾，所以数据帧的内容最大为1500字节（不包括帧头和帧尾），即MUT为1500字节</para>
             <para>2.网络层：IP包的首部要占用20字节，所以这里的MTU＝1500－20＝1480字节</para>
             <para>3.传输层：UDP包的首部要占有8字节，所以这里的MTU＝1480－8＝1472字节</para>
+            <see langword="注意:服务器和客户端的MTU属性的值必须保持一致性,否则分包的数据将解析错误!"/> <see cref="P:Net.Client.ClientBase.MTU"/>
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.RTO">
@@ -5000,6 +5035,26 @@
             当反序列化远程过程调用操作
             </summary>
         </member>
+        <member name="P:Net.Server.ServerBase`2.OnDownloadFileHandle">
+            <summary>
+            当开始下载文件时调用, 参数1(Player):下载哪个玩家上传的文件 参数2(string):客户端上传的文件名 返回值(string):开发者指定保存的文件路径(全路径名称)
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.OnReceiveFileHandle">
+            <summary>
+            当客户端发送的文件完成, 接收到文件后调用, 返回true:框架内部释放文件流和删除临时文件(默认) false:使用者处理
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.OnRevdFileProgress">
+            <summary>
+            当接收到发送的文件进度
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.OnSendFileProgress">
+            <summary>
+            当发送的文件进度
+            </summary>
+        </member>
         <member name="P:Net.Server.ServerBase`2.Seqencing">
             <summary>
             可靠传输是排队模式? 排队模式下, 可靠包是一个一个处理. 不排队模式: 可靠传输数据组成多列并发 ---> 默认是无排队模式
@@ -5106,6 +5161,13 @@
             </summary>
             <param name="client">当前客户端</param>
             <param name="model"></param>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.OnReceiveFile(`0,Net.Share.FileData)">
+            <summary>
+            当接收到客户端发送的文件
+            </summary>
+            <param name="client">当前客户端</param>
+            <param name="fileData"></param>
         </member>
         <member name="M:Net.Server.ServerBase`2.OnOperationSync(`0,Net.Share.OperationList)">
             <summary>
@@ -5628,6 +5690,15 @@
             字段,属性同步线程
             </summary>
         </member>
+        <member name="M:Net.Server.ServerBase`2.SendFile(`0,System.String,System.Int32)">
+            <summary>
+            发送文件, 客户端可以使用事件<see cref="F:Net.Client.ClientBase.OnReceiveFileHandle"/>来监听并处理
+            </summary>
+            <param name="client"></param>
+            <param name="filePath"></param>
+            <param name="bufferSize">每次发送数据大小</param>
+            <returns></returns>
+        </member>
         <member name="T:Net.Server.DNPlayer">
             <summary>
             dotNetty客户端玩家对象
@@ -5964,6 +6035,36 @@
         <member name="M:Net.Share.EventHandle.Invoke">
             <summary>
             处理事件
+            </summary>
+        </member>
+        <member name="T:Net.Share.FileData">
+            <summary>
+            文件传输数据
+            </summary>
+        </member>
+        <member name="F:Net.Share.FileData.ID">
+            <summary>
+            文件唯一标识
+            </summary>
+        </member>
+        <member name="F:Net.Share.FileData.fileName">
+            <summary>
+            传输的文件名称
+            </summary>
+        </member>
+        <member name="F:Net.Share.FileData.bufferSize">
+            <summary>
+            每次发送的数据大小
+            </summary>
+        </member>
+        <member name="F:Net.Share.FileData.Length">
+            <summary>
+            文件总长度
+            </summary>
+        </member>
+        <member name="F:Net.Share.FileData.fileStream">
+            <summary>
+            实际文件写入对象
             </summary>
         </member>
         <member name="T:Net.Share.IAdapter">
@@ -6923,6 +7024,16 @@
             字段或属性同步指令 内部指令
             </summary>
         </member>
+        <member name="F:Net.Share.NetCmd.SendFile">
+            <summary>
+            发送文件
+            </summary>
+        </member>
+        <member name="F:Net.Share.NetCmd.Download">
+            <summary>
+            下载文件
+            </summary>
+        </member>
         <member name="T:Net.Share.RPCMethod">
             <summary>
             远程过程调用方法
@@ -7485,6 +7596,11 @@
             可靠传输进度值
             </summary>
         </member>
+        <member name="F:Net.Share.RTProgress.name">
+            <summary>
+            进度名称
+            </summary>
+        </member>
         <member name="F:Net.Share.RTProgress.progress">
             <summary>
             进度值
@@ -7821,50 +7937,63 @@
             <param name="uMilliseconds"></param>
             <returns></returns>
         </member>
-        <member name="T:Net.Share.Segment">
+        <member name="M:Net.Share.ByteHelper.HumanReadableFilesize(System.Double)">
+            <summary>
+            转换方法
+            </summary>
+            <param name="size">字节值</param>
+            <returns></returns>
+        </member>
+        <member name="T:Net.System.Segment">
             <summary>
             内存数据片段
             </summary>
         </member>
-        <member name="P:Net.Share.Segment.Buffer">
+        <member name="P:Net.System.Segment.Buffer">
             <summary>
             总内存
             </summary>
         </member>
-        <member name="P:Net.Share.Segment.Index">
+        <member name="P:Net.System.Segment.Index">
             <summary>
             片的开始位置
             </summary>
         </member>
-        <member name="P:Net.Share.Segment.Count">
+        <member name="P:Net.System.Segment.Count">
             <summary>
             片的长度
             </summary>
         </member>
-        <member name="P:Net.Share.Segment.Position">
+        <member name="P:Net.System.Segment.Position">
             <summary>
             读写位置
             </summary>
         </member>
-        <member name="P:Net.Share.Segment.Length">
+        <member name="P:Net.System.Segment.Length">
             <summary>
             获取总长度
             </summary>
         </member>
-        <member name="P:Net.Share.Segment.Item(System.Int32)">
+        <member name="P:Net.System.Segment.Item(System.Int32)">
             <summary>
             获取或设置总内存位置索引
             </summary>
             <param name="index">内存位置索引</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Share.Segment.#ctor(System.Byte[])">
+        <member name="M:Net.System.Segment.#ctor(System.Byte[])">
             <summary>
             构造内存分片
             </summary>
             <param name="buffer"></param>
         </member>
-        <member name="M:Net.Share.Segment.#ctor(System.Byte[],System.Int32,System.Int32,System.Boolean)">
+        <member name="M:Net.System.Segment.#ctor(System.Byte[],System.Boolean)">
+            <summary>
+            构造内存分片
+            </summary>
+            <param name="buffer"></param>
+        </member>
+        <member name="M:Net.System.Segment.#ctor(System.Byte[],System.Int32,System.Int32,System.Boolean)">
             <summary>
             构造内存分片
             </summary>
@@ -7872,54 +8001,54 @@
             <param name="index"></param>
             <param name="count"></param>
         </member>
-        <member name="M:Net.Share.Segment.ToArray(System.Boolean)">
+        <member name="M:Net.System.Segment.ToArray(System.Boolean)">
             <summary>
             复制分片数据
             </summary>
             <param name="recovery">复制数据后立即回收此分片?</param>
             <returns></returns>
         </member>
-        <member name="T:Net.Share.BufferPool">
+        <member name="T:Net.System.BufferPool">
             <summary>
             数据缓冲内存池
             </summary>
         </member>
-        <member name="P:Net.Share.BufferPool.Size">
+        <member name="P:Net.System.BufferPool.Size">
             <summary>
             数据缓冲池大小. 默认65536字节
             </summary>
         </member>
-        <member name="P:Net.Share.BufferPool.Log">
+        <member name="P:Net.System.BufferPool.Log">
             <summary>
             当没有合理回收内存，导致内存泄漏被回收后提示
             </summary>
         </member>
-        <member name="M:Net.Share.BufferPool.Take">
+        <member name="M:Net.System.BufferPool.Take">
             <summary>
             从内存池取数据片
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Net.Share.BufferPool.Take(System.Int32)">
+        <member name="M:Net.System.BufferPool.Take(System.Int32)">
             <summary>
             从内存池取数据片
             </summary>
             <param name="size">内存大小</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Share.BufferPool.Push(Net.Share.Segment)">
+        <member name="M:Net.System.BufferPool.Push(Net.System.Segment)">
             <summary>
             压入数据片, 等待复用
             </summary>
             <param name="segment"></param>
         </member>
-        <member name="T:Net.Share.ListPool`1">
+        <member name="T:Net.System.ListPool`1">
             <summary>
             线程安全的List类
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:Net.Share.ListPool`1.GetRemoveRange(System.Int32,System.Int32)">
+        <member name="M:Net.System.ListPool`1.GetRemoveRange(System.Int32,System.Int32)">
             <summary>
             获取列表对象, 并移除列表, 如果在多线程下, 多线程并行下, 是可以获取到对象, 但是会出现长度不是所指定的长度, 所以获取后要判断一下长度
             </summary>
@@ -7927,66 +8056,66 @@
             <param name="count"></param>
             <returns></returns>
         </member>
-        <member name="T:Net.Share.QueueSafeDebugView`1">
+        <member name="T:Net.System.QueueSafeDebugView`1">
             <summary>
             A debugger view of the IProducerConsumerCollection that makes it simple to browse the
             collection's contents at a point in time.
             </summary>
             <typeparam name="T">The type of elements stored within.</typeparam>
         </member>
-        <member name="M:Net.Share.QueueSafeDebugView`1.#ctor(System.Collections.Concurrent.IProducerConsumerCollection{`0})">
+        <member name="M:Net.System.QueueSafeDebugView`1.#ctor(System.Collections.Concurrent.IProducerConsumerCollection{`0})">
             <summary>
             Constructs a new debugger view object for the provided collection object.
             </summary>
             <param name="collection">A collection to browse in the debugger.</param>
         </member>
-        <member name="P:Net.Share.QueueSafeDebugView`1.Items">
+        <member name="P:Net.System.QueueSafeDebugView`1.Items">
             <summary>
             Returns a snapshot of the underlying collection's elements.
             </summary>
         </member>
-        <member name="T:Net.Share.QueueSafe`1">
+        <member name="T:Net.System.QueueSafe`1">
             <summary>
             多线程安全队列
             </summary>
             <typeparam name="T">Specifies the type of elements in the queue.</typeparam>
             <remarks>
-            All public  and protected members of <see cref="T:Net.Share.QueueSafe`1"/> are thread-safe and may be used
+            All public  and protected members of <see cref="T:Net.System.QueueSafe`1"/> are thread-safe and may be used
             concurrently from multiple threads.
             </remarks>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.#ctor">
+        <member name="M:Net.System.QueueSafe`1.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:Net.Share.QueueSafe`1"/> class.
+            Initializes a new instance of the <see cref="T:Net.System.QueueSafe`1"/> class.
             </summary>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.InitializeFromCollection(System.Collections.Generic.IEnumerable{`0})">
+        <member name="M:Net.System.QueueSafe`1.InitializeFromCollection(System.Collections.Generic.IEnumerable{`0})">
             <summary>
             Initializes the contents of the queue from an existing collection.
             </summary>
             <param name="collection">A collection from which to copy elements.</param>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
+        <member name="M:Net.System.QueueSafe`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
             <summary>
-            Initializes a new instance of the <see cref="T:Net.Share.QueueSafe`1"/>
+            Initializes a new instance of the <see cref="T:Net.System.QueueSafe`1"/>
             class that contains elements copied from the specified collection
             </summary>
             <param name="collection">The collection whose elements are copied to the new <see
-            cref="T:Net.Share.QueueSafe`1"/>.</param>
+            cref="T:Net.System.QueueSafe`1"/>.</param>
             <exception cref="T:System.ArgumentNullException">The <paramref name="collection"/> argument is
             null.</exception>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.OnSerializing(System.Runtime.Serialization.StreamingContext)">
+        <member name="M:Net.System.QueueSafe`1.OnSerializing(System.Runtime.Serialization.StreamingContext)">
             <summary>
             Get the data array to be serialized
             </summary>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.OnDeserialized(System.Runtime.Serialization.StreamingContext)">
+        <member name="M:Net.System.QueueSafe`1.OnDeserialized(System.Runtime.Serialization.StreamingContext)">
             <summary>
             Construct the queue from a previously seiralized one
             </summary>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.System#Collections#ICollection#CopyTo(System.Array,System.Int32)">
+        <member name="M:Net.System.QueueSafe`1.System#Collections#ICollection#CopyTo(System.Array,System.Int32)">
             <summary>
             Copies the elements of the <see cref="T:System.Collections.ICollection"/> to an <see
             cref="T:System.Array"/>, starting at a particular
@@ -8013,29 +8142,29 @@
             destination <paramref name="array"/>.
             </exception>
         </member>
-        <member name="P:Net.Share.QueueSafe`1.System#Collections#ICollection#IsSynchronized">
+        <member name="P:Net.System.QueueSafe`1.System#Collections#ICollection#IsSynchronized">
             <summary>
             Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection"/> is
             synchronized with the SyncRoot.
             </summary>
             <value>true if access to the <see cref="T:System.Collections.ICollection"/> is synchronized
-            with the SyncRoot; otherwise, false. For <see cref="T:Net.Share.QueueSafe`1"/>, this property always
+            with the SyncRoot; otherwise, false. For <see cref="T:Net.System.QueueSafe`1"/>, this property always
             returns false.</value>
         </member>
-        <member name="P:Net.Share.QueueSafe`1.System#Collections#ICollection#SyncRoot">
+        <member name="P:Net.System.QueueSafe`1.System#Collections#ICollection#SyncRoot">
             <summary>
             Gets an object that can be used to synchronize access to the <see
             cref="T:System.Collections.ICollection"/>. This property is not supported.
             </summary>
             <exception cref="T:System.NotSupportedException">The SyncRoot property is not supported.</exception>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.System#Collections#IEnumerable#GetEnumerator">
+        <member name="M:Net.System.QueueSafe`1.System#Collections#IEnumerable#GetEnumerator">
             <summary>
             Returns an enumerator that iterates through a collection.
             </summary>
             <returns>An <see cref="T:System.Collections.IEnumerator"/> that can be used to iterate through the collection.</returns>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.System#Collections#Concurrent#IProducerConsumerCollection{T}#TryAdd(`0)">
+        <member name="M:Net.System.QueueSafe`1.System#Collections#Concurrent#IProducerConsumerCollection{T}#TryAdd(`0)">
             <summary>
             Attempts to add an object to the <see
             cref="T:System.Collections.Concurrent.IProducerConsumerCollection{T}"/>.
@@ -8045,11 +8174,11 @@
             reference (Nothing in Visual Basic) for reference types.
             </param>
             <returns>true if the object was added successfully; otherwise, false.</returns>
-            <remarks>For <see cref="T:Net.Share.QueueSafe`1"/>, this operation will always add the object to the
-            end of the <see cref="T:Net.Share.QueueSafe`1"/>
+            <remarks>For <see cref="T:Net.System.QueueSafe`1"/>, this operation will always add the object to the
+            end of the <see cref="T:Net.System.QueueSafe`1"/>
             and return true.</remarks>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.System#Collections#Concurrent#IProducerConsumerCollection{T}#TryTake(`0@)">
+        <member name="M:Net.System.QueueSafe`1.System#Collections#Concurrent#IProducerConsumerCollection{T}#TryTake(`0@)">
             <summary>
             Attempts to remove and return an object from the <see
             cref="T:System.Collections.Concurrent.IProducerConsumerCollection{T}"/>.
@@ -8059,39 +8188,39 @@
             object removed. If no object was available to be removed, the value is unspecified.
             </param>
             <returns>true if an element was removed and returned succesfully; otherwise, false.</returns>
-            <remarks>For <see cref="T:Net.Share.QueueSafe`1"/>, this operation will attempt to remove the object
-            from the beginning of the <see cref="T:Net.Share.QueueSafe`1"/>.
+            <remarks>For <see cref="T:Net.System.QueueSafe`1"/>, this operation will attempt to remove the object
+            from the beginning of the <see cref="T:Net.System.QueueSafe`1"/>.
             </remarks>
         </member>
-        <member name="P:Net.Share.QueueSafe`1.IsEmpty">
+        <member name="P:Net.System.QueueSafe`1.IsEmpty">
             <summary>
-            Gets a value that indicates whether the <see cref="T:Net.Share.QueueSafe`1"/> is empty.
+            Gets a value that indicates whether the <see cref="T:Net.System.QueueSafe`1"/> is empty.
             </summary>
-            <value>true if the <see cref="T:Net.Share.QueueSafe`1"/> is empty; otherwise, false.</value>
+            <value>true if the <see cref="T:Net.System.QueueSafe`1"/> is empty; otherwise, false.</value>
             <remarks>
             For determining whether the collection contains any items, use of this property is recommended
-            rather than retrieving the number of items from the <see cref="P:Net.Share.QueueSafe`1.Count"/> property and comparing it
+            rather than retrieving the number of items from the <see cref="P:Net.System.QueueSafe`1.Count"/> property and comparing it
             to 0.  However, as this collection is intended to be accessed concurrently, it may be the case
-            that another thread will modify the collection after <see cref="P:Net.Share.QueueSafe`1.IsEmpty"/> returns, thus invalidating
+            that another thread will modify the collection after <see cref="P:Net.System.QueueSafe`1.IsEmpty"/> returns, thus invalidating
             the result.
             </remarks>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.ToArray">
+        <member name="M:Net.System.QueueSafe`1.ToArray">
             <summary>
-            Copies the elements stored in the <see cref="T:Net.Share.QueueSafe`1"/> to a new array.
+            Copies the elements stored in the <see cref="T:Net.System.QueueSafe`1"/> to a new array.
             </summary>
             <returns>A new array containing a snapshot of elements copied from the <see
-            cref="T:Net.Share.QueueSafe`1"/>.</returns>
+            cref="T:Net.System.QueueSafe`1"/>.</returns>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.ToList">
+        <member name="M:Net.System.QueueSafe`1.ToList">
             <summary>
-            Copies the <see cref="T:Net.Share.QueueSafe`1"/> elements to a new <see
+            Copies the <see cref="T:Net.System.QueueSafe`1"/> elements to a new <see
             cref="T:System.Collections.Generic.List{T}"/>.
             </summary>
             <returns>A new <see cref="T:System.Collections.Generic.List{T}"/> containing a snapshot of
-            elements copied from the <see cref="T:Net.Share.QueueSafe`1"/>.</returns>
+            elements copied from the <see cref="T:Net.System.QueueSafe`1"/>.</returns>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.GetHeadTailPositions(Net.Share.QueueSafe{`0}.Segment@,Net.Share.QueueSafe{`0}.Segment@,System.Int32@,System.Int32@)">
+        <member name="M:Net.System.QueueSafe`1.GetHeadTailPositions(Net.System.QueueSafe{`0}.Segment@,Net.System.QueueSafe{`0}.Segment@,System.Int32@,System.Int32@)">
             <summary>
             Store the position of the current head and tail positions.
             </summary>
@@ -8100,25 +8229,25 @@
             <param name="headLow">return the head offset, value range [0, SEGMENT_SIZE]</param>
             <param name="tailHigh">return the tail offset, value range [-1, SEGMENT_SIZE-1]</param>
         </member>
-        <member name="P:Net.Share.QueueSafe`1.Count">
+        <member name="P:Net.System.QueueSafe`1.Count">
             <summary>
-            Gets the number of elements contained in the <see cref="T:Net.Share.QueueSafe`1"/>.
+            Gets the number of elements contained in the <see cref="T:Net.System.QueueSafe`1"/>.
             </summary>
-            <value>The number of elements contained in the <see cref="T:Net.Share.QueueSafe`1"/>.</value>
+            <value>The number of elements contained in the <see cref="T:Net.System.QueueSafe`1"/>.</value>
             <remarks>
-            For determining whether the collection contains any items, use of the <see cref="P:Net.Share.QueueSafe`1.IsEmpty"/>
-            property is recommended rather than retrieving the number of items from the <see cref="P:Net.Share.QueueSafe`1.Count"/>
+            For determining whether the collection contains any items, use of the <see cref="P:Net.System.QueueSafe`1.IsEmpty"/>
+            property is recommended rather than retrieving the number of items from the <see cref="P:Net.System.QueueSafe`1.Count"/>
             property and comparing it to 0.
             </remarks>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.CopyTo(`0[],System.Int32)">
+        <member name="M:Net.System.QueueSafe`1.CopyTo(`0[],System.Int32)">
             <summary>
-            Copies the <see cref="T:Net.Share.QueueSafe`1"/> elements to an existing one-dimensional <see
+            Copies the <see cref="T:Net.System.QueueSafe`1"/> elements to an existing one-dimensional <see
             cref="T:System.Array">Array</see>, starting at the specified array index.
             </summary>
             <param name="array">The one-dimensional <see cref="T:System.Array">Array</see> that is the
             destination of the elements copied from the
-            <see cref="T:Net.Share.QueueSafe`1"/>. The <see cref="T:System.Array">Array</see> must have zero-based
+            <see cref="T:Net.System.QueueSafe`1"/>. The <see cref="T:System.Array">Array</see> must have zero-based
             indexing.</param>
             <param name="index">The zero-based index in <paramref name="array"/> at which copying
             begins.</param>
@@ -8128,55 +8257,55 @@
             zero.</exception>
             <exception cref="T:System.ArgumentException"><paramref name="index"/> is equal to or greater than the
             length of the <paramref name="array"/>
-            -or- The number of elements in the source <see cref="T:Net.Share.QueueSafe`1"/> is greater than the
+            -or- The number of elements in the source <see cref="T:Net.System.QueueSafe`1"/> is greater than the
             available space from <paramref name="index"/> to the end of the destination <paramref
             name="array"/>.
             </exception>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.GetEnumerator">
+        <member name="M:Net.System.QueueSafe`1.GetEnumerator">
             <summary>
             Returns an enumerator that iterates through the <see
-            cref="T:Net.Share.QueueSafe`1"/>.
+            cref="T:Net.System.QueueSafe`1"/>.
             </summary>
             <returns>An enumerator for the contents of the <see
-            cref="T:Net.Share.QueueSafe`1"/>.</returns>
+            cref="T:Net.System.QueueSafe`1"/>.</returns>
             <remarks>
             The enumeration represents a moment-in-time snapshot of the contents
             of the queue.  It does not reflect any updates to the collection after 
-            <see cref="M:Net.Share.QueueSafe`1.GetEnumerator"/> was called.  The enumerator is safe to use
+            <see cref="M:Net.System.QueueSafe`1.GetEnumerator"/> was called.  The enumerator is safe to use
             concurrently with reads from and writes to the queue.
             </remarks>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.GetEnumerator(Net.Share.QueueSafe{`0}.Segment,Net.Share.QueueSafe{`0}.Segment,System.Int32,System.Int32)">
+        <member name="M:Net.System.QueueSafe`1.GetEnumerator(Net.System.QueueSafe{`0}.Segment,Net.System.QueueSafe{`0}.Segment,System.Int32,System.Int32)">
             <summary>
             Helper method of GetEnumerator to seperate out yield return statement, and prevent lazy evaluation. 
             </summary>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Enqueue(`0)">
+        <member name="M:Net.System.QueueSafe`1.Enqueue(`0)">
             <summary>
-            Adds an object to the end of the <see cref="T:Net.Share.QueueSafe`1"/>.
+            Adds an object to the end of the <see cref="T:Net.System.QueueSafe`1"/>.
             </summary>
             <param name="item">The object to add to the end of the <see
-            cref="T:Net.Share.QueueSafe`1"/>. The value can be a null reference
+            cref="T:Net.System.QueueSafe`1"/>. The value can be a null reference
             (Nothing in Visual Basic) for reference types.
             </param>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.TryDequeue(`0@)">
+        <member name="M:Net.System.QueueSafe`1.TryDequeue(`0@)">
             <summary>
             Attempts to remove and return the object at the beginning of the <see
-            cref="T:Net.Share.QueueSafe`1"/>.
+            cref="T:Net.System.QueueSafe`1"/>.
             </summary>
             <param name="result">
             When this method returns, if the operation was successful, <paramref name="result"/> contains the
             object removed. If no object was available to be removed, the value is unspecified.
             </param>
             <returns>true if an element was removed and returned from the beggining of the <see
-            cref="T:Net.Share.QueueSafe`1"/>
+            cref="T:Net.System.QueueSafe`1"/>
             succesfully; otherwise, false.</returns>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.TryPeek(`0@)">
+        <member name="M:Net.System.QueueSafe`1.TryPeek(`0@)">
             <summary>
-            Attempts to return an object from the beginning of the <see cref="T:Net.Share.QueueSafe`1"/>
+            Attempts to return an object from the beginning of the <see cref="T:Net.System.QueueSafe`1"/>
             without removing it.
             </summary>
             <param name="result">When this method returns, <paramref name="result"/> contains an object from
@@ -8184,7 +8313,7 @@
             unspecified value if the operation failed.</param>
             <returns>true if and object was returned successfully; otherwise, false.</returns>
         </member>
-        <member name="T:Net.Share.QueueSafe`1.Segment">
+        <member name="T:Net.System.QueueSafe`1.Segment">
             <summary>
             private class for ConcurrentQueue. 
             a queue is a linked list of small arrays, each node is called a segment.
@@ -8192,23 +8321,23 @@
             the first and last valid elements of the array.
             </summary>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Segment.#ctor(System.Int64,Net.Share.QueueSafe{`0})">
+        <member name="M:Net.System.QueueSafe`1.Segment.#ctor(System.Int64,Net.System.QueueSafe{`0})">
             <summary>
             Create and initialize a segment with the specified index.
             </summary>
         </member>
-        <member name="P:Net.Share.QueueSafe`1.Segment.Next">
+        <member name="P:Net.System.QueueSafe`1.Segment.Next">
             <summary>
             return the next segment
             </summary>
         </member>
-        <member name="P:Net.Share.QueueSafe`1.Segment.IsEmpty">
+        <member name="P:Net.System.QueueSafe`1.Segment.IsEmpty">
             <summary>
             return true if the current segment is empty (doesn't have any element available to dequeue, 
             false otherwise
             </summary>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Segment.UnsafeAdd(`0)">
+        <member name="M:Net.System.QueueSafe`1.Segment.UnsafeAdd(`0)">
             <summary>
             Add an element to the tail of the current segment
             exclusively called by ConcurrentQueue.InitializedFromCollection
@@ -8217,7 +8346,7 @@
             </summary>
             <param name="value"></param>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Segment.UnsafeGrow">
+        <member name="M:Net.System.QueueSafe`1.Segment.UnsafeGrow">
             <summary>
             Create a new segment and append to the current one
             Does not update the m_tail pointer
@@ -8227,14 +8356,14 @@
             </summary>
             <returns>the reference to the new Segment</returns>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Segment.Grow">
+        <member name="M:Net.System.QueueSafe`1.Segment.Grow">
             <summary>
             Create a new segment and append to the current one
             Update the m_tail pointer
             This method is called when there is no contention
             </summary>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Segment.TryAppend(`0)">
+        <member name="M:Net.System.QueueSafe`1.Segment.TryAppend(`0)">
             <summary>
             Try to append an element at the end of this segment.
             </summary>
@@ -8243,14 +8372,14 @@
             <remarks>if appending the specified element succeeds, and after which the segment is full, 
             then grow the segment</remarks>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Segment.TryRemove(`0@)">
+        <member name="M:Net.System.QueueSafe`1.Segment.TryRemove(`0@)">
             <summary>
             try to remove an element from the head of current segment
             </summary>
             <param name="result">The result.</param>
             <returns>return false only if the current segment is empty</returns>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Segment.TryPeek(`0@)">
+        <member name="M:Net.System.QueueSafe`1.Segment.TryPeek(`0@)">
             <summary>
             try to peek the current segment
             </summary>
@@ -8258,7 +8387,7 @@
             value set to default(T) if there is no such an element</param>
             <returns>true if there are elements in the current segment, false otherwise</returns>
         </member>
-        <member name="M:Net.Share.QueueSafe`1.Segment.AddToList(System.Collections.Generic.List{`0},System.Int32,System.Int32)">
+        <member name="M:Net.System.QueueSafe`1.Segment.AddToList(System.Collections.Generic.List{`0},System.Int32,System.Int32)">
             <summary>
             Adds part or all of the current segment into a List.
             </summary>
@@ -8266,595 +8395,27 @@
             <param name="start">the start position</param>
             <param name="end">the end position</param>
         </member>
-        <member name="P:Net.Share.QueueSafe`1.Segment.Low">
+        <member name="P:Net.System.QueueSafe`1.Segment.Low">
             <summary>
             return the position of the head of the current segment
             Value range [0, SEGMENT_SIZE], if it's SEGMENT_SIZE, it means this segment is exhausted and thus empty
             </summary>
         </member>
-        <member name="P:Net.Share.QueueSafe`1.Segment.High">
+        <member name="P:Net.System.QueueSafe`1.Segment.High">
             <summary>
             return the logical position of the tail of the current segment      
             Value range [-1, SEGMENT_SIZE-1]. When it's -1, it means this is a new segment and has no elemnet yet
             </summary>
         </member>
-        <member name="T:Net.Share.VolatileBool">
+        <member name="T:Net.System.VolatileBool">
             <summary>
             A wrapper struct for volatile bool, please note the copy of the struct it self will not be volatile
             for example this statement will not include in volatilness operation volatileBool1 = volatileBool2 the jit will copy the struct and will ignore the volatile
             </summary>
         </member>
-        <member name="T:Net.Share.RandomSafe">
+        <member name="T:Net.System.RandomSafe">
             <summary>
             随机类 (多线程安全)
-            </summary>
-        </member>
-        <member name="M:Net.Share.ByteHelper.HumanReadableFilesize(System.Double)">
-            <summary>
-            转换方法
-            </summary>
-            <param name="size">字节值</param>
-            <returns></returns>
-        </member>
-        <member name="T:Net.Share.Data">
-            <summary>
-            序列化数据标示
-            </summary>
-        </member>
-        <member name="T:Net.Share.NetConvert">
-            <summary>
-            网络转换核心 2019.7.16
-            </summary>
-        </member>
-        <member name="T:Net.Share.NetConvert.LimitPropsContractResolver">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvert.LimitPropsContractResolver.#ctor(System.String[],System.Boolean)">
-            <summary>
-            构造函数
-            </summary>
-            <param name="props">传入的属性数组</param>
-            <param name="retain">true:表示props是需要保留的字段  false：表示props是要排除的字段</param>
-        </member>
-        <member name="M:Net.Share.NetConvert.LimitPropsContractResolver.CreateProperties(System.Type,Newtonsoft_X.Json.MemberSerialization)">
-            <summary>
-            
-            </summary>
-            <param name="type"></param>
-            <param name="memberSerialization"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvert.Serialize(Net.Share.RPCModel,System.Byte[])">
-            <summary>
-            新版网络序列化
-            </summary>
-            <param name="model">函数名</param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvert.Deserialize(System.Byte[])">
-            <summary>
-            新版反序列化
-            </summary>
-            <param name="buffer"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvert.Deserialize(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            新版反序列化
-            </summary>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <param name="count"></param>
-        </member>
-        <member name="M:Net.Share.NetConvert.DeserializeComplex(System.Type,System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            反序列化复杂类型
-            </summary>
-            <param name="type"></param>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <param name="count"></param>
-        </member>
-        <member name="T:Net.Share.NetConvertBase">
-            <summary>
-            网络转换基础类
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBase.StringToValue(System.Type,System.String)">
-            <summary>
-            字符串转对象
-            </summary>
-            <param name="type"></param>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBase.StringToValue(System.String,System.String)">
-            <summary>
-            字符串转系统基础类型 ( type 给定类型名称 , value 转换这个字符串为type类型的值 )
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBase.ToVector2_3_4(System.String,System.String)">
-            <summary>
-            字符转三维向量值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBase.ToRect(System.String,System.String)">
-            <summary>
-            字符转矩形值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBase.ToColor(System.String,System.String)">
-            <summary>
-            字符转颜色值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBase.ToQuaternion(System.String,System.String)">
-            <summary>
-            字符转欧拉角值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBase.To_Vector234_Rect_Quaternion_Color(System.String,System.String)">
-            <summary>
-            转换字符为Vector2 或 Vector3 或 Vector4 或 Rect 或 Quaternion 的值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
-            </summary>
-        </member>
-        <member name="T:Net.Share.NetConvertBinary">
-            <summary>
-            提供序列化二进制类
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.Init">
-            <summary>
-            初始化网络转换类型
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.AddNetworkBaseType">
-            <summary>
-            添加网络基本类型， int，float，bool，string......
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.AddNetworkType``1">
-            <summary>
-            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-            <typeparam name="T">要添加的网络类型</typeparam>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.AddNetworkType(System.Type)">
-            <summary>
-            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-            <param name="type">要添加的网络类型</param>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.AddNetworkType(System.Type[])">
-            <summary>
-            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-            <param name="types"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.AddNetworkTypeAssembly(System.Type)">
-            <summary>
-            添加网络程序集，此方法将会添加获取传入的类的程序集并全部添加
-            </summary>
-            <param name="value">传入的类</param>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.AddNetworkAssembly(System.Reflection.Assembly[])">
-            <summary>
-            添加网络传输程序集， 注意：添加客户端的程序集必须和服务器的程序集必须保持一致， 否则将会出现问题
-            </summary>
-            <param name="assemblies">程序集</param>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.IndexToType(System.UInt16)">
-            <summary>
-            索引取类型
-            </summary>
-            <param name="typeIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.TypeToIndex(System.Type)">
-            <summary>
-            类型取索引
-            </summary>
-            <param name="type"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.WriteValue``1(Net.Share.Segment,``0)">
-            <summary>
-            序列化基本类型
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.ReadValue(System.TypeCode,System.Byte[],System.Int32@)">
-            <summary>
-            反序列化基本类型
-            </summary>
-            <param name="type"></param>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.WriteArray(Net.Share.Segment,System.Collections.IList,System.Type,System.Boolean,System.Boolean)">
-            <summary>
-            序列化数组实体
-            </summary>
-            <param name="stream"></param>
-            <param name="array"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.ReadArray(System.Byte[],System.Int32@,System.Collections.IList@,System.Type,System.Boolean,System.Boolean)">
-            <summary>
-            反序列化数组
-            </summary>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <param name="array"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.SerializeComplex(System.Object,System.Boolean,System.Boolean)">
-            <summary>
-            序列化对象, 记录类型
-            </summary>
-            <param name="obj"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.Serialize(System.Object,System.Boolean,System.Boolean)">
-            <summary>
-            序列化
-            </summary>
-            <param name="obj"></param>
-            <param name="recordType"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.SerializeObject``1(``0,System.Boolean,System.Boolean)">
-            <summary>
-            序列化对象, 不记录反序列化类型
-            </summary>
-            <param name="obj"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.SerializeObject``1(Net.Share.Segment,``0,System.Boolean,System.Boolean)">
-            <summary>
-            序列化对象, 不记录反序列化类型
-            </summary>
-            <param name="obj"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.WriteObject``1(Net.Share.Segment,System.Type,``0,System.Boolean,System.Boolean)">
-            <summary>
-            序列化对象
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="stream"></param>
-            <param name="type"></param>
-            <param name="target"></param>
-            <param name="recordType"></param>
-            <param name="ignore">忽略不使用<see cref="M:Net.Share.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.DeserializeObject``1(Net.Share.Segment,System.Boolean,System.Boolean)">
-            <summary>
-            反序列化
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="segment"></param>
-            <param name="recordType"></param>
-            <param name="ignore">忽略不使用<see cref="M:Net.Share.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.DeserializeObject``1(System.Byte[],System.Int32,System.Int32,System.Boolean,System.Boolean)">
-            <summary>
-            反序列化
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <param name="count"></param>
-            <param name="recordType">序列化的类型字段是 object[]字段时, 可以帮你记录object的绝对类型</param>
-            <param name="ignore">忽略不使用<see cref="M:Net.Share.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.DeserializeComplex(System.Byte[],System.Int32,System.Int32,System.Boolean,System.Boolean)">
-            <summary>
-            反序列化复杂类型
-            </summary>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <param name="count"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertBinary.ReadObject(System.Byte[],System.Int32@,System.Type,System.Boolean,System.Boolean)">
-            <summary>
-            反序列化实体对象
-            </summary>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <param name="type"></param>
-            <returns></returns>
-        </member>
-        <member name="T:Net.Share.NetConvertFast">
-            <summary>
-            快速解析类型, 使用此类需要使用AddNetworkType()先添加序列化类型, 类型是固定, 并且双端统一
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertFast.AddNetworkBaseType">
-            <summary>
-            添加网络基本类型， int，float，bool，string......
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertFast.AddNetworkType``1">
-            <summary>
-            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertFast.AddNetworkType(System.Type)">
-            <summary>
-            添加经过网络传送的类型
-            </summary>
-            <param name="type"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertFast.AddAssembly(System.Reflection.Assembly)">
-            <summary>
-            添加网络传输的程序集, 程序集内的所有类型都会被添加, 注意: 客户端和服务器都必须统一使用一模一样的程序集, 否则有可能出现问题!
-            </summary>
-            <param name="assembly"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertFast.AddNameSpaceTypes(System.Reflection.Assembly,System.String)">
-            <summary>
-            添加assembly程序集的所有nameSpace命名空间的类型
-            </summary>
-            <param name="assembly"></param>
-            <param name="nameSpace"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertFast.DeserializeComplex(System.Type,System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            反序列化复杂类型
-            </summary>
-            <param name="type"></param>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <param name="count"></param>
-        </member>
-        <member name="T:Net.Share.ISerialize">
-            <summary>
-            快速序列化2接口--动态匹配
-            </summary>
-        </member>
-        <member name="M:Net.Share.ISerialize.WriteValue(System.Object,Net.Share.Segment)">
-            <summary>
-            序列化写入
-            </summary>
-            <param name="value"></param>
-            <param name="stream"></param>
-        </member>
-        <member name="M:Net.Share.ISerialize.ReadValue(Net.Share.Segment)">
-            <summary>
-            反序列化读取
-            </summary>
-            <param name="stream"></param>
-        </member>
-        <member name="T:Net.Share.ISerialize`1">
-            <summary>
-            快速序列化2接口---类型匹配
-            </summary>
-        </member>
-        <member name="M:Net.Share.ISerialize`1.Write(`0,Net.Share.Segment)">
-            <summary>
-            序列化写入
-            </summary>
-            <param name="value"></param>
-            <param name="stream"></param>
-        </member>
-        <member name="M:Net.Share.ISerialize`1.Read(Net.Share.Segment)">
-            <summary>
-            反序列化读取
-            </summary>
-            <param name="stream"></param>
-        </member>
-        <member name="T:Net.Share.NetConvertFast2">
-            <summary>
-            极速序列化2版本
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.Init">
-            <summary>
-            初始化网络转换类型
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.AddBaseType">
-            <summary>
-            添加网络基本类型， int，float，bool，string......
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.AddSerializeType``1">
-            <summary>
-            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-            <typeparam name="T">要添加的网络类型</typeparam>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.AddSerializeType3``1">
-            <summary>
-            添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-            <typeparam name="T">要添加的网络类型</typeparam>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.AddSerializeType3(System.Type)">
-            <summary>
-            添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.AddSerializeType(System.Type)">
-            <summary>
-            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-            <param name="type">要添加的网络类型</param>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.AddSerializeType(System.Type[])">
-            <summary>
-            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
-            </summary>
-            <param name="types"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.IndexToType(System.UInt16)">
-            <summary>
-            索引取类型
-            </summary>
-            <param name="typeIndex"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertFast2.TypeToIndex(System.Type)">
-            <summary>
-            类型取索引
-            </summary>
-            <param name="type"></param>
-            <returns></returns>
-        </member>
-        <member name="T:Net.Share.FuncData">
-            <summary>
-            函数数据
-            </summary>
-        </member>
-        <member name="F:Net.Share.FuncData.name">
-            <summary>
-            函数名称
-            </summary>
-        </member>
-        <member name="F:Net.Share.FuncData.mask">
-            <summary>
-            方法遮罩
-            </summary>
-        </member>
-        <member name="F:Net.Share.FuncData.pars">
-            <summary>
-            参数数组
-            </summary>
-        </member>
-        <member name="F:Net.Share.FuncData.error">
-            <summary>
-            序列化是否错误?
-            </summary>
-        </member>
-        <member name="M:Net.Share.FuncData.#ctor(System.String,System.Object[])">
-            <summary>
-            构造函数
-            </summary>
-            <param name="func"></param>
-            <param name="pars"></param>
-        </member>
-        <member name="P:Net.Share.FuncData.Item(System.Int32)">
-            <summary>
-            取出index的参数值
-            </summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="T:Net.Share.NetConvertOld">
-            <summary>
-            旧版网络转换，字符串转换
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.AddSerializeType``1">
-            <summary>
-            添加系列化类型,  当复杂类型时,如果不进行添加则系列化失败: 主要类型 Dictionary
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.AddSerializeType(System.Type)">
-            <summary>
-            添加系列化类型,  当复杂类型时,如果不进行添加则系列化失败: 主要类型 Dictionary
-            </summary>
-            <param name="type"></param>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.GetType(System.String)">
-            <summary>
-            解释 : 获得应用程序当前已加载的所有程序集中查找typeName的类型
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.GetTypeAll(System.String)">
-            <summary>
-            解释 : 获得应用程序当前已加载的所有程序集中查找typeName的类型
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.GetTypeAll(System.Int32)">
-            <summary>
-            解释 : 获得应用程序当前已加载的所有程序集中查找typeName的类型
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.ToBaseValue(System.Type,System.String)">
-            <summary>
-            反序列化基本类型
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.WriteArray(System.Text.StringBuilder@,System.Array)">
-            <summary>
-            序列化数组实体
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.ToArray(System.String[],System.Int32@,System.Type)">
-            <summary>
-            反序列化数组
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.ToArray(System.String[],System.Int32@,System.Array@)">
-            <summary>
-            反序列化数组
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.ToEnum(System.String[],System.Int32@)">
-            <summary>
-            反序列化枚举类型
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.Serialize(System.Object[])">
-            <summary>
-            新版网络序列化
-            </summary>
-            <param name="pars"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.Serialize(System.String,System.Object[])">
-            <summary>
-            新版网络序列化
-            </summary>
-            <param name="funcName">函数名</param>
-            <param name="pars">参数</param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.WriteObject(System.Text.StringBuilder@,System.Type,System.Object)">
-            <summary>
-            序列化实体类型
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.Deserialize(System.String)">
-            <summary>
-            新版反序列化
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.Deserialize(System.String,System.Action{System.String,System.Object[]})">
-            <summary>
-            新版反序列化
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.Deserialize(System.String[],System.Int32,System.Int32)">
-            <summary>
-            新版反序列化
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.Deserialize(System.String[],System.Int32,System.Int32,System.Action{System.String,System.Object[]})">
-            <summary>
-            新版反序列化
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.ToObject(System.String[],System.Int32@,System.Type)">
-            <summary>
-            反序列化实体对象
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.ToList(System.String[],System.Int32@,System.Type)">
-            <summary>
-            反序列化泛型
-            </summary>
-        </member>
-        <member name="M:Net.Share.NetConvertOld.ToDictionary(System.String[],System.Int32@,System.Type)">
-            <summary>
-            反序列化字典类型
             </summary>
         </member>
         <member name="T:Net.Matrix3x3">
@@ -8885,6 +8446,572 @@
         <member name="F:Net.Helper.GatewayServer`1.OnAreaUpdate">
             <summary>
             当分布服务器更新时调用
+            </summary>
+        </member>
+        <member name="T:Net.Serialize.Data">
+            <summary>
+            序列化数据标示
+            </summary>
+        </member>
+        <member name="T:Net.Serialize.NetConvert">
+            <summary>
+            网络转换核心 2019.7.16
+            </summary>
+        </member>
+        <member name="T:Net.Serialize.NetConvert.LimitPropsContractResolver">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvert.LimitPropsContractResolver.#ctor(System.String[],System.Boolean)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="props">传入的属性数组</param>
+            <param name="retain">true:表示props是需要保留的字段  false：表示props是要排除的字段</param>
+        </member>
+        <member name="M:Net.Serialize.NetConvert.LimitPropsContractResolver.CreateProperties(System.Type,Newtonsoft_X.Json.MemberSerialization)">
+            <summary>
+            
+            </summary>
+            <param name="type"></param>
+            <param name="memberSerialization"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvert.Serialize(Net.Share.RPCModel,System.Byte[])">
+            <summary>
+            新版网络序列化
+            </summary>
+            <param name="model">函数名</param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvert.Deserialize(System.Byte[])">
+            <summary>
+            新版反序列化
+            </summary>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvert.Deserialize(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            新版反序列化
+            </summary>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="count"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvert.DeserializeComplex(System.Type,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            反序列化复杂类型
+            </summary>
+            <param name="type"></param>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="count"></param>
+        </member>
+        <member name="T:Net.Serialize.NetConvertBase">
+            <summary>
+            网络转换基础类
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBase.StringToValue(System.Type,System.String)">
+            <summary>
+            字符串转对象
+            </summary>
+            <param name="type"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBase.StringToValue(System.String,System.String)">
+            <summary>
+            字符串转系统基础类型 ( type 给定类型名称 , value 转换这个字符串为type类型的值 )
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBase.ToVector2_3_4(System.String,System.String)">
+            <summary>
+            字符转三维向量值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBase.ToRect(System.String,System.String)">
+            <summary>
+            字符转矩形值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBase.ToColor(System.String,System.String)">
+            <summary>
+            字符转颜色值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBase.ToQuaternion(System.String,System.String)">
+            <summary>
+            字符转欧拉角值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBase.To_Vector234_Rect_Quaternion_Color(System.String,System.String)">
+            <summary>
+            转换字符为Vector2 或 Vector3 或 Vector4 或 Rect 或 Quaternion 的值 ( type 以字符形式给定一个类型 , value 类型的值 注：类型的值必须以给定类型的值符合才能转换成功 )
+            </summary>
+        </member>
+        <member name="T:Net.Serialize.NetConvertBinary">
+            <summary>
+            提供序列化二进制类
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.Init">
+            <summary>
+            初始化网络转换类型
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkBaseType">
+            <summary>
+            添加网络基本类型， int，float，bool，string......
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkType``1">
+            <summary>
+            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+            <typeparam name="T">要添加的网络类型</typeparam>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkType(System.Type)">
+            <summary>
+            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+            <param name="type">要添加的网络类型</param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkType(System.Type[])">
+            <summary>
+            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+            <param name="types"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkTypeAssembly(System.Type)">
+            <summary>
+            添加网络程序集，此方法将会添加获取传入的类的程序集并全部添加
+            </summary>
+            <param name="value">传入的类</param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkAssembly(System.Reflection.Assembly[])">
+            <summary>
+            添加网络传输程序集， 注意：添加客户端的程序集必须和服务器的程序集必须保持一致， 否则将会出现问题
+            </summary>
+            <param name="assemblies">程序集</param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.IndexToType(System.UInt16)">
+            <summary>
+            索引取类型
+            </summary>
+            <param name="typeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.TypeToIndex(System.Type)">
+            <summary>
+            类型取索引
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.WriteValue``1(Net.System.Segment,``0)">
+            <summary>
+            序列化基本类型
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.ReadValue(System.TypeCode,System.Byte[],System.Int32@)">
+            <summary>
+            反序列化基本类型
+            </summary>
+            <param name="type"></param>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.WriteArray(Net.System.Segment,System.Collections.IList,System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            序列化数组实体
+            </summary>
+            <param name="stream"></param>
+            <param name="array"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.ReadArray(System.Byte[],System.Int32@,System.Collections.IList@,System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            反序列化数组
+            </summary>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="array"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.SerializeComplex(System.Object,System.Boolean,System.Boolean)">
+            <summary>
+            序列化对象, 记录类型
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.Serialize(System.Object,System.Boolean,System.Boolean)">
+            <summary>
+            序列化
+            </summary>
+            <param name="obj"></param>
+            <param name="recordType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.SerializeObject``1(``0,System.Boolean,System.Boolean)">
+            <summary>
+            序列化对象, 不记录反序列化类型
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.SerializeObject``1(Net.System.Segment,``0,System.Boolean,System.Boolean)">
+            <summary>
+            序列化对象, 不记录反序列化类型
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.WriteObject``1(Net.System.Segment,System.Type,``0,System.Boolean,System.Boolean)">
+            <summary>
+            序列化对象
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="stream"></param>
+            <param name="type"></param>
+            <param name="target"></param>
+            <param name="recordType"></param>
+            <param name="ignore">忽略不使用<see cref="M:Net.Serialize.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.DeserializeObject``1(Net.System.Segment,System.Boolean,System.Boolean)">
+            <summary>
+            反序列化
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="segment"></param>
+            <param name="recordType"></param>
+            <param name="ignore">忽略不使用<see cref="M:Net.Serialize.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.DeserializeObject``1(System.Byte[],System.Int32,System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            反序列化
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="count"></param>
+            <param name="recordType">序列化的类型字段是 object[]字段时, 可以帮你记录object的绝对类型</param>
+            <param name="ignore">忽略不使用<see cref="M:Net.Serialize.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.DeserializeComplex(System.Byte[],System.Int32,System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            反序列化复杂类型
+            </summary>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="count"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.ReadObject(System.Byte[],System.Int32@,System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            反序列化实体对象
+            </summary>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Net.Serialize.NetConvertFast">
+            <summary>
+            快速解析类型, 使用此类需要使用AddNetworkType()先添加序列化类型, 类型是固定, 并且双端统一
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast.AddNetworkBaseType">
+            <summary>
+            添加网络基本类型， int，float，bool，string......
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast.AddNetworkType``1">
+            <summary>
+            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast.AddNetworkType(System.Type)">
+            <summary>
+            添加经过网络传送的类型
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast.AddAssembly(System.Reflection.Assembly)">
+            <summary>
+            添加网络传输的程序集, 程序集内的所有类型都会被添加, 注意: 客户端和服务器都必须统一使用一模一样的程序集, 否则有可能出现问题!
+            </summary>
+            <param name="assembly"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast.AddNameSpaceTypes(System.Reflection.Assembly,System.String)">
+            <summary>
+            添加assembly程序集的所有nameSpace命名空间的类型
+            </summary>
+            <param name="assembly"></param>
+            <param name="nameSpace"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast.DeserializeComplex(System.Type,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            反序列化复杂类型
+            </summary>
+            <param name="type"></param>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="count"></param>
+        </member>
+        <member name="T:Net.Serialize.ISerialize">
+            <summary>
+            快速序列化2接口--动态匹配
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.ISerialize.WriteValue(System.Object,Net.System.Segment)">
+            <summary>
+            序列化写入
+            </summary>
+            <param name="value"></param>
+            <param name="stream"></param>
+        </member>
+        <member name="M:Net.Serialize.ISerialize.ReadValue(Net.System.Segment)">
+            <summary>
+            反序列化读取
+            </summary>
+            <param name="stream"></param>
+        </member>
+        <member name="T:Net.Serialize.ISerialize`1">
+            <summary>
+            快速序列化2接口---类型匹配
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.ISerialize`1.Write(`0,Net.System.Segment)">
+            <summary>
+            序列化写入
+            </summary>
+            <param name="value"></param>
+            <param name="stream"></param>
+        </member>
+        <member name="M:Net.Serialize.ISerialize`1.Read(Net.System.Segment)">
+            <summary>
+            反序列化读取
+            </summary>
+            <param name="stream"></param>
+        </member>
+        <member name="T:Net.Serialize.NetConvertFast2">
+            <summary>
+            极速序列化2版本
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.Init">
+            <summary>
+            初始化网络转换类型
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.AddBaseType">
+            <summary>
+            添加网络基本类型， int，float，bool，string......
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.AddSerializeType``1">
+            <summary>
+            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+            <typeparam name="T">要添加的网络类型</typeparam>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.AddSerializeType3``1">
+            <summary>
+            添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+            <typeparam name="T">要添加的网络类型</typeparam>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.AddSerializeType3(System.Type)">
+            <summary>
+            添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.AddSerializeType(System.Type)">
+            <summary>
+            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+            <param name="type">要添加的网络类型</param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.AddSerializeType(System.Type[])">
+            <summary>
+            添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+            <param name="types"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.IndexToType(System.UInt16)">
+            <summary>
+            索引取类型
+            </summary>
+            <param name="typeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.TypeToIndex(System.Type)">
+            <summary>
+            类型取索引
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Net.Serialize.FuncData">
+            <summary>
+            函数数据
+            </summary>
+        </member>
+        <member name="F:Net.Serialize.FuncData.name">
+            <summary>
+            函数名称
+            </summary>
+        </member>
+        <member name="F:Net.Serialize.FuncData.mask">
+            <summary>
+            方法遮罩
+            </summary>
+        </member>
+        <member name="F:Net.Serialize.FuncData.pars">
+            <summary>
+            参数数组
+            </summary>
+        </member>
+        <member name="F:Net.Serialize.FuncData.error">
+            <summary>
+            序列化是否错误?
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.FuncData.#ctor(System.String,System.Object[])">
+            <summary>
+            构造函数
+            </summary>
+            <param name="func"></param>
+            <param name="pars"></param>
+        </member>
+        <member name="P:Net.Serialize.FuncData.Item(System.Int32)">
+            <summary>
+            取出index的参数值
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Net.Serialize.NetConvertOld">
+            <summary>
+            旧版网络转换，字符串转换
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.AddSerializeType``1">
+            <summary>
+            添加系列化类型,  当复杂类型时,如果不进行添加则系列化失败: 主要类型 Dictionary
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.AddSerializeType(System.Type)">
+            <summary>
+            添加系列化类型,  当复杂类型时,如果不进行添加则系列化失败: 主要类型 Dictionary
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.GetType(System.String)">
+            <summary>
+            解释 : 获得应用程序当前已加载的所有程序集中查找typeName的类型
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.GetTypeAll(System.String)">
+            <summary>
+            解释 : 获得应用程序当前已加载的所有程序集中查找typeName的类型
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.GetTypeAll(System.Int32)">
+            <summary>
+            解释 : 获得应用程序当前已加载的所有程序集中查找typeName的类型
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.ToBaseValue(System.Type,System.String)">
+            <summary>
+            反序列化基本类型
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.WriteArray(System.Text.StringBuilder@,System.Array)">
+            <summary>
+            序列化数组实体
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.ToArray(System.String[],System.Int32@,System.Type)">
+            <summary>
+            反序列化数组
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.ToArray(System.String[],System.Int32@,System.Array@)">
+            <summary>
+            反序列化数组
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.ToEnum(System.String[],System.Int32@)">
+            <summary>
+            反序列化枚举类型
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.Serialize(System.Object[])">
+            <summary>
+            新版网络序列化
+            </summary>
+            <param name="pars"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.Serialize(System.String,System.Object[])">
+            <summary>
+            新版网络序列化
+            </summary>
+            <param name="funcName">函数名</param>
+            <param name="pars">参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.WriteObject(System.Text.StringBuilder@,System.Type,System.Object)">
+            <summary>
+            序列化实体类型
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.Deserialize(System.String)">
+            <summary>
+            新版反序列化
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.Deserialize(System.String,System.Action{System.String,System.Object[]})">
+            <summary>
+            新版反序列化
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.Deserialize(System.String[],System.Int32,System.Int32)">
+            <summary>
+            新版反序列化
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.Deserialize(System.String[],System.Int32,System.Int32,System.Action{System.String,System.Object[]})">
+            <summary>
+            新版反序列化
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.ToObject(System.String[],System.Int32@,System.Type)">
+            <summary>
+            反序列化实体对象
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.ToList(System.String[],System.Int32@,System.Type)">
+            <summary>
+            反序列化泛型
+            </summary>
+        </member>
+        <member name="M:Net.Serialize.NetConvertOld.ToDictionary(System.String[],System.Int32@,System.Type)">
+            <summary>
+            反序列化字典类型
+            </summary>
+        </member>
+        <member name="T:Net.Serialize.NonSerialized">
+            <summary>
+            极速序列化不序列化的特性
             </summary>
         </member>
         <member name="T:ECS.Component">

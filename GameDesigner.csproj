@@ -195,6 +195,7 @@
     <None Include="GameDesigner\Component\Client\UnityThread.cs.meta" />
     <None Include="GameDesigner\Component\Clone.cs.meta" />
     <None Include="GameDesigner\Component\Command.cs.meta" />
+    <None Include="GameDesigner\Component\DBEntity.cs.meta" />
     <None Include="GameDesigner\Component\InspectorAttribute.cs.meta" />
     <None Include="GameDesigner\Component\MySqlHelper.cs.meta" />
     <None Include="GameDesigner\Component\NTransform.cs.meta" />
@@ -1255,6 +1256,7 @@
     <Compile Include="GameDesigner\Component\Client\UnityThread.cs" />
     <Compile Include="GameDesigner\Component\Clone.cs" />
     <Compile Include="GameDesigner\Component\Command.cs" />
+    <Compile Include="GameDesigner\Component\DBEntity.cs" />
     <Compile Include="GameDesigner\Component\InspectorAttribute.cs" />
     <Compile Include="GameDesigner\Component\MySqlHelper.cs" />
     <Compile Include="GameDesigner\Component\NTransform.cs" />

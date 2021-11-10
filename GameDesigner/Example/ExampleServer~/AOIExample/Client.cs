@@ -2,6 +2,7 @@
 using Net.AOI;
 using Net;
 using Net.Share;
+using Net.System;
 
 namespace AOIExample
 {

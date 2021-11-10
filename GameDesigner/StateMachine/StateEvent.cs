@@ -69,6 +69,8 @@ namespace GameDesigner
 
         public static void RemoveAllEvent()
         {
+            if (instance == null)
+                return;
             instance.events.Clear();
         }
 

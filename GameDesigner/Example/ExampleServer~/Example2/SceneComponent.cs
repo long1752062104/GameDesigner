@@ -3,6 +3,7 @@ using Net;
 using Net.Component;
 using Net.Server;
 using Net.Share;
+using Net.System;
 
 namespace Example2
 {
@@ -21,7 +22,7 @@ namespace Example2
             foreach (var item in sceneData.monsterPoints)
             {
                 RoamingPath1 roamingPath = item.roamingPath;
-                for (int i = 0; i < item.monsterIDs.Length; i++)
+                for (int i = 0; i < item.monsters.Length; i++)
                 {
                     var point = roamingPath.waypointsList[RandomHelper.Range(0, roamingPath.waypointsList.Count)];
                     var monster1 = ecsSystem.Create<Entity>().AddComponent<AIMonster>();
@@ -31,7 +32,8 @@ namespace Example2
                     monster1.roamingPath = roamingPath;
                     monster1.scene = this;
                     monster1.id = id++;
-                    monster1.mid = item.monsterIDs[i];
+                    monster1.mid = item.monsters[i].id;
+                    monster1.health = item.monsters[i].health;
                     monsters.Add(monster1.id, monster1);
                 }
             }
