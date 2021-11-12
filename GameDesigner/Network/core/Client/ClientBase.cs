@@ -680,6 +680,16 @@ namespace Net.Client
         }
 
         /// <summary>
+        /// 派发给所有被收集的Rpc方法
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="pars"></param>
+        public void DispatcherRpc(string func, params object[] pars) 
+        {
+            AddRpcBuffer(new RPCModel(0, func, pars));
+        }
+
+        /// <summary>
         /// 添加网络函数数据,添加后自动在rpc中调用
         /// </summary>
         /// <param name="model"></param>

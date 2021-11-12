@@ -19,9 +19,9 @@ public static class InjectTool
     [InitializeOnLoadMethod]
     static void OnInitializeOnLoad()
     {
-        int open = 0;
+        int open = 1;
         if (PlayerPrefs.HasKey("RpcInject"))
-            open = PlayerPrefs.GetInt("RpcInject", 0);
+            open = PlayerPrefs.GetInt("RpcInject", 1);
         if(open == 0)
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
     }

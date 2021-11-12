@@ -195,7 +195,8 @@
         /// </summary>
         /// <param name="target"></param>
         /// <param name="append">可以重复添加rpc?</param>
-        public void AddRpc(object target, bool append = false)
+        /// <param name="replace">如果与之前的rpc同名, 新的rpc是否可以替换旧的rpc?</param>
+        public void AddRpc(object target, bool append = false, bool replace = true)
         {
             if (!append)
                 foreach (RPCMethod o in Rpcs.Values)
@@ -209,6 +210,8 @@
                 {
                     if (!Rpcs.ContainsKey(info.Name))
                         Rpcs.Add(info.Name, new RPCMethod(target, info as MethodInfo, rpc.cmd));
+                    else if (replace)
+                        Rpcs[info.Name] = new RPCMethod(target, info as MethodInfo, rpc.cmd);
                     else
                         NDebug.LogError($"添加客户端私有Rpc错误！Rpc方法{info.Name}使用同一函数名，这是不允许的，字典键值无法添加相同的函数名！");
                 }
@@ -394,6 +397,11 @@
         /// 当玩家退出场景 ->场景对象在Scene属性
         /// </summary>
         public virtual void OnExit() { }
+
+        /// <summary>
+        /// 当玩家退出登录时调用
+        /// </summary>
+        public virtual void OnSignOut() { }
 
         /// <summary>
         /// 当场景被移除 ->场景对象在Scene属性

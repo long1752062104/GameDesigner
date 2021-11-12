@@ -137,5 +137,11 @@
         /// 下载文件
         /// </summary>
         public const byte Download = 31;
+        /// <summary>
+        /// 单线程安全调用服务器函数,当多线程同时访问一个方法时, 感觉这个方法不安全时, 需要使用单线程处理时, 可使用此命令
+        /// 否则可以使用SafeCall或CallRpc命令，
+        /// 使用此命令时,函数第一个参数将会嵌入NetPlayer参数
+        /// </summary>
+        public const byte SingleCall = 32;
     }
 }

@@ -259,6 +259,10 @@ namespace Net.Server
         /// 程序根路径, 网络数据缓存读写路径
         /// </summary>
         protected string rootPath;
+        /// <summary>
+        /// 单线程上下文处理中心队列
+        /// </summary>
+        protected ConcurrentQueue<Action> SingleContext { get; set; } = new ConcurrentQueue<Action>();
         #endregion
 
         #region 服务器事件处理
@@ -673,22 +677,36 @@ namespace Net.Server
         /// </summary>
         protected virtual void DataTrafficThread()
         {
+            var time = DateTime.Now.AddSeconds(1);
             while (IsRunServer)
             {
                 try
                 {
-                    Thread.Sleep(1000);
-                    OnNetworkDataTraffic?.Invoke(sendAmount, sendCount, receiveAmount, receiveCount, resolveAmount, sendLoopNum, revdLoopNum);
+                    if (SingleContext.Count == 0)
+                    {
+                        Thread.Sleep(1);
+                        continue;
+                    }
+                    while (SingleContext.TryDequeue(out Action action))
+                    {
+                        action();
+                    }
+                    if (DateTime.Now > time)
+                    {
+                        time = DateTime.Now.AddSeconds(1);
+                        OnNetworkDataTraffic?.Invoke(sendAmount, sendCount, receiveAmount, receiveCount, resolveAmount, sendLoopNum, revdLoopNum);
+                        sendCount = 0;
+                        sendAmount = 0;
+                        resolveAmount = 0;
+                        receiveAmount = 0;
+                        receiveCount = 0;
+                        sendLoopNum = 0;
+                        revdLoopNum = 0;
+                    }
                 }
-                finally
+                catch (Exception ex)
                 {
-                    sendCount = 0;
-                    sendAmount = 0;
-                    resolveAmount = 0;
-                    receiveAmount = 0;
-                    receiveCount = 0;
-                    sendLoopNum = 0;
-                    revdLoopNum = 0;
+                    Debug.LogError("流量统计+单线程中心异常:" + ex);
                 }
             }
         }
@@ -1639,6 +1657,16 @@ namespace Net.Server
                         pars[0] = client;
                         Array.Copy(model.pars, 0, pars, 1, model.pars.Length);
                         rpc.Invoke(pars);
+                    }
+                    else if (rpc.cmd == NetCmd.SingleCall)
+                    {
+                        SingleContext.Enqueue(()=> 
+                        {
+                            object[] pars = new object[model.pars.Length + 1];
+                            pars[0] = client;
+                            Array.Copy(model.pars, 0, pars, 1, model.pars.Length);
+                            rpc.Invoke(pars);
+                        });
                     }
                     else
                     {
@@ -2692,6 +2720,7 @@ namespace Net.Server
             ExitScene(client, false);
             client.playerID = client.UserID.ToString();
             client.Login = false;
+            client.OnSignOut();
             Debug.Log("[" + client.playerID + "]退出登录...!");
         }
 

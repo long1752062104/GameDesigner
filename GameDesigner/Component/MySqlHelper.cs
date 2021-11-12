@@ -278,6 +278,7 @@ public static class MySqlHelper
     {
         string sQuery = $"SELECT * FROM {table.TableName}";
         MySqlDataAdapter myDA = new MySqlDataAdapter(sQuery, Connect);
+        myDA.RowUpdating += new MySqlRowUpdatingEventHandler((o, e)=> { e.Status = UpdateStatus.Continue; });
         new MySqlCommandBuilder(myDA);//需要留着才能增删改查
         myDA.Update(table);
     }
