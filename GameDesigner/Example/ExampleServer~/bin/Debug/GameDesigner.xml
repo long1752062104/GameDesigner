@@ -2286,12 +2286,7 @@
         </member>
         <member name="T:Net.Component.Command">
             <summary>
-            网络操作指令
-            </summary>
-        </member>
-        <member name="F:Net.Component.Command.SyncOperations">
-            <summary>
-            帧同步操作命令
+            网络操作指令 (系统命令使用0-100, 基础网络组件使用100-150) 请从150开始自定义命令
             </summary>
         </member>
         <member name="F:Net.Component.Command.Input">
@@ -2955,6 +2950,13 @@
             移除网络状态处理接口
             </summary>
             <param name="network"></param>
+        </member>
+        <member name="M:Net.Client.ClientBase.DispatcherRpc(System.String,System.Object[])">
+            <summary>
+            派发给所有被收集的Rpc方法
+            </summary>
+            <param name="func"></param>
+            <param name="pars"></param>
         </member>
         <member name="M:Net.Client.ClientBase.AddRpcBuffer(Net.Share.RPCModel)">
             <summary>
@@ -4342,12 +4344,13 @@
             </summary>
             <param name="append">可以重复添加rpc?</param>
         </member>
-        <member name="M:Net.Server.NetPlayer.AddRpc(System.Object,System.Boolean)">
+        <member name="M:Net.Server.NetPlayer.AddRpc(System.Object,System.Boolean,System.Boolean)">
             <summary>
             添加远程过程调用函数,从对象进行收集
             </summary>
             <param name="target"></param>
             <param name="append">可以重复添加rpc?</param>
+            <param name="replace">如果与之前的rpc同名, 新的rpc是否可以替换旧的rpc?</param>
         </member>
         <member name="M:Net.Server.NetPlayer.RemoveRpc(System.Object)">
             <summary>
@@ -4414,6 +4417,11 @@
         <member name="M:Net.Server.NetPlayer.OnExit">
             <summary>
             当玩家退出场景 ->场景对象在Scene属性
+            </summary>
+        </member>
+        <member name="M:Net.Server.NetPlayer.OnSignOut">
+            <summary>
+            当玩家退出登录时调用
             </summary>
         </member>
         <member name="M:Net.Server.NetPlayer.OnRemove">
@@ -4933,6 +4941,11 @@
         <member name="F:Net.Server.ServerBase`2.rootPath">
             <summary>
             程序根路径, 网络数据缓存读写路径
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.SingleContext">
+            <summary>
+            单线程上下文处理中心队列
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.OnStartingHandle">
@@ -6870,7 +6883,7 @@
         </member>
         <member name="T:Net.Share.NetCmd">
             <summary>
-            网络命令基类 - 可继承此类定义自己的网络命令 19.7.16
+            网络命令基类 - 可继承此类定义自己的网络命令 19.7.16 (系统命令使用0-100) 请从100开始自定义命令
             </summary>
         </member>
         <member name="F:Net.Share.NetCmd.EntityRpc">
@@ -7032,6 +7045,13 @@
         <member name="F:Net.Share.NetCmd.Download">
             <summary>
             下载文件
+            </summary>
+        </member>
+        <member name="F:Net.Share.NetCmd.SingleCall">
+            <summary>
+            单线程安全调用服务器函数,当多线程同时访问一个方法时, 感觉这个方法不安全时, 需要使用单线程处理时, 可使用此命令
+            否则可以使用SafeCall或CallRpc命令，
+            使用此命令时,函数第一个参数将会嵌入NetPlayer参数
             </summary>
         </member>
         <member name="T:Net.Share.RPCMethod">

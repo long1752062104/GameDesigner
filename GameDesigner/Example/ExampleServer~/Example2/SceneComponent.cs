@@ -21,6 +21,8 @@ namespace Example2
             int id = 1;
             foreach (var item in sceneData.monsterPoints)
             {
+                if (item.monsters == null)
+                    continue;
                 RoamingPath1 roamingPath = item.roamingPath;
                 for (int i = 0; i < item.monsters.Length; i++)
                 {

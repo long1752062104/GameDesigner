@@ -340,7 +340,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 874e4fce1a2ba7843841dfa361ef66c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monsterIds: 0000000001000000020000000000000000000000
+  monsters:
+  - id: 0
+    health: 100
+  - id: 1
+    health: 150
+  - id: 2
+    health: 200
+  - id: 0
+    health: 100
+  - id: 0
+    health: 100
 --- !u!1 &346539898
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,7 +420,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 874e4fce1a2ba7843841dfa361ef66c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monsterIds: 0000000001000000020000000000000000000000
+  monsters:
+  - id: 0
+    health: 100
+  - id: 1
+    health: 150
+  - id: 2
+    health: 200
+  - id: 0
+    health: 100
+  - id: 0
+    health: 100
 --- !u!1 &404319871
 GameObject:
   m_ObjectHideFlags: 0
@@ -657,7 +677,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 874e4fce1a2ba7843841dfa361ef66c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monsterIds: 0000000001000000020000000000000000000000
+  monsters:
+  - id: 0
+    health: 100
+  - id: 1
+    health: 150
+  - id: 2
+    health: 200
+  - id: 0
+    health: 100
+  - id: 0
+    health: 100
 --- !u!1 &1812795133
 GameObject:
   m_ObjectHideFlags: 0
@@ -733,6 +763,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 389734cdb206f1348a427f53081667eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanSentTime: 0.033333335
 --- !u!1001 &2069414148265509325
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -788,6 +819,21 @@ PrefabInstance:
     - target: {fileID: 7349978556895309800, guid: 1d40bdb3680cb634bba0a6c91f66186d,
         type: 3}
       propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7349978556895309800, guid: 1d40bdb3680cb634bba0a6c91f66186d,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7349978556895309800, guid: 1d40bdb3680cb634bba0a6c91f66186d,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7349978556895309800, guid: 1d40bdb3680cb634bba0a6c91f66186d,
+        type: 3}
+      propertyPath: m_LocalScale.z
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7349978556895309800, guid: 1d40bdb3680cb634bba0a6c91f66186d,
