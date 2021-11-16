@@ -26,6 +26,7 @@ public static class MySqlHelper
                 conn = new MySqlConnection(connStr); //数据库连接
                 conn.Open();
             }
+            conn.Ping();//长时间没有连接后断开连接检查状态
             if (conn.State != ConnectionState.Open)
             {
                 conn.Close();

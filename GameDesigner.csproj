@@ -1257,6 +1257,7 @@
     <Compile Include="GameDesigner\Component\Clone.cs" />
     <Compile Include="GameDesigner\Component\Command.cs" />
     <Compile Include="GameDesigner\Component\DBEntity.cs" />
+    <Compile Include="GameDesigner\Component\EncryptHelper.cs" />
     <Compile Include="GameDesigner\Component\InspectorAttribute.cs" />
     <Compile Include="GameDesigner\Component\MySqlHelper.cs" />
     <Compile Include="GameDesigner\Component\NTransform.cs" />

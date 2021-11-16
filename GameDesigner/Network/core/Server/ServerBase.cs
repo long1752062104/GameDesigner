@@ -682,7 +682,7 @@ namespace Net.Server
             {
                 try
                 {
-                    if (SingleContext.Count == 0)
+                    if (SingleContext.Count == 0 & DateTime.Now < time)
                     {
                         Thread.Sleep(1);
                         continue;
