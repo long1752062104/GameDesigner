@@ -32,6 +32,7 @@ namespace Net.Server
     using Debug = Event.NDebug;
     using Net.System;
     using Net.Serialize;
+    using Net.Event;
 
     /// <summary>
     /// 网络服务器核心基类 2019.11.22
@@ -263,6 +264,10 @@ namespace Net.Server
         /// 单线程上下文处理中心队列
         /// </summary>
         protected ConcurrentQueue<Action> SingleContext { get; set; } = new ConcurrentQueue<Action>();
+        /// <summary>
+        /// 单线程定时器
+        /// </summary>
+        public ActionEvent Timer { get; set; } = new ActionEvent();
         #endregion
 
         #region 服务器事件处理
@@ -525,7 +530,7 @@ namespace Net.Server
         {
             if (client.OnOperationSync(list))
                 return;
-            if (Scenes.TryGetValue(client.sceneID, out Scene scene))
+            if (Scenes.TryGetValue(client.SceneID, out Scene scene))
                 scene.OnOperationSync(client, list);
         }
 
@@ -673,6 +678,38 @@ namespace Net.Server
         }
 
         /// <summary>
+        /// 调用服务器单线程, 每帧调用
+        /// </summary>
+        /// <param name="ptr"></param>
+        /// <returns>可用于结束事件的id</returns>
+        public int Invoke(Func<bool> ptr) 
+        {
+            return Timer.AddEvent(0, ptr);
+        }
+
+        /// <summary>
+        /// 调用服务器单线程
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="ptr"></param>
+        /// <returns>可用于结束事件的id</returns>
+        public int Invoke(float time, Action ptr)
+        {
+            return Timer.AddEvent(time, ptr);
+        }
+
+        /// <summary>
+        /// 调用服务器单线程计算器, 如果不返回false, 就会每time秒调用
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="ptr"></param>
+        /// <returns>可用于结束事件的id</returns>
+        public int Invoke(float time, Func<bool> ptr)
+        {
+            return Timer.AddEvent(time, ptr);
+        }
+
+        /// <summary>
         /// 流量统计线程
         /// </summary>
         protected virtual void DataTrafficThread()
@@ -682,6 +719,7 @@ namespace Net.Server
             {
                 try
                 {
+                    Timer.UpdateEvent(0.002f);
                     if (SingleContext.Count == 0 & DateTime.Now < time)
                     {
                         Thread.Sleep(1);
@@ -1781,7 +1819,7 @@ namespace Net.Server
                 return null;
             if (Scenes.TryAdd(sceneID, scene))
             {
-                if (Scenes.TryGetValue(player.sceneID, out Scene exitScene))
+                if (Scenes.TryGetValue(player.SceneID, out Scene exitScene))
                 {
                     exitScene.Remove(player);
                     exitCurrentSceneCall?.Invoke(exitScene);
@@ -1854,7 +1892,7 @@ namespace Net.Server
                 return null;
             if (Scenes.TryGetValue(sceneID, out Scene scene1))
             {
-                if (Scenes.TryGetValue(player.sceneID, out Scene scene2))
+                if (Scenes.TryGetValue(player.SceneID, out Scene scene2))
                 {
                     scene2.Remove(player);
                     exitCurrentSceneCall?.Invoke(scene2);
@@ -1903,7 +1941,7 @@ namespace Net.Server
                         scene.OnRemove(p);
                         p.OnRemove();
                         p.Scene = null;
-                        p.sceneID = "";
+                        p.SceneID = "";
                     }
                 }
                 return true;
@@ -1920,9 +1958,9 @@ namespace Net.Server
         /// <returns></returns>
         public bool RemoveScenePlayer(Player player, bool isEntMain = true, Action<Scene> exitCurrentSceneCall = null)
         {
-            if (string.IsNullOrEmpty(player.sceneID))
+            if (string.IsNullOrEmpty(player.SceneID))
                 return false;
-            if (Scenes.TryGetValue(player.sceneID, out Scene scene))
+            if (Scenes.TryGetValue(player.SceneID, out Scene scene))
             {
                 scene.Remove(player);
                 exitCurrentSceneCall?.Invoke(scene);

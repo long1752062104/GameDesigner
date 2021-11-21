@@ -364,7 +364,7 @@ namespace Net.Client
         /// <summary>
         /// 待发送的操作列表
         /// </summary>
-        private readonly ListPool<Operation> operations = new ListPool<Operation>();
+        private readonly ListSafe<Operation> operations = new ListSafe<Operation>();
         /// <summary>
         /// <para>（Maxium Transmission Unit）最大传输单元, 最大传输单元为1500字节, 这里默认为50000, 如果数据超过50000,则是该框架进行分片. 传输层则需要分片为50000/1472=34个数据片</para>
         /// <para>------ 局域网可以设置为50000, 公网需要设置为1300 或 1400, 如果设置为1400还是发送失败, 则需要设置为1300或以下进行测试 ------</para>

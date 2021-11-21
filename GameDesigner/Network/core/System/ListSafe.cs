@@ -41,15 +41,15 @@ namespace Net.System
     [DebuggerTypeProxy(typeof(Mscorlib_CollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public class ListPool<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>
+    public class ListSafe<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>
     {
-        public ListPool()
+        public ListSafe()
         {
             _items = _emptyArray;
         }
 
 
-        public ListPool(int capacity)
+        public ListSafe(int capacity)
         {
             if (capacity < 0)
             {
@@ -64,7 +64,7 @@ namespace Net.System
         }
 
 
-        public ListPool(IEnumerable<T> collection)
+        public ListSafe(IEnumerable<T> collection)
         {
             if (collection == null)
             {
@@ -359,13 +359,13 @@ namespace Net.System
             return IsCompatibleObject(item) && Contains((T)item);
         }
 
-        public ListPool<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
+        public ListSafe<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
         {
             if (converter == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.converter);
             }
-            ListPool<TOutput> list = new ListPool<TOutput>(_size);
+            ListSafe<TOutput> list = new ListSafe<TOutput>(_size);
             for (int i = 0; i < _size; i++)
             {
                 list._items[i] = converter(_items[i]);
@@ -717,23 +717,34 @@ namespace Net.System
 
         public void Insert(int index, T item)
         {
-            if (index > _size)
+            lock (this)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_ListInsert);
+                write = true;
+                SpinWait spinLocal = new SpinWait();
+                while (read)
+                {
+                    spinLocal.SpinOnce();
+                }
+                if (index > _size)
+                {
+                    //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_ListInsert);
+                    write = false;
+                    return;
+                }
+                if (_size == _items.Length)
+                {
+                    EnsureCapacity(_size + 1);
+                }
+                if (index < _size)
+                {
+                    Array.Copy(_items, index, _items, index + 1, _size - index);
+                }
+                _items[index] = item;
+                _size++;
+                _version++; 
+                write = false;
             }
-            if (_size == _items.Length)
-            {
-                EnsureCapacity(_size + 1);
-            }
-            if (index < _size)
-            {
-                Array.Copy(_items, index, _items, index + 1, _size - index);
-            }
-            _items[index] = item;
-            _size++;
-            _version++;
         }
-
 
         void IList.Insert(int index, object item)
         {
@@ -761,11 +772,15 @@ namespace Net.System
                 }
                 if (collection == null)
                 {
-                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+                    //ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+                    write = false;
+                    return;
                 }
                 if (index > _size)
                 {
-                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_Index);
+                    //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_Index);
+                    write = false;
+                    return;
                 }
                 if (collection is ICollection<T> collection2)
                 {
@@ -940,7 +955,9 @@ namespace Net.System
                 }
                 if (index >= _size)
                 {
-                    ThrowHelper.ThrowArgumentOutOfRangeException();
+                    //ThrowHelper.ThrowArgumentOutOfRangeException();
+                    write = false;
+                    return;
                 }
                 _size--;
                 if (index < _size)
@@ -966,15 +983,21 @@ namespace Net.System
                 }
                 if (index < 0)
                 {
-                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                    //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                    read = false;
+                    return;
                 }
                 if (count < 0)
                 {
-                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                    //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                    read = false;
+                    return;
                 }
                 if (_size - index < count)
                 {
-                    ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
+                    //ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
+                    read = false;
+                    return;
                 }
                 if (count > 0)
                 {
@@ -1109,7 +1132,7 @@ namespace Net.System
             return true;
         }
 
-        internal static IList<T> Synchronized(ListPool<T> list)
+        internal static IList<T> Synchronized(ListSafe<T> list)
         {
             return new SynchronizedList(list);
         }
@@ -1128,7 +1151,7 @@ namespace Net.System
         [Serializable]
         internal class SynchronizedList : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable
         {
-            internal SynchronizedList(ListPool<T> list)
+            internal SynchronizedList(ListSafe<T> list)
             {
                 _list = list;
                 _root = ((ICollection)list).SyncRoot;
@@ -1278,7 +1301,7 @@ namespace Net.System
                 }
             }
 
-            private readonly ListPool<T> _list;
+            private readonly ListSafe<T> _list;
 
             private readonly object _root;
         }
@@ -1287,7 +1310,7 @@ namespace Net.System
         [Serializable]
         public struct Enumerator : IEnumerator<T>, IDisposable, IEnumerator
         {
-            internal Enumerator(ListPool<T> list)
+            internal Enumerator(ListSafe<T> list)
             {
                 this.list = list;
                 index = 0;
@@ -1303,7 +1326,7 @@ namespace Net.System
 
             public bool MoveNext()
             {
-                ListPool<T> list = this.list;
+                ListSafe<T> list = this.list;
                 if (version == list._version && index < list._size)
                 {
                     current = list._items[index];
@@ -1359,7 +1382,7 @@ namespace Net.System
                 current = default;
             }
 
-            private readonly ListPool<T> list;
+            private readonly ListSafe<T> list;
 
             private int index;
 

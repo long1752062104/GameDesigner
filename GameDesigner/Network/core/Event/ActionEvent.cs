@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Net.System;
+using System;
 
 namespace Net.Event
 {
@@ -7,102 +7,127 @@ namespace Net.Event
     {
         public class Event
         {
+            public string name;
             public float time;
-            public Action<object> action1;
-            public Func<object,bool> action2;
+            public Action<object> ptr1;
+            public Func<object, bool> ptr2;
             public object obj;
             public int invokeNum;
             internal float timeMax;
-            internal int actionId;
+            internal int eventId;
+
+            public override string ToString()
+            {
+                return $"{name}";
+            }
         }
 
-        public List<Event> actions = new List<Event>();
-        private int actionId;
+        public ListSafe<Event> events = new ListSafe<Event>();
+        private int eventId;
         private float time;
 
-        public int AddEvent(float time, Action act)
+        public int AddEvent(float time, Action ptr)
         {
-            actionId++;
-            actions.Add(new Event() { time = this.time + time, action1 = (o)=> { act(); }, actionId = actionId });
-            return actionId;
-        }
-
-        public int AddEvent(float time, Action<object> act, object obj)
-        {
-            actionId++;
-            actions.Add(new Event() { time = this.time + time, action1 = act, obj = obj, actionId = actionId });
-            return actionId;
-        }
-
-        public int AddEvent(float time, int invokeNum, Action<object> act, object obj)
-        {
-            actionId++;
-            actions.Add(new Event()
+            eventId++;
+            events.Add(new Event()
             {
                 time = this.time + time,
-                action1 = act,
+                ptr1 = (o) => { ptr(); },
+                eventId = eventId
+            });
+            return eventId;
+        }
+
+        public int AddEvent(float time, Action<object> ptr, object obj)
+        {
+            eventId++;
+            events.Add(new Event()
+            {
+                time = this.time + time,
+                ptr1 = ptr,
+                obj = obj,
+                eventId = eventId
+            });
+            return eventId;
+        }
+
+        public int AddEvent(float time, int invokeNum, Action<object> ptr, object obj)
+        {
+            eventId++;
+            events.Add(new Event()
+            {
+                time = this.time + time,
+                ptr1 = ptr,
                 obj = obj,
                 invokeNum = invokeNum,
                 timeMax = time,
-                actionId = actionId
+                eventId = eventId
             });
-            return actionId;
+            return eventId;
         }
 
-        public int AddEvent(float time, Func<bool> act)
+        public int AddEvent(float time, Func<bool> ptr)
         {
-            actionId++;
-            actions.Add(new Event() { time = this.time + time, action2 = (o) => { return act(); }, actionId = actionId });
-            return actionId;
+            return AddEvent("", time, ptr);
+        }
+
+        public int AddEvent(string name, float time, Func<bool> ptr)
+        {
+            eventId++;
+            events.Add(new Event()
+            {
+                name = name,
+                time = this.time + time,
+                ptr2 = (o) => { return ptr(); },
+                eventId = eventId,
+                timeMax = time,
+            });
+            return eventId;
         }
 
         public int AddEvent(float time, Func<object, bool> func, object obj)
         {
-            actionId++;
-            actions.Add(new Event()
+            eventId++;
+            events.Add(new Event()
             {
                 time = this.time + time,
-                action2 = func,
+                ptr2 = func,
                 obj = obj,
                 invokeNum = 1,
                 timeMax = time,
-                actionId = actionId
+                eventId = eventId
             });
-            return actionId;
+            return eventId;
         }
 
-        public void UpdateEvent()
+        public void UpdateEvent(float interval = 0.033f)
         {
-            time += 0.033f;
-            for (int i = 0; i < actions.Count; i++)
+            time += interval;
+            for (int i = 0; i < events.Count; i++)
             {
-                if (time > actions[i].time)
+                if (time > events[i].time)
                 {
-                    actions[i].action1?.Invoke(actions[i].obj);
-                    if (actions[i].action2 != null)
-                        if (actions[i].action2(actions[i].obj))
-                            continue;
-                    actions[i].invokeNum--;
-                    if (actions[i].invokeNum <= 0)
+                    events[i].ptr1?.Invoke(events[i].obj);
+                    if (events[i].ptr2 != null)
+                        if (events[i].ptr2(events[i].obj))
+                            goto J;
+                    if (--events[i].invokeNum <= 0)
                     {
-                        actions.RemoveAt(i);
+                        events.RemoveAt(i);
                         if (i >= 0) i--;
                     }
-                    else
-                    {
-                        actions[i].time = time + actions[i].timeMax;
-                    }
+                J: events[i].time = time + events[i].timeMax;
                 }
             }
         }
 
-        public void RemoveEvent(int actionId)
+        public void RemoveEvent(int ptrionId)
         {
-            for (int i = 0; i < actions.Count; i++)
+            for (int i = 0; i < events.Count; i++)
             {
-                if (actions[i].actionId == actionId)
+                if (events[i].eventId == ptrionId)
                 {
-                    actions.Remove(actions[i]);
+                    events.Remove(events[i]);
                     return;
                 }
             }

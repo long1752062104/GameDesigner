@@ -196,6 +196,7 @@
     <None Include="GameDesigner\Component\Clone.cs.meta" />
     <None Include="GameDesigner\Component\Command.cs.meta" />
     <None Include="GameDesigner\Component\DBEntity.cs.meta" />
+    <None Include="GameDesigner\Component\EncryptHelper.cs.meta" />
     <None Include="GameDesigner\Component\InspectorAttribute.cs.meta" />
     <None Include="GameDesigner\Component\MySqlHelper.cs.meta" />
     <None Include="GameDesigner\Component\NTransform.cs.meta" />
@@ -220,6 +221,7 @@
     <None Include="GameDesigner\Editor\BlueprintSetting.cs.meta" />
     <None Include="GameDesigner\Editor\GraphEditor.cs.meta" />
     <None Include="GameDesigner\Editor\HelpEdit.cs.meta" />
+    <None Include="GameDesigner\Editor\ObjectNameTools.cs.meta" />
     <None Include="GameDesigner\Editor\PluginSettings.cs.meta" />
     <None Include="GameDesigner\Editor\ReadOnlyDrawer.cs.meta" />
     <None Include="GameDesigner\Editor\Resources.meta" />
@@ -661,7 +663,6 @@
     <None Include="GameDesigner\Network\core\System\ExceptionResource.cs.meta" />
     <None Include="GameDesigner\Network\core\System\HashHelpers.cs.meta" />
     <None Include="GameDesigner\Network\core\System\IWellKnownStringEqualityComparer.cs.meta" />
-    <None Include="GameDesigner\Network\core\System\ListPool.cs.meta" />
     <None Include="GameDesigner\Network\core\System\QueueSafe.cs.meta" />
     <None Include="GameDesigner\Network\core\System\RandomizedObjectEqualityComparer.cs.meta" />
     <None Include="GameDesigner\Network\core\System\RandomSafe.cs.meta" />
@@ -1280,6 +1281,7 @@
     <Compile Include="GameDesigner\Editor\BlueprintSetting.cs" />
     <Compile Include="GameDesigner\Editor\GraphEditor.cs" />
     <Compile Include="GameDesigner\Editor\HelpEdit.cs" />
+    <Compile Include="GameDesigner\Editor\ObjectNameTools.cs" />
     <Compile Include="GameDesigner\Editor\PluginSettings.cs" />
     <Compile Include="GameDesigner\Editor\ReadOnlyDrawer.cs" />
     <Compile Include="GameDesigner\Editor\ScriptTools.cs" />
@@ -1633,11 +1635,12 @@
     <Compile Include="GameDesigner\Network\core\System\ExceptionResource.cs" />
     <Compile Include="GameDesigner\Network\core\System\HashHelpers.cs" />
     <Compile Include="GameDesigner\Network\core\System\IWellKnownStringEqualityComparer.cs" />
-    <Compile Include="GameDesigner\Network\core\System\ListPool.cs" />
+    <Compile Include="GameDesigner\Network\core\System\ListSafe.cs" />
     <Compile Include="GameDesigner\Network\core\System\QueueSafe.cs" />
     <Compile Include="GameDesigner\Network\core\System\RandomizedObjectEqualityComparer.cs" />
     <Compile Include="GameDesigner\Network\core\System\RandomSafe.cs" />
     <Compile Include="GameDesigner\Network\core\System\StackSafe.cs" />
+    <Compile Include="GameDesigner\Network\core\System\ThreadManager.cs" />
     <Compile Include="GameDesigner\Network\core\System\ThrowHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\ArrayExtend.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\ByteHelper.cs" />

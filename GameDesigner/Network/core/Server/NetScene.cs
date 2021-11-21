@@ -40,7 +40,7 @@
         /// <summary>
         /// 备用操作, 当玩家被移除后速度比update更新要快而没有地方收集操作指令, 所以在玩家即将被移除时, 可以访问这个变量进行添加操作同步数据
         /// </summary>
-        protected ListPool<Operation> operations = new ListPool<Operation>();
+        protected ListSafe<Operation> operations = new ListSafe<Operation>();
         /// <summary>
         /// 玩家操作是以可靠传输进行发送的?
         /// </summary>
@@ -168,7 +168,7 @@
         /// <param name="client"></param>
         public virtual void AddPlayer(Player client)
         {
-            client.sceneID = Name;
+            client.SceneID = Name;
             client.Scene = this;
             lock (Players)
                 Players.Add(client);
@@ -338,7 +338,7 @@
             OnExit(player);
             player.OnExit();
             player.Scene = null;
-            player.sceneID = "";
+            player.SceneID = "";
             players.Clear();
         }
 
@@ -352,7 +352,7 @@
                 OnExit(player);
                 player.OnExit();
                 player.Scene = null;
-                player.sceneID = "";
+                player.SceneID = "";
             }
             Players.Clear();
             players.Clear();

@@ -70,6 +70,7 @@ namespace MVC.View
         internal UnityEngine.Object selectObject;
         private string csprojFile;
         private bool fullpath;
+        private string savePathExt;
 
         public class JsonSave 
         {
@@ -77,6 +78,7 @@ namespace MVC.View
             public string savePath;
             public string csprojFile;
             public bool fullPath;
+            public string savePathExt;
         }
 
         private void OnEnable()
@@ -113,6 +115,7 @@ namespace MVC.View
                 savePath = jsonsave.savePath;
                 csprojFile = jsonsave.csprojFile;
                 fullpath = jsonsave.fullPath;
+                savePathExt = jsonsave.savePathExt;
             }
         }
 
@@ -123,7 +126,8 @@ namespace MVC.View
                 csprojFile = csprojFile,
                 nameSpace = nameSpace,
                 savePath = savePath,
-                fullPath = fullpath
+                fullPath = fullpath,
+                savePathExt = savePathExt,
             };
             var jsonstr = Newtonsoft_X.Json.JsonConvert.SerializeObject(jsonSave);
             File.WriteAllText(path, jsonstr);
@@ -294,6 +298,38 @@ namespace MVC.View
                     SaveData();
                 }
             }
+            var rect4 = EditorGUILayout.GetControlRect();
+            EditorGUI.LabelField(rect4, "文件路径扩展:", savePathExt);
+            if (GUI.Button(new Rect(rect4.x + rect4.width - 60, rect4.y, 60, rect4.height), "选择"))
+            {
+                if (fullpath)
+                {
+                    savePathExt = EditorUtility.OpenFolderPanel("选择保存路径", "", "");
+                    SaveData();
+                }
+                else
+                {
+                    savePathExt = EditorUtility.OpenFolderPanel("选择保存路径", "", "");
+                    var strs = savePathExt.ToCharArray();
+                    var strs1 = Application.dataPath.Replace("Assets", "").ToCharArray();
+                    int index = 0;
+                    for (int i = 0; i < strs.Length; i++)
+                    {
+                        if (i >= strs1.Length)
+                        {
+                            index = i;
+                            break;
+                        }
+                        if (strs[i] != strs1[i])
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                    savePathExt = savePathExt.Remove(0, index);
+                    SaveData();
+                }
+            }
             var rect3 = EditorGUILayout.GetControlRect();
             EditorGUI.LabelField(rect3, "csproj文件:", csprojFile);
             if (GUI.Button(new Rect(rect3.x + rect3.width - 60, rect3.y, 60, rect3.height), "选择"))
@@ -360,6 +396,8 @@ namespace MVC.View
                     }
                     return str;
                 });
+                if (string.IsNullOrEmpty(field.fieldName))
+                    field.fieldName = field.name;
                 var scriptStr = "using MVC.View;\n" +
                 "using UnityEngine;\n" +
                 "using UnityEngine.UI;\n\n" +
@@ -427,7 +465,7 @@ namespace MVC.View
                     string str = "";
                     for (int i = 0; i < field.fields.Count; i++)
                     {
-                        str += $"{(hasns ? "\t\t" : "\t")}" + $"private {field.fields[i].Type.Name} {field.fields[i].name};\n";
+                        str += $"{(hasns ? "\t\t" : "\t")}" + $"public {field.fields[i].Type.Name} {field.fields[i].name};\n";
                     }
                     return str;
                 });
@@ -436,8 +474,14 @@ namespace MVC.View
                     int index = 0;
                     for (int i = 0; i < field.fields.Count; i++)
                     {
+                        if (field.fields[i].Type == typeof(GameObject))
+                            continue;
+                        if (field.fields[i].Type == typeof(UnityEngine.Object))
+                            continue;
+                        if (!field.fields[i].Type.IsSubclassOf(typeof(Component)))
+                            continue;
                         var comps = field.transform.GetComponentsInChildren(field.fields[i].Type);
-                        for (int ii = 0; ii < comps.Length; ii++) 
+                        for (int ii = 0; ii < comps.Length; ii++)
                         {
                             var comp = field.fields[i].target as Component;
                             if (comp == comps[ii]) {
@@ -457,34 +501,62 @@ namespace MVC.View
                         {
                             str += $"{(hasns ? "\t\t\t" : "\t\t")}" + $"{field.fields[i].name}.onClick.AddListener(() => " + "{" + "});\n";
                         }
+                        else if (field.fields[i].Type == typeof(Toggle))
+                        {
+                            str += $"{(hasns ? "\t\t\t" : "\t\t")}" + $"{field.fields[i].name}.onValueChanged.AddListener((value) => " + "{" + "});\n";
+                        }
                     }
                     return str;
                 });
+                if (string.IsNullOrEmpty(field.fieldName))
+                    field.fieldName = field.name;
                 var scriptStr = "using Net.Component;\n" +
                 "using UnityEngine;\n" +
                 "using UnityEngine.UI;\n\n" +
                 (hasns ? "namespace " + nameSpace + "\n{\n" : "") +
-                $"{(hasns ? "\t" : "")}public class {field.fieldName} : SingleCase<{field.fieldName}>\n" +
+                $"{(hasns ? "\t" : "")}public partial class {field.fieldName} : SingleCase<{field.fieldName}>\n" +
                 $"{(hasns ? "\t" : "")}" + "{\n" +
                 action() +
-                $"\n{(hasns ? "\t\t" : "\t")}void Start()\n" +
+                $"\n{(hasns ? "\t\t" : "\t")}void OnValidate()\n" +
                 $"{(hasns ? "\t\t" : "\t")}" + "{\n" +
                 action1() +
-                action2() +
                 $"{(hasns ? "\t\t" : "\t")}" + "}\n" +
                 $"{(hasns ? "\t" : "")}" + "}" +
                 (hasns ? "\n}" : "");
                 string path = "";
+                string path1 = "";
                 if (fullpath)
+                {
                     path = savePath + $"/{field.fieldName}.cs";
+                    path1 = savePathExt + $"/{field.fieldName}Ext.cs";
+                }
                 else
+                {
                     path = Application.dataPath.Replace("Assets", "") + savePath + $"/{field.fieldName}.cs";
+                    path1 = Application.dataPath.Replace("Assets", "") + savePathExt + $"/{field.fieldName}Ext.cs";
+                }
                 if (File.Exists(path)) 
                 {
                     if(!EditorUtility.DisplayDialog("写入脚本文件", "脚本已存在, 是否替换? 或 尾部添加?", "替换", "尾部添加"))
                         File.AppendAllText(path, scriptStr);
                     else File.WriteAllText(path, scriptStr);
                 } else File.WriteAllText(path, scriptStr);
+                if (!File.Exists(path1))
+                {
+                    var scriptStr1 = "using Net.Component;\n" +
+                    "using UnityEngine;\n" +
+                    "using UnityEngine.UI;\n\n" +
+                    (hasns ? "namespace " + nameSpace + "\n{\n" : "") +
+                    $"{(hasns ? "\t" : "")}public partial class {field.fieldName} : SingleCase<{field.fieldName}>\n" +
+                    $"{(hasns ? "\t" : "")}" + "{\n" +
+                    $"\n{(hasns ? "\t\t" : "\t")}void Start()\n" +
+                    $"{(hasns ? "\t\t" : "\t")}" + "{\n" +
+                    action2() +
+                    $"{(hasns ? "\t\t" : "\t")}" + "}\n" +
+                    $"{(hasns ? "\t" : "")}" + "}" +
+                    (hasns ? "\n}" : "");
+                    File.WriteAllText(path1, scriptStr1);
+                }
                 //csproj对主工程无效
                 AssetDatabase.Refresh();
                 Debug.Log($"生成成功:{path}");

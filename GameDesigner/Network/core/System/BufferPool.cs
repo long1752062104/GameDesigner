@@ -757,43 +757,41 @@ namespace Net.System
                 STACKS[i] = new StackSafe<Segment>();
             }
             GlobalConfig.ThreadPoolRun = true;
-            Task.Run(()=> 
+            ThreadManager.Invoke("BufferPool", 1f, ()=>
             {
-                while (GlobalConfig.ThreadPoolRun) 
+                try
                 {
-                    try
-                    {
-                        Thread.Sleep(1000);
 #if UNITY_EDITOR
-                        if (Client.ClientBase.Instance == null)
-                            GlobalConfig.ThreadPoolRun = false;
+                    if (Client.ClientBase.Instance == null)
+                        GlobalConfig.ThreadPoolRun = false;
 #endif
-                        for (int i = 0; i < STACKS.Length; i++)
+                    for (int i = 0; i < STACKS.Length; i++)
+                    {
+                        var head = STACKS[i].m_head;
+                        int index = 0;
+                        while (head != null)
                         {
-                            var head = STACKS[i].m_head;
-                            int index = 0;
-                            while (head != null) 
+                            var seg = head.m_value;
+                            if (seg != null)
                             {
-                                var seg = head.m_value;
-                                if (seg != null)
+                                if (seg.referenceCount == 0)
                                 {
-                                    if (seg.referenceCount == 0)
-                                    {
-                                        int count = STACKS[i].Count - index;
-                                        var segs = new Segment[count];
-                                        STACKS[i].TryPopRange(segs, 0, count);
-                                        foreach (var seg1 in segs)
-                                            seg1?.Close();
-                                        break;
-                                    }
-                                    seg.referenceCount = 0;
+                                    int count = STACKS[i].Count - index;
+                                    var segs = new Segment[count];
+                                    STACKS[i].TryPopRange(segs, 0, count);
+                                    foreach (var seg1 in segs)
+                                        seg1?.Close();
+                                    break;
                                 }
-                                head = head.m_next;
-                                index++;
+                                seg.referenceCount = 0;
                             }
+                            head = head.m_next;
+                            index++;
                         }
-                    } catch { }
+                    }
                 }
+                catch { }
+                return true;
             });
         }
 

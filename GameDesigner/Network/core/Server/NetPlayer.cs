@@ -1,16 +1,13 @@
 ﻿namespace Net.Server
 {
-    using Net.Component;
     using Net.Event;
     using Net.Share;
     using global::System;
-    using global::System.Collections.Concurrent;
     using global::System.Collections.Generic;
     using global::System.IO;
     using global::System.Net;
     using global::System.Net.Sockets;
     using global::System.Reflection;
-    using global::System.Threading;
     using Net.System;
 
     /// <summary>
@@ -30,7 +27,7 @@
         /// <summary>
         /// 此玩家所在的场景ID
         /// </summary>
-        public string sceneID = "MainScene";
+        public string SceneID { get; set; } = string.Empty;
         /// <summary>
         /// 客户端玩家的标识
         /// </summary>
@@ -452,7 +449,7 @@
 
         public override string ToString()
         {
-            return $"[玩家ID:{playerID}][用户ID:{UserID}][场景ID:{sceneID}][登录:{Login}]";
+            return $"[玩家ID:{playerID}][用户ID:{UserID}][场景ID:{SceneID}][登录:{Login}]";
         }
     }
 }

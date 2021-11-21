@@ -2,7 +2,7 @@
 {
     using global::System;
     using global::System.Reflection;
-    using global::System.Threading;
+    //using global::System.Threading;
     using Net.System;
 
     /// <summary>
@@ -38,7 +38,7 @@
         private static QueueSafe<object> logQueue = new QueueSafe<object>();
         private static QueueSafe<object> errorQueue = new QueueSafe<object>();
         private static QueueSafe<object> warningQueue = new QueueSafe<object>();
-        private static Thread thread, thread1;
+        //private static Thread thread, thread1;
 
 #if SERVICE
         static NDebug()
@@ -49,87 +49,79 @@
 
         private static void ToLogHandle()
         {
-            thread = new Thread(() =>
+            ThreadManager.Invoke("Debug-Log", ()=> 
             {
-                while (thread != null)
+                try
                 {
-                    try
-                    {
-                        Thread.Sleep(1);
-                        if (logQueue.TryDequeue(out object message))
-                            LogHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Log] {message}");
-                        if (errorQueue.TryDequeue(out message))
-                            LogErrorHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Error] {message}");
-                        if (warningQueue.TryDequeue(out message))
-                            LogWarningHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Warning] {message}");
-                        if (logQueue.Count >= LogMax)
-                            logQueue = new QueueSafe<object>();
-                        if (errorQueue.Count >= LogErrorMax)
-                            errorQueue = new QueueSafe<object>();
-                        if (warningQueue.Count >= LogWarningMax)
-                            warningQueue = new QueueSafe<object>();
-                    }
-                    catch (Exception ex)
-                    {
-                        errorQueue.Enqueue(ex.Message);
-                    }
+                    //Thread.Sleep(1);
+                    if (logQueue.TryDequeue(out object message))
+                        LogHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Log] {message}");
+                    if (errorQueue.TryDequeue(out message))
+                        LogErrorHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Error] {message}");
+                    if (warningQueue.TryDequeue(out message))
+                        LogWarningHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Warning] {message}");
+                    if (logQueue.Count >= LogMax)
+                        logQueue = new QueueSafe<object>();
+                    if (errorQueue.Count >= LogErrorMax)
+                        errorQueue = new QueueSafe<object>();
+                    if (warningQueue.Count >= LogWarningMax)
+                        warningQueue = new QueueSafe<object>();
                 }
-            }){ Name = "Log" };
-            thread.Start();
+                catch (Exception ex)
+                {
+                    errorQueue.Enqueue(ex.Message);
+                }
+                return true;
+            });
         }
 
         //检测事件委托函数
         private static void CheckEventsHandle()
         {
-            thread1 = new Thread(() =>
+            Type type = typeof(NDebug);
+            EventInfo[] es = type.GetEvents(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
+            ThreadManager.Invoke("Debug-CheckEvents", () =>
             {
-                Type type = typeof(NDebug);
-                EventInfo[] es = type.GetEvents(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
-                while (thread1 != null)
+                try
                 {
-                    try
+                    //Thread.Sleep(1);
+                    for (int i = 0; i < es.Length; i++)
                     {
-                        Thread.Sleep(1);
-                        for (int i = 0; i < es.Length; i++)
+                        FieldInfo f = type.GetField(es[i].Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
+                        if (f == null)
+                            continue;
+                        object value = f.GetValue(null);
+                        if (value == null)
+                            continue;
+                        Delegate dele = (Delegate)value;
+                        Delegate[] ds = dele.GetInvocationList();
+                        for (int a = 0; a < ds.Length; a++)
                         {
-                            FieldInfo f = type.GetField(es[i].Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
-                            if (f == null)
-                                continue;
-
-                            object value = f.GetValue(null);
-                            if (value == null)
-                                continue;
-
-                            Delegate dele = (Delegate)value;
-                            Delegate[] ds = dele.GetInvocationList();
-                            for (int a = 0; a < ds.Length; a++)
+                            if (ds[a].Method == null)
                             {
-                                if (ds[a].Method == null)
-                                {
-                                    es[i].RemoveEventHandler(null, ds[a]);
-                                    continue;
-                                }
-                                if (ds[a].Method.IsStatic)//静态方法不需要判断对象是否为空
-                                    continue;
-                                if (ds[a].Target == null)
-                                {
-                                    es[i].RemoveEventHandler(null, ds[a]);
-                                    continue;
-                                }
-                                if (ds[a].Target.Equals(null) | ds[a].Method.Equals(null))
-                                {
-                                    es[i].RemoveEventHandler(null, ds[a]);
-                                }
+                                es[i].RemoveEventHandler(null, ds[a]);
+                                continue;
+                            }
+                            if (ds[a].Method.IsStatic)//静态方法不需要判断对象是否为空
+                                continue;
+                            if (ds[a].Target == null)
+                            {
+                                es[i].RemoveEventHandler(null, ds[a]);
+                                continue;
+                            }
+                            if (ds[a].Target.Equals(null) | ds[a].Method.Equals(null))
+                            {
+                                es[i].RemoveEventHandler(null, ds[a]);
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        LogError(ex);
-                    }
                 }
-            }) { Name = "LogCheckEvent" };
-            thread1.Start();
+                catch (Exception ex)
+                {
+                    LogError(ex);
+                }
+                return true;
+            });
         }
 #endif
 
