@@ -161,7 +161,7 @@
                 unClient.RemotePoint = client.RemoteEndPoint;
                 unClient.LastTime = DateTime.Now.AddMinutes(5);
                 unClient.UserID = uid;
-                unClient.playerID = uid.ToString();
+                unClient.PlayerID = uid.ToString();
                 unClient.isDispose = false;
                 unClient.CloseSend = false;
                 AllClients.TryAdd(client.RemoteEndPoint, unClient);

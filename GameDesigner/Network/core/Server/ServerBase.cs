@@ -84,7 +84,7 @@ namespace Net.Server
             }
         }
         /// <summary>
-        /// 所有在线的客户端 与<see cref="UIDClients"/>为互助字典 所添加的键值为<see cref="NetPlayer.playerID"/>
+        /// 所有在线的客户端 与<see cref="UIDClients"/>为互助字典 所添加的键值为<see cref="NetPlayer.PlayerID"/>
         /// </summary>
         public ConcurrentDictionary<string, Player> Players { get; private set; } = new ConcurrentDictionary<string, Player>();
         /// <summary>
@@ -497,7 +497,7 @@ namespace Net.Server
         /// 当服务器判定客户端为断线或连接异常时，移除客户端时调用
         /// </summary>
         /// <param name="client">要移除的客户端</param>
-        protected virtual void OnRemoveClient(Player client) { Debug.Log($"[{client.playerID}]断开连接...!"); }
+        protected virtual void OnRemoveClient(Player client) { Debug.Log($"[{client.PlayerID}]断开连接...!"); }
 
         /// <summary>
         /// 当开始调用服务器RPC函数 或 开始调用自定义网络命令时 可设置请求客户端的client为全局字段，方便在服务器RPC函数内引用!!!
@@ -818,7 +818,7 @@ namespace Net.Server
                 //client = ObjectPool<Player>.Take();
                 client = new Player();
                 client.UserID = uid;
-                client.playerID = uid.ToString();
+                client.PlayerID = uid.ToString();
                 client.RemotePoint = remotePoint;
                 client.LastTime = DateTime.Now.AddMinutes(5);
                 client.isDispose = false;
@@ -1006,14 +1006,14 @@ namespace Net.Server
             if (ignoranceNumber > 0)
                 Interlocked.Decrement(ref ignoranceNumber);
             Interlocked.Increment(ref onlineNumber);
-            Players.TryAdd(client.playerID, client);
+            Players.TryAdd(client.PlayerID, client);
             UIDClients.TryAdd(client.UserID, client);
             client.OnStart();
             OnAddPlayerToScene(client);
             client.AddRpc(client);
             OnAddClientHandle?.Invoke(client);
             byte[] uidbytes = BitConverter.GetBytes(client.UserID);
-            byte[] identify = Encoding.Unicode.GetBytes(client.playerID);
+            byte[] identify = Encoding.Unicode.GetBytes(client.PlayerID);
             byte[] buffer = new byte[identify.Length + 4];
             Buffer.BlockCopy(uidbytes, 0, buffer, 0, 4);
             Buffer.BlockCopy(identify, 0, buffer, 4, identify.Length);
@@ -1996,7 +1996,7 @@ namespace Net.Server
                 return;
             if (client.Login & onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
             else if (!client.Login & ignoranceNumber > 0) Interlocked.Decrement(ref ignoranceNumber);
-            Players.TryRemove(client.playerID, out _);
+            Players.TryRemove(client.PlayerID, out _);
             UIDClients.TryRemove(client.UserID, out _);
             AllClients.TryRemove(client.RemotePoint, out _);
             OnRemoveClientHandle(client);
@@ -2740,7 +2740,7 @@ namespace Net.Server
         {
             SendDirect(client);
             RemoveClient(client);
-            Debug.Log("[" + client.playerID + "]被强制下线...!");
+            Debug.Log("[" + client.PlayerID + "]被强制下线...!");
         }
 
         /// <summary>
@@ -2753,13 +2753,13 @@ namespace Net.Server
                 return;
             SendDirect(client);
             if (onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
-            Players.TryRemove(client.playerID, out _);
+            Players.TryRemove(client.PlayerID, out _);
             UIDClients.TryRemove(client.UserID, out _);
             ExitScene(client, false);
-            client.playerID = client.UserID.ToString();
+            client.PlayerID = client.UserID.ToString();
             client.Login = false;
             client.OnSignOut();
-            Debug.Log("[" + client.playerID + "]退出登录...!");
+            Debug.Log("[" + client.PlayerID + "]退出登录...!");
         }
 
         /// <summary>

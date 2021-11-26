@@ -31,7 +31,7 @@
         /// <summary>
         /// 客户端玩家的标识
         /// </summary>
-        public string playerID = string.Empty;
+        public string PlayerID { get; set; } = string.Empty;
         /// <summary>
         /// 玩家所在的场景实体
         /// </summary>
@@ -377,7 +377,7 @@
         /// </summary>
         public virtual void OnStart()
         {
-            NDebug.Log($"玩家[{playerID}]登录了游戏...");
+            NDebug.Log($"玩家[{PlayerID}]登录了游戏...");
         }
 
         /// <summary>
@@ -449,7 +449,7 @@
 
         public override string ToString()
         {
-            return $"[玩家ID:{playerID}][用户ID:{UserID}][场景ID:{SceneID}][登录:{Login}]";
+            return $"[玩家ID:{PlayerID}][用户ID:{UserID}][场景ID:{SceneID}][登录:{Login}]";
         }
     }
 }

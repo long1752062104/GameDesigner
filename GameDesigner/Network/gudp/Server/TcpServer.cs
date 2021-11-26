@@ -115,14 +115,14 @@
                     int uid = UserIDNumber;
                     UserIDNumber++;
                     client.UserID = uid;
-                    client.playerID = uid.ToString();
+                    client.PlayerID = uid.ToString();
                     client.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
                     client.stackStream = new FileStream(client.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                     Interlocked.Increment(ref ignoranceNumber);
                     AllClients.TryAdd(socket.RemoteEndPoint, client);
                     OnHasConnectHandle(client);
                     byte[] uidbytes = BitConverter.GetBytes(uid);
-                    byte[] identify = Encoding.Unicode.GetBytes(client.playerID);
+                    byte[] identify = Encoding.Unicode.GetBytes(client.PlayerID);
                     byte[] buffer = new byte[identify.Length + 4];
                     Array.Copy(uidbytes, 0, buffer, 0, 4);
                     Array.Copy(identify, 0, buffer, 4, identify.Length);

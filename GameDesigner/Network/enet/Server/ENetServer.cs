@@ -145,7 +145,7 @@
                             UserIDNumber++;
                             Player unClient = ObjectPool<Player>.Take();
                             unClient.UserID = uid;
-                            unClient.playerID = uid.ToString();
+                            unClient.PlayerID = uid.ToString();
                             unClient.EClient = netEvent.Peer;
                             unClient.ChannelID = netEvent.ChannelID;
                             IPEndPoint remotePoint = new IPEndPoint(IPAddress.Parse(netEvent.Peer.IP), netEvent.Peer.Port);
@@ -237,7 +237,7 @@
             if (client.Login & onlineNumber > 0) Interlocked.Decrement(ref onlineNumber);
             else if (!client.Login & ignoranceNumber > 0) Interlocked.Decrement(ref ignoranceNumber);
             peers.TryRemove(client.EClient, out _);
-            Players.TryRemove(client.playerID, out _);
+            Players.TryRemove(client.PlayerID, out _);
             UIDClients.TryRemove(client.UserID, out _);
             AllClients.TryRemove(client.RemotePoint, out _);
             OnRemoveClientHandle(client);

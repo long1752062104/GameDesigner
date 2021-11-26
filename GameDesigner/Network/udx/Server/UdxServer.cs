@@ -124,7 +124,7 @@
                         Player unClient = ObjectPool<Player>.Take();
                         unClient.Udx = cli;
                         unClient.UserID = uid;
-                        unClient.playerID = uid.ToString();
+                        unClient.PlayerID = uid.ToString();
                         byte[] ipbytes = new byte[128];
                         int port = 0;
                         int ntype = 0;

@@ -70,7 +70,7 @@
                 UserIDNumber++;
                 client = ObjectPool<Player>.Take();
                 client.UserID = uid;
-                client.playerID = uid.ToString();
+                client.PlayerID = uid.ToString();
                 client.RemotePoint = remotePoint;
                 client.LastTime = DateTime.Now.AddMinutes(5);
                 client.isDispose = false;

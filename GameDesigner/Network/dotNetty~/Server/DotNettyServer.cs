@@ -118,7 +118,7 @@ namespace Net.Server
                             int uid = UserIDNumber;
                             UserIDNumber++;
                             unClient.UserID = uid;
-                            unClient.playerID = uid.ToString();
+                            unClient.PlayerID = uid.ToString();
                             unClient.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
                             unClient.stackStream = new FileStream(unClient.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                             unClient.isDispose = false;
@@ -127,7 +127,7 @@ namespace Net.Server
                             AllClients.TryAdd(client.RemoteAddress, unClient);
                             Interlocked.Increment(ref ignoranceNumber);
                             byte[] uidbytes = BitConverter.GetBytes(uid);
-                            byte[] identify = Encoding.Unicode.GetBytes(unClient.playerID);
+                            byte[] identify = Encoding.Unicode.GetBytes(unClient.PlayerID);
                             byte[] buffer = new byte[identify.Length + 4];
                             Array.Copy(uidbytes, 0, buffer, 0, 4);
                             Array.Copy(identify, 0, buffer, 4, identify.Length);
