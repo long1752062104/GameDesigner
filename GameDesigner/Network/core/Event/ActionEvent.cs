@@ -1,5 +1,6 @@
 ﻿using Net.System;
 using System;
+using System.Threading;
 
 namespace Net.Event
 {
@@ -8,12 +9,12 @@ namespace Net.Event
         public class Event
         {
             public string name;
-            public float time;
+            public long time;
             public Action<object> ptr1;
             public Func<object, bool> ptr2;
             public object obj;
             public int invokeNum;
-            internal float timeMax;
+            internal long timeMax;
             internal int eventId;
 
             public override string ToString()
@@ -24,46 +25,46 @@ namespace Net.Event
 
         public ListSafe<Event> events = new ListSafe<Event>();
         private int eventId;
-        private float time;
+        private long time;
 
         public int AddEvent(float time, Action ptr)
         {
-            eventId++;
+            var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
             {
-                time = this.time + time,
+                time = (long)(this.time + (time * 1000)),
                 ptr1 = (o) => { ptr(); },
-                eventId = eventId
+                eventId = enentID
             });
-            return eventId;
+            return enentID;
         }
 
         public int AddEvent(float time, Action<object> ptr, object obj)
         {
-            eventId++;
+            var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
             {
-                time = this.time + time,
+                time = (long)(this.time + (time * 1000)),
                 ptr1 = ptr,
                 obj = obj,
-                eventId = eventId
+                eventId = enentID
             });
-            return eventId;
+            return enentID;
         }
 
         public int AddEvent(float time, int invokeNum, Action<object> ptr, object obj)
         {
-            eventId++;
+            var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
             {
-                time = this.time + time,
+                time = (long)(this.time + (time * 1000)),
                 ptr1 = ptr,
                 obj = obj,
                 invokeNum = invokeNum,
-                timeMax = time,
-                eventId = eventId
+                timeMax = (long)(time * 1000),
+                eventId = enentID
             });
-            return eventId;
+            return enentID;
         }
 
         public int AddEvent(float time, Func<bool> ptr)
@@ -73,34 +74,33 @@ namespace Net.Event
 
         public int AddEvent(string name, float time, Func<bool> ptr)
         {
-            eventId++;
+            var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
             {
                 name = name,
-                time = this.time + time,
+                time = (long)(this.time + (time * 1000)),
                 ptr2 = (o) => { return ptr(); },
-                eventId = eventId,
-                timeMax = time,
+                eventId = enentID,
+                timeMax = (long)(time * 1000),
             });
-            return eventId;
+            return enentID;
         }
 
         public int AddEvent(float time, Func<object, bool> func, object obj)
         {
-            eventId++;
+            var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
             {
-                time = this.time + time,
-                ptr2 = func,
+                time = (long)(this.time + (time * 1000)),
                 obj = obj,
                 invokeNum = 1,
-                timeMax = time,
-                eventId = eventId
+                timeMax = (long)(time * 1000),
+                eventId = enentID
             });
-            return eventId;
+            return enentID;
         }
 
-        public void UpdateEvent(float interval = 0.033f)
+        public void UpdateEvent(int interval = 33)
         {
             time += interval;
             for (int i = 0; i < events.Count; i++)
@@ -121,11 +121,11 @@ namespace Net.Event
             }
         }
 
-        public void RemoveEvent(int ptrionId)
+        public void RemoveEvent(int eventId)
         {
             for (int i = 0; i < events.Count; i++)
             {
-                if (events[i].eventId == ptrionId)
+                if (events[i].eventId == eventId)
                 {
                     events.Remove(events[i]);
                     return;

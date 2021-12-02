@@ -719,7 +719,7 @@ namespace Net.Server
             {
                 try
                 {
-                    Timer.UpdateEvent(0.002f);
+                    Timer.UpdateEvent(2);
                     if (SingleContext.Count == 0 & DateTime.Now < time)
                     {
                         Thread.Sleep(1);

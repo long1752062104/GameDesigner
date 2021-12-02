@@ -23,7 +23,7 @@ namespace Net.System
                     try
                     {
                         Thread.Sleep(1);
-                        Event.UpdateEvent(0.002f);
+                        Event.UpdateEvent(2);
                     }
                     catch (Exception ex)
                     {

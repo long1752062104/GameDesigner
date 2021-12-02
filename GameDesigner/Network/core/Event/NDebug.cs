@@ -2,7 +2,6 @@
 {
     using global::System;
     using global::System.Reflection;
-    //using global::System.Threading;
     using Net.System;
 
     /// <summary>
@@ -38,7 +37,6 @@
         private static QueueSafe<object> logQueue = new QueueSafe<object>();
         private static QueueSafe<object> errorQueue = new QueueSafe<object>();
         private static QueueSafe<object> warningQueue = new QueueSafe<object>();
-        //private static Thread thread, thread1;
 
 #if SERVICE
         static NDebug()
@@ -53,7 +51,6 @@
             {
                 try
                 {
-                    //Thread.Sleep(1);
                     if (logQueue.TryDequeue(out object message))
                         LogHandle?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ms")}][Log] {message}");
                     if (errorQueue.TryDequeue(out message))
@@ -84,7 +81,6 @@
             {
                 try
                 {
-                    //Thread.Sleep(1);
                     for (int i = 0; i < es.Length; i++)
                     {
                         FieldInfo f = type.GetField(es[i].Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static);
