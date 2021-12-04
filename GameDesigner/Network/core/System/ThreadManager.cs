@@ -11,7 +11,7 @@ namespace Net.System
     public static class ThreadManager
     {
         private static readonly Thread MainThread;
-        public static ActionEvent Event { get; private set; } = new ActionEvent();
+        public static TimerEvent Event { get; private set; } = new TimerEvent();
 
         static ThreadManager()
         {

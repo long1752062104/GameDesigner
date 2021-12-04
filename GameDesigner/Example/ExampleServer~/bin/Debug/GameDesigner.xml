@@ -2359,6 +2359,27 @@
             旧版动画同步命令
             </summary>
         </member>
+        <member name="T:Net.Component.EncryptHelper">
+            <summary>
+            加密解密帮助类
+            </summary>
+        </member>
+        <member name="M:Net.Component.EncryptHelper.ToEncrypt(System.Int32,System.Byte[])">
+            <summary>
+            随机数形式加密法
+            </summary>
+            <param name="Password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Component.EncryptHelper.ToDecrypt(System.Int32,System.Byte[])">
+            <summary>
+            随机数形式解密法
+            </summary>
+            <param name="Password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
         <member name="T:Net.Component.NTransform">
             <summary>
             游戏物体转换实体组建
@@ -3896,26 +3917,11 @@
             <param name="action"></param>
             <returns>返回id标识</returns>
         </member>
-        <member name="M:Net.Event.EventSystem.AddEvent(System.DateTime,System.Action)">
-            <summary>
-            添加计时器事件, 当系统时间大于或等于(time)时间后调用(action)事件
-            </summary>
-            <param name="time"></param>
-            <param name="action"></param>
-        </member>
-        <member name="M:Net.Event.EventSystem.AddEvent(System.DateTime,System.Action{System.Object},System.Object)">
-            <summary>
-            添加计时器事件, 当系统时间大于或等于(time)时间后调用(action)事件
-            </summary>
-            <param name="time"></param>
-            <param name="action"></param>
-            <param name="obj"></param>
-        </member>
         <member name="M:Net.Event.EventSystem.AddEvent(System.Int32,System.Action{System.Object},System.Object)">
             <summary>
             添加计时器事件, 当系统时间大于或等于(time)时间后调用(action)事件
             </summary>
-            <param name="time"></param>
+            <param name="millisecondsTimeout"></param>
             <param name="action"></param>
             <param name="obj"></param>
         </member>
@@ -3924,14 +3930,6 @@
             添加计时器事件, 当系统时间大于或等于(time)时间后调用(action)事件, 当action返回true后事件结束, 则每time时间调用一次
             </summary>
             <param name="time">毫秒单位</param>
-            <param name="action"></param>
-            <param name="obj"></param>
-        </member>
-        <member name="M:Net.Event.EventSystem.AddEvent(System.DateTime,System.Func{System.Object,System.Boolean},System.Object)">
-            <summary>
-            添加计时器事件, 当系统时间大于或等于(time)时间后调用(action)事件, 当action返回true后事件结束, 则每time时间调用一次
-            </summary>
-            <param name="time"></param>
             <param name="action"></param>
             <param name="obj"></param>
         </member>
@@ -4230,12 +4228,12 @@
             存储UDP客户端终端
             </summary>
         </member>
-        <member name="F:Net.Server.NetPlayer.sceneID">
+        <member name="P:Net.Server.NetPlayer.SceneID">
             <summary>
             此玩家所在的场景ID
             </summary>
         </member>
-        <member name="F:Net.Server.NetPlayer.playerID">
+        <member name="P:Net.Server.NetPlayer.PlayerID">
             <summary>
             客户端玩家的标识
             </summary>
@@ -4739,7 +4737,7 @@
         </member>
         <member name="P:Net.Server.ServerBase`2.Players">
             <summary>
-            所有在线的客户端 与<see cref="P:Net.Server.ServerBase`2.UIDClients"/>为互助字典 所添加的键值为<see cref="F:Net.Server.NetPlayer.playerID"/>
+            所有在线的客户端 与<see cref="P:Net.Server.ServerBase`2.UIDClients"/>为互助字典 所添加的键值为<see cref="P:Net.Server.NetPlayer.PlayerID"/>
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.UIDClients">
@@ -4946,6 +4944,11 @@
         <member name="P:Net.Server.ServerBase`2.SingleContext">
             <summary>
             单线程上下文处理中心队列
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.Timer">
+            <summary>
+            单线程定时器
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.OnStartingHandle">
@@ -5233,6 +5236,29 @@
             <summary>
             网络场景推动玩家同步更新处理线程, 如果想自己处理场景同步, 可重写此方法让同步失效
             </summary>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.Invoke(System.Func{System.Boolean})">
+            <summary>
+            调用服务器单线程, 每帧调用
+            </summary>
+            <param name="ptr"></param>
+            <returns>可用于结束事件的id</returns>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.Invoke(System.Single,System.Action)">
+            <summary>
+            调用服务器单线程
+            </summary>
+            <param name="time"></param>
+            <param name="ptr"></param>
+            <returns>可用于结束事件的id</returns>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.Invoke(System.Single,System.Func{System.Boolean})">
+            <summary>
+            调用服务器单线程计算器, 如果不返回false, 就会每time秒调用
+            </summary>
+            <param name="time"></param>
+            <param name="ptr"></param>
+            <returns>可用于结束事件的id</returns>
         </member>
         <member name="M:Net.Server.ServerBase`2.DataTrafficThread">
             <summary>
@@ -8062,13 +8088,13 @@
             </summary>
             <param name="segment"></param>
         </member>
-        <member name="T:Net.System.ListPool`1">
+        <member name="T:Net.System.ListSafe`1">
             <summary>
             线程安全的List类
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:Net.System.ListPool`1.GetRemoveRange(System.Int32,System.Int32)">
+        <member name="M:Net.System.ListSafe`1.GetRemoveRange(System.Int32,System.Int32)">
             <summary>
             获取列表对象, 并移除列表, 如果在多线程下, 多线程并行下, 是可以获取到对象, 但是会出现长度不是所指定的长度, 所以获取后要判断一下长度
             </summary>
@@ -8436,6 +8462,11 @@
         <member name="T:Net.System.RandomSafe">
             <summary>
             随机类 (多线程安全)
+            </summary>
+        </member>
+        <member name="T:Net.System.ThreadManager">
+            <summary>
+            主线程管理中心
             </summary>
         </member>
         <member name="T:Net.Matrix3x3">

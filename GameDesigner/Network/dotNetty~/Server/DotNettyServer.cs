@@ -155,8 +155,7 @@ namespace Net.Server
             dtt.Start();
             Thread suh = new Thread(SceneUpdateHandle) { IsBackground = true, Name = "SceneUpdateHandle" };
             suh.Start();
-            Thread vsh = new Thread(VarSyncHandler) { IsBackground = true, Name = "VarSyncHandler" };
-            vsh.Start();
+            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();

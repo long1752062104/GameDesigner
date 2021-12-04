@@ -217,6 +217,11 @@
                     VarSync varSync = info.GetCustomAttribute<VarSync>();
                     if (varSync == null)
                         continue;
+                    if (varSync.id == 0)
+                    {
+                        NDebug.LogError($"错误! 请赋值ID字段 :{target.GetType().Name}类的{info.Name}字段");
+                        continue;
+                    }
                     if (info is FieldInfo field)
                     {
                         var code = Type.GetTypeCode(field.FieldType);

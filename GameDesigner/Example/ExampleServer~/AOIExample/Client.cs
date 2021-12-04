@@ -12,7 +12,7 @@ namespace AOIExample
         public Vector3 Position { get ; set ; }
         public Grid Grid { get ; set ; }
 
-        internal ListPool<Operation> operations = new ListPool<Operation>();
+        internal ListSafe<Operation> operations = new ListSafe<Operation>();
         internal int getLen;
 
         public void OnEnter(IGridBody body)

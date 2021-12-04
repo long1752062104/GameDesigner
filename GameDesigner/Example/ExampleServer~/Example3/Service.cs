@@ -67,7 +67,7 @@ namespace LockStep.Server
             Scene scene = client.Scene;
             if (scene == null)
             {
-                NDebug.Log("空场景:" + client.playerID);
+                NDebug.Log("空场景:" + client.PlayerID);
                 return;
             }
             if (scene.battle)
@@ -110,7 +110,7 @@ namespace LockStep.Server
             Scene scene = client.Scene;
             if (scene == null)
             {
-                NDebug.Log("空场景:" + client.playerID);
+                NDebug.Log("空场景:" + client.PlayerID);
                 return;
             }
             scene.Remove(client);

@@ -106,7 +106,7 @@
                 return;
             }
             PlayerComponent p = new PlayerComponent();
-            p.playerID = acc;
+            p.PlayerID = acc;
             p.data.account = acc;
             p.data.password = pwd;
             DBComponent.Instance.AddPlayerAndSave(p.data);
@@ -136,7 +136,7 @@
                 SendRT(player, "BackLogin", "你的账号在其他地方被登录!");//在客户端热更新工程的MsgPanel类找到
                 SignOut(player);
             }
-            unClient.playerID = acc;
+            unClient.PlayerID = acc;
             unClient.data = data;
             SendRT(unClient, "LoginCallback", true, "登录成功!");
             return true;

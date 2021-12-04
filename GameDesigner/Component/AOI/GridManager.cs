@@ -117,9 +117,6 @@ namespace Net.AOI
                             }
                         }
                     }
-                    //body.Grid.gridBodies.Remove(body);
-                    //body.Grid = grids1[i];
-                    //body.Grid.gridBodies.Add(body);
                     handlerList.Add(new GridData() { oldGrid = body.Grid, newGrid = grids1[i], body = body });
                     return body.Grid;
                 }

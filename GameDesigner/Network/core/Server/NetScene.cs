@@ -87,7 +87,7 @@
         /// <summary>
         /// 场景事件
         /// </summary>
-        public ActionEvent Event = new ActionEvent();
+        public TimerEvent Event = new TimerEvent();
 
         /// <summary>
         /// 构造网络场景

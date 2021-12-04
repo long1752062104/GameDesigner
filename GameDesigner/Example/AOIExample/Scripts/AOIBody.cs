@@ -3,6 +3,8 @@ namespace AOIExample
 {
     using Net.AOI;
     using Net.Component;
+    using System;
+    using System.Threading.Tasks;
     using UnityEngine;
     using Grid = Net.AOI.Grid;
 
@@ -19,6 +21,20 @@ namespace AOIExample
         {
             Position = transform.position;
             AOIComponent.I.gridManager.Insert(this);
+            GetComponent<MeshRenderer>().enabled = IsLocal;
+            if (Grid != null & IsLocal)
+            {
+                Action action = new Action(async ()=> 
+                {
+                    await Task.Delay(1000);
+                    var bodys = Grid.GetGridBodiesAll();
+                    foreach (var body in bodys)
+                    {
+                        (body as AOIBody).GetComponent<MeshRenderer>().enabled = true;
+                    }
+                });
+                action();
+            }
         }
 
         // Update is called once per frame
@@ -68,16 +84,16 @@ namespace AOIExample
 
         public void OnEnter(IGridBody body)
         {
-            if (IsLocal)
+            if (!IsLocal)
                 return;
-            GetComponent<MeshRenderer>().enabled = true;
+            (body as AOIBody).GetComponent<MeshRenderer>().enabled = true;
         }
 
         public void OnExit(IGridBody body)
         {
-            if (IsLocal)
+            if (!IsLocal)
                 return;
-            GetComponent<MeshRenderer>().enabled = false;
+            (body as AOIBody).GetComponent<MeshRenderer>().enabled = false;
         }
     }
 }

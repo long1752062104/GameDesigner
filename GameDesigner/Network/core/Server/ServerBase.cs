@@ -267,7 +267,7 @@ namespace Net.Server
         /// <summary>
         /// 单线程定时器
         /// </summary>
-        public ActionEvent Timer { get; set; } = new ActionEvent();
+        public TimerEvent Timer { get; set; } = new TimerEvent();
         #endregion
 
         #region 服务器事件处理
@@ -624,8 +624,7 @@ namespace Net.Server
             dtt.Start();
             Thread suh = new Thread(SceneUpdateHandle) { IsBackground = true, Name = "SceneUpdateHandle" };
             suh.Start();
-            Thread vsh = new Thread(VarSyncHandler) { IsBackground = true, Name = "VarSyncHandler" };
-            vsh.Start();
+            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -643,7 +642,6 @@ namespace Net.Server
             threads.Add("HeartUpdate", hupdate);
             threads.Add("DataTrafficThread", dtt);
             threads.Add("SceneUpdateHandle", suh);
-            threads.Add("VarSyncHandler", vsh);
             KeyValuePair<string, Scene> scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
             scene.Value.Name = scene.Key;
@@ -2842,53 +2840,50 @@ namespace Net.Server
         /// <summary>
         /// 字段,属性同步线程
         /// </summary>
-        protected virtual void VarSyncHandler()
+        protected virtual bool VarSyncHandler()
         {
-            while (IsRunServer)
+            try
             {
-                try
+                foreach (var client in AllClients)
                 {
-                    Thread.Sleep(1);
-                    foreach (var client in AllClients)
+                    if (client.Value == null)
+                        continue;
+                    Segment segment = null;
+                    var entries = client.Value.varSyncInfos.entries;
+                    for (int i = 0; i < client.Value.varSyncInfos.count; i++)
                     {
-                        if (client.Value == null)
-                            continue;
-                        Segment segment = null;
-                        var entries = client.Value.varSyncInfos.entries;
-                        for (int i = 0; i < client.Value.varSyncInfos.count; i++)
+                        if (entries[i].hashCode >= 0)
                         {
-                            if (entries[i].hashCode >= 0)
+                            var varSync = entries[i].value;
+                            if (varSync == null)
+                                continue;
+                            var value = varSync.GetValue();
+                            if (value == null)
+                                continue;
+                            if (varSync.passive)
+                                continue;
+                            if (!value.Equals(varSync.value))
                             {
-                                var varSync = entries[i].value;
-                                if (varSync == null)
-                                    continue;
-                                var value = varSync.GetValue();
-                                if (value == null)
-                                    continue;
-                                if (varSync.passive)
-                                    continue;
-                                if (!value.Equals(varSync.value))
-                                {
-                                    if(segment == null)
-                                        segment = BufferPool.Take();
-                                    segment.WriteValue(varSync.id);
-                                    segment.WriteValue(value);
-                                    varSync.value = value;
-                                }
+                                if (segment == null)
+                                    segment = BufferPool.Take();
+                                segment.WriteValue(varSync.id);
+                                segment.WriteValue(value);
+                                varSync.value = value;
                             }
                         }
-                        if (segment != null)
-                        {
-                            var buffer = segment.ToArray(true);
-                            SendRT(client.Value, NetCmd.VarSync, buffer);
-                        }
+                    }
+                    if (segment != null)
+                    {
+                        var buffer = segment.ToArray(true);
+                        SendRT(client.Value, NetCmd.VarSync, buffer);
                     }
                 }
-                catch (Exception e)
-                {
-                    Debug.LogError(e);
-                }
             }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+            return true;
         }
 
         /// <summary>
