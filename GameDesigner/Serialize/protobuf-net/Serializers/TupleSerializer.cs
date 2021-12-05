@@ -70,7 +70,7 @@ namespace ProtoBuf.Serializers
             return false;
         }
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         public void EmitCallback(Compiler.CompilerContext ctx, Compiler.Local valueFrom, Meta.TypeModel.CallbackType callbackType) { }
 #endif
         public Type ExpectedType
@@ -157,7 +157,7 @@ namespace ProtoBuf.Serializers
         }
         bool IProtoTypeSerializer.CanCreateInstance() { return false; }
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         public void EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
         {
             using (Compiler.Local loc = ctx.GetLocalWithValue(ctor.DeclaringType, valueFrom))

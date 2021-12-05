@@ -49,7 +49,7 @@ namespace ProtoBuf.Serializers
         {
             get { return true; }
         }
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         protected override void EmitRead(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
         {
             using (Compiler.Local oldValue = ctx.GetLocalWithValue(expectedType, valueFrom))

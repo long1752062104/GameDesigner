@@ -39,7 +39,7 @@ namespace ProtoBuf.Serializers
             ProtoWriter.WriteSByte((sbyte)value, dest);
         }
 #endif
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         void IProtoSerializer.EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
         {
             ctx.EmitBasicWrite("WriteSByte", valueFrom);

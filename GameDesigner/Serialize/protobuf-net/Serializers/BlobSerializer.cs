@@ -3,7 +3,7 @@ using System;
 #if COREFX
 using System.Reflection;
 #endif
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
 using System.Reflection.Emit;
 #endif
 
@@ -43,7 +43,7 @@ namespace ProtoBuf.Serializers
 #endif
         bool IProtoSerializer.RequiresOldValue { get { return !overwriteList; } }
         bool IProtoSerializer.ReturnsValue { get { return true; } }
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         void IProtoSerializer.EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
         {
             ctx.EmitBasicWrite("WriteBytes", valueFrom);

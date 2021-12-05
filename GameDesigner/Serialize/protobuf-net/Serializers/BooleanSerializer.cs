@@ -42,7 +42,7 @@ namespace ProtoBuf.Serializers
 #endif
         bool IProtoSerializer.RequiresOldValue { get { return false; } }
         bool IProtoSerializer.ReturnsValue { get { return true; } }
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         void IProtoSerializer.EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
         {
             ctx.EmitBasicWrite("WriteBoolean", valueFrom);

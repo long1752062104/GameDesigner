@@ -115,7 +115,7 @@ namespace ProtoBuf.Serializers
             get { return (options & OPTIONS_OverwriteList) == 0; }
         }
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         protected override void EmitRead(ProtoBuf.Compiler.CompilerContext ctx, ProtoBuf.Compiler.Local valueFrom)
         {
             /* This looks more complex than it is. Look at the non-compiled Read to
@@ -403,7 +403,7 @@ namespace ProtoBuf.Serializers
             current = Helpers.GetGetMethod(Helpers.GetProperty(iteratorType, "Current", false), false, false);
             return getEnumerator;
         }
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         protected override void EmitWrite(ProtoBuf.Compiler.CompilerContext ctx, ProtoBuf.Compiler.Local valueFrom)
         {
             using (Compiler.Local list = ctx.GetLocalWithValue(ExpectedType, valueFrom))

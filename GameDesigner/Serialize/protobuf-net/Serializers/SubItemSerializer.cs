@@ -2,7 +2,7 @@
 using System;
 using ProtoBuf.Meta;
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
 #if FEAT_IKVM
 using IKVM.Reflection.Emit;
 using Type = IKVM.Reflection.Type;
@@ -23,7 +23,7 @@ namespace ProtoBuf.Serializers
         {
             return ((IProtoTypeSerializer)proxy.Serializer).CanCreateInstance();
         }
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         void IProtoTypeSerializer.EmitCallback(Compiler.CompilerContext ctx, Compiler.Local valueFrom, TypeModel.CallbackType callbackType)
         {
             ((IProtoTypeSerializer)proxy.Serializer).EmitCallback(ctx, valueFrom, callbackType);
@@ -82,7 +82,7 @@ namespace ProtoBuf.Serializers
         }
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         bool EmitDedicatedMethod(Compiler.CompilerContext ctx, Compiler.Local valueFrom, bool read)
         {
 #if SILVERLIGHT

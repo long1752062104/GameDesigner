@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace ProtoBuf
 {
@@ -30,7 +31,8 @@ namespace ProtoBuf
         /// A default SerializationContext, with minimal information.
         /// </summary>
         internal static SerializationContext Default { get { return @default; } }
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE || (SILVERLIGHT && NET_4_0)
+
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE || (SILVERLIGHT && NET_4_0)
 
 #if !(WINRT || PHONE7 || PHONE8 || COREFX)
         private System.Runtime.Serialization.StreamingContextStates state = System.Runtime.Serialization.StreamingContextStates.Persistence;

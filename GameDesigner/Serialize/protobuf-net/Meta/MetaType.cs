@@ -13,7 +13,7 @@ using IKVM.Reflection.Emit;
 #endif
 #else
 using System.Reflection;
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
 using System.Reflection.Emit;
 using System.Globalization;
 using System.Collections.Generic;

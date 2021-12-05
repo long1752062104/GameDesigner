@@ -1,4 +1,4 @@
-﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 using ECS;
 using Net.Share;
 using System;

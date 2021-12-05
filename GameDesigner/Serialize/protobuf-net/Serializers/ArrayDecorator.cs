@@ -54,7 +54,7 @@ namespace ProtoBuf.Serializers
         public override Type ExpectedType { get { return arrayType; } }
         public override bool RequiresOldValue { get { return AppendToCollection; } }
         public override bool ReturnsValue { get { return true; } }
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         protected override void EmitWrite(ProtoBuf.Compiler.CompilerContext ctx, ProtoBuf.Compiler.Local valueFrom)
         {
             // int i and T[] arr
@@ -246,7 +246,7 @@ namespace ProtoBuf.Serializers
         }
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         protected override void EmitRead(ProtoBuf.Compiler.CompilerContext ctx, ProtoBuf.Compiler.Local valueFrom)
         {
             Type listType;

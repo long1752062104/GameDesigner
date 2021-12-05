@@ -1,7 +1,7 @@
 ﻿#if !NO_RUNTIME
 using System;
 using ProtoBuf.Meta;
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
 
 #endif
 
@@ -289,7 +289,7 @@ namespace ProtoBuf.Serializers
                             Type paramType = parameters[i].ParameterType;
                             if (paramType == typeof(SerializationContext)) val = context;
                             else if (paramType == typeof(System.Type)) val = constructType;
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE || (SILVERLIGHT && NET_4_0)
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE || (SILVERLIGHT && NET_4_0)
                             else if (paramType == typeof(System.Runtime.Serialization.StreamingContext)) val = (System.Runtime.Serialization.StreamingContext)context;
 #endif
                             else
@@ -352,7 +352,7 @@ namespace ProtoBuf.Serializers
 #endif
                 bool IProtoSerializer.RequiresOldValue { get { return true; } }
         bool IProtoSerializer.ReturnsValue { get { return false; } } // updates field directly
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         void IProtoSerializer.EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
         {
             Type expected = ExpectedType;
@@ -463,7 +463,7 @@ namespace ProtoBuf.Serializers
                         if (tmp == null) tmp = type; // no ?? in some C# profiles
                         ctx.LoadValue(tmp);
                     }
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
                     else if (parameterType == ctx.MapType(typeof(System.Runtime.Serialization.StreamingContext)))
                     {
                         ctx.LoadSerializationContext();

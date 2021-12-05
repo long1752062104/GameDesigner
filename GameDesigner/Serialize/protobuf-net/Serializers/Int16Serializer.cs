@@ -38,7 +38,7 @@ namespace ProtoBuf.Serializers
             ProtoWriter.WriteInt16((short)value, dest);
         }
 #endif
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         void IProtoSerializer.EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
         {
             ctx.EmitBasicWrite("WriteInt16", valueFrom);

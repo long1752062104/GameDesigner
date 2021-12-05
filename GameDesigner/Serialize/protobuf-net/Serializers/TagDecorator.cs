@@ -38,7 +38,7 @@ namespace ProtoBuf.Serializers
             if (pts != null) pts.Callback(value, callbackType, context);
         }
 #endif
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         public void EmitCallback(Compiler.CompilerContext ctx, Compiler.Local valueFrom, TypeModel.CallbackType callbackType)
         {
             // we only expect this to be invoked if HasCallbacks returned true, so implicitly Tail
@@ -86,7 +86,7 @@ namespace ProtoBuf.Serializers
         }
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         protected override void EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom)
         {
             ctx.LoadValue(fieldNumber);

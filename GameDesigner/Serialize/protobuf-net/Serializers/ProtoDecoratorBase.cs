@@ -23,7 +23,7 @@ namespace ProtoBuf.Serializers
         public abstract object Read(object value, ProtoReader source);
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         void IProtoSerializer.EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom) { EmitWrite(ctx, valueFrom); }
         protected abstract void EmitWrite(Compiler.CompilerContext ctx, Compiler.Local valueFrom);
         void IProtoSerializer.EmitRead(Compiler.CompilerContext ctx, Compiler.Local valueFrom) { EmitRead(ctx, valueFrom); }

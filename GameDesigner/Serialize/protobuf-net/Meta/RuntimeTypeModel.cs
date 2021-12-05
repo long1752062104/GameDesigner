@@ -9,7 +9,7 @@ using IKVM.Reflection;
 using IKVM.Reflection.Emit;
 #else
 using System.Reflection;
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
 using System.Reflection.Emit;
 #endif
 #endif
@@ -882,7 +882,7 @@ namespace ProtoBuf.Meta
         //}
 
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || SERVICE
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || SERVICE
         private void BuildAllSerializers()
         {
             // note that types.Count may increase during this operation, as some serializers
