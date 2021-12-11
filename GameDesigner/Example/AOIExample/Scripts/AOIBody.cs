@@ -21,19 +21,35 @@ namespace AOIExample
         {
             Position = transform.position;
             AOIComponent.I.gridManager.Insert(this);
-            GetComponent<MeshRenderer>().enabled = IsLocal;
-            if (Grid != null & IsLocal)
+            if (Grid != null)
             {
-                Action action = new Action(async ()=> 
+                if (IsLocal)//如果是本机玩家
                 {
-                    await Task.Delay(1000);
+                    Action action = new Action(async () =>
+                    {
+                        await Task.Delay(1000);
+                        var bodys = Grid.GetGridBodiesAll();
+                        foreach (var body in bodys)
+                        {
+                            (body as AOIBody).GetComponent<MeshRenderer>().enabled = true;
+                        }
+                    });
+                    action();
+                }
+                else//如果是其他玩家
+                {
+                    bool hasLocal = false;
                     var bodys = Grid.GetGridBodiesAll();
                     foreach (var body in bodys)
                     {
-                        (body as AOIBody).GetComponent<MeshRenderer>().enabled = true;
+                        if ((body as AOIBody).IsLocal)//如果在这里9宫格范围有本机玩家, 显示出来
+                        {
+                            hasLocal = true;
+                            break;
+                        }
                     }
-                });
-                action();
+                    GetComponent<MeshRenderer>().enabled = hasLocal;
+                }
             }
         }
 

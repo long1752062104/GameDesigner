@@ -1,10 +1,8 @@
-﻿using Net.Component;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Runtime.Versioning;
 using System.Threading;
 
 namespace Net.System
@@ -174,7 +172,7 @@ namespace Net.System
         }
 
 
-        object ICollection.SyncRoot
+        public object SyncRoot
         {
 
             get
@@ -242,14 +240,8 @@ namespace Net.System
 
         public void Add(T item)
         {
-            lock (this)
+            lock (SyncRoot)
             {
-                write = true;
-                SpinWait spinLocal = new SpinWait();
-                while (read)
-                {
-                    spinLocal.SpinOnce();
-                }
                 if (_size == _items.Length)
                 {
                     EnsureCapacity(_size + 1);
@@ -257,7 +249,6 @@ namespace Net.System
                 _items[_size] = item;
                 _size++;
                 _version++;
-                write = false;
             }
         }
 
@@ -612,34 +603,17 @@ namespace Net.System
 
         public T[] GetRange(int index, int count)
         {
-            lock (this) 
+            lock (SyncRoot)
             {
-                read = true;
-                SpinWait spinLocal = new SpinWait();
-                while (write)
-                {
-                    spinLocal.SpinOnce();
-                }
-                if (index < 0)
-                {
-                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-                }
-                if (count < 0)
-                {
-                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-                }
+                if (index < 0 | count < 0)
+                    return null;
                 if (_size - index < count)
-                {
-                    ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
-                }
+                    count = _size - index;
                 T[] list = new T[count];
                 Array.Copy(_items, index, list, 0, count);
-                read = false;
                 return list;
             }
         }
-
-        private volatile bool read, write;
 
         /// <summary>
         /// 获取列表对象, 并移除列表, 如果在多线程下, 多线程并行下, 是可以获取到对象, 但是会出现长度不是所指定的长度, 所以获取后要判断一下长度
@@ -649,14 +623,8 @@ namespace Net.System
         /// <returns></returns>
         public T[] GetRemoveRange(int index, int count) 
         {
-            lock (this)
+            lock (SyncRoot)
             {
-                read = true;
-                SpinWait spinLocal = new SpinWait();
-                while (write)
-                {
-                    spinLocal.SpinOnce();
-                }
                 //获取
                 if (index < 0 | count < 0)
                     return null;
@@ -670,7 +638,6 @@ namespace Net.System
                     Array.Copy(_items, index + count, _items, index, _size - index);
                 //Array.Clear(_items, _size, count);
                 _version++;
-                read = false;
                 return list;
             }
         }
@@ -684,9 +651,7 @@ namespace Net.System
         int IList.IndexOf(object item)
         {
             if (IsCompatibleObject(item))
-            {
                 return IndexOf((T)item);
-            }
             return -1;
         }
 
@@ -717,20 +682,10 @@ namespace Net.System
 
         public void Insert(int index, T item)
         {
-            lock (this)
+            lock (SyncRoot)
             {
-                write = true;
-                SpinWait spinLocal = new SpinWait();
-                while (read)
-                {
-                    spinLocal.SpinOnce();
-                }
                 if (index > _size)
-                {
-                    //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_ListInsert);
-                    write = false;
                     return;
-                }
                 if (_size == _items.Length)
                 {
                     EnsureCapacity(_size + 1);
@@ -742,7 +697,6 @@ namespace Net.System
                 _items[index] = item;
                 _size++;
                 _version++; 
-                write = false;
             }
         }
 
@@ -762,26 +716,12 @@ namespace Net.System
 
         public void InsertRange(int index, IEnumerable<T> collection)
         {
-            lock (this) 
+            lock (SyncRoot) 
             {
-                write = true;
-                SpinWait spinLocal = new SpinWait();
-                while (read)
-                {
-                    spinLocal.SpinOnce();
-                }
                 if (collection == null)
-                {
-                    //ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
-                    write = false;
                     return;
-                }
                 if (index > _size)
-                {
-                    //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_Index);
-                    write = false;
                     return;
-                }
                 if (collection is ICollection<T> collection2)
                 {
                     int count = collection2.Count;
@@ -814,16 +754,13 @@ namespace Net.System
                     }
                 }
                 _version++;
-                write = false;
             }
         }
 
         public int LastIndexOf(T item)
         {
             if (_size == 0)
-            {
                 return -1;
-            }
             return LastIndexOf(item, _size - 1, _size);
         }
 
@@ -866,14 +803,8 @@ namespace Net.System
 
         public bool Remove(T item)
         {
-            lock (this) 
+            lock (SyncRoot)
             {
-                write = true;
-                SpinWait spinLocal = new SpinWait();
-                while (read)
-                {
-                    spinLocal.SpinOnce();
-                }
                 if (_size == _items.Length)
                 {
                     EnsureCapacity(_size + 1);
@@ -881,7 +812,6 @@ namespace Net.System
                 int index = IndexOf(item);
                 if (index >= 0)
                 {
-                    //RemoveAt(index);
                     _size--;
                     if (index < _size)
                     {
@@ -889,11 +819,8 @@ namespace Net.System
                     }
                     _items[_size] = default;
                     _version++;
-
-                    write = false;
                     return true;
                 }
-                write = false;
                 return false;
             }
         }
@@ -945,18 +872,10 @@ namespace Net.System
 
         public void RemoveAt(int index)
         {
-            lock (this)
+            lock (SyncRoot)
             {
-                write = true;
-                SpinWait spinLocal = new SpinWait();
-                while (read)
-                {
-                    spinLocal.SpinOnce();
-                }
                 if (index >= _size)
                 {
-                    //ThrowHelper.ThrowArgumentOutOfRangeException();
-                    write = false;
                     return;
                 }
                 _size--;
@@ -966,37 +885,18 @@ namespace Net.System
                 }
                 _items[_size] = default;
                 _version++;
-                write = false;
             }
         }
 
 
         public void RemoveRange(int index, int count)
         {
-            lock (this) 
+            lock (SyncRoot)
             {
-                read = true;
-                SpinWait spinLocal = new SpinWait();
-                while (write)
-                {
-                    spinLocal.SpinOnce();
-                }
-                if (index < 0)
-                {
-                    //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-                    read = false;
+                if (index < 0 | count < 0)
                     return;
-                }
-                if (count < 0)
-                {
-                    //ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-                    read = false;
-                    return;
-                }
                 if (_size - index < count)
                 {
-                    //ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
-                    read = false;
                     return;
                 }
                 if (count > 0)
@@ -1009,7 +909,6 @@ namespace Net.System
                     Array.Clear(_items, _size, count);
                     _version++;
                 }
-                read = false;
             }
         }
 

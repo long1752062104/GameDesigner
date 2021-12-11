@@ -24,6 +24,11 @@ namespace AOIExample
             player1.GetComponent<PlayerControl>().moveSpeed = 20f;
             FindObjectOfType<ARPGcamera>().target = player1.transform;
         }
+        public override void OnCrateTransform(Operation opt, NetworkTransformBase t)
+        {
+            var rigidbody = t.GetComponent<Rigidbody>();
+            Destroy(rigidbody);
+        }
     }
 }
 #endif

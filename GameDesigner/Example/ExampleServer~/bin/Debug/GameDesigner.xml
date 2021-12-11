@@ -3992,6 +3992,64 @@
             </summary>
             <param name="message"></param>
         </member>
+        <member name="T:Net.Event.TimerEvent">
+            <summary>
+            时间计时器类
+            </summary>
+        </member>
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Action)">
+            <summary>
+            添加计时器事件, time时间后调用ptr
+            </summary>
+            <param name="time"></param>
+            <param name="ptr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Action{System.Object},System.Object)">
+            <summary>
+            添加计时器事件, time时间后调用ptr
+            </summary>
+            <param name="time"></param>
+            <param name="ptr"></param>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Int32,System.Action{System.Object},System.Object)">
+            <summary>
+            添加计时器事件, 当time时间到调用ptr, 总共调用invokeNum次数
+            </summary>
+            <param name="time"></param>
+            <param name="invokeNum">调用次数, -1则是无限循环</param>
+            <param name="ptr"></param>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Func{System.Boolean})">
+            <summary>
+            添加计时器事件, 当time时间到调用ptr, 当ptr返回true则time时间后再次调用ptr, 直到ptr返回false为止
+            </summary>
+            <param name="time"></param>
+            <param name="ptr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.String,System.Single,System.Func{System.Boolean})">
+            <summary>
+            添加计时器事件, 当time时间到调用ptr, 当ptr返回true则time时间后再次调用ptr, 直到ptr返回false为止
+            </summary>
+            <param name="name"></param>
+            <param name="time"></param>
+            <param name="ptr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Func{System.Object,System.Boolean},System.Object)">
+            <summary>
+            添加计时事件, 当time时间到调用ptr, 当ptr返回true则time时间后再次调用ptr, 直到ptr返回false为止
+            </summary>
+            <param name="time"></param>
+            <param name="ptr"></param>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
         <member name="T:Net.Server.ISerializableData">
             <summary>
             序列化数据接口, 需要序列化的主类要继承此接口

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Net.AOI
 {
@@ -11,6 +10,7 @@ namespace Net.AOI
         public Rect rect;
         public List<Grid> grids = new List<Grid>();//九宫格列表
         public HashSet<IGridBody> gridBodies = new HashSet<IGridBody>();//格子的物体
+        private readonly List<IGridBody> gridBodies1 = new List<IGridBody>();
         public override string ToString()
         {
             return $"{rect}";
@@ -21,7 +21,7 @@ namespace Net.AOI
         /// <returns></returns>
         public List<IGridBody> GetGridBodiesAll()
         {
-            List<IGridBody> gridBodies1 = new List<IGridBody>();
+            gridBodies1.Clear();
             foreach (var item in grids)
                 gridBodies1.AddRange(item.gridBodies);
             return gridBodies1;
