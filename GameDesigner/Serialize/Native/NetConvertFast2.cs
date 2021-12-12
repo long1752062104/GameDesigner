@@ -315,6 +315,7 @@
             }
             catch (Exception ex)
             {
+                stream.Position = 0;
                 NDebug.LogError("序列化:" + value + "出错 详细信息:" + ex);
             }
             finally
@@ -340,6 +341,7 @@
             }
             catch (Exception ex)
             {
+                stream.Position = 0;
                 NDebug.LogError("序列化:" + value + "出错 详细信息:" + ex);
             }
             finally

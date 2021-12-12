@@ -4,8 +4,6 @@ using Net.Serialize;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Net.System
 {
@@ -41,7 +39,7 @@ namespace Net.System
         internal int referenceCount;
         private const byte BYTE = 1, SHORT = 2, INT24 = 3, INT32 = 4, INT40 = 5, INT48 = 6, INT56 = 7, LONG = 8;
         private const long Int24 = 16777216, Int40 = 1099511627776, Int48 = 281474976710656, Int56 = 72057594037927936;
-        
+
         /// <summary>
         /// 获取或设置总内存位置索引
         /// </summary>
@@ -551,65 +549,49 @@ namespace Net.System
             WriteValue(count);
             if (count == 0)
                 return;
-            void* ptr = null;
-            int num = 0;
             switch (value)
             {
                 case byte[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 1;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 1); };
                     break;
                 case sbyte[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 1;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 1); };
                     break;
                 case bool[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 1;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 1); };
                     break;
                 case short[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 2;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 2); };
                     break;
                 case ushort[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 2;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 2); };
                     break;
                 case char[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 2;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 2); };
                     break;
                 case int[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 4;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 4); };
                     break;
                 case uint[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 4;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 4); };
                     break;
                 case float[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 4;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 4); };
                     break;
                 case long[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 8;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 8); };
                     break;
                 case ulong[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 8;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 8); };
                     break;
                 case double[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 8;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 8); };
                     break;
                 case DateTime[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 8;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 8); };
                     break;
                 case decimal[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 16;
+                    fixed (void* ptr1 = &array1[0]) {  WriteValue(ptr1, count, 16); };
                     break;
                 case string[] array1:
                     foreach (var str in array1)
@@ -618,12 +600,15 @@ namespace Net.System
                 default:
                     throw new Exception($"错误!基类不能序列化这个类:{value}");
             }
-            fixed (void* ptr1 = &Buffer[Position])
+        }
+        private unsafe void WriteValue(void* ptr, int count, int num) 
+        {
+            fixed (void* ptr2 = &Buffer[Position])
             {
                 var count1 = count * num;
-                if(Position + count1 > length)
+                if (Position + count1 > length)
                     throw new Exception($"错误!写入的数组大于总内存段!");
-                global::System.Buffer.MemoryCopy(ptr, ptr1, count1, count1);
+                global::System.Buffer.MemoryCopy(ptr, ptr2, count1, count1);
                 Position += count1;
                 Count = Position;
             }
@@ -641,65 +626,49 @@ namespace Net.System
             if (count == 0)
                 return null;
             T[] array = new T[count];
-            void* ptr = null;
-            int num = 0;
             switch (array) 
             {
                 case byte[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 1;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 1); };
                     break;
                 case sbyte[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 1;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 1); }; 
                     break;
                 case bool[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 1;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 1); }; 
                     break;
                 case short[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 2;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 2); }; 
                     break;
                 case ushort[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 2;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 2); }; 
                     break;
                 case char[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 2;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 2); }; 
                     break;
                 case int[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 4;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 4); }; 
                     break;
                 case uint[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 4;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 4); }; 
                     break;
                 case float[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 4;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 4); }; 
                     break;
                 case long[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 8;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 8); }; 
                     break;
                 case ulong[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 8;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 8); }; 
                     break;
                 case double[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 8;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 8); }; 
                     break;
                 case DateTime[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; }; 
-                    num = 8;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 8); }; 
                     break;
                 case decimal[] array1:
-                    fixed (void* ptr1 = &array1[0]) { ptr = ptr1; };
-                    num = 16;
+                    fixed (void* ptr1 = &array1[0]) { ReadArray(ptr1, count, 16); };
                     break;
                 case string[] array1:
                     for (int i = 0; i < array1.Length; i++)
@@ -708,15 +677,18 @@ namespace Net.System
                 default:
                     throw new Exception("错误!");
             }
+            return array;
+        }
+        private unsafe void ReadArray(void* ptr, int count, int num) 
+        {
             fixed (void* ptr1 = &Buffer[Position])
             {
-                global::System.Buffer.MemoryCopy(ptr1, ptr, count * num, count * num);
+                var count1 = count * num;
+                global::System.Buffer.MemoryCopy(ptr1, ptr, count1, count1);
                 Position += count * num;
                 Count = Position;
             }
-            return array;
         }
-
         public void SetLength(int length)
         {
             if (Position > length)
