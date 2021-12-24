@@ -8,8 +8,11 @@ namespace Net.Component
     /// <summary>
     /// 场景管理组件, 这个组件负责 同步玩家操作, 玩家退出游戏移除物体对象, 怪物网络行为同步, 攻击同步等
     /// </summary>
+    [ExecuteInEditMode]
     public class SceneManager : SingleCase<SceneManager>
     {
+        [Header("自动设置所注册的网络同步组件索引!")]
+        public bool setIndex;
         [Header("TransformComponent组件的index字段值必须设置对应数组元素的索引值!")]
         public NetworkTransformBase[] prefabs;
         [HideInInspector]
@@ -18,6 +21,22 @@ namespace Net.Component
         public virtual void Start()
         {
             ClientManager.Instance.client.OnOperationSync += OnOperationSync;
+        }
+
+        public virtual void Update()
+        {
+#if UNITY_EDITOR
+            if (setIndex) 
+            {
+                setIndex = false;
+                for (int i = 0; i < prefabs.Length; i++)
+                {
+                    prefabs[i].index = (byte)i;
+                    UnityEditor.EditorUtility.SetDirty(prefabs[i]);
+                }
+                Debug.Log("设置完成!");
+            }
+#endif
         }
 
         /// <summary>
@@ -99,6 +118,8 @@ namespace Net.Component
                 NetworkTransformBase.Identity++;
             }
             if (ClientManager.UID == opt.index1)
+                return;
+            if (Time.time < t.fixedTime)
                 return;
             t.sendTime = Time.time + t.interval;
             if (opt.index2 == 0)

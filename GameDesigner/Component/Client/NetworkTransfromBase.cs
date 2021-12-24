@@ -64,7 +64,7 @@ namespace Net.Component
         public float lerpSpeed = 0.3f;
         public bool fixedSync;
         public float fixedSendTime = 1f;//固定发送时间
-        private float fixedTime;
+        internal float fixedTime;
         internal List<NetworkAnimation> animations = new List<NetworkAnimation>();
         internal List<NetworkAnimator> animators = new List<NetworkAnimator>();
 
@@ -119,13 +119,18 @@ namespace Net.Component
                 rotation = transform.rotation;
                 localScale = transform.localScale;
                 fixedTime = Time.time + fixedSendTime;
-                ClientManager.AddOperation(new Operation(Command.Transform, identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
-                {
-                    cmd1 = (byte)mode,
-                    cmd2 = index,
-                    index1 = ClientManager.UID
-                });
+                StartSyncTransformState();
             }
+        }
+
+        public virtual void StartSyncTransformState()
+        {
+            ClientManager.AddOperation(new Operation(Command.Transform, identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
+            {
+                cmd1 = (byte)mode,
+                cmd2 = index,
+                index1 = ClientManager.UID
+            });
         }
 
         public virtual void SyncTransform()
@@ -142,11 +147,20 @@ namespace Net.Component
         public virtual void SyncControlTransform()
         {
             if (syncPosition)
+            {
+                position = netPosition;//位置要归位,要不然就会发送数据
                 transform.position = netPosition;
-            if (syncRotation) 
+            }
+            if (syncRotation)
+            {
+                rotation = netRotation;
                 transform.rotation = netRotation;
-            if (syncScale) 
+            }
+            if (syncScale)
+            {
+                localScale = netLocalScale;
                 transform.localScale = netLocalScale;
+            }
         }
 
         public virtual void OnDestroy()
