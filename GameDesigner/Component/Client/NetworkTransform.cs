@@ -30,7 +30,7 @@ namespace Net.Component
             localScale = transform.localScale;
         }
 
-        internal void Check(int identity)
+        internal void Check(int identity, int index)
         {
             if (transform.localPosition != position | transform.localRotation != rotation | transform.localScale != localScale)
             {
@@ -40,8 +40,9 @@ namespace Net.Component
                 ClientManager.AddOperation(new Operation(Command.Transform, identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
                 {
                     cmd1 = (byte)mode,
-                    index1 = ClientManager.UID,
-                    index2 = this.identity
+                    uid = ClientManager.UID,
+                    index = index,
+                    index1 = this.identity
                 });
             }
         }
@@ -71,7 +72,6 @@ namespace Net.Component
     /// <summary>
     /// 网络Transform同步组件, 可以同步子物体
     /// </summary>
-    [ExecuteInEditMode]
     public class NetworkTransform : NetworkTransformBase
     {
         public bool getChilds;
@@ -91,21 +91,6 @@ namespace Net.Component
         // Update is called once per frame
         public override void Update()
         {
-#if UNITY_EDITOR
-            if (getChilds) 
-            {
-                getChilds = false;
-                var childs1 = transform.GetComponentsInChildren<Transform>();
-                childs = new ChildTransform[childs1.Length - 1];
-                for (int i = 1; i < childs1.Length; i++)
-                {
-                    childs[i - 1] = new ChildTransform() {
-                        name = childs1[i].name,
-                        transform = childs1[i]
-                    };
-                }
-            }
-#endif
             if (mode == SyncMode.Synchronized)
             {
                 SyncTransform();
@@ -119,7 +104,7 @@ namespace Net.Component
                 Check();
                 for (int i = 0; i < childs.Length; i++)
                 {
-                    childs[i].Check(identity);
+                    childs[i].Check(identity, index);
                 }
                 sendTime = Time.time + (1f / rate);
             }

@@ -81,7 +81,7 @@ namespace Example2
                 switch (opt.cmd)
                 {
                     case Command.Attack:
-                        if (monsters.TryGetValue(opt.index, out AIMonster monster))
+                        if (monsters.TryGetValue(opt.identity, out AIMonster monster))
                         {
                             monster.targetID = client.UserID;
                             monster.OnDamage(opt.index1);
@@ -93,7 +93,7 @@ namespace Example2
                         var players = Clients;
                         for (int n = 0; n < players.Count; n++)
                         {
-                            if (players[n].UserID == opt.index) 
+                            if (players[n].UserID == opt.identity) 
                             {
                                 players[n].BeAttacked(opt.index1);
                                 break;
@@ -101,14 +101,14 @@ namespace Example2
                         }
                         break;
                     case Command.EnemySync:
-                        if (monsters.TryGetValue(opt.index, out AIMonster monster1))
+                        if (monsters.TryGetValue(opt.identity, out AIMonster monster1))
                         {
                             monster1.transform.position = opt.position;
                             monster1.transform.rotation = opt.rotation;
                         }
                         break;
                     case Command.EnemySwitchState:
-                        if (monsters.TryGetValue(opt.index, out AIMonster monster3))
+                        if (monsters.TryGetValue(opt.identity, out AIMonster monster3))
                         {
                             if (!monster3.isDeath)
                             {
@@ -122,7 +122,7 @@ namespace Example2
                         }
                         break;
                     case Command.AIAttack:
-                        client.BeAttacked(opt.index);
+                        client.BeAttacked(opt.identity);
                         break;
                     case Command.Resurrection:
                         client.Resurrection();
@@ -146,7 +146,7 @@ namespace Example2
                     monster.state1 = 0;
                 }
             }
-            AddOperation(new Operation(Command.Destroy) { index = client.UserID });
+            AddOperation(new Operation(Command.Destroy, client.UserID));
         }
     }
 }

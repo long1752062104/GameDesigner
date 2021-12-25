@@ -24,21 +24,21 @@ namespace LockStep.Client
                 switch (opt.cmd)
                 {
                     case Command.Input:
-                        if (!players.TryGetValue(opt.index, out Player actor))
+                        if (!players.TryGetValue(opt.identity, out Player actor))
                         {
                             actor = OnCreate(opt);
-                            actor.name = opt.index.ToString();
-                            players.Add(opt.index, actor);
+                            actor.name = opt.identity.ToString();
+                            players.Add(opt.identity, actor);
                             playersView.Add(actor);
                         }
                         actor.opt = opt;
                         break;
                     case NetCmd.QuitGame:
-                        if (players.TryGetValue(opt.index, out Player actor1))
+                        if (players.TryGetValue(opt.identity, out Player actor1))
                         {
                             playersView.Remove(actor1);
                             ECS.GObject.Destroy(actor1.entity);
-                            players.Remove(opt.index);
+                            players.Remove(opt.identity);
                         }
                         break;
                 }

@@ -62,11 +62,12 @@ namespace Net.Component
         public int m_identity;
         public float rate = 30f;//网络帧率, 一秒30次
         public float lerpSpeed = 0.3f;
-        public bool fixedSync;
+        public bool fixedSync = true;
         public float fixedSendTime = 1f;//固定发送时间
         internal float fixedTime;
-        internal List<NetworkAnimation> animations = new List<NetworkAnimation>();
-        internal List<NetworkAnimator> animators = new List<NetworkAnimator>();
+        internal List<NetworkAnimationBase> animations = new List<NetworkAnimationBase>();
+        internal List<NetworkAnimatorBase> animators = new List<NetworkAnimatorBase>();
+        internal float checkStatusTime;//检测其他客户端是否断线, 如果断线则把断线的客户端所同步的transform组件删除
 
         public virtual void Start()
         {
@@ -103,6 +104,14 @@ namespace Net.Component
             if (mode == SyncMode.Synchronized)
             {
                 SyncTransform();
+                if (fixedSync)
+                {
+                    if (Time.time > checkStatusTime)
+                    {
+                        SceneManager.I.transforms.Remove(identity);
+                        Destroy(gameObject);
+                    }
+                }
             }
             else if (Time.time > sendTime)
             {
@@ -128,8 +137,8 @@ namespace Net.Component
             ClientManager.AddOperation(new Operation(Command.Transform, identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
             {
                 cmd1 = (byte)mode,
-                cmd2 = index,
-                index1 = ClientManager.UID
+                index = index,
+                uid = ClientManager.UID
             });
         }
 
@@ -173,7 +182,7 @@ namespace Net.Component
                 case SyncMode.SynchronizedAll:
                     return;
             }
-            ClientManager.AddOperation(new Operation(Command.Destroy) { index = identity });
+            ClientManager.AddOperation(new Operation(Command.Destroy) { identity = identity });
         }
     }
 }

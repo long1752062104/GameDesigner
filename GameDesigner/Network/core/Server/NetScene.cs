@@ -90,11 +90,16 @@
         public TimerEvent Event = new TimerEvent();
 
         /// <summary>
+        /// 客户端注册游戏物体的唯一标识
+        /// </summary>
+        internal int Identity;
+
+        /// <summary>
         /// 构造网络场景
         /// </summary>
         public NetScene()
         {
-            Event.AddEvent(5f, ()=> 
+            Event.AddEvent(5f, () =>
             {
                 var clients = Clients;
                 for (int i = 0; i < clients.Count; i++)
@@ -106,7 +111,7 @@
                         Clients.Clear();
                         break;
                     }
-                    else if (clients[i].Client != null) 
+                    else if (clients[i].Client != null)
                     {
                         if (!clients[i].Client.Connected)
                         {
@@ -198,8 +203,8 @@
         /// <summary>
         /// 当接收到客户端使用Client.AddOperation方法发送的请求时调用
         /// </summary>
-        public virtual void OnOperationSync(Player client, OperationList list) 
-        { 
+        public virtual void OnOperationSync(Player client, OperationList list)
+        {
             AddOperations(list.operations);
         }
 
@@ -220,7 +225,7 @@
         {
             var players = Clients;//多线程问题, 心跳 或 未知线程 添加或移除玩家时实时更新了哈希列表
             int playerCount = players.Count;
-            if (playerCount <= 0) 
+            if (playerCount <= 0)
                 return;
             frame++;
             for (int i = 0; i < players.Count; i++)
@@ -366,7 +371,7 @@
             operations.Clear();
         }
 
-        ~NetScene() 
+        ~NetScene()
         {
             onSerializeOptHandle = null;
         }

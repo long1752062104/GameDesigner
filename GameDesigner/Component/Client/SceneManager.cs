@@ -8,7 +8,6 @@ namespace Net.Component
     /// <summary>
     /// 场景管理组件, 这个组件负责 同步玩家操作, 玩家退出游戏移除物体对象, 怪物网络行为同步, 攻击同步等
     /// </summary>
-    [ExecuteInEditMode]
     public class SceneManager : SingleCase<SceneManager>
     {
         [Header("自动设置所注册的网络同步组件索引!")]
@@ -21,22 +20,6 @@ namespace Net.Component
         public virtual void Start()
         {
             ClientManager.Instance.client.OnOperationSync += OnOperationSync;
-        }
-
-        public virtual void Update()
-        {
-#if UNITY_EDITOR
-            if (setIndex) 
-            {
-                setIndex = false;
-                for (int i = 0; i < prefabs.Length; i++)
-                {
-                    prefabs[i].index = (byte)i;
-                    UnityEditor.EditorUtility.SetDirty(prefabs[i]);
-                }
-                Debug.Log("设置完成!");
-            }
-#endif
         }
 
         /// <summary>
@@ -81,13 +64,13 @@ namespace Net.Component
 
         public virtual void DestroyTransform(Operation opt)
         {
-            if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+            if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
                 DestroyTransform(opt, t);
         }
 
         public virtual void DestroyTransform(Operation opt, NetworkTransformBase t)
         {
-            transforms.Remove(opt.index);
+            transforms.Remove(opt.identity);
             OnDestroyTransform(t);
             if (t.syncMode == SyncMode.Synchronized | t.syncMode == SyncMode.SynchronizedAll)
                 Destroy(t.gameObject);
@@ -99,30 +82,31 @@ namespace Net.Component
 
         protected void TransformSync(Operation opt)
         {
-            if (!transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+            if (!transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
             {
                 if (prefabs == null)
                     return;
-                if (opt.cmd2 >= prefabs.Length)
+                if (opt.index >= prefabs.Length)
                     return;
-                var prefab = prefabs[opt.cmd2];
+                var prefab = prefabs[opt.index];
                 t = Instantiate(prefab, opt.position, opt.rotation);
                 SyncMode mode = (SyncMode)opt.cmd1;
                 if(mode == SyncMode.Control)
                     t.syncMode = SyncMode.SynchronizedAll;
                 else
                     t.syncMode = SyncMode.Synchronized;
-                t.identity = opt.index;
-                transforms.Add(opt.index, t);
+                t.identity = opt.identity;
+                transforms.Add(opt.identity, t);
                 OnCrateTransform(opt, t);
                 NetworkTransformBase.Identity++;
             }
-            if (ClientManager.UID == opt.index1)
+            if (ClientManager.UID == opt.uid)
                 return;
-            if (Time.time < t.fixedTime)
+            if (t.mode == SyncMode.SynchronizedAll & Time.time < t.fixedTime)
                 return;
             t.sendTime = Time.time + t.interval;
-            if (opt.index2 == 0)
+            t.checkStatusTime = Time.time + t.fixedSendTime * 3f;
+            if (opt.index1 == 0)
             {
                 t.netPosition = opt.position;
                 t.netRotation = opt.rotation;
@@ -133,7 +117,7 @@ namespace Net.Component
             else 
             {
                 var nt = t as NetworkTransform;
-                var child = nt.childs[opt.index2 - 1];
+                var child = nt.childs[opt.index1 - 1];
                 child.netPosition = opt.position;
                 child.netRotation = opt.rotation;
                 child.netLocalScale = opt.direction;
@@ -153,20 +137,20 @@ namespace Net.Component
 
         protected void AnimatorSync(Operation opt) 
         {
-            if (transforms.TryGetValue(opt.index, out NetworkTransformBase t)) 
-                t.animators[opt.index1].Play(opt.index2);
+            if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t)) 
+                t.animators[opt.index1].OnNetworkPlay(opt.index2, opt.cmd1, opt.direction.x);
         }
 
         protected void AnimatorParameterSync(Operation opt)
         {
-            if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+            if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
                 t.animators[opt.cmd1].SyncAnimatorParameter(opt);
         }
 
         protected void AnimationSync(Operation opt) 
         {
-            if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
-                t.animations[opt.index1].Play(opt.index2);
+            if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
+                t.animations[opt.index1].OnNetworkPlay(opt);
         }
 
         void OnDestroy()

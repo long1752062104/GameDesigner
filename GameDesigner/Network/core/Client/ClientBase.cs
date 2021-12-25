@@ -280,6 +280,10 @@ namespace Net.Client
         /// </summary>
         public Action<RTProgress> OnSendFileProgress;
         /// <summary>
+        /// 当注册网络物体唯一标识
+        /// </summary>
+        public Action<int, int> OnRegisterNetworkIdentity;
+        /// <summary>
         /// 发送可靠传输缓冲
         /// </summary>
         protected ConcurrentDictionary<uint, MyDictionary<ushort, RTBuffer>> sendRTList = new ConcurrentDictionary<uint, MyDictionary<ushort, RTBuffer>>();
@@ -2089,6 +2093,15 @@ namespace Net.Client
                             SendFile(key, fileData);
                     }
                     break;
+                case NetCmd.RegisterNetworkIdentity:
+                    {
+                        var id = BitConverter.ToInt32(model.buffer, model.index);
+                        var newid = BitConverter.ToInt32(model.buffer, model.index + 4);
+                        if (OnRegisterNetworkIdentity == null)
+                            return;
+                        InvokeContext((arg) => { OnRegisterNetworkIdentity(id, newid); });
+                    }
+                    break;
                 default:
                     InvokeOnRevdBufferHandle(model);
                     break;
@@ -3082,6 +3095,15 @@ namespace Net.Client
                 if (OnSendFileProgress != null)
                     InvokeContext((arg) => { OnSendFileProgress(new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Sending)); });
             }
+        }
+
+        /// <summary>
+        /// 注册网络物体唯一标识
+        /// </summary>
+        /// <param name="identity">你本机的一个唯一id, 当服务器注册回调给OnRegisterNetworkIdentity事件后, 可以用这个id判断是不是这个identity</param>
+        public void RegisterNetworkIdentity(int identity)
+        {
+            SendRT(NetCmd.RegisterNetworkIdentity, BitConverter.GetBytes(identity));
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Example2
             var p = t.GetComponent<Player>();
             if (p != null)
             {
-                p.id = opt.index;
+                p.id = opt.identity;
                 GameManager.I.players.Add(p);
             }
         }
@@ -32,13 +32,13 @@ namespace Example2
 
         public AIMonster CheckMonster(Operation opt)
         {
-            if (!monsterDics.TryGetValue(opt.index, out AIMonster monster))
+            if (!monsterDics.TryGetValue(opt.identity, out AIMonster monster))
             {
                 var mid = opt.buffer[0];
                 var monster1 = monsters[mid];
                 monster = Instantiate(monster1, opt.position, opt.rotation);
-                monster.id = opt.index;
-                monsterDics.Add(opt.index, monster);
+                monster.id = opt.identity;
+                monsterDics.Add(opt.identity, monster);
                 GameManager.I.enemys.Add(monster);
             }
             return monster;
@@ -50,7 +50,7 @@ namespace Example2
             {
                 case Command.Fire:
                     {
-                        if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+                        if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
                         {
                             var p = t.GetComponent<Player>();
                             p.Fire();
@@ -96,7 +96,7 @@ namespace Example2
                     break;
                 case Command.PlayerState:
                     {
-                        if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+                        if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
                         {
                             var p = t.GetComponent<Player>();
                             p.health = opt.index1;
@@ -111,7 +111,7 @@ namespace Example2
                     break;
                 case Command.Resurrection:
                     {
-                        if (transforms.TryGetValue(opt.index, out NetworkTransformBase t))
+                        if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
                         {
                             var p = t.GetComponent<Player>();
                             p.Resurrection();

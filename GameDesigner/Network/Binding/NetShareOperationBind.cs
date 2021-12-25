@@ -50,34 +50,49 @@ namespace Binding
 				var bind = new NetVector3Bind();
 				bind.Write(value.direction, stream);
 			}
-			if(value.index != 0)
+			if(value.identity != 0)
 			{
 				NetConvertBase.SetBit(ref bits[0], 8, true);
+				stream.WriteValue(value.identity);
+			}
+			if(value.uid != 0)
+			{
+				NetConvertBase.SetBit(ref bits[1], 1, true);
+				stream.WriteValue(value.uid);
+			}
+			if(value.index != 0)
+			{
+				NetConvertBase.SetBit(ref bits[1], 2, true);
 				stream.WriteValue(value.index);
 			}
 			if(value.index1 != 0)
 			{
-				NetConvertBase.SetBit(ref bits[1], 1, true);
+				NetConvertBase.SetBit(ref bits[1], 3, true);
 				stream.WriteValue(value.index1);
 			}
 			if(value.index2 != 0)
 			{
-				NetConvertBase.SetBit(ref bits[1], 2, true);
+				NetConvertBase.SetBit(ref bits[1], 4, true);
 				stream.WriteValue(value.index2);
+			}
+			if(value.index3 != 0)
+			{
+				NetConvertBase.SetBit(ref bits[1], 5, true);
+				stream.WriteValue(value.index3);
 			}
 			if(value.buffer != null)
 			{
-				NetConvertBase.SetBit(ref bits[1], 3, true);
+				NetConvertBase.SetBit(ref bits[1], 6, true);
 				stream.WriteArray(value.buffer);
 			}
 			if (!string.IsNullOrEmpty(value.name1))
 			{
-				NetConvertBase.SetBit(ref bits[1], 4, true);
+				NetConvertBase.SetBit(ref bits[1], 7, true);
 				stream.WriteValue(value.name1);
 			}
 			if (!string.IsNullOrEmpty(value.name2))
 			{
-				NetConvertBase.SetBit(ref bits[1], 5, true);
+				NetConvertBase.SetBit(ref bits[1], 8, true);
 				stream.WriteValue(value.name2);
 			}
 			int pos1 = stream.Position;
@@ -114,16 +129,22 @@ namespace Binding
 				value.direction = bind.Read(stream);
 			}
 			if(NetConvertBase.GetBit(bits[0], 8))
-				value.index = stream.ReadValue<Int32>();
+				value.identity = stream.ReadValue<Int32>();
 			if(NetConvertBase.GetBit(bits[1], 1))
-				value.index1 = stream.ReadValue<Int32>();
+				value.uid = stream.ReadValue<Int32>();
 			if(NetConvertBase.GetBit(bits[1], 2))
-				value.index2 = stream.ReadValue<Int32>();
+				value.index = stream.ReadValue<Int32>();
 			if(NetConvertBase.GetBit(bits[1], 3))
-				value.buffer = stream.ReadArray<System.Byte>();
+				value.index1 = stream.ReadValue<Int32>();
 			if(NetConvertBase.GetBit(bits[1], 4))
-				value.name1 = stream.ReadValue<String>();
+				value.index2 = stream.ReadValue<Int32>();
 			if(NetConvertBase.GetBit(bits[1], 5))
+				value.index3 = stream.ReadValue<Int32>();
+			if(NetConvertBase.GetBit(bits[1], 6))
+				value.buffer = stream.ReadArray<System.Byte>();
+			if(NetConvertBase.GetBit(bits[1], 7))
+				value.name1 = stream.ReadValue<String>();
+			if(NetConvertBase.GetBit(bits[1], 8))
 				value.name2 = stream.ReadValue<String>();
 			return value;
 		}

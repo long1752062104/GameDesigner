@@ -31,13 +31,21 @@
         /// </summary>
         public Vector3 direction;
         /// <summary>
+        /// 唯一标识
+        /// </summary>
+        public int identity;
+        /// <summary>
+        /// 玩家唯一标识
+        /// </summary>
+        public int uid;
+        /// <summary>
         /// 索引
         /// </summary>
         public int index;
         /// <summary>
         /// 其他索引
         /// </summary>
-        public int index1, index2;
+        public int index1, index2, index3;
         /// <summary>
         /// 数据数组, 备用
         /// </summary>
@@ -67,10 +75,10 @@
             this.buffer = buffer;
         }
 
-        public Operation(byte cmd, int uid) : this()
+        public Operation(byte cmd, int identity) : this()
         {
             this.cmd = cmd;
-            index = uid;
+            this.identity = identity;
         }
 
         /// <summary>
@@ -115,9 +123,9 @@
         /// <param name="cmd"></param>
         /// <param name="name"></param>
         /// <param name="direction"></param>
-        public Operation(byte cmd, int uid, Vector3 direction) : this(cmd)
+        public Operation(byte cmd, int identity, Vector3 direction) : this(cmd)
         {
-            index = uid;
+            this.identity = identity;
             this.direction = direction;
         }
 
@@ -156,7 +164,7 @@
         /// <param name="rotation"></param>
         public Operation(byte cmd, int identity, Vector3 position, Quaternion rotation) : this(cmd)
         {
-            this.index = identity;
+            this.identity = identity;
             this.position = position;
             this.rotation = rotation;
         }
@@ -187,7 +195,7 @@
         /// <param name="rotation"></param>
         public Operation(byte cmd, int identity, Vector3 direction, Vector3 position, Quaternion rotation) : this(cmd)
         {
-            index = identity;
+            this.identity = identity;
             this.direction = direction;
             this.position = position;
             this.rotation = rotation;
@@ -219,7 +227,7 @@
         /// <param name="rotation"></param>
         public Operation(byte cmd, int identity, Vector3 position, Quaternion rotation, Vector3 direction_is_localScale) : this(cmd)
         {
-            index = identity;
+            this.identity = identity;
             direction = direction_is_localScale;
             this.position = position;
             this.rotation = rotation;

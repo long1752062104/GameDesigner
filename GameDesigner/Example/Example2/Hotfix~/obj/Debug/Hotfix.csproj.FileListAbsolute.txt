@@ -12,3 +12,18 @@ D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Unit
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.SharedInternalsModule.xml
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csproj.CopyComplete
 D:\New Unity Project\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csprojAssemblyReference.cache
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Hotfix.dll
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Hotfix.pdb
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Assembly-CSharp.dll
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.CoreModule.dll
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.UI.dll
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.SharedInternalsModule.dll
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\Assembly-CSharp.pdb
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.CoreModule.xml
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.UI.pdb
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\UnityEngine.SharedInternalsModule.xml
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csprojAssemblyReference.cache
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csproj.CoreCompileInputs.cache
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csproj.CopyComplete
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.dll
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.pdb

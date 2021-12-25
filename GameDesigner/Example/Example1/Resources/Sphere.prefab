@@ -124,11 +124,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  property: 4
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
   mode: 2
   identity: -1
   interval: 0.5
   index: 0
-  setID: 0
   m_identity: 0
   rate: 30
+  lerpSpeed: 0.3
+  fixedSync: 1
+  fixedSendTime: 1

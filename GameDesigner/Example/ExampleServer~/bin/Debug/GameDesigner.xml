@@ -2756,6 +2756,11 @@
             当发送的文件进度
             </summary>
         </member>
+        <member name="F:Net.Client.ClientBase.OnRegisterNetworkIdentity">
+            <summary>
+            当注册网络物体唯一标识
+            </summary>
+        </member>
         <member name="F:Net.Client.ClientBase.sendRTList">
             <summary>
             发送可靠传输缓冲
@@ -3572,6 +3577,12 @@
             <param name="filePath"></param>
             <param name="bufferSize">每次发送数据大小</param>
             <returns></returns>
+        </member>
+        <member name="M:Net.Client.ClientBase.RegisterNetworkIdentity(System.Int32)">
+            <summary>
+            注册网络物体唯一标识
+            </summary>
+            <param name="identity">你本机的一个唯一id, 当服务器注册回调给OnRegisterNetworkIdentity事件后, 可以用这个id判断是不是这个identity</param>
         </member>
         <member name="T:Net.Client.NetBehaviour">
             <summary>
@@ -4605,6 +4616,11 @@
         <member name="F:Net.Server.NetScene`1.Event">
             <summary>
             场景事件
+            </summary>
+        </member>
+        <member name="F:Net.Server.NetScene`1.Identity">
+            <summary>
+            客户端注册游戏物体的唯一标识
             </summary>
         </member>
         <member name="M:Net.Server.NetScene`1.#ctor">
@@ -7138,6 +7154,11 @@
             使用此命令时,函数第一个参数将会嵌入NetPlayer参数
             </summary>
         </member>
+        <member name="F:Net.Share.NetCmd.RegisterNetworkIdentity">
+            <summary>
+            注册网络物体唯一标识
+            </summary>
+        </member>
         <member name="T:Net.Share.RPCMethod">
             <summary>
             远程过程调用方法
@@ -7304,6 +7325,16 @@
             玩家输入方向
             </summary>
         </member>
+        <member name="F:Net.Share.Operation.identity">
+            <summary>
+            唯一标识
+            </summary>
+        </member>
+        <member name="F:Net.Share.Operation.uid">
+            <summary>
+            玩家唯一标识
+            </summary>
+        </member>
         <member name="F:Net.Share.Operation.index">
             <summary>
             索引
@@ -7315,6 +7346,11 @@
             </summary>
         </member>
         <member name="F:Net.Share.Operation.index2">
+            <summary>
+            其他索引
+            </summary>
+        </member>
+        <member name="F:Net.Share.Operation.index3">
             <summary>
             其他索引
             </summary>

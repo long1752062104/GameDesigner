@@ -4,25 +4,11 @@ namespace Net.Component
     using Net.Share;
     using UnityEngine;
 
-    public class NetworkAnimator : MonoBehaviour
+    /// <summary>
+    /// 网络同步动画控制器, 和单机的区别是: 如果要同步<see cref="Animator.Play(string)"/>则需要通过<see cref="Play(string)"/>方法来播放动画, 这样其他客户端也会同步播放动画
+    /// </summary>
+    public class NetworkAnimator : NetworkAnimatorBase
     {
-        public NetworkTransformBase nt;
-        private Animator animator;
-        private int nameHash = -1;
-        private AnimatorParameter[] parameters;
-        private float sendTime;
-        public float rate = 30f;//网络帧率, 一秒30次
-        internal int id;
-
-        private class AnimatorParameter 
-        {
-            internal string name;
-            internal AnimatorControllerParameterType type;
-            internal float defaultFloat;
-            internal int defaultInt;
-            internal bool defaultBool;
-        }
-
         private void Awake()
         {
             animator = GetComponent<Animator>();
@@ -50,14 +36,13 @@ namespace Net.Component
             if (Time.time < sendTime)
                 return;
             sendTime = Time.time + (1f / rate);
-            var nameHash1 = animator.GetCurrentAnimatorStateInfo(0).shortNameHash;
             for (int i = 0; i < parameters.Length; i++)
             {
-                switch (parameters[i].type) 
+                switch (parameters[i].type)
                 {
                     case AnimatorControllerParameterType.Bool:
                         var bvalue = animator.GetBool(parameters[i].name);
-                        if (parameters[i].defaultBool != bvalue) 
+                        if (parameters[i].defaultBool != bvalue)
                         {
                             parameters[i].defaultBool = bvalue;
                             ClientManager.AddOperation(new Operation(Command.AnimatorParameter, nt.identity)
@@ -79,7 +64,7 @@ namespace Net.Component
                                 cmd1 = (byte)id,
                                 cmd2 = 2,
                                 index1 = i,
-                                direction = new Net.Vector3(fvalue, 0,0)
+                                direction = new Net.Vector3(fvalue, 0, 0)
                             });
                         }
                         break;
@@ -99,23 +84,47 @@ namespace Net.Component
                         break;
                 }
             }
-            if (nameHash != nameHash1)
-            {
-                nameHash = nameHash1;
-                ClientManager.AddOperation(new Operation(Command.Animator, nt.identity)
-                {
-                    index1 = id,
-                    index2 = nameHash1
-                });
-            }
         }
 
-        public void Play(int hashName)
+        public void Play(string stateName)
         {
-            animator.Play(hashName, 0);
+            float normalizedTime = float.NegativeInfinity;
+            int layer = -1;
+            Play(stateName, layer, normalizedTime);
         }
 
-        public void SyncAnimatorParameter(Operation opt) 
+        public void Play(string stateName, int layer)
+        {
+            float normalizedTime = float.NegativeInfinity;
+            Play(stateName, layer, normalizedTime);
+        }
+
+        public void Play(string stateName, int layer, float normalizedTime)
+        {
+            Play(Animator.StringToHash(stateName), layer, normalizedTime);
+        }
+
+        public void Play(int stateNameHash, int layer, float normalizedTime)
+        {
+            if (nameHash == stateNameHash & currLayer == layer)
+                return;
+            nameHash = stateNameHash;
+            currLayer = layer;
+            ClientManager.AddOperation(new Operation(Command.Animator, nt.identity)
+            {
+                index1 = id,
+                index2 = stateNameHash,
+                cmd1 = (byte)layer,
+                direction = new Net.Vector3(normalizedTime, 0, 0)
+            });
+        }
+
+        public override void OnNetworkPlay(int stateNameHash, int layer, float normalizedTime)
+        {
+            animator.Play(stateNameHash, layer, normalizedTime);
+        }
+
+        public override void SyncAnimatorParameter(Operation opt)
         {
             switch (opt.cmd2)
             {

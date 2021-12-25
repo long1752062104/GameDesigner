@@ -143,5 +143,9 @@
         /// 使用此命令时,函数第一个参数将会嵌入NetPlayer参数
         /// </summary>
         public const byte SingleCall = 32;
+        /// <summary>
+        /// 注册网络物体唯一标识
+        /// </summary>
+        public const byte RegisterNetworkIdentity = 33;
     }
 }

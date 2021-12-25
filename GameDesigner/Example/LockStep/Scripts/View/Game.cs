@@ -26,7 +26,7 @@ namespace LockStep.Client
             {
                 var entity = gameSystem.Create<Entity>();
                 Player actor = entity.AddComponent<Player>();
-                actor.name = opt.index.ToString();
+                actor.name = opt.identity.ToString();
                 actor.gameObject = Instantiate(@object);
                 actor.objectView = actor.gameObject.GetComponent<ObjectView>();
                 actor.objectView.actor = actor;

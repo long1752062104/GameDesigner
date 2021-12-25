@@ -338,7 +338,7 @@ namespace Net.Server
         /// <summary>
         /// 当序列化远程过程调用方法
         /// </summary>
-        public Func<RPCModel, byte[]> OnSerializeRPC { get;set; }
+        public Func<RPCModel, byte[]> OnSerializeRPC { get; set; }
         /// <summary>
         /// 当反序列化远程过程调用方法
         /// </summary>
@@ -390,7 +390,7 @@ namespace Net.Server
             Directory.CreateDirectory(rootPath + "/reliable/");
         }
 
-#region 索引
+        #region 索引
         /// <summary>
         /// 玩家索引
         /// </summary>
@@ -565,7 +565,7 @@ namespace Net.Server
         protected virtual FuncData OnDeserializeRpc(byte[] buffer, int index, int count) { return OnDeserializeRPC(buffer, index, count); }
 
         protected internal FuncData OnDeserializeRpcInternal(byte[] buffer, int index, int count) { return NetConvert.Deserialize(buffer, index, count); }
-#endregion
+        #endregion
 
         /// <summary>
         /// 运行服务器
@@ -680,7 +680,7 @@ namespace Net.Server
         /// </summary>
         /// <param name="ptr"></param>
         /// <returns>可用于结束事件的id</returns>
-        public int Invoke(Func<bool> ptr) 
+        public int Invoke(Func<bool> ptr)
         {
             return Timer.AddEvent(0, ptr);
         }
@@ -990,16 +990,16 @@ namespace Net.Server
         /// 主动登录服务器, 类似OnUnClientRequest重写方法的返回值为true
         /// </summary>
         /// <param name="client"></param>
-        protected void LoginHandle(Player client) 
+        protected void LoginHandle(Player client)
         {
-            if (!client.Login) 
+            if (!client.Login)
             {
                 client.Login = true;
                 LoginInternal(client);
             }
         }
 
-        private void LoginInternal(Player client) 
+        private void LoginInternal(Player client)
         {
             if (ignoranceNumber > 0)
                 Interlocked.Decrement(ref ignoranceNumber);
@@ -1196,7 +1196,8 @@ namespace Net.Server
                     break;
                 case NetCmd.P2P:
                     int uid = BitConverter.ToInt32(model.buffer, model.index);
-                    if(UIDClients.TryGetValue(uid, out Player player)){
+                    if (UIDClients.TryGetValue(uid, out Player player))
+                    {
                         Segment segment = new Segment(new byte[10], 0, 10, false);
                         IPEndPoint iPEndPoint = player.RemotePoint as IPEndPoint;
 #pragma warning disable CS0618 // 类型或成员已过时
@@ -1216,7 +1217,7 @@ namespace Net.Server
                             var value = segment1.ReadValue(varSync.type);
                             varSync.SetValue(value);
                         }
-                        else 
+                        else
                         {
                             Debug.LogWarning($"未定义同步变量ID={id}, 请定义或收集同步变量, 使用{typeof(Player)}.AddRpc(xxx)方法收集!");
                             break;
@@ -1265,7 +1266,7 @@ namespace Net.Server
                                 File.Delete(fileData.fileStream.Name);
                             }
                         }
-                        else 
+                        else
                         {
                             segment.Position = 0;
                             segment.WriteValue(key);
@@ -1280,6 +1281,18 @@ namespace Net.Server
                         var key = segment.ReadValue<int>();
                         if (client.ftpDic.TryGetValue(key, out FileData fileData))
                             SendFile(client, key, fileData);
+                    }
+                    break;
+                case NetCmd.RegisterNetworkIdentity:
+                    {
+                        if (client.Scene == null)
+                            return;
+                        var scene3 = client.Scene as Scene;
+                        var identity = Interlocked.Increment(ref scene3.Identity);
+                        List<byte> buffer = new List<byte>(8);
+                        buffer.AddRange(model.Buffer);
+                        buffer.AddRange(BitConverter.GetBytes(identity));
+                        SendRT(client, NetCmd.RegisterNetworkIdentity, buffer.ToArray());
                     }
                     break;
                 default:
@@ -1673,12 +1686,12 @@ namespace Net.Server
         {
             OnRPCExecute(client, model);
         }
-        
+
         protected internal void OnRpcExecuteInternal(Player client, RPCModel model)
         {
             if (model.methodMask != 0)
                 RpcMaskDic.TryGetValue(model.methodMask, out model.func);
-            if (!RpcsDic.TryGetValue(model.func, out List < RPCMethod > rpcs))
+            if (!RpcsDic.TryGetValue(model.func, out List<RPCMethod> rpcs))
             {
                 Debug.LogWarning($"没有找到:{model.func}的Rpc方法,请使用server(你的服务器类).AddRpcHandle方法注册!");
                 return;
@@ -1696,7 +1709,7 @@ namespace Net.Server
                     }
                     else if (rpc.cmd == NetCmd.SingleCall)
                     {
-                        SingleContext.Enqueue(()=> 
+                        SingleContext.Enqueue(() =>
                         {
                             object[] pars = new object[model.pars.Length + 1];
                             pars[0] = client;
@@ -2644,7 +2657,7 @@ namespace Net.Server
                 OnAddRpcHandle = AddRpcInternal;
             OnAddRpcHandle(target, append);
         }
-        
+
         protected void AddRpcInternal(object target, bool append)
         {
             if (!append)
@@ -2687,7 +2700,7 @@ namespace Net.Server
                 OnRemoveRpc = RemoveRpcInternal;
             OnRemoveRpc(target);
         }
-        
+
         protected void RemoveRpcInternal(object target)
         {
             List<RPCMethod> rpcsList = new List<RPCMethod>();
@@ -2811,7 +2824,7 @@ namespace Net.Server
                 AddAdapter(AdapterType.RPC, rpc);
             else throw new Exception("无法识别的适配器!， 注意: IRPCAdapter<Player>是服务器的RPC适配器，IRPCAdapter是客户端适配器！");
         }
-        
+
         /// <summary>
         /// 添加适配器
         /// </summary>
@@ -2819,7 +2832,7 @@ namespace Net.Server
         /// <param name="adapter"></param>
         public void AddAdapter(AdapterType type, IAdapter adapter)
         {
-            switch (type) 
+            switch (type)
             {
                 case AdapterType.Serialize:
                     var ser = (ISerializeAdapter)adapter;
@@ -2938,7 +2951,7 @@ namespace Net.Server
                 client.ftpDic.Remove(key);
                 fileData.fileStream.Close();
             }
-            else 
+            else
             {
                 OnSendFileProgress?.Invoke(client, new RTProgress(fileData.fileName, fileStream.Position / (float)fileStream.Length * 100f, RTState.Sending));
             }
