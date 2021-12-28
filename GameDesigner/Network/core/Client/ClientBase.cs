@@ -61,7 +61,7 @@ namespace Net.Client
         /// <summary>
         /// 接收缓存器
         /// </summary>
-        protected List<RevdBuffer> revdBuffers = new List<RevdBuffer>();
+        protected QueueSafe<RevdBuffer> revdBuffers = new QueueSafe<RevdBuffer>();
 
         /// <summary>
         /// 网络委托函数 主要用于 unity 面板查看
@@ -321,11 +321,11 @@ namespace Net.Client
         /// </summary>
         public byte HeartLimit { get; set; } = 5;
         /// <summary>
-        /// 客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是NetPlayer.playerID值
+        /// 客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是<see cref="Server.NetPlayer.PlayerID"/>值
         /// </summary>
         public string Identify { get; protected set; }
         /// <summary>
-        /// 用户唯一标识, 对应服务器的NetPlayer.UID
+        /// 用户唯一标识, 对应服务器的<see cref="Server.NetPlayer.UserID"/>
         /// </summary>
         public int UID { get; protected set; }
         /// <summary>
@@ -337,6 +337,10 @@ namespace Net.Client
         /// 在多线程调用unity主线程的上下文对象
         /// </summary>
         public SynchronizationContext Context { get; protected set; }
+        /// <summary>
+        /// 同步线程上下文任务队列
+        /// </summary>
+        public QueueSafe<SendOrPostCallback> workQueue = new QueueSafe<SendOrPostCallback>();
         /// <summary>
         /// 允许叠包缓冲器最大值 默认可发送5242880(5M)的数据包
         /// </summary>
@@ -424,7 +428,7 @@ namespace Net.Client
         internal string persistentDataPath;
         private readonly MyDictionary<uint, FrameList> revdFrames = new MyDictionary<uint, FrameList>();
         private long fileStreamCurrPos;
-        private readonly MyDictionary<ushort, VarSyncInfo> varSyncInfos = new MyDictionary<ushort, VarSyncInfo>();
+        private readonly MyDictionary<ushort, SyncVarInfo> syncVarInfos = new MyDictionary<ushort, SyncVarInfo>();
         private readonly MyDictionary<int, FileData> ftpDic = new MyDictionary<int, FileData>();
 
         /// <summary>
@@ -510,10 +514,10 @@ namespace Net.Client
                 }
                 else
                 {
-                    VarSync varSync = info.GetCustomAttribute<VarSync>();
-                    if (varSync == null)
+                    SyncVarToServer synVarc = info.GetCustomAttribute<SyncVarToServer>();
+                    if (synVarc == null)
                         continue;
-                    if (varSync.id == 0)
+                    if (synVarc.id == 0)
                     {
                         NDebug.LogError($"错误! 请赋值ID字段 :{target.GetType().Name}类的{info.Name}字段");
                         continue;
@@ -526,23 +530,23 @@ namespace Net.Client
                             NDebug.LogError($"错误! 尚未支持同步字段,属性的{field.FieldType}类型! 错误定义:{target.GetType().Name}类的{field.Name}字段");
                             continue;
                         }
-                        if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
+                        if (!syncVarInfos.TryGetValue(synVarc.id, out SyncVarInfo varSyncInfo))
                         {
-                            varSyncInfos.Add(varSync.id, new VarSyncFieldInfo()
+                            syncVarInfos.Add(synVarc.id, new SyncVarFieldInfo()
                             {
-                                id = varSync.id,
+                                id = synVarc.id,
                                 type = field.FieldType,
                                 target = target,
                                 fieldInfo = field,
                                 value = field.GetValue(target),
-                                passive = varSync.passive
+                                passive = synVarc.passive
                             });
                         }
-                        else if (varSyncInfo is VarSyncFieldInfo field1)
+                        else if (varSyncInfo is SyncVarFieldInfo field1)
                         {
                             NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
                         }
-                        else if (varSyncInfo is VarSyncPropertyInfo property)
+                        else if (varSyncInfo is SyncVarPropertyInfo property)
                         {
                             NDebug.LogError($"错误! 变量同步唯一id冲突, {property.target.GetType().Name}类的{property.propertyInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
                         }
@@ -560,23 +564,23 @@ namespace Net.Client
                             NDebug.LogError($"错误! 尚未支持同步字段,属性的{property.PropertyType}类型! 错误定义:{target.GetType().Name}类的{property.Name}属性字段");
                             continue;
                         }
-                        if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
+                        if (!syncVarInfos.TryGetValue(synVarc.id, out SyncVarInfo varSyncInfo))
                         {
-                            varSyncInfos.Add(varSync.id, new VarSyncPropertyInfo()
+                            syncVarInfos.Add(synVarc.id, new SyncVarPropertyInfo()
                             {
-                                id = varSync.id,
+                                id = synVarc.id,
                                 type = property.PropertyType,
                                 target = target,
                                 propertyInfo = property,
                                 value = property.GetValue(target),
-                                passive = varSync.passive
+                                passive = synVarc.passive
                             });
                         }
-                        else if (varSyncInfo is VarSyncFieldInfo field1)
+                        else if (varSyncInfo is SyncVarFieldInfo field1)
                         {
                             NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
                         }
-                        else if (varSyncInfo is VarSyncPropertyInfo property1)
+                        else if (varSyncInfo is SyncVarPropertyInfo property1)
                         {
                             NDebug.LogError($"错误! 变量同步唯一id冲突, {property1.target.GetType().Name}类的{property1.propertyInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
                         }
@@ -733,7 +737,7 @@ namespace Net.Client
                     continue;
                 }
                 RevdBuffer buffer = new RevdBuffer(rpc.target, rpc.method, model.pars);
-                revdBuffers.Add(buffer);
+                revdBuffers.Enqueue(buffer);
             }
         }
 
@@ -801,53 +805,55 @@ namespace Net.Client
             while (openClient)
             {
                 Thread.Sleep(1);
-                try { FixedUpdate(); } catch { }
+                try { NetworkEventUpdate(); } catch { }
             }
         }
 
         /// <summary>
         /// 网络数据更新
         /// </summary>
-        public void FixedUpdate()
+        public void NetworkEventUpdate()
         {
-            int count = revdBuffers.Count;
-            while (count > 0)
+            int count = workQueue.Count;
+            for (int i = 0; i < count; i++)
             {
+                if (workQueue.TryDequeue(out SendOrPostCallback callback))
+                {
+                    callback(null);
+                }
+            }
+            count = revdBuffers.Count;
+            for (int i = 0; i < count; i++)
+            {
+                if (revdBuffers.TryDequeue(out RevdBuffer buffer))
+                {
 #if UNITY_EDITOR
-                if (UseUnityThread & ThrowException)
-                {
-                    if (revdBuffers[0].method == null | revdBuffers[0].target == null)
-                        goto REMOVEAT;
-                    if (LogRpc)
-                        NDebug.Log($"RPC:{revdBuffers[0].method}");
-                    OnInvokeRpc(revdBuffers[0]);
-                REMOVEAT: count--;
-                    revdBuffers.RemoveAt(0);
-                    continue;
-                }
-#endif
-                try
-                {
-                    if (LogRpc)
-                        NDebug.Log($"RPC:{revdBuffers[0].method}");
-                    OnInvokeRpc(revdBuffers[0]);
-                }
-                catch (Exception e)
-                {
-                    string bug = $"BUG:{revdBuffers[0].method} -> Target:" + revdBuffers[0].target + " -> Pars:";
-                    if (revdBuffers[0].pars == null)
+                    if (UseUnityThread & ThrowException)
                     {
-                        bug += "null";
-                        goto LOG;
+                        if (LogRpc)
+                            NDebug.Log($"RPC:{buffer.method}");
+                        OnInvokeRpc(buffer);
+                        continue;
                     }
-                    foreach (object par in revdBuffers[0].pars)
-                        bug += par + " , ";
-                    LOG: NDebug.LogError(bug + " -> " + e);
-                }
-                finally
-                {
-                    count--;
-                    revdBuffers.RemoveAt(0);
+#endif
+                    try
+                    {
+                        if (LogRpc)
+                            NDebug.Log($"RPC:{buffer.method}");
+                        OnInvokeRpc(buffer);
+                    }
+                    catch (Exception e)
+                    {
+                        string bug = $"BUG:{buffer.method} -> Target:" + buffer.target + " -> Pars:";
+                        if (buffer.pars == null)
+                        {
+                            bug += "null";
+                            goto LOG;
+                        }
+                        foreach (object par in buffer.pars)
+                            bug += par + " , ";
+                        LOG: NDebug.LogError(bug + " -> " + e);
+                    }
                 }
             }
             StateHandle();
@@ -1086,7 +1092,7 @@ namespace Net.Client
         protected void InvokeContext(SendOrPostCallback action, object arg = null)
         {
             if (Context != null)
-                Context.Post(action, arg);
+                workQueue.Enqueue(action);
             else action(arg);
         }
 
@@ -1164,12 +1170,10 @@ namespace Net.Client
             if (!UseUnityThread)
                 StartThread("UpdateHandle", UpdateHandle);
 #if UNITY_ANDROID
-            if (Context == null)
-                return;
-            Context.Post(new SendOrPostCallback((o) => {
+            InvokeContext((arg)=> {
                 var randomName = RandomHelper.Range(0, int.MaxValue);
                 fileStreamName = UnityEngine.Application.persistentDataPath + "/rtTemp" + randomName + ".tmp";
-            }), null);
+            });
 #else
             fileStreamName = Path.GetTempFileName();
 #endif
@@ -1987,7 +1991,10 @@ namespace Net.Client
                     break;
                 case NetCmd.OperationSync:
                     OperationList list = OnDeserializeOPT(model.buffer, model.index, model.count);
-                    InvokeOnOperationSync(list);
+                    //InvokeOnOperationSync(list);
+                    if (OnOperationSync == null)
+                        return;
+                    InvokeContext((arg)=> { OnOperationSync(list); });
                     break;
                 case NetCmd.Ping:
                     rPCModels.Enqueue(new RPCModel(NetCmd.PingCallback, model.Buffer, model.kernel, false));
@@ -2016,7 +2023,7 @@ namespace Net.Client
                     while (segment1.Position < segment1.Index + segment1.Count)
                     {
                         var id = segment1.ReadValue<ushort>();
-                        if (varSyncInfos.TryGetValue(id, out VarSyncInfo varSync))
+                        if (syncVarInfos.TryGetValue(id, out SyncVarInfo varSync))
                         {
                             var value = segment1.ReadValue(varSync.type);
                             varSync.SetValue(value);
@@ -2844,37 +2851,16 @@ namespace Net.Client
         public virtual void Request(byte cmd, string func, params object[] pars) => Send(cmd, func, pars);
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="list"></param>
-        protected void InvokeOnOperationSync(OperationList list)
-        {
-            if (Context != null & !OperationSyncInThread)
-                Context.Post(OperationSyncCallback, list);
-            else
-                OnOperationSync?.Invoke(list);
-        }
-
-        private void OperationSyncCallback(object state)
-        {
-            OnOperationSync?.Invoke((OperationList)state);
-        }
-
-        /// <summary>
-        /// 
+        /// 调用程序员
         /// </summary>
         /// <param name="model"></param>
         protected void InvokeOnRevdBufferHandle(RPCModel model)
         {
-            if (Context != null)
-                Context.Post(OnRevdBufferCallback, model);
-            else
-                OnRevdBufferHandle?.Invoke(model);
-        }
-
-        private void OnRevdBufferCallback(object state)
-        {
-            OnRevdBufferHandle?.Invoke((RPCModel)state);
+            if (OnRevdBufferHandle == null)
+                return;
+            InvokeContext((arg)=> {
+                OnRevdBufferHandle(model);
+            });
         }
 
         /// <summary>
@@ -3002,8 +2988,8 @@ namespace Net.Client
                 {
                     Thread.Sleep(1);
                     Segment segment = null;
-                    var entries = varSyncInfos.entries;
-                    for (int i = 0; i < varSyncInfos.count; i++)
+                    var entries = syncVarInfos.entries;
+                    for (int i = 0; i < syncVarInfos.count; i++)
                     {
                         if (entries[i].hashCode >= 0)
                         {

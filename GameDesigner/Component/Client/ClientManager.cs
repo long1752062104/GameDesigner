@@ -119,7 +119,7 @@ namespace Net.Component
         // Update is called once per frame
         void Update()
         {
-            _client.FixedUpdate();
+            _client.NetworkEventUpdate();
             rpcs = _client.RPCs;
         }
 

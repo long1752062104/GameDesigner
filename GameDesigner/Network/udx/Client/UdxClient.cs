@@ -108,12 +108,10 @@
             if (!UseUnityThread)
                 StartThread("UpdateHandle", UpdateHandle);
 #if UNITY_ANDROID
-            if (Context == null)
-                return;
-            Context.Post(new SendOrPostCallback((o)=> {
+            InvokeContext((arg) => {
                 var randomName = RandomHelper.Range(0, int.MaxValue);
                 fileStreamName = UnityEngine.Application.persistentDataPath + "/rtTemp" + randomName + ".tmp";
-            }),null);
+            });
 #else
             fileStreamName = global::System.IO.Path.GetTempFileName();
 #endif

@@ -57,10 +57,10 @@
     <Compile Include="Example1\Service.cs" />
     <Compile Include="Example2\Command.cs" />
     <Compile Include="Example2\DBComponent.cs" />
-    <Compile Include="Example2\PlayerComponent.cs" />
-    <Compile Include="Example2\SceneComponent.cs" />
+    <Compile Include="Example2\Player.cs" />
+    <Compile Include="Example2\Scene.cs" />
     <Compile Include="Example2\SceneData.cs" />
-    <Compile Include="Example2\ServiceComponent.cs" />
+    <Compile Include="Example2\Service.cs" />
     <Compile Include="Example3\Player.cs" />
     <Compile Include="Example3\Scene.cs" />
     <Compile Include="Example3\Service.cs" />

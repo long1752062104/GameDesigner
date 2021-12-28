@@ -7,11 +7,6 @@ using System.Windows.Forms;
 
 namespace ExampleServer
 {
-    class TTT : Component 
-    {
-
-    }
-
     static class Program
     {
         /// <summary>

@@ -4,3 +4,4 @@ bin/Debug/
 obj/
 packages/
 packages.config
+*.stream

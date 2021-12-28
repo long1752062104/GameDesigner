@@ -2341,7 +2341,7 @@
         </member>
         <member name="F:Net.Component.Command.Destroy">
             <summary>
-            TransformComponent组件被销毁指令
+            NetworkIdentity组件被销毁指令
             </summary>
         </member>
         <member name="F:Net.Component.Command.Animator">
@@ -2357,6 +2357,16 @@
         <member name="F:Net.Component.Command.Animation">
             <summary>
             旧版动画同步命令
+            </summary>
+        </member>
+        <member name="F:Net.Component.Command.OnPlayerExit">
+            <summary>
+            当客户端退出游戏, 通知其他客户端删除此客户端所生成的NetworkIdentity物体
+            </summary>
+        </member>
+        <member name="F:Net.Component.Command.BuildComponent">
+            <summary>
+            网络组件生成工具同步指令
             </summary>
         </member>
         <member name="T:Net.Component.EncryptHelper">
@@ -2805,12 +2815,12 @@
         </member>
         <member name="P:Net.Client.ClientBase.Identify">
             <summary>
-            客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是NetPlayer.playerID值
+            客户端唯一标识, 当登录游戏后, 服务器下发下来的唯一标识, 这个标识就是你的玩家名称, 是<see cref="P:Net.Server.NetPlayer.PlayerID"/>值
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.UID">
             <summary>
-            用户唯一标识, 对应服务器的NetPlayer.UID
+            用户唯一标识, 对应服务器的<see cref="P:Net.Server.NetPlayer.UserID"/>
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.SyncFrequency">

@@ -19,7 +19,7 @@ namespace ExampleServer
             button1_Click(null, null);
         }
 
-        private ServiceComponent server;
+        private Service server;
         private bool run;
 
         private void button1_Click(object sender, EventArgs e)
@@ -32,7 +32,7 @@ namespace ExampleServer
                 return;
             }
             int port = int.Parse(textBox2.Text);//设置端口
-            server = new ServiceComponent();//创建服务器对象
+            server = new Service();//创建服务器对象
             server.Log += str=> {//监听log
                 if (listBox1.Items.Count > 2000)
                     listBox1.Items.Clear();
@@ -52,7 +52,7 @@ namespace ExampleServer
                 label2.Text = "当前在线人数:" + server.OnlinePlayers + " 未知客户端:" + server.UnClientNumber;
             };
             server.AddAdapter(new Net.Adapter.SerializeAdapter3());
-            server.AddAdapter(new Net.Adapter.CallSiteRpcAdapter<PlayerComponent>());
+            server.AddAdapter(new Net.Adapter.CallSiteRpcAdapter<Player>());
             server.Run((ushort)port);//启动
             run = true;
             button1.Text = "关闭";

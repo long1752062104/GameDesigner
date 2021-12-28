@@ -46,7 +46,7 @@
         /// </summary>
         public const byte Transform = 109;
         /// <summary>
-        /// TransformComponent组件被销毁指令
+        /// NetworkIdentity组件被销毁指令
         /// </summary>
         public const byte Destroy = 110;
         /// <summary>
@@ -61,5 +61,15 @@
         /// 旧版动画同步命令
         /// </summary>
         public const byte Animation = 113;
+        /// <summary>
+        /// 当客户端退出游戏, 通知其他客户端删除此客户端所生成的NetworkIdentity物体
+        /// </summary>
+        public const byte OnPlayerExit = 114;
+        /// <summary>
+        /// 网络组件生成工具同步指令
+        /// </summary>
+        public const byte BuildComponent = 115;
+
+        public const byte SyncVar = 116;
     }
 }

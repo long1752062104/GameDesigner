@@ -39,6 +39,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="GameDesigner\Component\UnityComponent\Generate\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -210,10 +211,14 @@
     <None Include="GameDesigner\Component\RoomData.cs.meta" />
     <None Include="GameDesigner\Component\SqlServerHelper.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Editor.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Editor\BuildComponentTools.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Generate.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkIdentity.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkSceneManager.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkTransform.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\SyncVar.cs.meta" />
     <None Include="GameDesigner\ECS.meta" />
     <None Include="GameDesigner\ECS\ArrayPool.cs.meta" />
     <None Include="GameDesigner\ECS\Component.cs.meta" />
@@ -663,10 +668,10 @@
     <None Include="GameDesigner\Network\core\Share\RPCModelTask.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\RTOMode.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\SendBuffer.cs.meta" />
+    <None Include="GameDesigner\Network\core\Share\SyncVarInfo.cs.meta" />
+    <None Include="GameDesigner\Network\core\Share\SyncVarToServer.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\TransportMode.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\UnZipHelper.cs.meta" />
-    <None Include="GameDesigner\Network\core\Share\VarSync.cs.meta" />
-    <None Include="GameDesigner\Network\core\Share\VarSyncInfo.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs.meta" />
     <None Include="GameDesigner\Network\core\System.meta" />
     <None Include="GameDesigner\Network\core\System\BufferPool.cs.meta" />
@@ -1284,10 +1289,12 @@
     <Compile Include="GameDesigner\Component\NTransform.cs" />
     <Compile Include="GameDesigner\Component\RoomData.cs" />
     <Compile Include="GameDesigner\Component\SqlServerHelper.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\Editor\BuildComponentTools.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkIdentity.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkSceneManager.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkTransform.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\SyncVar.cs" />
     <Compile Include="GameDesigner\ECS\ArrayPool.cs" />
     <Compile Include="GameDesigner\ECS\Component.cs" />
     <Compile Include="GameDesigner\ECS\Entity.cs" />
@@ -1648,10 +1655,10 @@
     <Compile Include="GameDesigner\Network\core\Share\RPCModelTask.cs" />
     <Compile Include="GameDesigner\Network\core\Share\RTOMode.cs" />
     <Compile Include="GameDesigner\Network\core\Share\SendBuffer.cs" />
+    <Compile Include="GameDesigner\Network\core\Share\SyncVarInfo.cs" />
+    <Compile Include="GameDesigner\Network\core\Share\SyncVarToServer.cs" />
     <Compile Include="GameDesigner\Network\core\Share\TransportMode.cs" />
     <Compile Include="GameDesigner\Network\core\Share\UnZipHelper.cs" />
-    <Compile Include="GameDesigner\Network\core\Share\VarSync.cs" />
-    <Compile Include="GameDesigner\Network\core\Share\VarSyncInfo.cs" />
     <Compile Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs" />
     <Compile Include="GameDesigner\Network\core\System\BufferPool.cs" />
     <Compile Include="GameDesigner\Network\core\System\Dictionary.cs" />

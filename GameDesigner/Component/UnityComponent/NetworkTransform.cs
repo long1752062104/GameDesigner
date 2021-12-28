@@ -29,7 +29,6 @@ namespace Net.UnityComponent
         public bool fixedSync = true;
         public float fixedSendTime = 1f;//固定发送时间
         internal float fixedTime;
-        internal float checkStatusTime;//检测其他客户端是否断线, 如果断线则把断线的客户端所同步的transform组件删除
 
         // Update is called once per frame
         public virtual void Update()
@@ -39,14 +38,6 @@ namespace Net.UnityComponent
             if (mode == SyncMode.Synchronized)
             {
                 SyncTransform();
-                if (fixedSync)
-                {
-                    if (Time.time > checkStatusTime)
-                    {
-                        SceneManager.I.transforms.Remove(networkIdentity.identity);
-                        Destroy(gameObject);
-                    }
-                }
             }
             else if (Time.time > sendTime)
             {
@@ -72,8 +63,8 @@ namespace Net.UnityComponent
             ClientManager.AddOperation(new Operation(Command.Transform, networkIdentity.identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
             {
                 cmd1 = (byte)mode,
-                cmd2 = (byte)networkIdentity.registerObjectIndex,
-                index1 = ClientManager.UID
+                index = networkIdentity.registerObjectIndex,
+                uid = ClientManager.UID
             });
         }
 
@@ -107,47 +98,25 @@ namespace Net.UnityComponent
             }
         }
 
-        public override void OnDestroy()
-        {
-            if (ClientManager.Instance == null)
-                return;
-            switch (mode)
-            {
-                case SyncMode.Synchronized:
-                case SyncMode.SynchronizedAll:
-                    return;
-            }
-            ClientManager.AddOperation(new Operation(Command.Destroy) { identity = networkIdentity.identity });
-        }
-
-        public override void OnNetworkIdentityInit(int id, int newId)
+        public override void OnNetworkIdentityInit(int identity)
         {
             mode = syncMode;
-            switch (mode)
-            {
-                case SyncMode.Synchronized:
-                case SyncMode.SynchronizedAll:
-                    return;
-            }
         }
 
         public override void OnNetworkIdentityCreate(Operation opt)
         {
-            SyncMode mode = (SyncMode)opt.cmd1;
-            if (mode == SyncMode.Control)
-                syncMode = SyncMode.SynchronizedAll;
+            SyncMode mode1 = (SyncMode)opt.cmd1;
+            if (mode1 == SyncMode.Control | mode1 == SyncMode.SynchronizedAll)
+                mode = SyncMode.SynchronizedAll;
             else
-                syncMode = SyncMode.Synchronized;
+                mode = SyncMode.Synchronized;
         }
 
         public override void OnNetworkOperationHandler(Operation opt)
         {
             if (ClientManager.UID == opt.uid | opt.cmd != Command.Transform)
                 return;
-            if (mode == SyncMode.SynchronizedAll & Time.time < fixedTime)
-                return;
             sendTime = Time.time + interval;
-            checkStatusTime = Time.time + fixedSendTime * 3f;
             netPosition = opt.position;
             netRotation = opt.rotation;
             netLocalScale = opt.direction;

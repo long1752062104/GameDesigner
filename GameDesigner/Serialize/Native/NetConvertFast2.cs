@@ -48,9 +48,9 @@
     /// </summary>
     public class NetConvertFast2 : NetConvertBase
     {
-        private static MyDictionary<ushort, Type> Types = new MyDictionary<ushort, Type>();
-        private static MyDictionary<Type, ushort> Types1 = new MyDictionary<Type, ushort>();
-        private static MyDictionary<Type, TypeBind> Types2 = new MyDictionary<Type, TypeBind>();
+        private static readonly MyDictionary<ushort, Type> Types = new MyDictionary<ushort, Type>();
+        private static readonly MyDictionary<Type, ushort> Types1 = new MyDictionary<Type, ushort>();
+        private static readonly MyDictionary<Type, TypeBind> Types2 = new MyDictionary<Type, TypeBind>();
         private static readonly MyDictionary<Type, Type> BindTypes = new MyDictionary<Type, Type>();
 
         static NetConvertFast2()
@@ -326,6 +326,25 @@
             return stream;
         }
 
+        public static void SerializeObject<T>(T value, Segment stream)
+        {
+            try
+            {
+                Type type = value.GetType();
+                if (Types2.TryGetValue(type, out TypeBind typeBind))
+                {
+                    var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
+                    bind.Write(value, stream);
+                }
+                else throw new Exception($"请注册或绑定:{type}类型后才能序列化!");
+            }
+            catch (Exception ex)
+            {
+                stream.Position = 0;
+                NDebug.LogError("序列化:" + value + "出错 详细信息:" + ex);
+            }
+        }
+
         public static Segment SerializeObject(object value)
         {
             var stream = BufferPool.Take();
@@ -352,26 +371,26 @@
             return stream;
         }
 
-        public static T DeserializeObject<T>(Segment segment)
+        public static T DeserializeObject<T>(Segment segment, bool isPush = true)
         {
             Type type = typeof(T);
             if (Types2.TryGetValue(type, out TypeBind typeBind)) 
             {
                 var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
                 T value = bind.Read(segment);
-                BufferPool.Push(segment);
+                if (isPush) BufferPool.Push(segment);
                 return value;
             }
             throw new Exception($"请注册或绑定:{type}类型后才能反序列化!");
         }
 
-        public static object DeserializeObject(Type type, Segment segment)
+        public static object DeserializeObject(Type type, Segment segment, bool isPush = true)
         {
             if (Types2.TryGetValue(type, out TypeBind typeBind))
             {
                 var bind = (ISerialize)Activator.CreateInstance(typeBind.type);
                 object value = bind.ReadValue(segment);
-                BufferPool.Push(segment);
+                if(isPush) BufferPool.Push(segment);
                 return value;
             }
             throw new Exception($"请注册或绑定:{type}类型后才能反序列化!");
@@ -451,10 +470,11 @@
                 {
                     ushort typeIndex = segment.ReadValue<ushort>();
                     Type type = IndexToType(typeIndex);
-                    var obj1 = DeserializeObject(type, segment);
+                    var obj1 = DeserializeObject(type, segment, false);
                     list.Add(obj1);
                 }
                 obj.pars = list.ToArray();
+                BufferPool.Push(segment);
             }
             catch (Exception ex)
             {

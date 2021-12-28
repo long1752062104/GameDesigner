@@ -9,7 +9,7 @@ namespace Example2
     {
         internal NTransform transform;
         internal RoamingPath1 roamingPath;
-        internal SceneComponent scene;
+        internal Scene scene;
         internal byte state;
         internal byte state1;
         private float idleTime;

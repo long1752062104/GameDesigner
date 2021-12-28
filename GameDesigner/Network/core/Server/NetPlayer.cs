@@ -105,7 +105,7 @@
         /// </summary>
         internal EndPoint TcpRemoteEndPoint { get; set; }
 
-        internal MyDictionary<ushort, VarSyncInfo> varSyncInfos = new MyDictionary<ushort, VarSyncInfo>();
+        internal MyDictionary<ushort, SyncVarInfo> varSyncInfos = new MyDictionary<ushort, SyncVarInfo>();
 
         internal MyDictionary<int, FileData> ftpDic = new MyDictionary<int, FileData>();
 
@@ -214,7 +214,7 @@
                 }
                 else 
                 {
-                    VarSync varSync = info.GetCustomAttribute<VarSync>();
+                    SyncVarToServer varSync = info.GetCustomAttribute<SyncVarToServer>();
                     if (varSync == null)
                         continue;
                     if (varSync.id == 0)
@@ -230,9 +230,9 @@
                             NDebug.LogError($"错误! 尚未支持同步字段,属性的{field.FieldType}类型! 错误定义:{target.GetType().Name}类的{field.Name}字段");
                             continue;
                         }
-                        if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
+                        if (!varSyncInfos.TryGetValue(varSync.id, out SyncVarInfo varSyncInfo))
                         {
-                            varSyncInfos.Add(varSync.id, new VarSyncFieldInfo()
+                            varSyncInfos.Add(varSync.id, new SyncVarFieldInfo()
                             {
                                 id = varSync.id,
                                 type = field.FieldType,
@@ -242,11 +242,11 @@
                                 passive = varSync.passive
                             });
                         }
-                        else if (varSyncInfo is VarSyncFieldInfo field1)
+                        else if (varSyncInfo is SyncVarFieldInfo field1)
                         {
                             NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
                         }
-                        else if (varSyncInfo is VarSyncPropertyInfo property)
+                        else if (varSyncInfo is SyncVarPropertyInfo property)
                         {
                             NDebug.LogError($"错误! 变量同步唯一id冲突, {property.target.GetType().Name}类的{property.propertyInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
                         }
@@ -264,9 +264,9 @@
                             NDebug.LogError($"错误! 尚未支持同步字段,属性的{property.PropertyType}类型! 错误定义:{target.GetType().Name}类的{property.Name}属性字段");
                             continue;
                         }
-                        if (!varSyncInfos.TryGetValue(varSync.id, out VarSyncInfo varSyncInfo))
+                        if (!varSyncInfos.TryGetValue(varSync.id, out SyncVarInfo varSyncInfo))
                         {
-                            varSyncInfos.Add(varSync.id, new VarSyncPropertyInfo()
+                            varSyncInfos.Add(varSync.id, new SyncVarPropertyInfo()
                             {
                                 id = varSync.id,
                                 type = property.PropertyType,
@@ -276,11 +276,11 @@
                                 passive = varSync.passive
                             });
                         }
-                        else if (varSyncInfo is VarSyncFieldInfo field1)
+                        else if (varSyncInfo is SyncVarFieldInfo field1)
                         {
                             NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
                         }
-                        else if (varSyncInfo is VarSyncPropertyInfo property1)
+                        else if (varSyncInfo is SyncVarPropertyInfo property1)
                         {
                             NDebug.LogError($"错误! 变量同步唯一id冲突, {property1.target.GetType().Name}类的{property1.propertyInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
                         }

@@ -1212,7 +1212,7 @@ namespace Net.Server
                     while (segment1.Position < segment1.Index + segment1.Count)
                     {
                         var id = segment1.ReadValue<ushort>();
-                        if (client.varSyncInfos.TryGetValue(id, out VarSyncInfo varSync))
+                        if (client.varSyncInfos.TryGetValue(id, out SyncVarInfo varSync))
                         {
                             var value = segment1.ReadValue(varSync.type);
                             varSync.SetValue(value);

@@ -23,6 +23,7 @@ namespace AOIExample
         public override void OnExit(Client client)
         {
             AddOperation(new Operation(Command.Destroy, client.UserID));
+            AddOperation(new Operation(Command.OnPlayerExit) { uid = client.UserID });
             gridManager.Remove(client);
         }
         public override void OnOperationSync(Client client, OperationList list)
