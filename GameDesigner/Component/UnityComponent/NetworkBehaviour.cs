@@ -15,11 +15,15 @@ namespace Net.UnityComponent
             networkIdentity = GetComponent<NetworkIdentity>();
             networkIdentity.networkBehaviours.Add(this); 
             networkIdentity.InitSyncVar(this);
+        }
+        public virtual void Start() 
+        {
             ClientManager.AddRpcHandler(this);
         }
         public virtual void OnNetworkIdentityInit(int identity) { }
         public virtual void OnNetworkIdentityCreate(Operation opt) { }
         public virtual void OnNetworkOperationHandler(Operation opt) { }
+        public virtual void OnPropertyAutoCheck() { }
         public virtual void OnDestroy()
         {
             networkIdentity.networkBehaviours.Remove(this);

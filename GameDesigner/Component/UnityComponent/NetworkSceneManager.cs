@@ -14,14 +14,6 @@ namespace Net.UnityComponent
         [HideInInspector]
         public MyDictionary<int, NetworkIdentity> identitys = new MyDictionary<int, NetworkIdentity>();
 
-        void Awake()
-        {
-            if (ClientManager.I.client.Connected)
-                OnConnectedHandle();
-            else
-                ClientManager.I.client.OnConnectedHandle += OnConnectedHandle;
-        }
-
         private void OnConnectedHandle()
         {
             NetworkIdentity.Init(5000);
@@ -30,6 +22,10 @@ namespace Net.UnityComponent
         // Start is called before the first frame update
         void Start()
         {
+            if (ClientManager.I.client.Connected)
+                OnConnectedHandle();
+            else
+                ClientManager.I.client.OnConnectedHandle += OnConnectedHandle;
             ClientManager.I.client.OnOperationSync += OperationSync;
         }
 
@@ -39,7 +35,10 @@ namespace Net.UnityComponent
             {
                 foreach (var identity in identitys.Values)
                 {
+                    if (!identity.enabled)
+                        continue;
                     identity.CheckSyncVar();
+                    identity.PropertyAutoCheckHandler();
                 }
             }
         }
@@ -131,6 +130,7 @@ namespace Net.UnityComponent
 
         void OnDestroy()
         {
+            ClientManager.I.client.OnConnectedHandle -= OnConnectedHandle;
             ClientManager.I.client.OnOperationSync -= OperationSync;
         }
     }

@@ -17,7 +17,9 @@ namespace Net.UnityComponent
         internal static Queue<int> IdentityPool = new Queue<int>();
         public static int Capacity { get; private set; }
         [DisplayOnly] public int identity = -1;
+        [Tooltip("自定义唯一标识, 可以不通过NetworkSceneManager的registerObjects去设置, 直接放在设计的场景里面, 不需要做成预制体")]
         public int m_identity;//可以设置的id
+        [Tooltip("注册的网络物体索引, registerObjectIndex要对应NetworkSceneManager的registerObjects数组索引, 如果设置了自定义唯一标识, 则此字段无效!")]
         public int registerObjectIndex;
         internal bool isOtherCreate;
         internal List<NetworkBehaviour> networkBehaviours = new List<NetworkBehaviour>();
@@ -35,6 +37,12 @@ namespace Net.UnityComponent
             }
             if (m_identity != 0)
             {
+                if (m_identity > 10000)
+                {
+                    Debug.Log("自定义唯一标识不能大于10000!");
+                    Destroy(gameObject);
+                    return;
+                }
                 identity = m_identity;
                 sm.identitys.Add(m_identity, this);
                 return;
@@ -131,6 +139,16 @@ namespace Net.UnityComponent
             }
         }
 
+        internal void PropertyAutoCheckHandler() 
+        {
+            foreach (var networkBehaviour in networkBehaviours)
+            {
+                if (!networkBehaviour.enabled)
+                    continue;
+                networkBehaviour.OnPropertyAutoCheck();
+            }
+        }
+
         public virtual void OnDestroy()
         {
             if (identity == -1)
@@ -138,7 +156,7 @@ namespace Net.UnityComponent
             var nsm = NetworkSceneManager.I;
             if(nsm != null)
                 nsm.identitys.Remove(identity);
-            if (isOtherCreate)
+            if (isOtherCreate | identity < 10000)//identity < 10000则是自定义唯一标识
                 return;
             IdentityPool.Enqueue(identity);
             if (ClientManager.I == null)

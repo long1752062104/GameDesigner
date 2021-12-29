@@ -311,6 +311,11 @@
                     var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
                     bind.Write(value, stream);
                 }
+                else if (type.IsEnum)
+                {
+                    var bind = new BaseBind<int>();
+                    bind.Write(value.GetHashCode(), stream);
+                }
                 else throw new Exception($"请注册或绑定:{type}类型后才能序列化!");
             }
             catch (Exception ex)
@@ -336,6 +341,11 @@
                     var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
                     bind.Write(value, stream);
                 }
+                else if (type.IsEnum)
+                {
+                    var bind = new BaseBind<int>();
+                    bind.Write(value.GetHashCode(), stream);
+                }
                 else throw new Exception($"请注册或绑定:{type}类型后才能序列化!");
             }
             catch (Exception ex)
@@ -355,6 +365,11 @@
                 {
                     var bind = (ISerialize)Activator.CreateInstance(typeBind.type);
                     bind.WriteValue(value, stream);
+                }
+                else if (type.IsEnum) 
+                {
+                    var bind = new BaseBind<int>();
+                    bind.Write(value.GetHashCode(), stream);
                 }
                 else throw new Exception($"请注册或绑定:{type}类型后才能序列化!");
             }
@@ -381,7 +396,14 @@
                 if (isPush) BufferPool.Push(segment);
                 return value;
             }
-            throw new Exception($"请注册或绑定:{type}类型后才能反序列化!");
+            else if (type.IsEnum)
+            {
+                var bind = new BaseBind<int>();
+                T value = (T)(object)bind.Read(segment);
+                if (isPush) BufferPool.Push(segment);
+                return value;
+            }
+            else throw new Exception($"请注册或绑定:{type}类型后才能反序列化!");
         }
 
         public static object DeserializeObject(Type type, Segment segment, bool isPush = true)
@@ -391,6 +413,13 @@
                 var bind = (ISerialize)Activator.CreateInstance(typeBind.type);
                 object value = bind.ReadValue(segment);
                 if(isPush) BufferPool.Push(segment);
+                return value;
+            }
+            else if (type.IsEnum)
+            {
+                var bind = new BaseBind<int>();
+                object value = bind.Read(segment);
+                if (isPush) BufferPool.Push(segment);
                 return value;
             }
             throw new Exception($"请注册或绑定:{type}类型后才能反序列化!");
@@ -442,6 +471,11 @@
                     {
                         var bind = (ISerialize)Activator.CreateInstance(typeBind.type);
                         bind.WriteValue(obj, stream);
+                    }
+                    else if (type.IsEnum)
+                    {
+                        var bind = new BaseBind<int>();
+                        bind.Write(obj.GetHashCode(), stream);
                     }
                     else throw new Exception($"请注册或绑定:{type}类型后才能序列化!");
                 }

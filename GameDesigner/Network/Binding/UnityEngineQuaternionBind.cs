@@ -32,12 +32,6 @@ namespace Binding
 				NetConvertBase.SetBit(ref bits[0], 4, true);
 				stream.WriteValue(value.w);
 			}
-			if(value.eulerAngles != default)
-			{
-				NetConvertBase.SetBit(ref bits[0], 5, true);
-				var bind = new UnityEngineVector3Bind();
-				bind.Write(value.eulerAngles, stream);
-			}
 			int pos1 = stream.Position;
 			stream.Position = pos;
 			stream.Write(bits, 0, 1);
@@ -56,11 +50,6 @@ namespace Binding
 				value.z = stream.ReadValue<Single>();
 			if(NetConvertBase.GetBit(bits[0], 4))
 				value.w = stream.ReadValue<Single>();
-			if(NetConvertBase.GetBit(bits[0], 5))
-			{
-				var bind = new UnityEngineVector3Bind();
-				value.eulerAngles = bind.Read(stream);
-			}
 			return value;
 		}
 

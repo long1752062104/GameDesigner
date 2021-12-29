@@ -14,6 +14,8 @@ public class Fast2BuildTools1 : EditorWindow
     private string savePath;
     private string bindTypeName1;
     private string methodName1;
+    private bool serField = true;
+    private bool serProperty = true;
 
     [MenuItem("GameDesigner/Network/Fast2BuildTool-1")]
     static void ShowWindow()
@@ -46,6 +48,8 @@ public class Fast2BuildTools1 : EditorWindow
             methodName1 = methodName;
             Save();
         }
+        serField = EditorGUILayout.Toggle("序列化字段:", serField);
+        serProperty = EditorGUILayout.Toggle("序列化属性:", serProperty);
         GUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("保存路径:", savePath);
         if (GUILayout.Button("选择路径", GUILayout.Width(100)))
@@ -70,7 +74,7 @@ public class Fast2BuildTools1 : EditorWindow
             IList<Type> list = (IList<Type>)method.Invoke(null, null);
             foreach (var type in list)
             {
-                Fast2BuildMethod.Build(type, true, savePath);
+                Fast2BuildMethod.Build(type, true, savePath, serField, serProperty);
                 Fast2BuildMethod.BuildArray(type, true, savePath);
                 Fast2BuildMethod.BuildGeneric(type, true, savePath);
             }
@@ -106,6 +110,8 @@ public class Fast2BuildTools2 : EditorWindow
     private Vector2 scrollPosition;
     private Vector2 scrollPosition1;
     private string savePath, savePath1;
+    private bool serField = true;
+    private bool serProperty = true;
 
     [MenuItem("GameDesigner/Network/Fast2BuildTool-2")]
     static void ShowWindow()
@@ -170,6 +176,8 @@ public class Fast2BuildTools2 : EditorWindow
             }
             GUILayout.EndScrollView();
         }
+        serField = EditorGUILayout.Toggle("序列化字段:", serField);
+        serProperty = EditorGUILayout.Toggle("序列化属性:", serProperty);
         GUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("保存路径:", savePath);
         if (GUILayout.Button("选择路径", GUILayout.Width(100)))
@@ -196,12 +204,12 @@ public class Fast2BuildTools2 : EditorWindow
             foreach (var type1 in typeNames)
             {
                 Type type = Net.Serialize.NetConvertOld.GetType(type1);
-                Fast2BuildMethod.Build(type, true, savePath);
+                Fast2BuildMethod.Build(type, true, savePath, serField, serProperty);
                 Fast2BuildMethod.BuildArray(type, true, savePath);
                 Fast2BuildMethod.BuildGeneric(type, true, savePath);
                 if (!string.IsNullOrEmpty(savePath1)) 
                 {
-                    Fast2BuildMethod.Build(type, true, savePath1);
+                    Fast2BuildMethod.Build(type, true, savePath1, serField, serProperty);
                     Fast2BuildMethod.BuildArray(type, true, savePath1);
                     Fast2BuildMethod.BuildGeneric(type, true, savePath1);
                 }

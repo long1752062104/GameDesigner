@@ -43,7 +43,7 @@ public static class Fast2BuildMethod
         List<string> codes = new List<string>();
         foreach (var type in types)
         {
-            var str = Build(type, true);
+            var str = Build(type, true, true, true);
             str.Append(BuildArray(type, true));
             str.Append(BuildGeneric(type, true));
             codes.Add(str.ToString());
@@ -82,19 +82,19 @@ public static class Fast2BuildMethod
 
     public static void Build(Type type, string savePath)
     {
-        var str = Build(type, false);
+        var str = Build(type, false, true, true);
         var className = type.FullName.Replace(".", "").Replace("+", "");
         File.WriteAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
 
-    public static void Build(Type type, bool addNs, string savePath)
+    public static void Build(Type type, bool addNs, string savePath, bool serField, bool serProperty)
     {
-        var str = Build(type, addNs);
+        var str = Build(type, addNs, serField, serProperty);
         var className = type.FullName.Replace(".", "").Replace("+", "");
         File.WriteAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
 
-    public static StringBuilder Build(Type type, bool addNs)
+    public static StringBuilder Build(Type type, bool addNs, bool serField, bool serProperty)
     {
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace) | addNs;
@@ -107,8 +107,16 @@ public static class Fast2BuildMethod
         var className = type.FullName.Replace(".", "").Replace("+", "");
         str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}Bind : ISerialize<{type.FullName.Replace("+", ".")}>, ISerialize");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        FieldInfo[] fields;
+        if (serField)
+            fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+        else
+            fields = new FieldInfo[0];
+        PropertyInfo[] properties;
+        if (serProperty)
+            properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        else
+            properties = new PropertyInfo[0];
         List<Member> members = new List<Member>();
         foreach (var field in fields)
         {

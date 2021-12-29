@@ -39,7 +39,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="GameDesigner\Component\UnityComponent\Generate\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -214,6 +213,9 @@
     <None Include="GameDesigner\Component\UnityComponent\Editor.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Editor\BuildComponentTools.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkAnimation.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkCamera.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkLight.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkIdentity.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkSceneManager.cs.meta" />
@@ -1290,6 +1292,9 @@
     <Compile Include="GameDesigner\Component\RoomData.cs" />
     <Compile Include="GameDesigner\Component\SqlServerHelper.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Editor\BuildComponentTools.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkAnimation.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkCamera.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkLight.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkIdentity.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkSceneManager.cs" />
