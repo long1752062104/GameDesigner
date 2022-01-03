@@ -34,24 +34,29 @@ namespace Net.System
             MainThread.Start();
         }
 
-        public static void Invoke(Func<bool> ptr) 
+        public static int Invoke(Func<bool> ptr) 
         {
-            Event.AddEvent(0, ptr);
+            return Event.AddEvent(0, ptr);
         }
 
-        public static void Invoke(string name, Func<bool> ptr)
+        public static int Invoke(Action ptr)
         {
-            Event.AddEvent(name, 0, ptr);
+            return Event.AddEvent(0, ptr);
         }
 
-        public static void Invoke(float time, Func<bool> ptr)
+        public static int Invoke(string name, Func<bool> ptr)
         {
-            Event.AddEvent(time, ptr);
+            return Event.AddEvent(name, 0, ptr);
         }
 
-        public static void Invoke(string name, float time, Func<bool> ptr)
+        public static int Invoke(float time, Func<bool> ptr)
         {
-            Event.AddEvent(name, time, ptr);
+            return Event.AddEvent(time, ptr);
+        }
+
+        public static int Invoke(string name, float time, Func<bool> ptr)
+        {
+            return Event.AddEvent(name, time, ptr);
         }
     }
 }

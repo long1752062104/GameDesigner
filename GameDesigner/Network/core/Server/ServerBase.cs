@@ -261,13 +261,9 @@ namespace Net.Server
         /// </summary>
         protected string rootPath;
         /// <summary>
-        /// 单线程上下文处理中心队列
+        /// 单线程调用队列
         /// </summary>
-        protected ConcurrentQueue<Action> SingleContext { get; set; } = new ConcurrentQueue<Action>();
-        /// <summary>
-        /// 单线程定时器
-        /// </summary>
-        public TimerEvent Timer { get; set; } = new TimerEvent();
+        protected ConcurrentQueue<Action> SingleCallQueue { get; set; } = new ConcurrentQueue<Action>();
         #endregion
 
         #region 服务器事件处理
@@ -620,10 +616,10 @@ namespace Net.Server
             send.Start();
             Thread hupdate = new Thread(CheckHeartHandle) { IsBackground = true, Name = "HeartUpdate" };
             hupdate.Start();
-            Thread dtt = new Thread(DataTrafficThread) { IsBackground = true, Name = "DataTrafficThread" };
-            dtt.Start();
             Thread suh = new Thread(SceneUpdateHandle) { IsBackground = true, Name = "SceneUpdateHandle" };
             suh.Start();
+            ThreadManager.Invoke("DataTrafficHandler", 1f, DataTrafficHandler);
+            ThreadManager.Invoke("SingleHandler", SingleHandler);
             ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
             for (int i = 0; i < MaxThread; i++)
             {
@@ -640,7 +636,6 @@ namespace Net.Server
             }
             threads.Add("SendDataHandle", send);
             threads.Add("HeartUpdate", hupdate);
-            threads.Add("DataTrafficThread", dtt);
             threads.Add("SceneUpdateHandle", suh);
             KeyValuePair<string, Scene> scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
@@ -682,7 +677,7 @@ namespace Net.Server
         /// <returns>可用于结束事件的id</returns>
         public int Invoke(Func<bool> ptr)
         {
-            return Timer.AddEvent(0, ptr);
+            return ThreadManager.Invoke(0, ptr);
         }
 
         /// <summary>
@@ -693,7 +688,7 @@ namespace Net.Server
         /// <returns>可用于结束事件的id</returns>
         public int Invoke(float time, Action ptr)
         {
-            return Timer.AddEvent(time, ptr);
+            return ThreadManager.Event.AddEvent(time, ptr);
         }
 
         /// <summary>
@@ -704,47 +699,50 @@ namespace Net.Server
         /// <returns>可用于结束事件的id</returns>
         public int Invoke(float time, Func<bool> ptr)
         {
-            return Timer.AddEvent(time, ptr);
+            return ThreadManager.Invoke(time, ptr);
         }
 
         /// <summary>
         /// 流量统计线程
         /// </summary>
-        protected virtual void DataTrafficThread()
+        protected virtual bool DataTrafficHandler()
         {
-            var time = DateTime.Now.AddSeconds(1);
-            while (IsRunServer)
+            try
             {
-                try
+                OnNetworkDataTraffic?.Invoke(sendAmount, sendCount, receiveAmount, receiveCount, resolveAmount, sendLoopNum, revdLoopNum);
+                sendCount = 0;
+                sendAmount = 0;
+                resolveAmount = 0;
+                receiveAmount = 0;
+                receiveCount = 0;
+                sendLoopNum = 0;
+                revdLoopNum = 0;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("流量统计异常:" + ex);
+            }
+            return IsRunServer;
+        }
+
+        /// <summary>
+        /// 单线程处理
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool SingleHandler() 
+        {
+            try
+            {
+                while (SingleCallQueue.TryDequeue(out Action action))
                 {
-                    Timer.UpdateEvent(2);
-                    if (SingleContext.Count == 0 & DateTime.Now < time)
-                    {
-                        Thread.Sleep(1);
-                        continue;
-                    }
-                    while (SingleContext.TryDequeue(out Action action))
-                    {
-                        action();
-                    }
-                    if (DateTime.Now > time)
-                    {
-                        time = DateTime.Now.AddSeconds(1);
-                        OnNetworkDataTraffic?.Invoke(sendAmount, sendCount, receiveAmount, receiveCount, resolveAmount, sendLoopNum, revdLoopNum);
-                        sendCount = 0;
-                        sendAmount = 0;
-                        resolveAmount = 0;
-                        receiveAmount = 0;
-                        receiveCount = 0;
-                        sendLoopNum = 0;
-                        revdLoopNum = 0;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError("流量统计+单线程中心异常:" + ex);
+                    action();
                 }
             }
+            catch (Exception ex)
+            {
+                Debug.LogError("单线程异常:" + ex);
+            }
+            return IsRunServer;
         }
 
         /// <summary>
@@ -1709,7 +1707,7 @@ namespace Net.Server
                     }
                     else if (rpc.cmd == NetCmd.SingleCall)
                     {
-                        SingleContext.Enqueue(() =>
+                        SingleCallQueue.Enqueue(() =>
                         {
                             object[] pars = new object[model.pars.Length + 1];
                             pars[0] = client;
@@ -2896,7 +2894,7 @@ namespace Net.Server
             {
                 Debug.LogError(e);
             }
-            return true;
+            return IsRunServer;
         }
 
         /// <summary>

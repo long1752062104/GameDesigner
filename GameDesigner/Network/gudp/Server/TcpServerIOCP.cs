@@ -60,10 +60,10 @@
             send.Start();
             Thread hupdate = new Thread(CheckHeartHandle) { IsBackground = true, Name = "HeartUpdate" };//tcp,udp保活连接状态
             hupdate.Start();
-            Thread dtt = new Thread(DataTrafficThread) { IsBackground = true, Name = "DataTrafficThread" };
-            dtt.Start();
             Thread suh = new Thread(SceneUpdateHandle) { IsBackground = true, Name = "SceneUpdateHandle" };
             suh.Start();
+            ThreadManager.Invoke("DataTrafficThread", 1f, DataTrafficHandler);
+            ThreadManager.Invoke("SingleHandler", SingleHandler);
             ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
             for (int i = 0; i < MaxThread; i++)
             {
@@ -80,7 +80,6 @@
             }
             threads.Add("SendDataHandle", send);
             threads.Add("HeartUpdate", hupdate);
-            threads.Add("DataTrafficThread", dtt);
             threads.Add("SceneUpdateHandle", suh);
             KeyValuePair<string, Scene> scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
