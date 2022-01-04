@@ -67,7 +67,7 @@
             suh.Start();
             ThreadManager.Invoke("DataTrafficThread", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
-            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -94,6 +94,7 @@
 #if WINDOWS
             Win32KernelAPI.timeBeginPeriod(1);
 #endif
+            InitUserID();
         }
 
         protected virtual void ProcessReceive()

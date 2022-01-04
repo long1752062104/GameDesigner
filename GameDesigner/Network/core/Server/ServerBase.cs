@@ -32,7 +32,6 @@ namespace Net.Server
     using Debug = Event.NDebug;
     using Net.System;
     using Net.Serialize;
-    using Net.Event;
 
     /// <summary>
     /// 网络服务器核心基类 2019.11.22
@@ -210,7 +209,15 @@ namespace Net.Server
         /// <summary>
         /// 由于随机数失灵导致死循环, 所以用计数来标记用户标识 (从10000开始标记)
         /// </summary>
-        protected int UserIDNumber = 10000;
+        public int BeginUserID { get; set; } = 10000;
+        /// <summary>
+        /// 用户唯一标识最大计数值, 如果自增的uid>=EndUserID, 则回到BeginUserID重新开始计数
+        /// </summary>
+        public int EndUserID { get; set; } = 99999;
+        /// <summary>
+        /// 玩家唯一标识栈
+        /// </summary>
+        protected ConcurrentStack<int> UserIDStack = new ConcurrentStack<int>();
         /// <summary>
         /// 使用字节压缩吗? 如果使用: 当buffer数据大于1000时, 启用压缩功能
         /// </summary>
@@ -620,7 +627,7 @@ namespace Net.Server
             suh.Start();
             ThreadManager.Invoke("DataTrafficHandler", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
-            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -646,6 +653,17 @@ namespace Net.Server
 #if WINDOWS
             Win32KernelAPI.timeBeginPeriod(1);
 #endif
+            InitUserID();
+        }
+
+        /// <summary>
+        /// 初始化玩家唯一标识栈
+        /// </summary>
+        protected void InitUserID()
+        {
+            UserIDStack.Clear();
+            for (int uid = EndUserID; uid >= BeginUserID; uid--)
+                UserIDStack.Push(uid);
         }
 
         /// <summary>
@@ -809,9 +827,7 @@ namespace Net.Server
                 }
                 exceededNumber = 0;
                 blockConnection = 0;
-                int uid = UserIDNumber;
-                UserIDNumber++;
-                //client = ObjectPool<Player>.Take();
+                UserIDStack.TryPop(out int uid);
                 client = new Player();
                 client.UserID = uid;
                 client.PlayerID = uid.ToString();
@@ -2012,7 +2028,7 @@ namespace Net.Server
             client.OnRemoveClient();
             ExitScene(client, false);
             client.Dispose();
-            //ObjectPool<Player>.Push(client);
+            UserIDStack.Push(client.UserID);
         }
 
         /// <summary>
@@ -2851,7 +2867,7 @@ namespace Net.Server
         /// <summary>
         /// 字段,属性同步线程
         /// </summary>
-        protected virtual bool VarSyncHandler()
+        protected virtual bool SyncVarHandler()
         {
             try
             {

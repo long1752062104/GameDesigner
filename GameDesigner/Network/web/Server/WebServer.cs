@@ -99,7 +99,7 @@
             suh.Start();
             ThreadManager.Invoke("DataTrafficThread", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
-            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -125,6 +125,7 @@
 #if WINDOWS
             Win32KernelAPI.timeBeginPeriod(1);
 #endif
+            InitUserID();
         }
 
         //开始接受客户端连接
@@ -149,8 +150,7 @@
                 }
                 exceededNumber = 0;
                 blockConnection = 0;
-                int uid = UserIDNumber;
-                Interlocked.Increment(ref UserIDNumber);//解决onopen是多线程问题
+                UserIDStack.TryPop(out int uid);
                 Player unClient = ObjectPool<Player>.Take();
                 unClient.Client = client;
                 unClient.TcpRemoteEndPoint = client.RemoteEndPoint;

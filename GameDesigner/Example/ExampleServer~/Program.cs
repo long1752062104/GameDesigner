@@ -1,5 +1,7 @@
 ﻿using ECS;
 using Example2;
+using Net;
+using Net.System;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +17,6 @@ namespace ExampleServer
         [STAThread]
         static void Main(string[] args)
         {
-            //args = new string[] { "Example2" };
             if (args.Length == 0)
                 return;
             Application.EnableVisualStyles();

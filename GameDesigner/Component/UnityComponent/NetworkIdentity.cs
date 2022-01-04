@@ -14,7 +14,7 @@ namespace Net.UnityComponent
     {
         private static bool isInit;
         internal static int Identity;
-        internal static Queue<int> IdentityPool = new Queue<int>();
+        internal static Queue<int> IDENTITY_POOL = new Queue<int>();
         public static int Capacity { get; private set; }
         [DisplayOnly] public int identity = -1;
         [Tooltip("自定义唯一标识, 可以不通过NetworkSceneManager的registerObjects去设置, 直接放在设计的场景里面, 不需要做成预制体")]
@@ -47,13 +47,13 @@ namespace Net.UnityComponent
                 sm.identitys.Add(m_identity, this);
                 return;
             }
-            if (IdentityPool.Count <= 0)
+            if (IDENTITY_POOL.Count <= 0)
             {
                 Debug.Log("已经没有唯一标识可用!");
                 Destroy(gameObject);
                 return;
             }
-            identity = IdentityPool.Dequeue();
+            identity = IDENTITY_POOL.Dequeue();
             sm.identitys.Add(identity, this);
             foreach (var item in networkBehaviours)
                 item.OnNetworkIdentityInit(identity);
@@ -66,18 +66,18 @@ namespace Net.UnityComponent
             for (int i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                SyncVar varSync = field.GetCustomAttribute<SyncVar>();
-                if (varSync == null)
+                SyncVar syncVar = field.GetCustomAttribute<SyncVar>();
+                if (syncVar == null)
                     continue;
                 var code = Type.GetTypeCode(field.FieldType);
-                if (code == TypeCode.Object & !field.FieldType.IsEnum)
+                if(field.FieldType.IsClass & code == TypeCode.Object)
                 {
-                    NDebug.LogError($"错误! 尚未支持同步字段,属性的{field.FieldType}类型! 错误定义:{target.GetType().Name}类的{field.Name}字段");
+                    NDebug.LogError($"SyncVar错误! 无法自动检测同步类的字段, 请使用结构体! 错误定义:{target.GetType().Name}类的{field.Name}字段");
                     continue;
                 }
                 MethodInfo method = null;
-                if (!string.IsNullOrEmpty(varSync.hook))
-                    method = type.GetMethod(varSync.hook, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (!string.IsNullOrEmpty(syncVar.hook))
+                    method = type.GetMethod(syncVar.hook, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 syncVarInfos.Add(new SyncVarFieldInfo()
                 {
                     type = field.FieldType,
@@ -85,12 +85,14 @@ namespace Net.UnityComponent
                     fieldInfo = field,
                     value = field.GetValue(target),
                     OnValueChanged = method,
-                    authorize = varSync.authorize,
+                    authorize = syncVar.authorize,
+                    isEnum = field.FieldType.IsEnum,
+                    baseType = code != TypeCode.Object
                 });
             }
         }
 
-        internal void CheckSyncVar()
+        internal unsafe void CheckSyncVar()
         {
             Segment segment = null;
             for (int i = 0; i < syncVarInfos.Count; i++)
@@ -107,7 +109,10 @@ namespace Net.UnityComponent
                     if (segment == null)
                         segment = BufferPool.Take();
                     segment.WriteValue(i);
-                    segment.WriteValue(value);
+                    if (syncVar.baseType)
+                        segment.WriteValue(value);
+                    else
+                        Serialize.NetConvertBinary.SerializeObject(segment, value, false, true);
                 }
             }
             if (segment != null)
@@ -132,7 +137,13 @@ namespace Net.UnityComponent
                 var index = segment1.ReadValue<int>();
                 var syncVar = syncVarInfos[index];
                 var oldValue = syncVar.value;
-                var value = segment1.ReadValue(syncVar.type);
+                object value;
+                if (syncVar.baseType)
+                    value = segment1.ReadValue(syncVar.type);
+                else
+                    value = Serialize.NetConvertBinary.DeserializeObject(segment1, syncVar.type, false, true);
+                if (syncVar.isEnum)
+                    value = Enum.ToObject(syncVar.type, value);
                 syncVar.SetValue(value);
                 syncVar.value = value;
                 syncVar.OnValueChanged?.Invoke(syncVar.target, new object[] { oldValue, value });
@@ -158,7 +169,7 @@ namespace Net.UnityComponent
                 nsm.identitys.Remove(identity);
             if (isOtherCreate | identity < 10000)//identity < 10000则是自定义唯一标识
                 return;
-            IdentityPool.Enqueue(identity);
+            IDENTITY_POOL.Enqueue(identity);
             if (ClientManager.I == null)
                 return;
             ClientManager.AddOperation(new Operation(Command.Destroy, identity));
@@ -176,7 +187,7 @@ namespace Net.UnityComponent
             Capacity = capacity;
             Identity = 10000 + ((ClientManager.UID + 1 - 10000) * capacity);
             for (int i = Identity; i < Identity + capacity; i++)
-                IdentityPool.Enqueue(i);
+                IDENTITY_POOL.Enqueue(i);
         }
     }
 }

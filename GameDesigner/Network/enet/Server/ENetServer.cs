@@ -93,7 +93,7 @@
             suh.Start();
             ThreadManager.Invoke("DataTrafficThread", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
-            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -117,6 +117,7 @@
             Scenes.TryAdd(scene.Key, scene.Value);
             scene.Value.onSerializeOptHandle = OnSerializeOpt;
             OnStartupCompletedHandle();
+            InitUserID();
         }
 
         protected virtual void ProcessReceive()
@@ -138,8 +139,7 @@
                 J: switch (netEvent.Type)
                     {
                         case EventType.Connect:
-                            int uid = UserIDNumber;
-                            UserIDNumber++;
+                            UserIDStack.TryPop(out int uid);
                             Player unClient = ObjectPool<Player>.Take();
                             unClient.UserID = uid;
                             unClient.PlayerID = uid.ToString();
@@ -241,7 +241,7 @@
             client.OnRemoveClient();
             ExitScene(client, false);
             client.Dispose();
-            //ObjectPool<Player>.Push(client);
+            UserIDStack.Push(client.UserID);
         }
 
         protected override void HeartHandle()

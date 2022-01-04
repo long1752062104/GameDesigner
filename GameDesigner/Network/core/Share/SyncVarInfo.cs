@@ -13,6 +13,9 @@ namespace Net.Share
         internal bool authorize;
         internal object target;
         internal MethodInfo OnValueChanged;
+        internal bool isEnum;
+        internal bool baseType;
+
         public virtual object GetValue()
         {
             return null;

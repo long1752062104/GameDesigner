@@ -66,8 +66,7 @@
                 }
                 exceededNumber = 0;
                 blockConnection = 0;
-                int uid = UserIDNumber;
-                UserIDNumber++;
+                UserIDStack.TryPop(out int uid);
                 client = ObjectPool<Player>.Take();
                 client.UserID = uid;
                 client.PlayerID = uid.ToString();

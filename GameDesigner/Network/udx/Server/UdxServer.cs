@@ -81,7 +81,7 @@
             suh.Start();
             ThreadManager.Invoke("DataTrafficThread", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
-            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -107,6 +107,7 @@
 #if WINDOWS
             Win32KernelAPI.timeBeginPeriod(1);
 #endif
+            InitUserID();
         }
 
         protected void ProcessReceive(UDXEVENT_TYPE eventtype, int erro, IntPtr cli, IntPtr pData, int len)
@@ -116,8 +117,7 @@
                 switch (eventtype)
                 {
                     case UDXEVENT_TYPE.E_CONNECT:
-                        int uid = UserIDNumber;
-                        UserIDNumber++;
+                        UserIDStack.TryPop(out int uid);
                         Player unClient = ObjectPool<Player>.Take();
                         unClient.Udx = cli;
                         unClient.UserID = uid;

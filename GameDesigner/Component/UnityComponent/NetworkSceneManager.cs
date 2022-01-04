@@ -13,6 +13,8 @@ namespace Net.UnityComponent
         public List<NetworkIdentity> registerObjects = new List<NetworkIdentity>();
         [HideInInspector]
         public MyDictionary<int, NetworkIdentity> identitys = new MyDictionary<int, NetworkIdentity>();
+        [Tooltip("如果onExitDelectAll=true 当客户端退出游戏,客户端所创建的所有网络物体也将随之被删除? onExitDelectAll=false只删除玩家物体")]
+        public bool onExitDelectAll = true;
 
         private void OnConnectedHandle()
         {
@@ -87,19 +89,30 @@ namespace Net.UnityComponent
                     {
                         if (identitys.TryGetValue(opt.identity, out NetworkIdentity identity))
                         {
-                            Destroy(identity.gameObject);
+                            OnOtherDestroy(identity);
                         }
                     }
                     break;
                 case Command.OnPlayerExit:
                     {
-                        var uid = 10000 + ((opt.uid + 1 - 10000) * NetworkIdentity.Capacity);
-                        var count = uid + NetworkIdentity.Capacity;
-                        foreach (var item in identitys)
+                        if (onExitDelectAll)
                         {
-                            if (item.Key >= uid & item.Key < count) 
+                            var uid = 10000 + ((opt.uid + 1 - 10000) * NetworkIdentity.Capacity);
+                            var count = uid + NetworkIdentity.Capacity;
+                            foreach (var item in identitys)
                             {
-                                Destroy(item.Value.gameObject);
+                                if (item.Key >= uid & item.Key < count)
+                                {
+                                    OnOtherDestroy(item.Value);
+                                }
+                            }
+                        }
+                        else 
+                        {
+                            if (identitys.TryGetValue(opt.uid, out NetworkIdentity identity))
+                            {
+                                OnOtherExit(identity);
+                                OnOtherDestroy(identity);
                             }
                         }
                     }
@@ -122,6 +135,15 @@ namespace Net.UnityComponent
                     OnOtherOperator(opt);
                     break;
             }
+        }
+
+        public virtual void OnOtherDestroy(NetworkIdentity identity)
+        {
+            Destroy(identity.gameObject);
+        }
+
+        public virtual void OnOtherExit(NetworkIdentity identity)
+        {
         }
 
         public virtual void OnOtherOperator(Operation opt)

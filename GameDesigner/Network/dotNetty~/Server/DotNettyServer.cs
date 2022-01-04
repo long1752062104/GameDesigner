@@ -115,8 +115,7 @@ namespace Net.Server
                             unClient.TcpRemoteEndPoint = client.RemoteAddress;
                             unClient.RemotePoint = client.RemoteAddress;
                             pipeline.AddLast("echo", new EchoServerHandler(unClient));
-                            int uid = UserIDNumber;
-                            UserIDNumber++;
+                            UserIDStack.TryPop(out int uid);
                             unClient.UserID = uid;
                             unClient.PlayerID = uid.ToString();
                             unClient.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
@@ -155,7 +154,7 @@ namespace Net.Server
             suh.Start();
             ThreadManager.Invoke("DataTrafficThread", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
-            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -181,6 +180,7 @@ namespace Net.Server
 #if WINDOWS
             Win32KernelAPI.timeBeginPeriod(1);
 #endif
+            InitUserID();
         }
 
         protected override void SendRTDataHandle(Player client, QueueSafe<RPCModel> rtRPCModels)

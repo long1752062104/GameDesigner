@@ -1096,25 +1096,37 @@
                         {
                             var field = member as FieldInfo;
                             var fType = field.FieldType;
-                            if (fType == typeof(Type) | fType == typeof(object))
-                                continue;
-                            var constructors = fType.GetConstructors();
-                            bool hasConstructor = false;
-                            foreach (var constructor in constructors)
+                            if (fType.IsArray)
                             {
-                                if (constructor.GetParameters().Length == 0)
+                                var arrItemType = fType.GetInterface(typeof(IList<>).FullName).GenericTypeArguments[0];
+                                if (!CanSerialized(arrItemType))
+                                    continue;
+                            }
+                            else if (fType.IsGenericType)
+                            {
+                                if (fType.GenericTypeArguments.Length == 1)
                                 {
-                                    hasConstructor = true;
-                                    break;
+                                    var listType = fType.GenericTypeArguments[0];
+                                    if (!CanSerialized(listType))
+                                        continue;
+                                }
+                                else if (fType.GenericTypeArguments.Length == 2)
+                                {
+                                    Type keyType = fType.GenericTypeArguments[0];
+                                    Type valueType = fType.GenericTypeArguments[1];
+                                    if (!CanSerialized(keyType))
+                                        continue;
+                                    if (!CanSerialized(valueType))
+                                        continue;
                                 }
                             }
-                            var code = Type.GetTypeCode(fType);
-                            if (!hasConstructor & code == TypeCode.Object & !fType.IsValueType)//string问题
-                                continue;
+                            else 
+                            {
+                                if (!CanSerialized(fType))
+                                    continue;
+                            }
                             member1 = GetFPMember(type, fType, field.Name, true);
 #if !SERVICE
-                            if (fType.IsSubclassOf(typeof(UnityEngine.Object)) | fType == typeof(UnityEngine.Object))
-                                continue;
                             member1.getValue = field.GetValue;
                             member1.setValue = field.SetValue;
 #endif
@@ -1128,25 +1140,37 @@
                             if (property.GetIndexParameters().Length > 0)
                                 continue;
                             var pType = property.PropertyType;
-                            if (pType == typeof(Type) | pType == typeof(object))
-                                continue;
-                            var constructors = pType.GetConstructors();
-                            bool hasConstructor = false;
-                            foreach (var constructor in constructors)
+                            if (pType.IsArray)
                             {
-                                if (constructor.GetParameters().Length == 0)
+                                var arrItemType = pType.GetInterface(typeof(IList<>).FullName).GenericTypeArguments[0];
+                                if (!CanSerialized(arrItemType))
+                                    continue;
+                            }
+                            else if (pType.IsGenericType)
+                            {
+                                if (pType.GenericTypeArguments.Length == 1)
                                 {
-                                    hasConstructor = true;
-                                    break;
+                                    var listType = pType.GenericTypeArguments[0];
+                                    if (!CanSerialized(listType))
+                                        continue;
+                                }
+                                else if (pType.GenericTypeArguments.Length == 2)
+                                {
+                                    Type keyType = pType.GenericTypeArguments[0];
+                                    Type valueType = pType.GenericTypeArguments[1];
+                                    if (!CanSerialized(keyType))
+                                        continue;
+                                    if (!CanSerialized(valueType))
+                                        continue;
                                 }
                             }
-                            var code = Type.GetTypeCode(pType);
-                            if (!hasConstructor & code == TypeCode.Object & !pType.IsValueType)//string问题
-                                continue;
+                            else
+                            {
+                                if (!CanSerialized(pType))
+                                    continue;
+                            }
                             member1 = GetFPMember(type, pType, property.Name, true);
 #if !SERVICE
-                            if (pType.IsSubclassOf(typeof(UnityEngine.Object)) | pType == typeof(UnityEngine.Object))
-                                continue;
                             member1.getValue = property.GetValue;
                             member1.setValue = property.SetValue;
 #endif
@@ -1157,6 +1181,32 @@
                 map.Add(type, members2 = members1.ToArray());
             }
             return members2;
+        }
+
+        private static bool CanSerialized(Type type)
+        {
+            if (type == typeof(Type) | type == typeof(object))
+                return false;
+            if (type.IsClass & type != typeof(string))
+            {
+                var constructors = type.GetConstructors();
+                bool hasConstructor = false;
+                foreach (var constructor in constructors)
+                {
+                    if (constructor.GetParameters().Length == 0)
+                    {
+                        hasConstructor = true;
+                        break;
+                    }
+                }
+                if (!hasConstructor)
+                    return false;
+            }
+#if !SERVICE
+            if (type.IsSubclassOf(typeof(UnityEngine.Object)) | type == typeof(UnityEngine.Object))
+                return false;
+#endif
+            return true;
         }
 
         private static Member GetFPMember(Type type, Type fpType, string Name, bool isClassField) 
@@ -1388,16 +1438,37 @@
         /// <param name="recordType"></param>
         /// <param name="ignore">忽略不使用<see cref="AddBaseType"/>方法也会被序列化</param>
         /// <returns></returns>
+        public static object DeserializeObject(Segment segment, Type type, bool recordType = false, bool ignore = false)
+        {
+            object obj = default;
+            int index = segment.Index + segment.Position;
+            int count = segment.Index + segment.Count;
+            if (index < count)
+                obj = ReadObject(segment.Buffer, ref index, type, recordType, ignore);
+            segment.Position = index;
+            BufferPool.Push(segment);
+            return obj;
+        }
+
+        /// <summary>
+        /// 反序列化
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="segment"></param>
+        /// <param name="recordType"></param>
+        /// <param name="ignore">忽略不使用<see cref="AddBaseType"/>方法也会被序列化</param>
+        /// <returns></returns>
         public static T DeserializeObject<T>(Segment segment, bool recordType = false, bool ignore = false)
         {
             T obj = default;
             int index = segment.Index + segment.Position;
             int count = segment.Index + segment.Count;
-            while (index < count)
+            if (index < count)
             {
                 Type type = typeof(T);
                 obj = (T)ReadObject(segment.Buffer, ref index, type, recordType, ignore);
             }
+            segment.Position = index;
             BufferPool.Push(segment);
             return obj;
         }
@@ -1415,7 +1486,7 @@
         public static T DeserializeObject<T>(byte[] buffer, int index, int count, bool recordType = false, bool ignore = false)
         {
             T obj = default;
-            while (index < count)
+            if (index < count)
             {
                 Type type = typeof(T);
                 obj = (T)ReadObject(buffer, ref index, type, recordType, ignore);
@@ -1432,11 +1503,11 @@
         public static object DeserializeComplex(byte[] buffer, int index, int count, bool recordType = false, bool ignore = false)
         {
             object obj = null;
-            while (index < count)
+            if (index < count)
             {
                 Type type = IndexToType(BitConverter.ToUInt16(buffer, index));
                 if (type == null)
-                    break;
+                    return obj;
                 index += 2;
                 obj = ReadObject(buffer, ref index, type, recordType, ignore);
             }
@@ -1448,14 +1519,15 @@
             object obj = null;
             int index = segment.Index + segment.Position;
             int count = segment.Index + segment.Count;
-            while (index < count)
+            if (index < count)
             {
                 Type type = IndexToType(BitConverter.ToUInt16(segment.Buffer, index));
                 if (type == null)
-                    break;
+                    return obj;
                 index += 2;
                 obj = ReadObject(segment.Buffer, ref index, type, false, ignore);
             }
+            segment.Position = index;
             BufferPool.Push(segment);
             return obj;
         }

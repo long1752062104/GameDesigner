@@ -65,7 +65,7 @@
             suh.Start();
             ThreadManager.Invoke("DataTrafficThread", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
-            ThreadManager.Invoke("VarSyncHandler", VarSyncHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
@@ -93,6 +93,7 @@
 #if WINDOWS
             Win32KernelAPI.timeBeginPeriod(1);
 #endif
+            InitUserID();
         }
 
         private void ProcessAcceptConnect()
@@ -109,8 +110,7 @@
                     client.RemotePoint = socket.RemoteEndPoint;
                     client.isDispose = false;
                     client.CloseSend = false;
-                    int uid = UserIDNumber;
-                    UserIDNumber++;
+                    UserIDStack.TryPop(out int uid);
                     client.UserID = uid;
                     client.PlayerID = uid.ToString();
                     client.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";

@@ -3,7 +3,7 @@
 namespace Net.UnityComponent
 {
     /// <summary>
-    /// 字段或属性同步
+    /// 字段或属性同步, 只能用于基础类型和所有结构类型上, 不能用于类变量
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class SyncVar : Attribute

@@ -2427,6 +2427,32 @@
             竞技模式 1:个人 2:团队
             </summary>
         </member>
+        <member name="T:Net.UnityComponent.SyncVar">
+            <summary>
+            字段或属性同步, 只能用于基础类型和所有结构类型上, 不能用于类变量
+            </summary>
+        </member>
+        <member name="F:Net.UnityComponent.SyncVar.hook">
+            <summary>
+            值改变后调用的方法名
+            </summary>
+        </member>
+        <member name="F:Net.UnityComponent.SyncVar.authorize">
+            <summary>
+            允许所有客户端改变后同步此字段
+            </summary>
+        </member>
+        <member name="M:Net.UnityComponent.SyncVar.#ctor">
+            <summary>
+            构造字段,属性同步特性
+            </summary>
+        </member>
+        <member name="M:Net.UnityComponent.SyncVar.#ctor(System.String)">
+            <summary>
+            构造字段,属性同步特性
+            </summary>
+            <param name="id">唯一id, 不能重复</param>
+        </member>
         <member name="T:Net.Adapter.CallSiteRpcAdapter`1">
             <summary>
             服务器远程过程调用适配器
@@ -2833,6 +2859,11 @@
             在多线程调用unity主线程的上下文对象
             </summary>
         </member>
+        <member name="F:Net.Client.ClientBase.workQueue">
+            <summary>
+            同步线程上下文任务队列
+            </summary>
+        </member>
         <member name="P:Net.Client.ClientBase.StackBufferSize">
             <summary>
             允许叠包缓冲器最大值 默认可发送5242880(5M)的数据包
@@ -3028,7 +3059,7 @@
             每一帧执行线程
             </summary>
         </member>
-        <member name="M:Net.Client.ClientBase.FixedUpdate">
+        <member name="M:Net.Client.ClientBase.NetworkEventUpdate">
             <summary>
             网络数据更新
             </summary>
@@ -3525,15 +3556,9 @@
             <param name="func">Call名</param>
             <param name="pars">Call函数</param>
         </member>
-        <member name="M:Net.Client.ClientBase.InvokeOnOperationSync(Net.Share.OperationList)">
-            <summary>
-            
-            </summary>
-            <param name="list"></param>
-        </member>
         <member name="M:Net.Client.ClientBase.InvokeOnRevdBufferHandle(Net.Share.RPCModel)">
             <summary>
-            
+            调用程序员
             </summary>
             <param name="model"></param>
         </member>
@@ -4961,9 +4986,19 @@
             <para>当一直有数据往来时是不会发送心跳数据的, 只有当没有数据往来了, 才会进入发送心跳数据</para>
             </summary>
         </member>
-        <member name="F:Net.Server.ServerBase`2.UserIDNumber">
+        <member name="P:Net.Server.ServerBase`2.BeginUserID">
             <summary>
             由于随机数失灵导致死循环, 所以用计数来标记用户标识 (从10000开始标记)
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.EndUserID">
+            <summary>
+            用户唯一标识最大计数值, 如果自增的uid>=EndUserID, 则回到BeginUserID重新开始计数
+            </summary>
+        </member>
+        <member name="F:Net.Server.ServerBase`2.UserIDStack">
+            <summary>
+            玩家唯一标识栈
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.ByteCompression">
@@ -5025,14 +5060,9 @@
             程序根路径, 网络数据缓存读写路径
             </summary>
         </member>
-        <member name="P:Net.Server.ServerBase`2.SingleContext">
+        <member name="P:Net.Server.ServerBase`2.SingleCallQueue">
             <summary>
-            单线程上下文处理中心队列
-            </summary>
-        </member>
-        <member name="P:Net.Server.ServerBase`2.Timer">
-            <summary>
-            单线程定时器
+            单线程调用队列
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.OnStartingHandle">
@@ -5316,6 +5346,11 @@
             </summary>
             <param name="port">端口</param>
         </member>
+        <member name="M:Net.Server.ServerBase`2.InitUserID">
+            <summary>
+            初始化玩家唯一标识栈
+            </summary>
+        </member>
         <member name="M:Net.Server.ServerBase`2.SceneUpdateHandle">
             <summary>
             网络场景推动玩家同步更新处理线程, 如果想自己处理场景同步, 可重写此方法让同步失效
@@ -5344,10 +5379,16 @@
             <param name="ptr"></param>
             <returns>可用于结束事件的id</returns>
         </member>
-        <member name="M:Net.Server.ServerBase`2.DataTrafficThread">
+        <member name="M:Net.Server.ServerBase`2.DataTrafficHandler">
             <summary>
             流量统计线程
             </summary>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.SingleHandler">
+            <summary>
+            单线程处理
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:Net.Server.ServerBase`2.UdpStartReceive">
             <summary>
@@ -5808,7 +5849,7 @@
             <param name="type"></param>
             <param name="adapter"></param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.VarSyncHandler">
+        <member name="M:Net.Server.ServerBase`2.SyncVarHandler">
             <summary>
             字段,属性同步线程
             </summary>
@@ -7985,6 +8026,35 @@
             <param name="cmd">网络命令</param>
             <param name="buffer">缓冲区</param>
         </member>
+        <member name="T:Net.Share.SyncVarToServer">
+            <summary>
+            客户端和服务器字段或属性同步
+            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
+            </summary>
+        </member>
+        <member name="F:Net.Share.SyncVarToServer.id">
+            <summary>
+            变量或属性的唯一标识
+            </summary>
+        </member>
+        <member name="F:Net.Share.SyncVarToServer.passive">
+            <summary>
+            你的字段,属性不能主动同步, 只能被对方同步
+            </summary>
+        </member>
+        <member name="M:Net.Share.SyncVarToServer.#ctor">
+            <summary>
+            构造字段,属性同步特性
+            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
+            </summary>
+        </member>
+        <member name="M:Net.Share.SyncVarToServer.#ctor(System.UInt16)">
+            <summary>
+            构造字段,属性同步特性
+            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
+            </summary>
+            <param name="id">唯一id, 不能重复</param>
+        </member>
         <member name="T:Net.Share.TransportMode">
             <summary>
             传输模式设置
@@ -8035,35 +8105,6 @@
             <param name="index"></param>
             <param name="count"></param>
             <returns></returns>
-        </member>
-        <member name="T:Net.Share.VarSync">
-            <summary>
-            变量或属性同步特性
-            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
-            </summary>
-        </member>
-        <member name="F:Net.Share.VarSync.id">
-            <summary>
-            变量或属性的唯一标识
-            </summary>
-        </member>
-        <member name="F:Net.Share.VarSync.passive">
-            <summary>
-            你的字段,属性不能主动同步, 只能被对方同步
-            </summary>
-        </member>
-        <member name="M:Net.Share.VarSync.#ctor">
-            <summary>
-            构造字段,属性同步特性
-            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
-            </summary>
-        </member>
-        <member name="M:Net.Share.VarSync.#ctor(System.UInt16)">
-            <summary>
-            构造字段,属性同步特性
-            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
-            </summary>
-            <param name="id">唯一id, 不能重复</param>
         </member>
         <member name="T:Net.Share.Win32KernelAPI">
             <summary>
@@ -8836,6 +8877,16 @@
             <param name="target"></param>
             <param name="recordType"></param>
             <param name="ignore">忽略不使用<see cref="M:Net.Serialize.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
+        </member>
+        <member name="M:Net.Serialize.NetConvertBinary.DeserializeObject(Net.System.Segment,System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            反序列化
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="segment"></param>
+            <param name="recordType"></param>
+            <param name="ignore">忽略不使用<see cref="M:Net.Serialize.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
+            <returns></returns>
         </member>
         <member name="M:Net.Serialize.NetConvertBinary.DeserializeObject``1(Net.System.Segment,System.Boolean,System.Boolean)">
             <summary>
