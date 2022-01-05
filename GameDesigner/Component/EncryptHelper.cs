@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Net.Component
+namespace Net.Helper
 {
     /// <summary>
     /// 加密解密帮助类
@@ -10,15 +10,26 @@ namespace Net.Component
         /// <summary>
         /// 随机数形式加密法
         /// </summary>
-        /// <param name="Password"></param>
+        /// <param name="password"></param>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static byte[] ToEncrypt(int Password, byte[] buffer)
+        public static byte[] ToEncrypt(int password, byte[] buffer)
         {
-            if (Password < 10000000)
+            return ToEncrypt(password, buffer, 0, buffer.Length);
+        }
+
+        /// <summary>
+        /// 随机数形式加密法
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static byte[] ToEncrypt(int password, byte[] buffer, int index, int count)
+        {
+            if (password < 10000000)
                 throw new Exception("密码值不能小于10000000");
-            Random random = new Random(Password);
-            for (int i = 0; i < buffer.Length; i++)
+            Random random = new Random(password);
+            for (int i = index; i < index + count; i++)
             {
                 buffer[i] += (byte)random.Next(0, 255);
             }
@@ -28,15 +39,26 @@ namespace Net.Component
         /// <summary>
         /// 随机数形式解密法
         /// </summary>
-        /// <param name="Password"></param>
+        /// <param name="password"></param>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static byte[] ToDecrypt(int Password, byte[] buffer)
+        public static byte[] ToDecrypt(int password, byte[] buffer)
         {
-            if (Password < 10000000)
+            return ToDecrypt(password, buffer, 0, buffer.Length);
+        }
+
+        /// <summary>
+        /// 随机数形式解密法
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        public static byte[] ToDecrypt(int password, byte[] buffer, int index, int count)
+        {
+            if (password < 10000000)
                 throw new Exception("密码值不能小于10000000");
-            Random random = new Random(Password);
-            for (int i = 0; i < buffer.Length; i++)
+            Random random = new Random(password);
+            for (int i = index; i < index + count; i++)
             {
                 buffer[i] -= (byte)random.Next(0, 255);
             }

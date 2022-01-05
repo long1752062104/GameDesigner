@@ -15,7 +15,10 @@ namespace Net.Share
         internal MethodInfo OnValueChanged;
         internal bool isEnum;
         internal bool baseType;
-
+        internal bool isClass;
+        internal bool isDispose;
+        internal bool isList;
+        internal bool isUnityObject;
         public virtual object GetValue()
         {
             return null;

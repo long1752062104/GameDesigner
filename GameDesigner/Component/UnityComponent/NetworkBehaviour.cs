@@ -8,8 +8,7 @@ namespace Net.UnityComponent
     [RequireComponent(typeof(NetworkIdentity))]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
-        [DisplayOnly]
-        public NetworkIdentity networkIdentity;
+        internal NetworkIdentity networkIdentity;
         public virtual void Awake()
         {
             networkIdentity = GetComponent<NetworkIdentity>();
@@ -26,6 +25,7 @@ namespace Net.UnityComponent
         public virtual void OnPropertyAutoCheck() { }
         public virtual void OnDestroy()
         {
+            networkIdentity.RemoveSyncVar(this);
             networkIdentity.networkBehaviours.Remove(this);
         }
     }

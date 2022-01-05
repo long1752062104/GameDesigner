@@ -2,10 +2,10 @@
 namespace Net.UnityComponent
 {
     using global::System;
+    using global::System.Collections;
     using global::System.Collections.Generic;
     using global::System.Reflection;
     using Net.Component;
-    using Net.Event;
     using Net.Share;
     using Net.System;
     using UnityEngine;
@@ -69,51 +69,132 @@ namespace Net.UnityComponent
                 SyncVar syncVar = field.GetCustomAttribute<SyncVar>();
                 if (syncVar == null)
                     continue;
-                var code = Type.GetTypeCode(field.FieldType);
-                if(field.FieldType.IsClass & code == TypeCode.Object)
-                {
-                    NDebug.LogError($"SyncVar错误! 无法自动检测同步类的字段, 请使用结构体! 错误定义:{target.GetType().Name}类的{field.Name}字段");
-                    continue;
-                }
                 MethodInfo method = null;
                 if (!string.IsNullOrEmpty(syncVar.hook))
                     method = type.GetMethod(syncVar.hook, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var code = Type.GetTypeCode(field.FieldType);
+                var isClass = false;
+                if (code == TypeCode.Object & field.FieldType.IsValueType)
+                {
+                    var fields1 = field.FieldType.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                    foreach (var field1 in fields1)
+                    {
+                        var code1 = Type.GetTypeCode(field1.FieldType);
+                        if (code1 == TypeCode.Object)
+                        {
+                            if (field1.FieldType.IsClass)
+                            {
+                                isClass = true;
+                                break;
+                            }
+                            int layer = 0;
+                            isClass = CheckIsClass(field1.FieldType, ref layer);
+                            if (isClass)
+                                break;
+                        }
+                    }
+                }
+                else if (code == TypeCode.Object & field.FieldType.IsClass)//解决string, string也是类
+                    isClass = true;
                 syncVarInfos.Add(new SyncVarFieldInfo()
                 {
                     type = field.FieldType,
                     target = target,
                     fieldInfo = field,
-                    value = field.GetValue(target),
+                    value = isClass ? Clone.Instance(field.GetValue(target)) : field.GetValue(target),
                     OnValueChanged = method,
                     authorize = syncVar.authorize,
                     isEnum = field.FieldType.IsEnum,
-                    baseType = code != TypeCode.Object
+                    baseType = code != TypeCode.Object,
+                    isClass = isClass,
+                    isList = field.FieldType.IsGenericType | field.FieldType.IsArray,
+                    isUnityObject = field.FieldType.IsSubclassOf(typeof(UnityEngine.Object)) | field.FieldType == typeof(UnityEngine.Object),
                 });
             }
         }
 
-        internal unsafe void CheckSyncVar()
+        private bool CheckIsClass(Type type, ref int layer, bool root = true)
+        {
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var field in fields)
+            {
+                var code = Type.GetTypeCode(field.FieldType);
+                if (code == TypeCode.Object)
+                {
+                    if (field.FieldType.IsClass)
+                        return true;
+                    if (root)
+                        layer = 0;
+                    if (layer++ < 5)
+                    {
+                        var isClass = CheckIsClass(field.FieldType, ref layer, false);
+                        if (isClass)
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool SyncListEquals(IList a, IList b)
+        {
+            if (a == null | b == null)
+                return false;
+            if (a.Count != b.Count)
+                return false;
+            for (int i = 0; i < a.Count; i++)
+            {
+                if (!a[i].Equals(b[i]))
+                    return false;
+            }
+            return true;
+        }
+
+        internal void CheckSyncVar()
         {
             Segment segment = null;
             for (int i = 0; i < syncVarInfos.Count; i++)
             {
                 var syncVar = syncVarInfos[i];
-                if (isOtherCreate & !syncVar.authorize)
+                if ((isOtherCreate & !syncVar.authorize) | syncVar.isDispose)
                     continue;
                 var value = syncVar.GetValue();
                 if (value == null)
                     continue;
-                if (!value.Equals(syncVar.value))
+                if (syncVar.isList)
+                {
+                    var a = value as IList;
+                    var b = syncVar.value as IList;
+                    if (SyncListEquals(a, b))
+                        continue;
+                }
+                else if (value.Equals(syncVar.value))
+                    continue;
+                if (syncVar.isUnityObject)
                 {
                     syncVar.value = value;
+#if UNITY_EDITOR
+                    string path = UnityEditor.AssetDatabase.GetAssetPath((UnityEngine.Object)value);
                     if (segment == null)
                         segment = BufferPool.Take();
                     segment.WriteValue(i);
-                    if (syncVar.baseType)
-                        segment.WriteValue(value);
-                    else
-                        Serialize.NetConvertBinary.SerializeObject(segment, value, false, true);
+                    segment.WriteValue(path);
+                    continue;
+#else
+                    return;
+#endif
                 }
+                if (syncVar.isClass)
+                    syncVar.value = Clone.Instance(value);
+                else
+                    syncVar.value = value;
+                if (segment == null)
+                    segment = BufferPool.Take();
+                segment.WriteValue(i);
+                if (syncVar.baseType)
+                    segment.WriteValue(value);
+                else
+                    Serialize.NetConvertBinary.SerializeObject(segment, value, false, true);
             }
             if (segment != null)
             {
@@ -140,13 +221,43 @@ namespace Net.UnityComponent
                 object value;
                 if (syncVar.baseType)
                     value = segment1.ReadValue(syncVar.type);
+                else if (syncVar.isUnityObject)
+                {
+                    var path = segment1.ReadValue<string>();
+#if UNITY_EDITOR
+                    value = UnityEditor.AssetDatabase.LoadAssetAtPath(path, syncVar.type);
+                    syncVar.SetValue(value);
+                    syncVar.value = value;
+#endif
+                    continue;
+                }
                 else
-                    value = Serialize.NetConvertBinary.DeserializeObject(segment1, syncVar.type, false, true);
+                    value = Serialize.NetConvertBinary.DeserializeObject(segment1, syncVar.type, false, false, true);
                 if (syncVar.isEnum)
                     value = Enum.ToObject(syncVar.type, value);
-                syncVar.SetValue(value);
-                syncVar.value = value;
+                if (syncVar.isDispose)
+                    continue;
+                if (syncVar.isClass)
+                {
+                    syncVar.SetValue(value);
+                    syncVar.value = Clone.Instance(value);
+                }
+                else
+                {
+                    syncVar.SetValue(value);
+                    syncVar.value = value;
+                }
                 syncVar.OnValueChanged?.Invoke(syncVar.target, new object[] { oldValue, value });
+            }
+        }
+
+        internal void RemoveSyncVar(NetworkBehaviour target)
+        {
+            for (int i = 0; i < syncVarInfos.Count; i++)
+            {
+                var syncVar = syncVarInfos[i];
+                if (target.Equals(syncVar.target))
+                    syncVar.isDispose = true;
             }
         }
 

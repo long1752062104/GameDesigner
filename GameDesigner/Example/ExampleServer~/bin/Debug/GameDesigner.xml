@@ -2252,6 +2252,14 @@
             <param name="target"></param>
             <returns></returns>
         </member>
+        <member name="M:Net.Clone.Instance(System.Object)">
+            <summary>
+            克隆对象, 脱离引用对象的地址
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="target"></param>
+            <returns></returns>
+        </member>
         <member name="M:Net.Clone.Copy``1(System.Object)">
             <summary>
             贱复制
@@ -2369,27 +2377,6 @@
             网络组件生成工具同步指令
             </summary>
         </member>
-        <member name="T:Net.Component.EncryptHelper">
-            <summary>
-            加密解密帮助类
-            </summary>
-        </member>
-        <member name="M:Net.Component.EncryptHelper.ToEncrypt(System.Int32,System.Byte[])">
-            <summary>
-            随机数形式加密法
-            </summary>
-            <param name="Password"></param>
-            <param name="buffer"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Component.EncryptHelper.ToDecrypt(System.Int32,System.Byte[])">
-            <summary>
-            随机数形式解密法
-            </summary>
-            <param name="Password"></param>
-            <param name="buffer"></param>
-            <returns></returns>
-        </member>
         <member name="T:Net.Component.NTransform">
             <summary>
             游戏物体转换实体组建
@@ -2427,9 +2414,71 @@
             竞技模式 1:个人 2:团队
             </summary>
         </member>
+        <member name="T:Net.Helper.EncryptHelper">
+            <summary>
+            加密解密帮助类
+            </summary>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.ToEncrypt(System.Int32,System.Byte[])">
+            <summary>
+            随机数形式加密法
+            </summary>
+            <param name="password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.ToEncrypt(System.Int32,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            随机数形式加密法
+            </summary>
+            <param name="password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.ToDecrypt(System.Int32,System.Byte[])">
+            <summary>
+            随机数形式解密法
+            </summary>
+            <param name="password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.ToDecrypt(System.Int32,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            随机数形式解密法
+            </summary>
+            <param name="password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Net.Helper.DCSHelper`2">
+            <summary>
+            分散控制系统（分布式子服务器）案例代码 需要开发者扩展
+            <code>服务器先时连接网关服务器，委托网关服务器存ip和端口，当网关服务器有客户端连接后，会指派客户端连接的子服务器</code>
+            </summary>
+            <typeparam name="Player"></typeparam>
+            <typeparam name="Scene"></typeparam>
+        </member>
+        <member name="T:Net.Helper.GatewayServer`1">
+            <summary>
+            网关服务器(主服务器), 负责分配客户端连接最优的游戏服务器, 负载均衡
+            <code>第一步:客户端连接网关服务器，然后网关服务器将集群游戏服务器的ip，端口发给客户端</code>
+            <code>第二步:客户端自动连接到指定的游戏服务器上，请查看NetCmd.SwitchPort指令说明</code>
+            </summary>
+        </member>
+        <member name="F:Net.Helper.GatewayServer`1.serverArea">
+            <summary>
+            分布式(集群)游戏服务器列表
+            </summary>
+        </member>
+        <member name="F:Net.Helper.GatewayServer`1.OnAreaUpdate">
+            <summary>
+            当分布服务器更新时调用
+            </summary>
+        </member>
         <member name="T:Net.UnityComponent.SyncVar">
             <summary>
-            字段或属性同步, 只能用于基础类型和所有结构类型上, 不能用于类变量
+            字段或属性同步
             </summary>
         </member>
         <member name="F:Net.UnityComponent.SyncVar.hook">
@@ -2451,7 +2500,6 @@
             <summary>
             构造字段,属性同步特性
             </summary>
-            <param name="id">唯一id, 不能重复</param>
         </member>
         <member name="T:Net.Adapter.CallSiteRpcAdapter`1">
             <summary>
@@ -3600,7 +3648,7 @@
             <param name="listen">要监听的网络状态</param>
             <param name="action">监听网络状态的回调方法</param>
         </member>
-        <member name="M:Net.Client.ClientBase.VarSyncHandler">
+        <member name="M:Net.Client.ClientBase.SyncVarHandler">
             <summary>
             字段,属性同步处理线程
             </summary>
@@ -8619,31 +8667,6 @@
             3x3矩阵
             </summary>
         </member>
-        <member name="T:Net.Helper.DCSHelper`2">
-            <summary>
-            分散控制系统（分布式子服务器）案例代码 需要开发者扩展
-            <code>服务器先时连接网关服务器，委托网关服务器存ip和端口，当网关服务器有客户端连接后，会指派客户端连接的子服务器</code>
-            </summary>
-            <typeparam name="Player"></typeparam>
-            <typeparam name="Scene"></typeparam>
-        </member>
-        <member name="T:Net.Helper.GatewayServer`1">
-            <summary>
-            网关服务器(主服务器), 负责分配客户端连接最优的游戏服务器, 负载均衡
-            <code>第一步:客户端连接网关服务器，然后网关服务器将集群游戏服务器的ip，端口发给客户端</code>
-            <code>第二步:客户端自动连接到指定的游戏服务器上，请查看NetCmd.SwitchPort指令说明</code>
-            </summary>
-        </member>
-        <member name="F:Net.Helper.GatewayServer`1.serverArea">
-            <summary>
-            分布式(集群)游戏服务器列表
-            </summary>
-        </member>
-        <member name="F:Net.Helper.GatewayServer`1.OnAreaUpdate">
-            <summary>
-            当分布服务器更新时调用
-            </summary>
-        </member>
         <member name="T:Net.Serialize.Data">
             <summary>
             序列化数据标示
@@ -8758,22 +8781,26 @@
             初始化网络转换类型
             </summary>
         </member>
-        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkBaseType">
+        <member name="M:Net.Serialize.NetConvertBinary.AddSerializeBaseType">
             <summary>
             添加网络基本类型， int，float，bool，string......
             </summary>
         </member>
-        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkType``1">
+        <member name="M:Net.Serialize.NetConvertBinary.AddSerializeType``1(System.String[],System.String[])">
             <summary>
             添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
             </summary>
-            <typeparam name="T">要添加的网络类型</typeparam>
+            <typeparam name="T">序列化的类型</typeparam>
+            <param name="onlyFields">只序列化的字段名称列表</param>
+            <param name="ignoreFields">不序列化的字段名称列表</param>
         </member>
-        <member name="M:Net.Serialize.NetConvertBinary.AddNetworkType(System.Type)">
+        <member name="M:Net.Serialize.NetConvertBinary.AddSerializeType(System.Type,System.String[],System.String[])">
             <summary>
             添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
             </summary>
-            <param name="type">要添加的网络类型</param>
+            <param name="type">序列化的类型</param>
+            <param name="onlyFields">只序列化的字段名称列表</param>
+            <param name="ignoreFields">不序列化的字段名称列表</param>
         </member>
         <member name="M:Net.Serialize.NetConvertBinary.AddNetworkType(System.Type[])">
             <summary>
@@ -8878,7 +8905,7 @@
             <param name="recordType"></param>
             <param name="ignore">忽略不使用<see cref="M:Net.Serialize.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
         </member>
-        <member name="M:Net.Serialize.NetConvertBinary.DeserializeObject(Net.System.Segment,System.Type,System.Boolean,System.Boolean)">
+        <member name="M:Net.Serialize.NetConvertBinary.DeserializeObject(Net.System.Segment,System.Type,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             反序列化
             </summary>
@@ -8888,7 +8915,7 @@
             <param name="ignore">忽略不使用<see cref="M:Net.Serialize.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Serialize.NetConvertBinary.DeserializeObject``1(Net.System.Segment,System.Boolean,System.Boolean)">
+        <member name="M:Net.Serialize.NetConvertBinary.DeserializeObject``1(Net.System.Segment,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             反序列化
             </summary>

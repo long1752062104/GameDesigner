@@ -162,6 +162,7 @@ namespace Net.Event
                     {
                         events.RemoveAt(i);
                         if (i >= 0) i--;
+                        continue;//解决J:执行后索引超出异常
                     }
                 J: events[i].time = time + events[i].timeMax;
                 }

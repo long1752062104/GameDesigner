@@ -3,7 +3,7 @@
 namespace Net.UnityComponent
 {
     /// <summary>
-    /// 字段或属性同步, 只能用于基础类型和所有结构类型上, 不能用于类变量
+    /// 字段或属性同步
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class SyncVar : Attribute
@@ -28,7 +28,6 @@ namespace Net.UnityComponent
         /// <summary>
         /// 构造字段,属性同步特性
         /// </summary>
-        /// <param name="id">唯一id, 不能重复</param>
         public SyncVar(string hook)
         {
             this.hook = hook; 

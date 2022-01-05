@@ -134,7 +134,7 @@ namespace Net.Client
             StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
             StartThread("HeartHandle", HeartHandle);
-            StartThread("VarSyncHandler", VarSyncHandler);
+            StartThread("VarSyncHandler", SyncVarHandler);
             if (!UseUnityThread)
                 StartThread("UpdateHandle", UpdateHandle);
         }

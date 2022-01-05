@@ -22,8 +22,10 @@
     /// </summary>
     public class NetConvertBinary : NetConvertBase
     {
-        private static MyDictionary<ushort, Type> networkTypes = new MyDictionary<ushort, Type>();
-        private static MyDictionary<Type, ushort> networkType1s = new MyDictionary<Type, ushort>();
+        private static MyDictionary<ushort, Type> serializeTypes = new MyDictionary<ushort, Type>();
+        private static MyDictionary<Type, ushort> serializeType1s = new MyDictionary<Type, ushort>();
+        private static MyDictionary<Type, string[]> serializeOnly = new MyDictionary<Type, string[]>();
+        private static MyDictionary<Type, string[]> serializeIgnore = new MyDictionary<Type, string[]>();
         private static Type nonSerialized = typeof(NonSerializedAttribute);
         private static MyDictionary<Type, Member[]> map;
 
@@ -37,9 +39,9 @@
         /// </summary>
         public static bool Init()
         {
-            networkTypes = new MyDictionary<ushort, Type>();
-            networkType1s = new MyDictionary<Type, ushort>();
-            AddNetworkBaseType();
+            serializeTypes = new MyDictionary<ushort, Type>();
+            serializeType1s = new MyDictionary<Type, ushort>();
+            AddSerializeBaseType();
             MakeNonSerializedAttribute<NonSerializedAttribute>();
             return true;
         }
@@ -52,7 +54,7 @@
         /// <summary>
         /// 添加网络基本类型， int，float，bool，string......
         /// </summary>
-        public static void AddNetworkBaseType()
+        public static void AddSerializeBaseType()
         {
             AddBaseType<short>();
             AddBaseType<int>();
@@ -139,55 +141,61 @@
                 { typeof(string), new Member[] { new Member() { Type = typeof(string), IsPrimitive = true, TypeCode = TypeCode.String } } },
             };
             //其他可能用到的
-            AddNetworkType<Vector2>();
-            AddNetworkType<Vector3>();
-            AddNetworkType<Vector4>();
-            AddNetworkType<Quaternion>();
-            AddNetworkType<Rect>();
-            AddNetworkType<Color>();
-            AddNetworkType<Color32>();
-            AddNetworkType<UnityEngine.Vector2>();
-            AddNetworkType<UnityEngine.Vector3>();
-            AddNetworkType<UnityEngine.Vector4>();
-            AddNetworkType<UnityEngine.Quaternion>();
-            AddNetworkType<UnityEngine.Rect>();
-            AddNetworkType<UnityEngine.Color>();
-            AddNetworkType<UnityEngine.Color32>();
+            AddSerializeType<Vector2>();
+            AddSerializeType<Vector3>();
+            AddSerializeType<Vector4>();
+            AddSerializeType<Quaternion>(null, "eulerAngles");
+            AddSerializeType<Rect>(new string[] { "x", "y", "width", "height" });
+            AddSerializeType<Color>(null, "hex");
+            AddSerializeType<Color32>(null, "hex");
+            AddSerializeType<UnityEngine.Vector2>();
+            AddSerializeType<UnityEngine.Vector3>();
+            AddSerializeType<UnityEngine.Vector4>();
+            AddSerializeType<UnityEngine.Quaternion>(null, "eulerAngles");
+            AddSerializeType<UnityEngine.Rect>(new string[] { "x", "y", "width", "height" });
+            AddSerializeType<UnityEngine.Color>(null, "hex");
+            AddSerializeType<UnityEngine.Color32>(null, "hex");
             //框架操作同步用到
-            AddNetworkType<Operation>();
-            AddNetworkType<Operation[]>();
-            AddNetworkType<OperationList>();
+            AddSerializeType<Operation>();
+            AddSerializeType<Operation[]>();
+            AddSerializeType<OperationList>();
         }
 
         /// <summary>
         /// 添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
         /// </summary>
-        /// <typeparam name="T">要添加的网络类型</typeparam>
-        public static void AddNetworkType<T>()
+        /// <typeparam name="T">序列化的类型</typeparam>
+        /// <param name="onlyFields">只序列化的字段名称列表</param>
+        /// <param name="ignoreFields">不序列化的字段名称列表</param>
+        public static void AddSerializeType<T>(string[] onlyFields = default, params string[] ignoreFields)
         {
-            AddNetworkType(typeof(T));
+            AddSerializeType(typeof(T), onlyFields, ignoreFields);
         }
 
         /// <summary>
         /// 添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
         /// </summary>
-        /// <param name="type">要添加的网络类型</param>
-        public static void AddNetworkType(Type type)
+        /// <param name="type">序列化的类型</param>
+        /// <param name="onlyFields">只序列化的字段名称列表</param>
+        /// <param name="ignoreFields">不序列化的字段名称列表</param>
+        public static void AddSerializeType(Type type, string[] onlyFields = default, params string[] ignoreFields)
         {
-            if (networkType1s.ContainsKey(type))
+            if (serializeType1s.ContainsKey(type))
                 throw new Exception($"已经添加{type}键，不需要添加了!");
-            networkTypes.Add((ushort)networkTypes.Count, type);
-            networkType1s.Add(type, (ushort)networkType1s.Count);
+            serializeTypes.Add((ushort)serializeTypes.Count, type);
+            serializeType1s.Add(type, (ushort)serializeType1s.Count);
+            serializeOnly.Add(type, onlyFields);
+            serializeIgnore.Add(type, ignoreFields);
             GetMembers(type);
         }
 
         private static void AddBaseType<T>()
         {
             var type = typeof(T);
-            if (networkType1s.ContainsKey(type))
+            if (serializeType1s.ContainsKey(type))
                 return;
-            networkTypes.Add((ushort)networkTypes.Count, type);
-            networkType1s.Add(type, (ushort)networkType1s.Count);
+            serializeTypes.Add((ushort)serializeTypes.Count, type);
+            serializeType1s.Add(type, (ushort)serializeType1s.Count);
         }
 
         /// <summary>
@@ -198,7 +206,7 @@
         {
             foreach (Type type in types)
             {
-                AddNetworkType(type);
+                AddSerializeType(type);
             }
         }
 
@@ -214,10 +222,10 @@
                 return !t.IsAbstract & !t.IsInterface & !t.IsGenericType & !t.IsGenericTypeDefinition & t.IsPublic;
             }))
             {
-                if (networkType1s.ContainsKey(type))
+                if (serializeType1s.ContainsKey(type))
                     continue;
-                networkTypes.Add((ushort)networkTypes.Count, type);
-                networkType1s.Add(type, (ushort)networkType1s.Count);
+                serializeTypes.Add((ushort)serializeTypes.Count, type);
+                serializeType1s.Add(type, (ushort)serializeType1s.Count);
             }
         }
 
@@ -235,10 +243,10 @@
                     return !t.IsAbstract & !t.IsInterface & !t.IsGenericType & !t.IsGenericTypeDefinition & t.IsPublic;
                 }))
                 {
-                    if (networkType1s.ContainsKey(type))
+                    if (serializeType1s.ContainsKey(type))
                         continue;
-                    networkTypes.Add((ushort)networkTypes.Count, type);
-                    networkType1s.Add(type, (ushort)networkType1s.Count);
+                    serializeTypes.Add((ushort)serializeTypes.Count, type);
+                    serializeType1s.Add(type, (ushort)serializeType1s.Count);
                 }
             }
         }
@@ -250,7 +258,7 @@
         /// <returns></returns>
         private static Type IndexToType(ushort typeIndex)
         {
-            if (networkTypes.TryGetValue(typeIndex, out Type type))
+            if (serializeTypes.TryGetValue(typeIndex, out Type type))
                 return type;
             return null;
         }
@@ -262,7 +270,7 @@
         /// <returns></returns>
         private static ushort TypeToIndex(Type type)
         {
-            if (networkType1s.TryGetValue(type, out ushort typeHash))
+            if (serializeType1s.TryGetValue(type, out ushort typeHash))
                 return typeHash;
             throw new KeyNotFoundException($"没有注册[{type}]类为序列化对象, 请使用NetConvertBinary.AddNetworkType<{type}>()进行注册类型!");
         }
@@ -1087,9 +1095,19 @@
                     var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
                     var members = new List<MemberInfo>(fields);
                     members.AddRange(properties);
+                    if (!serializeOnly.TryGetValue(type, out var onlys))
+                        onlys = new string[0];
+                    else if (onlys == null)
+                        onlys = new string[0];
+                    if (!serializeIgnore.TryGetValue(type, out var ignores))
+                        ignores = new string[0];
                     foreach (var member in members)
                     {
                         if (member.GetCustomAttribute(nonSerialized) != null)
+                            continue;
+                        if (onlys.Length != 0 & !onlys.Contains(member.Name))
+                            continue;
+                        if (ignores.Contains(member.Name))
                             continue;
                         Member member1;
                         if (member.MemberType == MemberTypes.Field)
@@ -1358,7 +1376,7 @@
                         WriteArray(stream, values, member.ValueType, recordType, ignore);
                     }
                 }
-                else if (networkType1s.ContainsKey(member.Type) | ignore)
+                else if (serializeType1s.ContainsKey(member.Type) | ignore)
                 {
                     SetBit(ref bits[bitPos], bitInx1 + 1, true);
                     WriteObject(stream, member.Type, value, recordType, ignore);
@@ -1438,7 +1456,7 @@
         /// <param name="recordType"></param>
         /// <param name="ignore">忽略不使用<see cref="AddBaseType"/>方法也会被序列化</param>
         /// <returns></returns>
-        public static object DeserializeObject(Segment segment, Type type, bool recordType = false, bool ignore = false)
+        public static object DeserializeObject(Segment segment, Type type, bool isPush = true, bool recordType = false, bool ignore = false)
         {
             object obj = default;
             int index = segment.Index + segment.Position;
@@ -1446,7 +1464,7 @@
             if (index < count)
                 obj = ReadObject(segment.Buffer, ref index, type, recordType, ignore);
             segment.Position = index;
-            BufferPool.Push(segment);
+            if (isPush) BufferPool.Push(segment);
             return obj;
         }
 
@@ -1458,7 +1476,7 @@
         /// <param name="recordType"></param>
         /// <param name="ignore">忽略不使用<see cref="AddBaseType"/>方法也会被序列化</param>
         /// <returns></returns>
-        public static T DeserializeObject<T>(Segment segment, bool recordType = false, bool ignore = false)
+        public static T DeserializeObject<T>(Segment segment, bool isPush = true, bool recordType = false, bool ignore = false)
         {
             T obj = default;
             int index = segment.Index + segment.Position;
@@ -1469,7 +1487,7 @@
                 obj = (T)ReadObject(segment.Buffer, ref index, type, recordType, ignore);
             }
             segment.Position = index;
-            BufferPool.Push(segment);
+            if (isPush) BufferPool.Push(segment);
             return obj;
         }
 
@@ -1514,7 +1532,7 @@
             return obj;
         }
 
-        public static object Deserialize(Segment segment, bool ignore = false)
+        public static object Deserialize(Segment segment, bool isPush = true, bool ignore = false)
         {
             object obj = null;
             int index = segment.Index + segment.Position;
@@ -1528,7 +1546,7 @@
                 obj = ReadObject(segment.Buffer, ref index, type, false, ignore);
             }
             segment.Position = index;
-            BufferPool.Push(segment);
+            if(isPush) BufferPool.Push(segment);
             return obj;
         }
 
@@ -1596,7 +1614,7 @@
                         member.SetValue(ref obj, dictionary);
                     }
                 }
-                else if (networkType1s.ContainsKey(member.Type) | ignore)//如果是序列化类型
+                else if (serializeType1s.ContainsKey(member.Type) | ignore)//如果是序列化类型
                 {
                     member.SetValue(ref obj, ReadObject(buffer, ref index, member.Type, recordType, ignore));
                 }

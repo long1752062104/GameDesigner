@@ -13,6 +13,7 @@ namespace Net.Component
     public class SerializeAdapter : SingleCase<SerializeAdapter>
     {
         public SerializeAdapterType type;
+        public bool isEncrypt = false;//数据加密?
 
         void Awake()
         {
@@ -32,16 +33,16 @@ namespace Net.Component
                 case SerializeAdapterType.Default:
                     break;
                 case SerializeAdapterType.PB_JSON_FAST:
-                    cm.client.AddAdapter(new Adapter.SerializeFastAdapter());
+                    cm.client.AddAdapter(new Adapter.SerializeFastAdapter() { isEncrypt = isEncrypt });
                     break;
                 case SerializeAdapterType.Binary:
-                    cm.client.AddAdapter(new Adapter.SerializeAdapter());
+                    cm.client.AddAdapter(new Adapter.SerializeAdapter() { isEncrypt = isEncrypt });
                     break;
                 case SerializeAdapterType.Binary2:
-                    cm.client.AddAdapter(new Adapter.SerializeAdapter2());
+                    cm.client.AddAdapter(new Adapter.SerializeAdapter2() { isEncrypt = isEncrypt });
                     break;
                 case SerializeAdapterType.Binary3:
-                    cm.client.AddAdapter(new Adapter.SerializeAdapter3());
+                    cm.client.AddAdapter(new Adapter.SerializeAdapter3() { isEncrypt = isEncrypt });
                     break;
             }
         }

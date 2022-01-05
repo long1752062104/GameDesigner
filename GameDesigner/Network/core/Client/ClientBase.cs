@@ -1166,7 +1166,7 @@ namespace Net.Client
             StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
             StartThread("HeartHandle", HeartHandle);
-            StartThread("VarSyncHandler", VarSyncHandler);
+            StartThread("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
                 StartThread("UpdateHandle", UpdateHandle);
 #if UNITY_ANDROID
@@ -1248,12 +1248,23 @@ namespace Net.Client
         /// </summary>
         protected void CheckRpcHandle()
         {
+            Type type = typeof(ClientBase);
+            var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            var fields1 = new List<FieldInfo>();
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (fields[i].FieldType.IsSubclassOf(typeof(Delegate)))
+                    fields1.Add(fields[i]);
+            }
+            fields = fields1.ToArray();
+            fields1.Clear();
+            fields1 = null;
             while (Connected)
             {
                 try
                 {
                     Thread.Sleep(1);
-                    CheckEventsUpdate();
+                    CheckEventsUpdate(fields);
                     if (OnCheckRpcUpdate == null)
                         OnCheckRpcUpdate = CheckRpcUpdate;
                     OnCheckRpcUpdate();
@@ -1311,19 +1322,19 @@ namespace Net.Client
         }
 
         //检测事件委托函数
-        private void CheckEventsUpdate()
+        private void CheckEventsUpdate(FieldInfo[] fields)
         {
-            Type type = typeof(ClientBase);
-            var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            var ds = new List<Delegate>();
             for (int i = 0; i < fields.Length; i++)
             {
                 object value = fields[i].GetValue(this);
                 if (value == null)
                     continue;
-                Delegate dele = value as Delegate;
+                var dele = value as Delegate;
                 if (dele == null)
                     continue;
-                var ds = new List<Delegate>(dele.GetInvocationList());
+                ds.Clear();
+                ds.AddRange(dele.GetInvocationList());
                 int oldCount = ds.Count;
                 for (int a = 0; a < ds.Count; a++)
                 {
@@ -2980,7 +2991,7 @@ namespace Net.Client
         /// <summary>
         /// 字段,属性同步处理线程
         /// </summary>
-        protected virtual void VarSyncHandler()
+        protected virtual void SyncVarHandler()
         {
             while (Connected)
             {

@@ -9,13 +9,19 @@ namespace Net.Adapter
     /// </summary>
     public class SerializeFastAdapter : ISerializeAdapter
     {
+        public bool isEncrypt = false;
         public byte[] OnSerializeRpc(RPCModel model)
         {
-            return NetConvertFast.Serialize(model);
+            var buffer = NetConvertFast.Serialize(model);
+            if (isEncrypt)
+                Helper.EncryptHelper.ToEncrypt(12345678, buffer);
+            return buffer;
         }
 
         public FuncData OnDeserializeRpc(byte[] buffer, int index, int count)
         {
+            if (isEncrypt)
+                Helper.EncryptHelper.ToDecrypt(12345678, buffer, index, count);
             return NetConvertFast.Deserialize(buffer, index, count);
         }
 
@@ -36,13 +42,19 @@ namespace Net.Adapter
     /// </summary>
     public class SerializeAdapter : ISerializeAdapter
     {
+        public bool isEncrypt = false;
         public byte[] OnSerializeRpc(RPCModel model)
         {
-            return NetConvertBinary.SerializeModel(model);
+            var buffer = NetConvertBinary.SerializeModel(model);
+            if (isEncrypt)
+                Helper.EncryptHelper.ToEncrypt(12345678, buffer);
+            return buffer;
         }
 
         public FuncData OnDeserializeRpc(byte[] buffer, int index, int count)
         {
+            if (isEncrypt)
+                Helper.EncryptHelper.ToDecrypt(12345678, buffer, index, count);
             return NetConvertBinary.DeserializeModel(buffer, index, count);
         }
 
@@ -62,13 +74,19 @@ namespace Net.Adapter
     /// </summary>
     public class SerializeAdapter2 : ISerializeAdapter
     {
+        public bool isEncrypt = false;
         public byte[] OnSerializeRpc(RPCModel model)
         {
-            return NetConvertBinary.SerializeModel(model);
+            var buffer = NetConvertBinary.SerializeModel(model);
+            if (isEncrypt)
+                Helper.EncryptHelper.ToEncrypt(12345678, buffer);
+            return buffer;
         }
 
         public FuncData OnDeserializeRpc(byte[] buffer, int index, int count)
         {
+            if (isEncrypt)
+                Helper.EncryptHelper.ToDecrypt(12345678, buffer, index, count);
             return NetConvertBinary.DeserializeModel(buffer, index, count);
         }
 
@@ -89,13 +107,19 @@ namespace Net.Adapter
     /// </summary>
     public class SerializeAdapter3 : ISerializeAdapter
     {
+        public bool isEncrypt = false;
         public byte[] OnSerializeRpc(RPCModel model)
         {
-            return NetConvertFast2.SerializeModel(model);
+            var buffer = NetConvertFast2.SerializeModel(model);
+            if (isEncrypt)
+                Helper.EncryptHelper.ToEncrypt(12345678, buffer);
+            return buffer;
         }
 
         public FuncData OnDeserializeRpc(byte[] buffer, int index, int count)
         {
+            if (isEncrypt)
+                Helper.EncryptHelper.ToDecrypt(12345678, buffer, index, count);
             Segment segment = new Segment(buffer, index, count, false);
             return NetConvertFast2.DeserializeModel(segment);
         }

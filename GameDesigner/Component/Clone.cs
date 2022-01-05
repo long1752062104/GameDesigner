@@ -19,8 +19,20 @@
         /// <returns></returns>
         public static T Instance<T>(object target) where T : class
         {
+            return (T)Instance(target);
+        }
+
+        /// <summary>
+        /// 克隆对象, 脱离引用对象的地址
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static object Instance(object target)
+        {
+            var type = target.GetType();
             var segment = NetConvertBinary.SerializeObject(target, false, true);
-            return NetConvertBinary.DeserializeObject<T>(segment, false, true);
+            return NetConvertBinary.DeserializeObject(segment, type, true, false, true);
         }
 
         /// <summary>

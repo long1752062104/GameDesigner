@@ -214,7 +214,9 @@
     <None Include="GameDesigner\Component\UnityComponent\Editor\BuildComponentTools.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkAnimation.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkBoxCollider.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkCamera.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkImage.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkLight.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkIdentity.cs.meta" />
@@ -714,7 +716,6 @@
     <None Include="GameDesigner\Network\dotNetty~\Plugins\macOS\libuv.dylib" />
     <None Include="GameDesigner\Network\Editor.meta" />
     <None Include="GameDesigner\Network\Editor\Fast2BuildTool.cs.meta" />
-    <None Include="GameDesigner\Network\Editor\InjectTool.cs.meta" />
     <None Include="GameDesigner\Network\enet.meta" />
     <None Include="GameDesigner\Network\enet\Client.meta" />
     <None Include="GameDesigner\Network\enet\Client\ENetClient.cs.meta" />
@@ -1293,7 +1294,9 @@
     <Compile Include="GameDesigner\Component\SqlServerHelper.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Editor\BuildComponentTools.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkAnimation.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkBoxCollider.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkCamera.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkImage.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkLight.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkIdentity.cs" />
@@ -1698,7 +1701,6 @@
     <Compile Include="GameDesigner\Network\dotNetty~\Server\DNPlayer.cs" />
     <Compile Include="GameDesigner\Network\dotNetty~\Server\DotNettyServer.cs" />
     <Compile Include="GameDesigner\Network\Editor\Fast2BuildTool.cs" />
-    <Compile Include="GameDesigner\Network\Editor\InjectTool.cs" />
     <Compile Include="GameDesigner\Network\enet\Client\ENetClient.cs" />
     <Compile Include="GameDesigner\Network\enet\ENet\ENet.cs" />
     <Compile Include="GameDesigner\Network\enet\Server\ENetServer.cs" />
