@@ -69,7 +69,5 @@
         /// 网络组件生成工具同步指令
         /// </summary>
         public const byte BuildComponent = 115;
-
-        public const byte SyncVar = 116;
     }
 }

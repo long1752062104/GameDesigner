@@ -10,15 +10,15 @@ namespace Net.UnityComponent
     [RequireComponent(typeof(NetworkTime))]
     public class NetworkSceneManager : SingleCase<NetworkSceneManager>
     {
-        public List<NetworkIdentity> registerObjects = new List<NetworkIdentity>();
+        public List<NetworkObject> registerObjects = new List<NetworkObject>();
         [HideInInspector]
-        public MyDictionary<int, NetworkIdentity> identitys = new MyDictionary<int, NetworkIdentity>();
+        public MyDictionary<int, NetworkObject> identitys = new MyDictionary<int, NetworkObject>();
         [Tooltip("如果onExitDelectAll=true 当客户端退出游戏,客户端所创建的所有网络物体也将随之被删除? onExitDelectAll=false只删除玩家物体")]
         public bool onExitDelectAll = true;
 
         private void OnConnectedHandle()
         {
-            NetworkIdentity.Init(5000);
+            NetworkObject.Init(5000);
         }
 
         // Start is called before the first frame update
@@ -57,14 +57,14 @@ namespace Net.UnityComponent
             {
                 case Command.Transform:
                     {
-                        if (!identitys.TryGetValue(opt.identity, out NetworkIdentity identity))
+                        if (!identitys.TryGetValue(opt.identity, out NetworkObject identity))
                         {
                             identity = Instantiate(registerObjects[opt.index]);
                             identity.identity = opt.identity;
                             identity.isOtherCreate = true;
                             identitys.Add(opt.identity, identity);
                             foreach (var item in identity.networkBehaviours)
-                                item.OnNetworkIdentityCreate(opt);
+                                item.OnNetworkObjectCreate(opt);
                         }
                         foreach (var item in identity.networkBehaviours)
                             item.OnNetworkOperationHandler(opt);
@@ -72,14 +72,14 @@ namespace Net.UnityComponent
                     break;
                 case Command.BuildComponent:
                     {
-                        if (!identitys.TryGetValue(opt.identity, out NetworkIdentity identity))
+                        if (!identitys.TryGetValue(opt.identity, out NetworkObject identity))
                         {
                             identity = Instantiate(registerObjects[opt.index]);
                             identity.identity = opt.identity;
                             identity.isOtherCreate = true;
                             identitys.Add(opt.identity, identity);
                             foreach (var item in identity.networkBehaviours)
-                                item.OnNetworkIdentityCreate(opt);
+                                item.OnNetworkObjectCreate(opt);
                         }
                         foreach (var item in identity.networkBehaviours)
                             item.OnNetworkOperationHandler(opt);
@@ -87,7 +87,7 @@ namespace Net.UnityComponent
                     break;
                 case Command.Destroy:
                     {
-                        if (identitys.TryGetValue(opt.identity, out NetworkIdentity identity))
+                        if (identitys.TryGetValue(opt.identity, out NetworkObject identity))
                         {
                             OnOtherDestroy(identity);
                         }
@@ -97,8 +97,8 @@ namespace Net.UnityComponent
                     {
                         if (onExitDelectAll)
                         {
-                            var uid = 10000 + ((opt.uid + 1 - 10000) * NetworkIdentity.Capacity);
-                            var count = uid + NetworkIdentity.Capacity;
+                            var uid = 10000 + ((opt.uid + 1 - 10000) * NetworkObject.Capacity);
+                            var count = uid + NetworkObject.Capacity;
                             foreach (var item in identitys)
                             {
                                 if (item.Key >= uid & item.Key < count)
@@ -109,7 +109,7 @@ namespace Net.UnityComponent
                         }
                         else 
                         {
-                            if (identitys.TryGetValue(opt.uid, out NetworkIdentity identity))
+                            if (identitys.TryGetValue(opt.uid, out NetworkObject identity))
                             {
                                 OnOtherExit(identity);
                                 OnOtherDestroy(identity);
@@ -119,14 +119,14 @@ namespace Net.UnityComponent
                     break;
                 case Command.SyncVar:
                     {
-                        if (!identitys.TryGetValue(opt.identity, out NetworkIdentity identity))
+                        if (!identitys.TryGetValue(opt.identity, out NetworkObject identity))
                         {
                             identity = Instantiate(registerObjects[opt.index]);
                             identity.identity = opt.identity;
                             identity.isOtherCreate = true;
                             identitys.Add(opt.identity, identity);
                             foreach (var item in identity.networkBehaviours)
-                                item.OnNetworkIdentityCreate(opt);
+                                item.OnNetworkObjectCreate(opt);
                         }
                         identity.SyncVarHandler(opt);
                     }
@@ -137,12 +137,12 @@ namespace Net.UnityComponent
             }
         }
 
-        public virtual void OnOtherDestroy(NetworkIdentity identity)
+        public virtual void OnOtherDestroy(NetworkObject identity)
         {
             Destroy(identity.gameObject);
         }
 
-        public virtual void OnOtherExit(NetworkIdentity identity)
+        public virtual void OnOtherExit(NetworkObject identity)
         {
         }
 

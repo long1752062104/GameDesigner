@@ -98,12 +98,12 @@ namespace Net.UnityComponent
             }
         }
 
-        public override void OnNetworkIdentityInit(int identity)
+        public override void OnNetworkObjectInit(int identity)
         {
             mode = syncMode;
         }
 
-        public override void OnNetworkIdentityCreate(Operation opt)
+        public override void OnNetworkObjectCreate(Operation opt)
         {
             SyncMode mode1 = (SyncMode)opt.cmd1;
             if (mode1 == SyncMode.Control | mode1 == SyncMode.SynchronizedAll)

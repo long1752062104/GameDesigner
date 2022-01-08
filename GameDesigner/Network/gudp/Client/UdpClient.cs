@@ -75,7 +75,7 @@
                         fpsAct?.Invoke(clients);
                         for (int i = 0; i < clients.Count; i++)
                         {
-                            clients[i].OnNetworkFlowHandle();
+                            clients[i].NetworkFlowHandler();
                             clients[i].fps = 0;
                         }
                     }

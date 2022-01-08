@@ -32,6 +32,7 @@ namespace Net.Server
     using Debug = Event.NDebug;
     using Net.System;
     using Net.Serialize;
+    using Net.Helper;
 
     /// <summary>
     /// 网络服务器核心基类 2019.11.22
@@ -329,7 +330,7 @@ namespace Net.Server
         /// <summary>
         /// 当添加远程过程调用方法时调用， 参数1：要收集rpc特性的对象， 参数2：如果服务器的rpc中已经有了这个对象，还可以添加进去？
         /// </summary>
-        public Action<object, bool> OnAddRpcHandle { get; set; }
+        public Action<object, bool, Action<SyncVarInfo>> OnAddRpcHandle { get; set; }
         /// <summary>
         /// 当移除远程过程调用对象， 参数1：移除此对象的所有rpc方法
         /// </summary>
@@ -607,7 +608,7 @@ namespace Net.Server
             OnStartingHandle();
             if (Instance == null)
                 Instance = this;
-            OnAddRpcHandle(this, true);
+            OnAddRpcHandle(this, true, null);
             Server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             IPEndPoint ip = new IPEndPoint(IPAddress.Any, port);
             Server.Bind(ip);
@@ -1221,22 +1222,8 @@ namespace Net.Server
                         SendRT(client, NetCmd.P2P, segment.ToArray(false));
                     }
                     break;
-                case NetCmd.VarSync:
-                    Segment segment1 = new Segment(model.buffer, model.index, model.count, false);
-                    while (segment1.Position < segment1.Index + segment1.Count)
-                    {
-                        var id = segment1.ReadValue<ushort>();
-                        if (client.varSyncInfos.TryGetValue(id, out SyncVarInfo varSync))
-                        {
-                            var value = segment1.ReadValue(varSync.type);
-                            varSync.SetValue(value);
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"未定义同步变量ID={id}, 请定义或收集同步变量, 使用{typeof(Player)}.AddRpc(xxx)方法收集!");
-                            break;
-                        }
-                    }
+                case NetCmd.SyncVar:
+                    SyncVarHelper.SyncVarHandler(client.syncVarDic, model.Buffer);
                     break;
                 case NetCmd.SendFile:
                     {
@@ -2665,14 +2652,14 @@ namespace Net.Server
         /// </summary>
         /// <param name="target">注册的对象实例</param>
         /// <param name="append">一个Rpc方法是否可以多次添加到Rpcs里面？</param>
-        public void AddRpcHandle(object target, bool append)
+        public void AddRpcHandle(object target, bool append, Action<SyncVarInfo> onSyncVarCollect = null)
         {
             if (OnAddRpcHandle == null)
                 OnAddRpcHandle = AddRpcInternal;
-            OnAddRpcHandle(target, append);
+            OnAddRpcHandle(target, append, onSyncVarCollect);
         }
 
-        protected void AddRpcInternal(object target, bool append)
+        protected void AddRpcInternal(object target, bool append, Action<SyncVarInfo> onSyncVarCollect = null)
         {
             if (!append)
             {
@@ -2875,35 +2862,9 @@ namespace Net.Server
                 {
                     if (client.Value == null)
                         continue;
-                    Segment segment = null;
-                    var entries = client.Value.varSyncInfos.entries;
-                    for (int i = 0; i < client.Value.varSyncInfos.count; i++)
-                    {
-                        if (entries[i].hashCode >= 0)
-                        {
-                            var varSync = entries[i].value;
-                            if (varSync == null)
-                                continue;
-                            var value = varSync.GetValue();
-                            if (value == null)
-                                continue;
-                            if (varSync.passive)
-                                continue;
-                            if (!value.Equals(varSync.value))
-                            {
-                                if (segment == null)
-                                    segment = BufferPool.Take();
-                                segment.WriteValue(varSync.id);
-                                segment.WriteValue(value);
-                                varSync.value = value;
-                            }
-                        }
-                    }
-                    if (segment != null)
-                    {
-                        var buffer = segment.ToArray(true);
-                        SendRT(client.Value, NetCmd.VarSync, buffer);
-                    }
+                    SyncVarHelper.CheckSyncVar(false, client.Value.syncVarList, buffer=> {
+                        SendRT(client.Value, NetCmd.SyncVar, buffer);
+                    });
                 }
             }
             catch (Exception e)

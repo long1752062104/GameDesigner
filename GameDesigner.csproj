@@ -219,10 +219,10 @@
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkImage.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkLight.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs.meta" />
-    <None Include="GameDesigner\Component\UnityComponent\NetworkIdentity.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\NetworkObject.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\NetworkResources.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkSceneManager.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkTransform.cs.meta" />
-    <None Include="GameDesigner\Component\UnityComponent\SyncVar.cs.meta" />
     <None Include="GameDesigner\ECS.meta" />
     <None Include="GameDesigner\ECS\ArrayPool.cs.meta" />
     <None Include="GameDesigner\ECS\Component.cs.meta" />
@@ -629,6 +629,8 @@
     <None Include="GameDesigner\Network\core\Event\EventSystem.cs.meta" />
     <None Include="GameDesigner\Network\core\Event\NDebug.cs.meta" />
     <None Include="GameDesigner\Network\core\Event\TimerEvent.cs.meta" />
+    <None Include="GameDesigner\Network\core\Helper.meta" />
+    <None Include="GameDesigner\Network\core\Helper\SyncVarHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Server.meta" />
     <None Include="GameDesigner\Network\core\Server\DataBase.cs.meta" />
     <None Include="GameDesigner\Network\core\Server\NetBehaviour.cs.meta" />
@@ -672,8 +674,8 @@
     <None Include="GameDesigner\Network\core\Share\RPCModelTask.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\RTOMode.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\SendBuffer.cs.meta" />
+    <None Include="GameDesigner\Network\core\Share\SyncVarAttribute.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\SyncVarInfo.cs.meta" />
-    <None Include="GameDesigner\Network\core\Share\SyncVarToServer.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\TransportMode.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\UnZipHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs.meta" />
@@ -1299,10 +1301,10 @@
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkImage.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkLight.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs" />
-    <Compile Include="GameDesigner\Component\UnityComponent\NetworkIdentity.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\NetworkObject.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\NetworkResources.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkSceneManager.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkTransform.cs" />
-    <Compile Include="GameDesigner\Component\UnityComponent\SyncVar.cs" />
     <Compile Include="GameDesigner\ECS\ArrayPool.cs" />
     <Compile Include="GameDesigner\ECS\Component.cs" />
     <Compile Include="GameDesigner\ECS\Entity.cs" />
@@ -1622,6 +1624,7 @@
     <Compile Include="GameDesigner\Network\core\Event\EventSystem.cs" />
     <Compile Include="GameDesigner\Network\core\Event\NDebug.cs" />
     <Compile Include="GameDesigner\Network\core\Event\TimerEvent.cs" />
+    <Compile Include="GameDesigner\Network\core\Helper\SyncVarHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Server\DataBase.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetBehaviour.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetPlayer.cs" />
@@ -1663,8 +1666,8 @@
     <Compile Include="GameDesigner\Network\core\Share\RPCModelTask.cs" />
     <Compile Include="GameDesigner\Network\core\Share\RTOMode.cs" />
     <Compile Include="GameDesigner\Network\core\Share\SendBuffer.cs" />
+    <Compile Include="GameDesigner\Network\core\Share\SyncVarAttribute.cs" />
     <Compile Include="GameDesigner\Network\core\Share\SyncVarInfo.cs" />
-    <Compile Include="GameDesigner\Network\core\Share\SyncVarToServer.cs" />
     <Compile Include="GameDesigner\Network\core\Share\TransportMode.cs" />
     <Compile Include="GameDesigner\Network\core\Share\UnZipHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs" />

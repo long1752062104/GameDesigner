@@ -101,12 +101,12 @@
         {
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
-            StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
-            StartThread("HeartHandle", HeartHandle);
-            StartThread("VarSyncHandler", SyncVarHandler);
+            ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
+            ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
-                StartThread("UpdateHandle", UpdateHandle);
+                ThreadManager.Invoke("UpdateHandle", UpdateHandler);
 #if UNITY_ANDROID
             InvokeContext((arg) => {
                 var randomName = RandomHelper.Range(0, int.MaxValue);
@@ -157,23 +157,20 @@
             }
         }
 
-        protected override void HeartHandle()
+        protected override bool HeartHandler()
         {
-            while (openClient & currFrequency < 10)
+            try
             {
-                try
-                {
-                    Thread.Sleep(HeartInterval);//5秒发送一个心跳包
-                    heart++;
-                    if (heart <= HeartLimit)
-                        continue;
-                    if (Connected & heart < HeartLimit + 5)
-                        Send(NetCmd.SendHeartbeat, new byte[0]);
-                    else if (!Connected)//尝试连接执行
-                        Reconnection(10);
-                } 
-                catch { }
+                heart++;
+                if (heart <= HeartLimit)
+                    return true;
+                if (Connected & heart < HeartLimit + 5)
+                    Send(NetCmd.SendHeartbeat, new byte[0]);
+                else if (!Connected)//尝试连接执行
+                    Reconnection(10);
             }
+            catch { }
+            return openClient & currFrequency < 10;
         }
 
         protected override void SendRTDataHandle()

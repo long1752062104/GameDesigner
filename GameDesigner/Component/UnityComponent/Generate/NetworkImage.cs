@@ -7,34 +7,36 @@ using UnityEngine;
 namespace BuildComponent
 {
     /// <summary>
-    /// Image同步组件, 此代码由BuildComponentTools工具生成
+    /// Image同步组件, 此代码由BuildComponentTools工具生成, 如果同步发生怪异的字段或属性, 请自行检查处理一下!
     /// </summary>
     [RequireComponent(typeof(UnityEngine.UI.Image))]
     public class NetworkImage : NetworkBehaviour
     {
-
         private UnityEngine.UI.Image self;
         public bool autoCheck;
-        private UnityEngine.UI.Image.Type type1;
-        private System.Boolean preserveAspect2;
-        private System.Boolean fillCenter3;
-        private UnityEngine.UI.Image.FillMethod fillMethod4;
-        private System.Single fillAmount5;
-        private System.Boolean fillClockwise6;
-        private System.Int32 fillOrigin7;
-        private System.Single alphaHitTestMinimumThreshold8;
-        private System.Boolean useSpriteMesh9;
-        private System.Single pixelsPerUnitMultiplier10;
-        private System.Boolean maskable11;
-        private System.Boolean isMaskingGraphic12;
-        private UnityEngine.Color color13;
-        private System.Boolean raycastTarget14;
-        private System.Boolean useGUILayout15;
-        private System.Boolean runInEditMode16;
-        private System.Boolean enabled17;
-        private System.String tag18;
-        private System.String name19;
-        private UnityEngine.HideFlags hideFlags20;
+        private UnityEngine.Sprite sprite1;
+        //private UnityEngine.Sprite overrideSprite2;
+        private UnityEngine.UI.Image.Type type3;
+        private System.Boolean preserveAspect4;
+        private System.Boolean fillCenter5;
+        private UnityEngine.UI.Image.FillMethod fillMethod6;
+        private System.Single fillAmount7;
+        private System.Boolean fillClockwise8;
+        private System.Int32 fillOrigin9;
+        private System.Single alphaHitTestMinimumThreshold10;
+        private System.Boolean useSpriteMesh11;
+        private System.Single pixelsPerUnitMultiplier12;
+        private UnityEngine.Material material13;
+        private System.Boolean maskable14;
+        private System.Boolean isMaskingGraphic15;
+        private UnityEngine.Color color16;
+        private System.Boolean raycastTarget17;
+        private System.Boolean useGUILayout18;
+        //private System.Boolean runInEditMode19;
+        private System.Boolean enabled20;
+        private System.String tag21;
+        private System.String name22;
+        private UnityEngine.HideFlags hideFlags23;
         private UnityEngine.Rect clipRect1;
         private System.Boolean validRect2;
         private UnityEngine.Rect clipRect3;
@@ -77,7 +79,80 @@ namespace BuildComponent
         {
             base.Awake();
             self = GetComponent<UnityEngine.UI.Image>();
+            sprite1 = self.sprite;
+            //overrideSprite2 = self.overrideSprite;
+            type3 = self.type;
+            preserveAspect4 = self.preserveAspect;
+            fillCenter5 = self.fillCenter;
+            fillMethod6 = self.fillMethod;
+            fillAmount7 = self.fillAmount;
+            fillClockwise8 = self.fillClockwise;
+            fillOrigin9 = self.fillOrigin;
+            alphaHitTestMinimumThreshold10 = self.alphaHitTestMinimumThreshold;
+            useSpriteMesh11 = self.useSpriteMesh;
+            pixelsPerUnitMultiplier12 = self.pixelsPerUnitMultiplier;
+            material13 = self.material;
+            maskable14 = self.maskable;
+            isMaskingGraphic15 = self.isMaskingGraphic;
+            color16 = self.color;
+            raycastTarget17 = self.raycastTarget;
+            useGUILayout18 = self.useGUILayout;
+            //runInEditMode19 = self.runInEditMode;
+            enabled20 = self.enabled;
+            tag21 = self.tag;
+            name22 = self.name;
+            hideFlags23 = self.hideFlags;
         }
+
+        public UnityEngine.Sprite sprite
+        {
+            get
+            {
+                return self.sprite;
+            }
+            set
+            {
+                if (sprite1 == value)
+                    return;
+                sprite1 = value;
+                self.sprite = value;
+                if (!NetworkResources.I.TryGetValue(sprite1, out ObjectRecord objectRecord))
+                    return;
+                ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
+                {
+                    index = networkIdentity.registerObjectIndex,
+                    index1 = 0,
+                    index2 = objectRecord.ID,
+                    name = objectRecord.path,
+                    uid = ClientManager.UID
+                });
+            }
+        }
+
+        // public UnityEngine.Sprite overrideSprite
+        // {
+        //     get
+        //     {
+        //         return self.overrideSprite;
+        //     }
+        //     set
+        //     {
+        //          if (overrideSprite2 == value)
+        //               return;
+        //          overrideSprite2 = value;
+        //          self.overrideSprite = value;
+        //          if (!NetworkResources.I.TryGetValue(overrideSprite2, out ObjectRecord objectRecord))
+        //              return;
+        //          ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
+        //          {
+        //              index = networkIdentity.registerObjectIndex,
+        //              index1 = 1,
+        //              index2 = objectRecord.ID,
+        //              name = objectRecord.path,
+        //               uid = ClientManager.UID
+        //          });
+        //     }
+        //}
 
         public UnityEngine.UI.Image.Type type
         {
@@ -87,14 +162,16 @@ namespace BuildComponent
             }
             set
             {
-                if (type1 == value)
+                if (type3 == value)
                     return;
-                type1 = value;
+                type3 = value;
+                self.type = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 2,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -107,14 +184,16 @@ namespace BuildComponent
             }
             set
             {
-                if (preserveAspect2 == value)
+                if (preserveAspect4 == value)
                     return;
-                preserveAspect2 = value;
+                preserveAspect4 = value;
+                self.preserveAspect = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 3,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -127,14 +206,16 @@ namespace BuildComponent
             }
             set
             {
-                if (fillCenter3 == value)
+                if (fillCenter5 == value)
                     return;
-                fillCenter3 = value;
+                fillCenter5 = value;
+                self.fillCenter = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 4,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -147,14 +228,16 @@ namespace BuildComponent
             }
             set
             {
-                if (fillMethod4 == value)
+                if (fillMethod6 == value)
                     return;
-                fillMethod4 = value;
+                fillMethod6 = value;
+                self.fillMethod = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 5,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -167,14 +250,16 @@ namespace BuildComponent
             }
             set
             {
-                if (fillAmount5 == value)
+                if (fillAmount7 == value)
                     return;
-                fillAmount5 = value;
+                fillAmount7 = value;
+                self.fillAmount = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 6,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -187,14 +272,16 @@ namespace BuildComponent
             }
             set
             {
-                if (fillClockwise6 == value)
+                if (fillClockwise8 == value)
                     return;
-                fillClockwise6 = value;
+                fillClockwise8 = value;
+                self.fillClockwise = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 7,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -207,14 +294,16 @@ namespace BuildComponent
             }
             set
             {
-                if (fillOrigin7 == value)
+                if (fillOrigin9 == value)
                     return;
-                fillOrigin7 = value;
+                fillOrigin9 = value;
+                self.fillOrigin = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 8,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -227,14 +316,16 @@ namespace BuildComponent
             }
             set
             {
-                if (alphaHitTestMinimumThreshold8 == value)
+                if (alphaHitTestMinimumThreshold10 == value)
                     return;
-                alphaHitTestMinimumThreshold8 = value;
+                alphaHitTestMinimumThreshold10 = value;
+                self.alphaHitTestMinimumThreshold = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 10,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -247,14 +338,16 @@ namespace BuildComponent
             }
             set
             {
-                if (useSpriteMesh9 == value)
+                if (useSpriteMesh11 == value)
                     return;
-                useSpriteMesh9 = value;
+                useSpriteMesh11 = value;
+                self.useSpriteMesh = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 11,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -267,14 +360,41 @@ namespace BuildComponent
             }
             set
             {
-                if (pixelsPerUnitMultiplier10 == value)
+                if (pixelsPerUnitMultiplier12 == value)
                     return;
-                pixelsPerUnitMultiplier10 = value;
+                pixelsPerUnitMultiplier12 = value;
+                self.pixelsPerUnitMultiplier = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 14,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
+                });
+            }
+        }
+
+        public UnityEngine.Material material
+        {
+            get
+            {
+                return self.material;
+            }
+            set
+            {
+                if (material13 == value)
+                    return;
+                material13 = value;
+                self.material = value;
+                if (!NetworkResources.I.TryGetValue(material13, out ObjectRecord objectRecord))
+                    return;
+                ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
+                {
+                    index = networkIdentity.registerObjectIndex,
+                    index1 = 16,
+                    index2 = objectRecord.ID,
+                    name = objectRecord.path,
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -287,14 +407,16 @@ namespace BuildComponent
             }
             set
             {
-                if (maskable11 == value)
+                if (maskable14 == value)
                     return;
-                maskable11 = value;
+                maskable14 = value;
+                self.maskable = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 25,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -307,14 +429,16 @@ namespace BuildComponent
             }
             set
             {
-                if (isMaskingGraphic12 == value)
+                if (isMaskingGraphic15 == value)
                     return;
-                isMaskingGraphic12 = value;
+                isMaskingGraphic15 = value;
+                self.isMaskingGraphic = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 26,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -327,14 +451,16 @@ namespace BuildComponent
             }
             set
             {
-                if (color13 == value)
+                if (color16 == value)
                     return;
-                color13 = value;
+                color16 = value;
+                self.color = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 27,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -347,14 +473,16 @@ namespace BuildComponent
             }
             set
             {
-                if (raycastTarget14 == value)
+                if (raycastTarget17 == value)
                     return;
-                raycastTarget14 = value;
+                raycastTarget17 = value;
+                self.raycastTarget = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 28,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -367,37 +495,41 @@ namespace BuildComponent
             }
             set
             {
-                if (useGUILayout15 == value)
+                if (useGUILayout18 == value)
                     return;
-                useGUILayout15 = value;
+                useGUILayout18 = value;
+                self.useGUILayout = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 35,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
 
-        public System.Boolean runInEditMode
-        {
-            get
-            {
-                return default;
-            }
-            set
-            {
-                if (runInEditMode16 == value)
-                    return;
-                runInEditMode16 = value;
-                ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
-                {
-                    index = networkIdentity.registerObjectIndex,
-                    index1 = 36,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
-                });
-            }
-        }
+        //public System.Boolean runInEditMode
+        //{
+        //    get
+        //    {
+        //        return self.runInEditMode;
+        //    }
+        //    set
+        //    {
+        //        if (runInEditMode19 == value)
+        //            return;
+        //        runInEditMode19 = value;
+        //        self.runInEditMode = value;
+        //        ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
+        //        {
+        //            index = networkIdentity.registerObjectIndex,
+        //            index1 = 36,
+        //            buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+        //            uid = ClientManager.UID
+        //        });
+        //    }
+        //}
 
         public System.Boolean enabled
         {
@@ -407,14 +539,16 @@ namespace BuildComponent
             }
             set
             {
-                if (enabled17 == value)
+                if (enabled20 == value)
                     return;
-                enabled17 = value;
+                enabled20 = value;
+                self.enabled = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 37,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -427,14 +561,16 @@ namespace BuildComponent
             }
             set
             {
-                if (tag18 == value)
+                if (tag21 == value)
                     return;
-                tag18 = value;
+                tag21 = value;
+                self.tag = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 41,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -447,14 +583,16 @@ namespace BuildComponent
             }
             set
             {
-                if (name19 == value)
+                if (name22 == value)
                     return;
-                name19 = value;
+                name22 = value;
+                self.name = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 55,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -467,14 +605,16 @@ namespace BuildComponent
             }
             set
             {
-                if (hideFlags20 == value)
+                if (hideFlags23 == value)
                     return;
-                hideFlags20 = value;
+                hideFlags23 = value;
+                self.hideFlags = value;
                 ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
                 {
                     index = networkIdentity.registerObjectIndex,
                     index1 = 56,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)
+                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+                    uid = ClientManager.UID
                 });
             }
         }
@@ -980,6 +1120,8 @@ namespace BuildComponent
         {
             if (!autoCheck)
                 return;
+            sprite = sprite;
+            //overrideSprite = overrideSprite;
             type = type;
             preserveAspect = preserveAspect;
             fillCenter = fillCenter;
@@ -990,12 +1132,13 @@ namespace BuildComponent
             alphaHitTestMinimumThreshold = alphaHitTestMinimumThreshold;
             useSpriteMesh = useSpriteMesh;
             pixelsPerUnitMultiplier = pixelsPerUnitMultiplier;
+            material = material;
             maskable = maskable;
             isMaskingGraphic = isMaskingGraphic;
             color = color;
             raycastTarget = raycastTarget;
             useGUILayout = useGUILayout;
-            runInEditMode = runInEditMode;
+            //runInEditMode = runInEditMode;
             enabled = enabled;
             tag = tag;
             name = name;
@@ -1008,85 +1151,145 @@ namespace BuildComponent
                 return;
             switch (opt.index1)
             {
+                case 0:
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    sprite1 = NetworkResources.I.GetObject<UnityEngine.Sprite>(opt.index2, opt.name);
+                    self.sprite = sprite1;
+                    break;
+                case 1:
+                    //if (opt.uid == ClientManager.UID)
+                    //    return;
+                    // overrideSprite2 = NetworkResources.I.GetObject<UnityEngine.Sprite>(opt.index2, opt.name);
+                    // self.overrideSprite = overrideSprite2;
+                    break;
                 case 2:
-                    type1 = Net.Serialize.NetConvertFast2.DeserializeObject<UnityEngine.UI.Image.Type>(new Net.System.Segment(opt.buffer, false));
-                    self.type = type1;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    type3 = Net.Serialize.NetConvertFast2.DeserializeObject<UnityEngine.UI.Image.Type>(new Net.System.Segment(opt.buffer, false));
+                    self.type = type3;
                     break;
                 case 3:
-                    preserveAspect2 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.preserveAspect = preserveAspect2;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    preserveAspect4 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.preserveAspect = preserveAspect4;
                     break;
                 case 4:
-                    fillCenter3 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.fillCenter = fillCenter3;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    fillCenter5 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.fillCenter = fillCenter5;
                     break;
                 case 5:
-                    fillMethod4 = Net.Serialize.NetConvertFast2.DeserializeObject<UnityEngine.UI.Image.FillMethod>(new Net.System.Segment(opt.buffer, false));
-                    self.fillMethod = fillMethod4;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    fillMethod6 = Net.Serialize.NetConvertFast2.DeserializeObject<UnityEngine.UI.Image.FillMethod>(new Net.System.Segment(opt.buffer, false));
+                    self.fillMethod = fillMethod6;
                     break;
                 case 6:
-                    fillAmount5 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Single>(new Net.System.Segment(opt.buffer, false));
-                    self.fillAmount = fillAmount5;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    fillAmount7 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Single>(new Net.System.Segment(opt.buffer, false));
+                    self.fillAmount = fillAmount7;
                     break;
                 case 7:
-                    fillClockwise6 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.fillClockwise = fillClockwise6;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    fillClockwise8 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.fillClockwise = fillClockwise8;
                     break;
                 case 8:
-                    fillOrigin7 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Int32>(new Net.System.Segment(opt.buffer, false));
-                    self.fillOrigin = fillOrigin7;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    fillOrigin9 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Int32>(new Net.System.Segment(opt.buffer, false));
+                    self.fillOrigin = fillOrigin9;
                     break;
                 case 10:
-                    alphaHitTestMinimumThreshold8 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Single>(new Net.System.Segment(opt.buffer, false));
-                    self.alphaHitTestMinimumThreshold = alphaHitTestMinimumThreshold8;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    alphaHitTestMinimumThreshold10 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Single>(new Net.System.Segment(opt.buffer, false));
+                    self.alphaHitTestMinimumThreshold = alphaHitTestMinimumThreshold10;
                     break;
                 case 11:
-                    useSpriteMesh9 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.useSpriteMesh = useSpriteMesh9;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    useSpriteMesh11 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.useSpriteMesh = useSpriteMesh11;
                     break;
                 case 14:
-                    pixelsPerUnitMultiplier10 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Single>(new Net.System.Segment(opt.buffer, false));
-                    self.pixelsPerUnitMultiplier = pixelsPerUnitMultiplier10;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    pixelsPerUnitMultiplier12 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Single>(new Net.System.Segment(opt.buffer, false));
+                    self.pixelsPerUnitMultiplier = pixelsPerUnitMultiplier12;
+                    break;
+                case 16:
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    material13 = NetworkResources.I.GetObject<UnityEngine.Material>(opt.index2, opt.name);
+                    if (material13 == null)
+                        material13 = self.defaultMaterial;
+                    self.material = material13;
                     break;
                 case 25:
-                    maskable11 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.maskable = maskable11;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    maskable14 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.maskable = maskable14;
                     break;
                 case 26:
-                    isMaskingGraphic12 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.isMaskingGraphic = isMaskingGraphic12;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    isMaskingGraphic15 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.isMaskingGraphic = isMaskingGraphic15;
                     break;
                 case 27:
-                    color13 = Net.Serialize.NetConvertFast2.DeserializeObject<UnityEngine.Color>(new Net.System.Segment(opt.buffer, false));
-                    self.color = color13;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    color16 = Net.Serialize.NetConvertFast2.DeserializeObject<UnityEngine.Color>(new Net.System.Segment(opt.buffer, false));
+                    self.color = color16;
                     break;
                 case 28:
-                    raycastTarget14 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.raycastTarget = raycastTarget14;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    raycastTarget17 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.raycastTarget = raycastTarget17;
                     break;
                 case 35:
-                    useGUILayout15 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.useGUILayout = useGUILayout15;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    useGUILayout18 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.useGUILayout = useGUILayout18;
                     break;
                 case 36:
-                    //runInEditMode16 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    //self.runInEditMode = runInEditMode16;
+                    //if (opt.uid == ClientManager.UID)
+                    //    return;
+                    //runInEditMode19 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    //self.runInEditMode = runInEditMode19;
                     break;
                 case 37:
-                    enabled17 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.enabled = enabled17;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    enabled20 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    self.enabled = enabled20;
                     break;
                 case 41:
-                    tag18 = Net.Serialize.NetConvertFast2.DeserializeObject<System.String>(new Net.System.Segment(opt.buffer, false));
-                    self.tag = tag18;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    tag21 = Net.Serialize.NetConvertFast2.DeserializeObject<System.String>(new Net.System.Segment(opt.buffer, false));
+                    self.tag = tag21;
                     break;
                 case 55:
-                    name19 = Net.Serialize.NetConvertFast2.DeserializeObject<System.String>(new Net.System.Segment(opt.buffer, false));
-                    self.name = name19;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    name22 = Net.Serialize.NetConvertFast2.DeserializeObject<System.String>(new Net.System.Segment(opt.buffer, false));
+                    self.name = name22;
                     break;
                 case 56:
-                    hideFlags20 = Net.Serialize.NetConvertFast2.DeserializeObject<UnityEngine.HideFlags>(new Net.System.Segment(opt.buffer, false));
-                    self.hideFlags = hideFlags20;
+                    if (opt.uid == ClientManager.UID)
+                        return;
+                    hideFlags23 = Net.Serialize.NetConvertFast2.DeserializeObject<UnityEngine.HideFlags>(new Net.System.Segment(opt.buffer, false));
+                    self.hideFlags = hideFlags23;
                     break;
                 case 59:
                     {

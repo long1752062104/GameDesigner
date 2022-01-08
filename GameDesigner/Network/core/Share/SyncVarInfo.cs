@@ -26,6 +26,7 @@ namespace Net.Share
         public virtual void SetValue(object value)
         {
         }
+        public virtual void SetInfo(MemberInfo member) { }
     }
     public class SyncVarFieldInfo : SyncVarInfo
     {
@@ -38,6 +39,10 @@ namespace Net.Share
         {
             fieldInfo.SetValue(target, value);
         }
+        public override void SetInfo(MemberInfo member)
+        {
+            fieldInfo = member as FieldInfo;
+        }
     }
     public class SyncVarPropertyInfo : SyncVarInfo
     {
@@ -49,6 +54,10 @@ namespace Net.Share
         public override void SetValue(object value)
         {
             propertyInfo.SetValue(target, value);
+        }
+        public override void SetInfo(MemberInfo member)
+        {
+            propertyInfo = member as PropertyInfo;
         }
     }
 }

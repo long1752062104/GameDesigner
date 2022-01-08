@@ -167,7 +167,7 @@ namespace Net.Adapter
 #endif
         }
 
-        public void AddRpcHandle(object target, bool append)
+        public void AddRpcHandle(object target, bool append, Action<SyncVarInfo> onSyncVarCollect)
         {
             Type type = target.GetType();
             MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);

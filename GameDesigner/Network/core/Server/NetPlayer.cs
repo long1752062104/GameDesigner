@@ -9,6 +9,7 @@
     using global::System.Net.Sockets;
     using global::System.Reflection;
     using Net.System;
+    using Net.Helper;
 
     /// <summary>
     /// 网络玩家 - 当客户端连接服务器后都会为每个客户端生成一个网络玩家对象，(玩家对象由服务器管理) 2019.9.9
@@ -104,9 +105,8 @@
         /// tcp远程端口, 由于socket被关闭后无法访问RemoteEndPoint的问题
         /// </summary>
         internal EndPoint TcpRemoteEndPoint { get; set; }
-
-        internal MyDictionary<ushort, SyncVarInfo> varSyncInfos = new MyDictionary<ushort, SyncVarInfo>();
-
+        internal MyDictionary<ushort, SyncVarInfo> syncVarDic = new MyDictionary<ushort, SyncVarInfo>();
+        internal List<SyncVarInfo> syncVarList = new List<SyncVarInfo>();
         internal MyDictionary<int, FileData> ftpDic = new MyDictionary<int, FileData>();
 
         #region 创建网络客户端(玩家)
@@ -214,79 +214,41 @@
                 }
                 else 
                 {
-                    SyncVarToServer varSync = info.GetCustomAttribute<SyncVarToServer>();
-                    if (varSync == null)
-                        continue;
-                    if (varSync.id == 0)
+                    SyncVarHelper.InitSyncVar(info, target, (syncVar) =>
                     {
-                        NDebug.LogError($"错误! 请赋值ID字段 :{target.GetType().Name}类的{info.Name}字段");
-                        continue;
-                    }
-                    if (info is FieldInfo field)
+                        if (syncVar.id == 0)
+                        {
+                            NDebug.LogError($"错误! 请赋值ID字段 :{target.GetType().Name}类的{info.Name}字段");
+                            return;
+                        }
+                        syncVarDic.Add(syncVar.id, syncVar);
+                        syncVarList.Add(syncVar);
+                    });
+                }
+            }
+        }
+
+        private bool CheckIsClass(Type type, ref int layer, bool root = true)
+        {
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var field in fields)
+            {
+                var code = Type.GetTypeCode(field.FieldType);
+                if (code == TypeCode.Object)
+                {
+                    if (field.FieldType.IsClass)
+                        return true;
+                    if (root)
+                        layer = 0;
+                    if (layer++ < 5)
                     {
-                        var code = Type.GetTypeCode(field.FieldType);
-                        if (code == TypeCode.Object & !field.FieldType.IsEnum)
-                        {
-                            NDebug.LogError($"错误! 尚未支持同步字段,属性的{field.FieldType}类型! 错误定义:{target.GetType().Name}类的{field.Name}字段");
-                            continue;
-                        }
-                        if (!varSyncInfos.TryGetValue(varSync.id, out SyncVarInfo varSyncInfo))
-                        {
-                            varSyncInfos.Add(varSync.id, new SyncVarFieldInfo()
-                            {
-                                id = varSync.id,
-                                type = field.FieldType,
-                                target = target,
-                                fieldInfo = field,
-                                value = field.GetValue(target),
-                                passive = varSync.passive
-                            });
-                        }
-                        else if (varSyncInfo is SyncVarFieldInfo field1)
-                        {
-                            NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
-                        }
-                        else if (varSyncInfo is SyncVarPropertyInfo property)
-                        {
-                            NDebug.LogError($"错误! 变量同步唯一id冲突, {property.target.GetType().Name}类的{property.propertyInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
-                        }
-                    }
-                    else if (info is PropertyInfo property)
-                    {
-                        if (!property.CanRead | !property.CanWrite)
-                        {
-                            NDebug.LogError($"错误! {target.GetType().Name}类的{property.Name}属性不能完全读写!");
-                            continue;
-                        }
-                        var code = Type.GetTypeCode(property.PropertyType);
-                        if (code == TypeCode.Object & !property.PropertyType.IsEnum)
-                        {
-                            NDebug.LogError($"错误! 尚未支持同步字段,属性的{property.PropertyType}类型! 错误定义:{target.GetType().Name}类的{property.Name}属性字段");
-                            continue;
-                        }
-                        if (!varSyncInfos.TryGetValue(varSync.id, out SyncVarInfo varSyncInfo))
-                        {
-                            varSyncInfos.Add(varSync.id, new SyncVarPropertyInfo()
-                            {
-                                id = varSync.id,
-                                type = property.PropertyType,
-                                target = target,
-                                propertyInfo = property,
-                                value = property.GetValue(target),
-                                passive = varSync.passive
-                            });
-                        }
-                        else if (varSyncInfo is SyncVarFieldInfo field1)
-                        {
-                            NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
-                        }
-                        else if (varSyncInfo is SyncVarPropertyInfo property1)
-                        {
-                            NDebug.LogError($"错误! 变量同步唯一id冲突, {property1.target.GetType().Name}类的{property1.propertyInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
-                        }
+                        var isClass = CheckIsClass(field.FieldType, ref layer, false);
+                        if (isClass)
+                            return true;
                     }
                 }
             }
+            return false;
         }
 
         private byte[] addressBuffer;

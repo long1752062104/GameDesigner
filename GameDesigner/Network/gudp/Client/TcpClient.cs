@@ -78,27 +78,24 @@
             });
         }
 
-        protected override void HeartHandle()
+        protected override bool HeartHandler()
         {
-            while (openClient & currFrequency < 10)
+            try
             {
-                Thread.Sleep(HeartInterval);//5秒发送一个心跳包
-                try
-                {
-                    if (RTOMode == RTOMode.Variable)
-                        Ping();
-                    heart++;
-                    if (heart <= HeartLimit)
-                        continue;
-                    if (!Connected)
-                        Reconnection(10);
-                    else
-                        Send(NetCmd.SendHeartbeat, new byte[0]);
-                }
-                catch
-                {
-                }
+                if (RTOMode == RTOMode.Variable)
+                    Ping();
+                heart++;
+                if (heart <= HeartLimit)
+                    return true;
+                if (!Connected)
+                    Reconnection(10);
+                else
+                    Send(NetCmd.SendHeartbeat, new byte[0]);
             }
+            catch
+            {
+            }
+            return openClient & currFrequency < 10;
         }
 
         protected override void StartupThread()
@@ -106,12 +103,12 @@
             Connected = true;
             StartThread("SendDataHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
-            StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
-            StartThread("HeartHandle", HeartHandle);
-            StartThread("VarSyncHandler", SyncVarHandler);
+            ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
+            ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
-                StartThread("UpdateHandle", UpdateHandle);
+                ThreadManager.Invoke("UpdateHandle", UpdateHandler);
         }
 
         protected override void SendRTDataHandle()
@@ -241,7 +238,7 @@
                         fpsAct?.Invoke(clients);
                         for (int i = 0; i < clients.Count; i++)
                         {
-                            clients[i].OnNetworkFlowHandle();
+                            clients[i].NetworkFlowHandler();
                             clients[i].fps = 0;
                         }
                     }

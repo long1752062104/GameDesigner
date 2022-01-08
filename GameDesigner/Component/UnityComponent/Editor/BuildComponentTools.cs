@@ -66,12 +66,11 @@ public class BuildComponentTools : EditorWindow
         str.AppendLine("namespace BuildComponent");
         str.AppendLine("{");
         str.AppendLine("    /// <summary>");
-        str.AppendLine($"    /// {type.Name}同步组件, 此代码由BuildComponentTools工具生成");
+        str.AppendLine($"    /// {type.Name}同步组件, 此代码由BuildComponentTools工具生成, 如果同步发生怪异的字段或属性, 请自行检查处理一下!");
         str.AppendLine("    /// </summary>");
         str.AppendLine($"    [RequireComponent(typeof({type.FullName}))]");
         str.AppendLine($"    public class Network{type.Name} : NetworkBehaviour");
         str.AppendLine("    {");
-        str.AppendLine("");
         str.AppendLine($"       private {type.FullName} self;");
         str.AppendLine($"       public bool autoCheck;");
         int parNum = 0;
@@ -87,7 +86,7 @@ public class BuildComponentTools : EditorWindow
                 ptype != typeof(Rect) & ptype != typeof(Quaternion) & ptype != typeof(Color)
                 & ptype != typeof(Color32) & ptype != typeof(Net.Vector2) & ptype != typeof(Net.Vector3)
                 & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
-                & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32)
+                & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
                 )
                 continue;
             parNum++;
@@ -112,7 +111,7 @@ public class BuildComponentTools : EditorWindow
                     ptype != typeof(Rect) & ptype != typeof(Quaternion) & ptype != typeof(Color)
                     & ptype != typeof(Color32) & ptype != typeof(Net.Vector2) & ptype != typeof(Net.Vector3)
                     & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
-                    & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32)
+                    & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) //& ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
                     )
                 {
                     not = true;
@@ -133,6 +132,26 @@ public class BuildComponentTools : EditorWindow
         str.AppendLine("      {");
         str.AppendLine("          base.Awake();");
         str.AppendLine($"          self = GetComponent<{type.FullName}>();");
+
+        parNum = 0;
+        for (int i = 0; i < properties.Length; i++)
+        {
+            var item = properties[i];
+            if (!item.CanRead | !item.CanWrite | item.GetCustomAttribute<ObsoleteAttribute>() != null)
+                continue;
+            var ptype = item.PropertyType;
+            var code = Type.GetTypeCode(ptype);
+            if (code == TypeCode.Object & ptype != typeof(Vector2) & ptype != typeof(Vector3) & ptype != typeof(Vector4) &
+                ptype != typeof(Rect) & ptype != typeof(Quaternion) & ptype != typeof(Color)
+                & ptype != typeof(Color32) & ptype != typeof(Net.Vector2) & ptype != typeof(Net.Vector3)
+                & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
+                & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
+                )
+                continue;
+            parNum++;
+            var fieldName = item.Name + parNum;
+            str.AppendLine($"          {fieldName} = self.{item.Name};");
+        }
         str.AppendLine("      }");
         str.AppendLine("");
         parNum = 0;
@@ -147,9 +166,11 @@ public class BuildComponentTools : EditorWindow
                 ptype != typeof(Rect) & ptype != typeof(Quaternion) & ptype != typeof(Color)
                 & ptype != typeof(Color32) & ptype != typeof(Net.Vector2) & ptype != typeof(Net.Vector3)
                 & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
-                & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32)
+                & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
                 )
                 continue;
+            parNum++;
+            var fieldName = item.Name + parNum;
             str.AppendLine($"      public {ptype.FullName} {item.Name}");
             str.AppendLine("      {");
             str.AppendLine("          get");
@@ -158,17 +179,33 @@ public class BuildComponentTools : EditorWindow
             str.AppendLine("          }");
             str.AppendLine("          set");
             str.AppendLine("          {");
-            parNum++;
-            var fieldName = item.Name + parNum;
             str.AppendLine($"               if ({fieldName} == value)");
             str.AppendLine("                    return;");
             str.AppendLine($"               {fieldName} = value;");
-            str.AppendLine("                ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)");
-            str.AppendLine("                {");
-            str.AppendLine($"                    index = networkIdentity.registerObjectIndex,");
-            str.AppendLine($"                    index1 = {i},");
-            str.AppendLine("                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true)");
-            str.AppendLine("                });");
+            str.AppendLine($"               self.{item.Name} = value;");
+            if (ptype == typeof(UnityEngine.Object) | ptype.IsSubclassOf(typeof(UnityEngine.Object)))
+            {
+                str.AppendLine($"               if (!NetworkResources.I.TryGetValue({fieldName}, out ObjectRecord objectRecord))");
+                str.AppendLine($"                   return;");
+                str.AppendLine($"               ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)");
+                str.AppendLine("               {");
+                str.AppendLine($"                   index = networkIdentity.registerObjectIndex,");
+                str.AppendLine($"                   index1 = {i},");
+                str.AppendLine($"                   index2 = objectRecord.ID,");
+                str.AppendLine($"                   name = objectRecord.path,");
+                str.AppendLine("                    uid = ClientManager.UID");
+                str.AppendLine("               });");
+            }
+            else 
+            {
+                str.AppendLine("                ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)");
+                str.AppendLine("                {");
+                str.AppendLine($"                    index = networkIdentity.registerObjectIndex,");
+                str.AppendLine($"                    index1 = {i},");
+                str.AppendLine("                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),");
+                str.AppendLine("                    uid = ClientManager.UID");
+                str.AppendLine("                });");
+            }
             str.AppendLine("          }");
             str.AppendLine("     }");
             str.AppendLine("");
@@ -263,15 +300,29 @@ public class BuildComponentTools : EditorWindow
                 ptype != typeof(Rect) & ptype != typeof(Quaternion) & ptype != typeof(Color)
                 & ptype != typeof(Color32) & ptype != typeof(Net.Vector2) & ptype != typeof(Net.Vector3)
                 & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
-                & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32)
+                & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
                 )
                 continue;
             parNum++;
             var fieldName = item.Name + parNum;
-            str.AppendLine($"             case {i}:");
-            str.AppendLine($"                 {fieldName} = Net.Serialize.NetConvertFast2.DeserializeObject<{ptype.FullName}>(new Net.System.Segment(opt.buffer, false));");
-            str.AppendLine($"                 self.{item.Name} = {fieldName};");
-            str.AppendLine("                break;");
+            if (ptype != typeof(UnityEngine.Object) & ptype.IsSubclassOf(typeof(UnityEngine.Object)))
+            {
+                str.AppendLine($"             case {i}:");
+                str.AppendLine("                if (opt.uid == ClientManager.UID)");
+                str.AppendLine("                    return;");
+                str.AppendLine($"                 {fieldName} = NetworkResources.I.GetObject<{ptype.FullName}>(opt.index2, opt.name);");
+                str.AppendLine($"                 self.{item.Name} = {fieldName};");
+                str.AppendLine("                break;");
+            }
+            else
+            {
+                str.AppendLine($"             case {i}:");
+                str.AppendLine("                if (opt.uid == ClientManager.UID)");
+                str.AppendLine("                    return;");
+                str.AppendLine($"                 {fieldName} = Net.Serialize.NetConvertFast2.DeserializeObject<{ptype.FullName}>(new Net.System.Segment(opt.buffer, false));");
+                str.AppendLine($"                 self.{item.Name} = {fieldName};");
+                str.AppendLine("                break;");
+            }
         }
         for (int i = 0; i < methods.Length; i++)
         {

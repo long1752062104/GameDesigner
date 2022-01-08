@@ -9,7 +9,7 @@ namespace Net.Component
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="ITEM"></typeparam>
-    public abstract class SingleCasePanel<T, ITEM> : SingleCase<T> where T : MonoBehaviour
+    public abstract class SingleCasePanel<T, ITEM> : SingleCase<T> where T : SingleCasePanel<T, ITEM>
     {
         public ITEM item;
         public Transform root;

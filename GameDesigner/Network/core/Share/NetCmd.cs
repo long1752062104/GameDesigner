@@ -128,7 +128,7 @@
         /// <summary>
         /// 字段或属性同步指令 内部指令
         /// </summary>
-        public const byte VarSync = 29;
+        public const byte SyncVar = 29;
         /// <summary>
         /// 发送文件
         /// </summary>

@@ -32,6 +32,7 @@ namespace Net.Client
     using global::System.Threading.Tasks;
     using Net.System;
     using Net.Serialize;
+    using Net.Helper;
 
     /// <summary>
     /// 网络客户端核心基类 2019.3.3
@@ -218,7 +219,7 @@ namespace Net.Client
         /// <summary>
         /// 当添加远程过程调用方法时调用， 参数1：要收集rpc特性的对象， 参数2：如果客户端的rpc列表中已经有了这个对象，还可以添加进去？
         /// </summary>
-        public Action<object, bool> OnAddRpcHandle { get; set; }
+        public Action<object, bool, Action<SyncVarInfo>> OnAddRpcHandle { get; set; }
         /// <summary>
         /// 当移除远程过程调用对象， 参数1：移除此对象的所有rpc方法
         /// </summary>
@@ -428,7 +429,8 @@ namespace Net.Client
         internal string persistentDataPath;
         private readonly MyDictionary<uint, FrameList> revdFrames = new MyDictionary<uint, FrameList>();
         private long fileStreamCurrPos;
-        private readonly MyDictionary<ushort, SyncVarInfo> syncVarInfos = new MyDictionary<ushort, SyncVarInfo>();
+        private readonly MyDictionary<ushort, SyncVarInfo> syncVarDic = new MyDictionary<ushort, SyncVarInfo>();
+        private readonly List<SyncVarInfo> syncVarList = new List<SyncVarInfo>();
         private readonly MyDictionary<int, FileData> ftpDic = new MyDictionary<int, FileData>();
 
         /// <summary>
@@ -477,14 +479,14 @@ namespace Net.Client
         /// </summary>
         /// <param name="target">注册的对象实例</param>
         /// <param name="append">一个Rpc方法是否可以多次添加到Rpcs里面？</param>
-        public void AddRpcHandle(object target, bool append)
+        public void AddRpcHandle(object target, bool append, Action<SyncVarInfo> onSyncVarCollect = null)
         {
             if (OnAddRpcHandle == null)
                 OnAddRpcHandle = AddRpcInternal;
-            OnAddRpcHandle(target, append);
+            OnAddRpcHandle(target, append, onSyncVarCollect);
         }
 
-        private void AddRpcInternal(object target, bool append)
+        private void AddRpcInternal(object target, bool append, Action<SyncVarInfo> onSyncVarCollect)
         {
             if (!append)
             {
@@ -514,79 +516,43 @@ namespace Net.Client
                 }
                 else
                 {
-                    SyncVarToServer synVarc = info.GetCustomAttribute<SyncVarToServer>();
-                    if (synVarc == null)
-                        continue;
-                    if (synVarc.id == 0)
+                    SyncVarHelper.InitSyncVar(info, target, (syncVar) =>
                     {
-                        NDebug.LogError($"错误! 请赋值ID字段 :{target.GetType().Name}类的{info.Name}字段");
-                        continue;
-                    }
-                    if(info is FieldInfo field)
+                        if (syncVar.id == 0)
+                        {
+                            onSyncVarCollect(syncVar);
+                        }
+                        else
+                        {
+                            syncVarDic.Add(syncVar.id, syncVar);
+                            syncVarList.Add(syncVar);
+                        }
+                    });
+                }
+            }
+        }
+
+        private bool CheckIsClass(Type type, ref int layer, bool root = true)
+        {
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var field in fields)
+            {
+                var code = Type.GetTypeCode(field.FieldType);
+                if (code == TypeCode.Object)
+                {
+                    if (field.FieldType.IsClass)
+                        return true;
+                    if (root)
+                        layer = 0;
+                    if (layer++ < 5)
                     {
-                        var code = Type.GetTypeCode(field.FieldType);
-                        if (code == TypeCode.Object & !field.FieldType.IsEnum)
-                        {
-                            NDebug.LogError($"错误! 尚未支持同步字段,属性的{field.FieldType}类型! 错误定义:{target.GetType().Name}类的{field.Name}字段");
-                            continue;
-                        }
-                        if (!syncVarInfos.TryGetValue(synVarc.id, out SyncVarInfo varSyncInfo))
-                        {
-                            syncVarInfos.Add(synVarc.id, new SyncVarFieldInfo()
-                            {
-                                id = synVarc.id,
-                                type = field.FieldType,
-                                target = target,
-                                fieldInfo = field,
-                                value = field.GetValue(target),
-                                passive = synVarc.passive
-                            });
-                        }
-                        else if (varSyncInfo is SyncVarFieldInfo field1)
-                        {
-                            NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
-                        }
-                        else if (varSyncInfo is SyncVarPropertyInfo property)
-                        {
-                            NDebug.LogError($"错误! 变量同步唯一id冲突, {property.target.GetType().Name}类的{property.propertyInfo.Name}字段和{target.GetType().Name}类的{field.Name}字段id冲突!");
-                        }
-                    }
-                    else if (info is PropertyInfo property)
-                    {
-                        if (!property.CanRead | !property.CanWrite)
-                        {
-                            NDebug.LogError($"错误! {target.GetType().Name}类的{property.Name}属性不能完全读写!");
-                            continue;
-                        }
-                        var code = Type.GetTypeCode(property.PropertyType);
-                        if (code == TypeCode.Object & !property.PropertyType.IsEnum)
-                        {
-                            NDebug.LogError($"错误! 尚未支持同步字段,属性的{property.PropertyType}类型! 错误定义:{target.GetType().Name}类的{property.Name}属性字段");
-                            continue;
-                        }
-                        if (!syncVarInfos.TryGetValue(synVarc.id, out SyncVarInfo varSyncInfo))
-                        {
-                            syncVarInfos.Add(synVarc.id, new SyncVarPropertyInfo()
-                            {
-                                id = synVarc.id,
-                                type = property.PropertyType,
-                                target = target,
-                                propertyInfo = property,
-                                value = property.GetValue(target),
-                                passive = synVarc.passive
-                            });
-                        }
-                        else if (varSyncInfo is SyncVarFieldInfo field1)
-                        {
-                            NDebug.LogError($"错误! 变量同步唯一id冲突, {field1.target.GetType().Name}类的{field1.fieldInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
-                        }
-                        else if (varSyncInfo is SyncVarPropertyInfo property1)
-                        {
-                            NDebug.LogError($"错误! 变量同步唯一id冲突, {property1.target.GetType().Name}类的{property1.propertyInfo.Name}字段和{target.GetType().Name}类的{property.Name}字段id冲突!");
-                        }
+                        var isClass = CheckIsClass(field.FieldType, ref layer, false);
+                        if (isClass)
+                            return true;
                     }
                 }
             }
+            return false;
         }
 
         private void AddRpc(MyDictionary<string, List<RPCMethod>> rpcs, List<RPCMethod> rpcsList, RPCMethod item)
@@ -744,10 +710,10 @@ namespace Net.Client
         /// <summary>
         /// 开启心跳线程
         /// </summary>
-        public void StartHeartHandle()
-        {
-            StartThread("HeartHandle", HeartHandle);
-        }
+        //public void StartHeartHandle()
+        //{
+        //    StartThread("HeartHandle", HeartHandle);
+        //}
 
         /// <summary>
         /// 开启线程
@@ -800,13 +766,10 @@ namespace Net.Client
         /// <summary>
         /// 每一帧执行线程
         /// </summary>
-        protected void UpdateHandle()
+        protected bool UpdateHandler()
         {
-            while (openClient)
-            {
-                Thread.Sleep(1);
-                try { NetworkEventUpdate(); } catch { }
-            }
+            try { NetworkEventUpdate(); } catch { }
+            return openClient;
         }
 
         /// <summary>
@@ -1163,12 +1126,12 @@ namespace Net.Client
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
-            StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
-            StartThread("HeartHandle", HeartHandle);
-            StartThread("SyncVarHandler", SyncVarHandler);
+            ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
+            ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
-                StartThread("UpdateHandle", UpdateHandle);
+                ThreadManager.Invoke("UpdateHandle", UpdateHandler);
 #if UNITY_ANDROID
             InvokeContext((arg)=> {
                 var randomName = RandomHelper.Range(0, int.MaxValue);
@@ -1195,7 +1158,7 @@ namespace Net.Client
                 NetworkState = networkState = NetworkState.ConnectFailed;
                 NDebug.LogError("服务器尚未开启或连接IP端口错误!");
                 if (!UseUnityThread)
-                    StartThread("UpdateHandle", UpdateHandle);
+                    ThreadManager.Invoke("UpdateHandle", UpdateHandler);
             }
         }
 
@@ -1212,16 +1175,7 @@ namespace Net.Client
         /// <summary>
         /// 调式输出网络流量信息
         /// </summary>
-        protected void NetworkFlowHandle()
-        {
-            while (Connected)
-            {
-                Thread.Sleep(1000);
-                OnNetworkFlowHandle();
-            }
-        }
-
-        protected virtual void OnNetworkFlowHandle()
+        protected virtual bool NetworkFlowHandler()
         {
             try
             {
@@ -1241,6 +1195,7 @@ namespace Net.Client
                 sendLoopNum = 0;
                 revdLoopNum = 0;
             }
+            return Connected;
         }
 
         /// <summary>
@@ -2029,22 +1984,8 @@ namespace Net.Client
                         InvokeContext((arg) => { OnP2PCallback(iPEndPoint); });
                     }
                     break;
-                case NetCmd.VarSync:
-                    Segment segment1 = new Segment(model.buffer, model.index, model.count, false);
-                    while (segment1.Position < segment1.Index + segment1.Count)
-                    {
-                        var id = segment1.ReadValue<ushort>();
-                        if (syncVarInfos.TryGetValue(id, out SyncVarInfo varSync))
-                        {
-                            var value = segment1.ReadValue(varSync.type);
-                            varSync.SetValue(value);
-                        }
-                        else
-                        {
-                            NDebug.LogWarning($"未定义同步变量ID={id}, 请定义或收集同步变量, 使用ClientManager.I.client.AddRpcHandle(xxx)方法收集!");
-                            break;
-                        }
-                    }
+                case NetCmd.SyncVar:
+                    SyncVarHelper.SyncVarHandler(syncVarDic, model.Buffer);
                     break;
                 case NetCmd.SendFile:
                     {
@@ -2202,40 +2143,37 @@ namespace Net.Client
         /// <summary>
         /// 后台线程发送心跳包
         /// </summary>
-        protected virtual void HeartHandle()
+        protected virtual bool HeartHandler()
         {
-            while (openClient & currFrequency < 10)
+            try
             {
-                try
+                if (RTOMode == RTOMode.Variable)
+                    Ping();
+                heart++;
+                if (heart <= HeartLimit)
+                    return true;
+                if (!Connected)
                 {
-                    Thread.Sleep(HeartInterval);
-                    if (RTOMode == RTOMode.Variable)
-                        Ping();
-                    heart++;
-                    if (heart <= HeartLimit)
-                        continue;
-                    if (!Connected)
-                    {
-                        Reconnection(10);//尝试连接执行
-                        continue;
-                    }
-                    if (heart < HeartLimit + 5)
-                    {
-                        Send(NetCmd.SendHeartbeat, new byte[0]);
-                    }
-                    else//连接中断事件执行
-                    {
-                        NetworkState = networkState = NetworkState.ConnectLost;
-                        sendRTList.Clear();
-                        revdRTList.Clear();
-                        rtRPCModels = new QueueSafe<RPCModel>();
-                        rPCModels = new QueueSafe<RPCModel>();
-                        Connected = false;
-                        NDebug.LogError("连接中断！");
-                    }
+                    Reconnection(10);//尝试连接执行
+                    return true;
                 }
-                catch { }
+                if (heart < HeartLimit + 5)
+                {
+                    Send(NetCmd.SendHeartbeat, new byte[0]);
+                }
+                else//连接中断事件执行
+                {
+                    NetworkState = networkState = NetworkState.ConnectLost;
+                    sendRTList.Clear();
+                    revdRTList.Clear();
+                    rtRPCModels = new QueueSafe<RPCModel>();
+                    rPCModels = new QueueSafe<RPCModel>();
+                    Connected = false;
+                    NDebug.LogError("连接中断！");
+                }
             }
+            catch { }
+            return openClient & currFrequency < 10;
         }
 
         /// <summary>
@@ -2262,12 +2200,13 @@ namespace Net.Client
         /// <param name="maxFrequency">重连最大次数</param>
         protected virtual void Reconnection(int maxFrequency)
         {
+            if (NetworkState == NetworkState.Connection | NetworkState == NetworkState.ConnectClosed)
+                return;
+            NetworkState = NetworkState.Connection;
             if (Client != null)
                 Client.Close();
-            bool done = false;
             ConnectResult(host, port, localPort, result =>
             {
-                done = true;
                 currFrequency++;
                 if (result)
                 {
@@ -2293,7 +2232,6 @@ namespace Net.Client
                     NDebug.Log($"尝试重连:{currFrequency}...");
                 }
             });
-            while (!done) { }
         }
 
         /// <summary>
@@ -2991,48 +2929,19 @@ namespace Net.Client
         /// <summary>
         /// 字段,属性同步处理线程
         /// </summary>
-        protected virtual void SyncVarHandler()
+        protected virtual bool SyncVarHandler()
         {
-            while (Connected)
+            try
             {
-                try
-                {
-                    Thread.Sleep(1);
-                    Segment segment = null;
-                    var entries = syncVarInfos.entries;
-                    for (int i = 0; i < syncVarInfos.count; i++)
-                    {
-                        if (entries[i].hashCode >= 0)
-                        {
-                            var varSync = entries[i].value;
-                            if (varSync == null)
-                                continue;
-                            if (varSync.passive)
-                                continue;
-                            var value = varSync.GetValue();
-                            if (value == null)
-                                continue;
-                            if (!value.Equals(varSync.value))
-                            {
-                                if (segment == null)
-                                    segment = BufferPool.Take();
-                                segment.WriteValue(varSync.id);
-                                segment.WriteValue(value);
-                                varSync.value = value;
-                            }
-                        }
-                    }
-                    if (segment != null) 
-                    {
-                        var buffer = segment.ToArray(true);
-                        SendRT(NetCmd.VarSync, buffer);
-                    }
-                }
-                catch (Exception e)
-                {
-                    NDebug.LogError(e);
-                }
+                SyncVarHelper.CheckSyncVar(false, syncVarList, (buffer)=> {
+                    SendRT(NetCmd.SyncVar, buffer);
+                });
             }
+            catch (Exception e)
+            {
+                NDebug.LogError(e);
+            }
+            return Connected;
         }
 
         /// <summary>

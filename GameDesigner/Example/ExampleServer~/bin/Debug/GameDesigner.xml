@@ -2476,31 +2476,6 @@
             当分布服务器更新时调用
             </summary>
         </member>
-        <member name="T:Net.UnityComponent.SyncVar">
-            <summary>
-            字段或属性同步
-            </summary>
-        </member>
-        <member name="F:Net.UnityComponent.SyncVar.hook">
-            <summary>
-            值改变后调用的方法名
-            </summary>
-        </member>
-        <member name="F:Net.UnityComponent.SyncVar.authorize">
-            <summary>
-            允许所有客户端改变后同步此字段
-            </summary>
-        </member>
-        <member name="M:Net.UnityComponent.SyncVar.#ctor">
-            <summary>
-            构造字段,属性同步特性
-            </summary>
-        </member>
-        <member name="M:Net.UnityComponent.SyncVar.#ctor(System.String)">
-            <summary>
-            构造字段,属性同步特性
-            </summary>
-        </member>
         <member name="T:Net.Adapter.CallSiteRpcAdapter`1">
             <summary>
             服务器远程过程调用适配器
@@ -3029,7 +3004,7 @@
             </summary>
             <param name="target">注册的对象实例</param>
         </member>
-        <member name="M:Net.Client.ClientBase.AddRpcHandle(System.Object,System.Boolean)">
+        <member name="M:Net.Client.ClientBase.AddRpcHandle(System.Object,System.Boolean,System.Action{Net.Share.SyncVarInfo})">
             <summary>
             添加网络Rpc
             </summary>
@@ -3079,11 +3054,6 @@
             </summary>
             <param name="model"></param>
         </member>
-        <member name="M:Net.Client.ClientBase.StartHeartHandle">
-            <summary>
-            开启心跳线程
-            </summary>
-        </member>
         <member name="M:Net.Client.ClientBase.StartThread(System.String,System.Threading.ThreadStart)">
             <summary>
             开启线程
@@ -3102,7 +3072,7 @@
             结束所有线程
             </summary>
         </member>
-        <member name="M:Net.Client.ClientBase.UpdateHandle">
+        <member name="M:Net.Client.ClientBase.UpdateHandler">
             <summary>
             每一帧执行线程
             </summary>
@@ -3193,7 +3163,7 @@
             </summary>
             <param name="reuseSocket">断开连接后还能重新使用？</param>
         </member>
-        <member name="M:Net.Client.ClientBase.NetworkFlowHandle">
+        <member name="M:Net.Client.ClientBase.NetworkFlowHandler">
             <summary>
             调式输出网络流量信息
             </summary>
@@ -3307,7 +3277,7 @@
             </summary>
             <param name="opts"></param>
         </member>
-        <member name="M:Net.Client.ClientBase.HeartHandle">
+        <member name="M:Net.Client.ClientBase.HeartHandler">
             <summary>
             后台线程发送心跳包
             </summary>
@@ -5825,7 +5795,7 @@
             </summary>
             <param name="target">注册的对象实例</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.AddRpcHandle(System.Object,System.Boolean)">
+        <member name="M:Net.Server.ServerBase`2.AddRpcHandle(System.Object,System.Boolean,System.Action{Net.Share.SyncVarInfo})">
             <summary>
             添加网络Rpc(注册远程方法)
             </summary>
@@ -7231,7 +7201,7 @@
             可靠传输取帧列表 内部指令
             </summary>
         </member>
-        <member name="F:Net.Share.NetCmd.VarSync">
+        <member name="F:Net.Share.NetCmd.SyncVar">
             <summary>
             字段或属性同步指令 内部指令
             </summary>
@@ -8074,34 +8044,36 @@
             <param name="cmd">网络命令</param>
             <param name="buffer">缓冲区</param>
         </member>
-        <member name="T:Net.Share.SyncVarToServer">
+        <member name="T:Net.Share.SyncVar">
             <summary>
-            客户端和服务器字段或属性同步
-            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
+            字段或属性同步
             </summary>
         </member>
-        <member name="F:Net.Share.SyncVarToServer.id">
+        <member name="F:Net.Share.SyncVar.id">
             <summary>
-            变量或属性的唯一标识
+            唯一id, 如果与服务器NetPlayer变量同步, 就必须设置id
+            只与服务器的自身NetPlayer变量同步, 不做任何转发与其他客户端进行变量同步
             </summary>
         </member>
-        <member name="F:Net.Share.SyncVarToServer.passive">
+        <member name="F:Net.Share.SyncVar.hook">
             <summary>
-            你的字段,属性不能主动同步, 只能被对方同步
+            值改变后调用的方法名
             </summary>
         </member>
-        <member name="M:Net.Share.SyncVarToServer.#ctor">
+        <member name="F:Net.Share.SyncVar.authorize">
+            <summary>
+            允许所有客户端改变后同步此字段
+            </summary>
+        </member>
+        <member name="M:Net.Share.SyncVar.#ctor">
             <summary>
             构造字段,属性同步特性
-            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
             </summary>
         </member>
-        <member name="M:Net.Share.SyncVarToServer.#ctor(System.UInt16)">
+        <member name="M:Net.Share.SyncVar.#ctor(System.String)">
             <summary>
             构造字段,属性同步特性
-            服务器的同步特性只能用<see cref="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)"/>方法来收集
             </summary>
-            <param name="id">唯一id, 不能重复</param>
         </member>
         <member name="T:Net.Share.TransportMode">
             <summary>

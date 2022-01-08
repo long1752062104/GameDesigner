@@ -106,23 +106,20 @@ namespace Net.Client
             client.SendTo(new byte[] { 6, 0, 0, 0, 0, 0x2d, 0, 0, 0, 0, 74, NetCmd.Broadcast, 0, 0, 0, 0 }, ipEndPoint);
         }
 
-        protected override void HeartHandle()
+        protected override bool HeartHandler()
         {
-            while (openClient & currFrequency < 10)
+            try
             {
-                try
-                {
-                    Thread.Sleep(HeartInterval);//5秒发送一个心跳包
-                    heart++;
-                    if (!Connected)
-                        Reconnection(10);
-                    else
-                        SendRT(NetCmd.SendHeartbeat, new byte[0]);//保活连接
-                }
-                catch
-                {
-                }
+                heart++;
+                if (!Connected)
+                    Reconnection(10);
+                else
+                    SendRT(NetCmd.SendHeartbeat, new byte[0]);//保活连接
             }
+            catch
+            {
+            }
+            return openClient & currFrequency < 10;
         }
 
         protected override void StartupThread()
@@ -131,12 +128,12 @@ namespace Net.Client
             StartThread("SendDataHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
             StartThread("TCPReceiveHandle", TCPReceiveHandle);
-            StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
-            StartThread("HeartHandle", HeartHandle);
-            StartThread("VarSyncHandler", SyncVarHandler);
+            ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
+            ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
-                StartThread("UpdateHandle", UpdateHandle);
+                ThreadManager.Invoke("UpdateHandle", UpdateHandler);
         }
 
         private void TCPReceiveHandle()

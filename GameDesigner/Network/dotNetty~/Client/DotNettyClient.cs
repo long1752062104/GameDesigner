@@ -98,12 +98,12 @@ namespace Net.Client
         {
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
-            StartThread("NetworkFlowHandle", NetworkFlowHandle);
             StartThread("CheckRpcHandle", CheckRpcHandle);
-            StartThread("HeartHandle", HeartHandle);
-            StartThread("VarSyncHandler", SyncVarHandler);
+            ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
+            ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
+            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
-                StartThread("UpdateHandle", UpdateHandle);
+                ThreadManager.Invoke("UpdateHandle", UpdateHandler);
 #if UNITY_ANDROID
             if (Context == null)
                 return;

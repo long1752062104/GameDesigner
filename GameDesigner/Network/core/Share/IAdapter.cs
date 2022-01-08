@@ -1,5 +1,6 @@
 ﻿using Net.Serialize;
 using Net.Server;
+using System;
 
 namespace Net.Share
 {
@@ -36,7 +37,7 @@ namespace Net.Share
     /// </summary>
     public interface IRPCAdapter : IAdapter
     {
-        void AddRpcHandle(object target, bool append);
+        void AddRpcHandle(object target, bool append, Action<SyncVarInfo> onSyncVarCollect);
 
         void OnRpcExecute(RPCModel model);
 
@@ -53,7 +54,7 @@ namespace Net.Share
     /// <typeparam name="Player"></typeparam>
     public interface IRPCAdapter<Player> : IAdapter where Player : NetPlayer
     {
-        void AddRpcHandle(object target, bool append);
+        void AddRpcHandle(object target, bool append, Action<SyncVarInfo> onSyncVarCollect);
 
         void OnRpcExecute(Player client, RPCModel model);
 

@@ -1,6 +1,7 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 namespace Example1
 {
+    using Net.Share;
     using Net.UnityComponent;
     using System.Collections.Generic;
     using UnityEngine;
@@ -60,18 +61,30 @@ namespace Example1
 
     public class SyncVarDemo : NetworkBehaviour
     {
+        [Header("同步结构类型字段")]
         [SyncVar]
         public SyncVarStructTest structTest;
+        [Header("同步结构类型带有类类型的字段")]
         [SyncVar]
         public SyncVarStructTest1 structTest1;
+        [Header("同步类类型字段")]
         [SyncVar]
         public SyncVarClassTest classTest;
+        [Header("同步结构类型数组")]
         [SyncVar]
         public SyncVarStructTest[] array;
+        [Header("同步类类型数组列表")]
         [SyncVar]
         public List<string> list1;
-        //[SyncVar]
-        //public GameObject obj;//只在编辑器有效!
+        [Header("同步所有基于UnityEngine.Object类型的物体")]
+        [SyncVar]
+        public GameObject obj;//只在编辑器有效!
+        [Header("p2p同步int")]
+        [SyncVar(id = 1)]
+        public int testint;
+        [Header("p2p同步string")]
+        [SyncVar(id = 2)]
+        public string teststring;
     }
 }
 #endif
