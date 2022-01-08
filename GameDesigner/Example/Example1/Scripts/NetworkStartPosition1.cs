@@ -1,5 +1,6 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 using Net.Component;
+using System.Threading.Tasks;
 using UnityEngine;
 namespace Example1
 {
@@ -10,8 +11,9 @@ namespace Example1
         public Vector2 offsetZ = new Vector2(-20, 20);
 
         // Start is called before the first frame update
-        void Start()
+        async void Start()
         {
+            await Task.Delay(1000);
             if (ClientManager.I.client.Connected)
                 OnConnectedHandle();
             else
