@@ -70,7 +70,7 @@ namespace Hotfix
 		}
 
 		[Rpc]
-		void BackLogin(string info)
+		void BackLogin(string info)//在两个地方登录后回调
 		{
 			Show("登录提示", info, (r) =>
 			{
@@ -79,6 +79,15 @@ namespace Hotfix
 				ClientManager.Instance.client.Connect();
 				LoginPanel.Show();
 			});
+		}
+
+		[Rpc]
+		void LogOut()//主动退出登录回调
+		{
+			ClientManager.Instance.client.Close();
+			UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+			ClientManager.Instance.client.Connect();
+			LoginPanel.Show();
 		}
 	}
 }

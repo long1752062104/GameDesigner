@@ -142,6 +142,17 @@
             return true;
         }
 
+        /// <summary>
+        /// 客户端主动发起退出登录请求
+        /// </summary>
+        /// <param name="client"></param>
+        [Rpc(NetCmd.SafeCall)]
+        private void LogOut(Player client) 
+        {
+            SendRT(client, "LogOut");//在客户端热更新工程的MsgPanel类找到
+            SignOut(client);
+        }
+
         protected override void OnRemoveClient(Player client)
         {
             base.OnRemoveClient(client);//当客户端断开连接处理
