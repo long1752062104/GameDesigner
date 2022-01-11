@@ -28,7 +28,7 @@ namespace BuildComponent
         private System.Single pixelsPerUnitMultiplier12;
         private UnityEngine.Material material13;
         private System.Boolean maskable14;
-        private System.Boolean isMaskingGraphic15;
+        //private System.Boolean isMaskingGraphic15;
         private UnityEngine.Color color16;
         private System.Boolean raycastTarget17;
         private System.Boolean useGUILayout18;
@@ -93,7 +93,7 @@ namespace BuildComponent
             pixelsPerUnitMultiplier12 = self.pixelsPerUnitMultiplier;
             material13 = self.material;
             maskable14 = self.maskable;
-            isMaskingGraphic15 = self.isMaskingGraphic;
+            //isMaskingGraphic15 = self.isMaskingGraphic;
             color16 = self.color;
             raycastTarget17 = self.raycastTarget;
             useGUILayout18 = self.useGUILayout;
@@ -421,27 +421,27 @@ namespace BuildComponent
             }
         }
 
-        public System.Boolean isMaskingGraphic
-        {
-            get
-            {
-                return self.isMaskingGraphic;
-            }
-            set
-            {
-                if (isMaskingGraphic15 == value)
-                    return;
-                isMaskingGraphic15 = value;
-                self.isMaskingGraphic = value;
-                ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
-                {
-                    index = networkIdentity.registerObjectIndex,
-                    index1 = 26,
-                    buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
-                    uid = ClientManager.UID
-                });
-            }
-        }
+        //public System.Boolean isMaskingGraphic
+        //{
+        //    get
+        //    {
+        //        return self.isMaskingGraphic;
+        //    }
+        //    set
+        //    {
+        //        if (isMaskingGraphic15 == value)
+        //            return;
+        //        isMaskingGraphic15 = value;
+        //        self.isMaskingGraphic = value;
+        //        ClientManager.AddOperation(new Operation(Command.BuildComponent, networkIdentity.identity)
+        //        {
+        //            index = networkIdentity.registerObjectIndex,
+        //            index1 = 26,
+        //            buffer = Net.Serialize.NetConvertFast2.SerializeObject(value).ToArray(true),
+        //            uid = ClientManager.UID
+        //        });
+        //    }
+        //}
 
         public UnityEngine.Color color
         {
@@ -1134,7 +1134,7 @@ namespace BuildComponent
             pixelsPerUnitMultiplier = pixelsPerUnitMultiplier;
             material = material;
             maskable = maskable;
-            isMaskingGraphic = isMaskingGraphic;
+            //isMaskingGraphic = isMaskingGraphic;
             color = color;
             raycastTarget = raycastTarget;
             useGUILayout = useGUILayout;
@@ -1238,10 +1238,10 @@ namespace BuildComponent
                     self.maskable = maskable14;
                     break;
                 case 26:
-                    if (opt.uid == ClientManager.UID)
-                        return;
-                    isMaskingGraphic15 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
-                    self.isMaskingGraphic = isMaskingGraphic15;
+                    //if (opt.uid == ClientManager.UID)
+                    //    return;
+                    //isMaskingGraphic15 = Net.Serialize.NetConvertFast2.DeserializeObject<System.Boolean>(new Net.System.Segment(opt.buffer, false));
+                    //self.isMaskingGraphic = isMaskingGraphic15;
                     break;
                 case 27:
                     if (opt.uid == ClientManager.UID)
@@ -1353,10 +1353,10 @@ namespace BuildComponent
                     break;
                 case 111:
                     {
-                        var segment = new Net.System.Segment(opt.buffer, false);
-                        var data = Net.Serialize.NetConvertFast2.DeserializeModel(segment);
-                        var clipSoftness = (UnityEngine.Vector2)data.pars[0];
-                        self.SetClipSoftness(clipSoftness);
+                        //var segment = new Net.System.Segment(opt.buffer, false);
+                        //var data = Net.Serialize.NetConvertFast2.DeserializeModel(segment);
+                        //var clipSoftness = (UnityEngine.Vector2)data.pars[0];
+                        //self.SetClipSoftness(clipSoftness);
                     }
                     break;
                 case 113:

@@ -1,6 +1,7 @@
 ﻿using Example2;
 using MVC.View;
 using Net.Component;
+using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -27,6 +28,12 @@ namespace Hotfix
             MsgPanel.Hide();//隐藏消息框
 
             GameEvent.OnPlayerDead += OnPlayerDead;
+
+            object list = new List<Character>() { new Character() { accountId = 1, gender = true, name = "123" } };
+            var data = Net.Serialize.NetConvert.Serialize(new Net.Share.RPCModel(0, "CreateCharacterCallBack", new object[] { false, "角色名已存在", list }));
+            Debug.Log("序列化通过");
+            var func = Net.Serialize.NetConvert.Deserialize(data);
+            Debug.Log(func.name);
         }
 
         private static void SetUIPanel(GameObject panel, Transform level)

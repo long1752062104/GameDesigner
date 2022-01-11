@@ -56,5 +56,11 @@
     <Compile Include="RegisterPanel.cs" />
     <Compile Include="MsgPanel.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetProto~\NetProto\NetProto.csproj">
+      <Project>{f94af66a-2812-4081-b2ce-d02694b8cede}</Project>
+      <Name>NetProto</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -27,3 +27,5 @@ D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csp
 D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.csproj.CopyComplete
 D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.dll
 D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\obj\Debug\Hotfix.pdb
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\NetProto.dll
+D:\TestProject\Assets\GameDesigner\Example\Example2\Hotfix~\bin\Debug\NetProto.pdb
