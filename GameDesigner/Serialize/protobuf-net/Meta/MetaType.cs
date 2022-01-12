@@ -1128,11 +1128,7 @@ namespace ProtoBuf.Meta
             MemberInfo member;
             if (normalizedAttribute == null || (member = normalizedAttribute.Member) == null) return null; // nix
 
-#if CLOSE_ILR
             Type effectiveType = Helpers.GetMemberType(member);
-#else
-            Type effectiveType = Net.Share.ObjectExtensions.GetType(Helpers.GetMemberType(member));
-#endif
 
             Type itemType = null;
             Type defaultType = null;

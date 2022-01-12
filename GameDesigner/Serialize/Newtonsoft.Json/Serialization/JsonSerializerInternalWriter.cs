@@ -68,11 +68,7 @@ namespace Newtonsoft_X.Json.Serialization
             {
                 return null;
             }
-#if CLOSE_ILR
             var type = value.GetType();
-#else
-            var type = Net.Share.ObjectExtensions.GetType(value);
-#endif
             return Serializer._contractResolver.ResolveContract(type);
         }
 

@@ -174,11 +174,7 @@
                     List<FastData> datas = new List<FastData>();
                     foreach (object obj in model.pars)
                     {
-#if CLOSE_ILR
                         var type = obj.GetType();
-#else
-                        Type type = ObjectExtensions.GetType(obj);
-#endif
                         FastData data = new FastData() { type = GetTypeHash(type) };
                         if (type.IsGenericType)
                         {

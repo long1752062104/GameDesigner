@@ -80,7 +80,7 @@ seg.WriteValue(123);//写入4字节的值
 BufferPool.Push(seg);//压入内存片,等待下次复用
 var seg1 = BufferPool.Take(65535);//这次的申请内存片,实际是从BufferPool中弹出seg对象,在这个过程中不会再创建byte[65535]
 seg1.WriteValue(456);
-BufferPool.Push(seg);//再次压入
+BufferPool.Push(seg1);//再次压入
 ```
 
 ## 极速序列化
@@ -162,6 +162,29 @@ mvc模块:模型,控制,视图分离, mvc模块适应于帧同步游戏, model�
 
 热更新FieldCollection组件使用:当在热更新项目中, 字段无需使用Find各种查找, 使用FieldCollection组件即可自动帮你处理完成字段收集引用, 一键生成即可写你的功能代码
 <img src="https://gitee.com/leng_yue/GameDesigner/raw/master/hotfixFC.png" width = "1179" height = "685" alt="图片名称" align=center />
+
+## ILRuntime热更新
+网络协议传输类型必须在主工程定义! 那什么热更网络协议类型? 热更新网络协议类型必须新下载主工程apk替换旧的apk, 重新安装新的apk, 由于主工程的apk大小不是很大, 所有的资源都在ab文件里面! 所以是可以这样更新的
+注意: 协议定义在热更新项目中将无法反序列化! 必须定义在主工程!
+
+热更新案例文档:[案例2热更新](https://docs.qq.com/doc/DS3FXbERiUXZnWHVx)
+
+## UNet&Mirror设计模式
+变量同步案例:Assets/GameDesigner/Example/Example1/Scenes/SyncVarDemo.unity
+可以同步C#基础单元结构体: byte, sbyte, short, ushort, int, uint, float, long, ulong, DateTime, decimal, string类型
+同步自定义结构体: 纯包含基元类型, 不需要任何额外处理
+同步自定义结构体,包含类型字段: 需要重写Equals额外处理字段对等
+同步类型:需要重写Equals额外处理字段对等
+
+与场景内的玩家进行变量同步: 原理是检查字段值有没有改变, 改变了就会往服务器发送, 服务器转发给场景内的所有客户端, 以identiy值取到对应的对象, 进行变量设置, 达到变量同步效果!
+客户端与服务器进行变量同步: 原理是检查字段值改变后, 发送字段的id和值到服务器, 服务器检查NetPlayer的变量管理列表取出对应的对象, 进行变量设置, 达到p2p变量同步效果
+
+[SyncVar]//在字段定义这个特性, 则为玩家之间变量
+[SyncVar(authorize = false)]//这是你实例化的网络物体, 其他玩家不能改变你的对象变量, 即使改变了也不会发生同步给其他玩家, 只能由自己控制变量变化后才会同步给其他玩家
+[SyncVar(id = 1)]//这是p2p 客户端只与服务器的netplayer之间变量同步, 开发者要保证id必须是唯一的 详情请看案例1的Example1.Client类定义
+
+## 常见问题总汇
+这里是开发者遇到的问题, 我都会在这里详细写出来, 这样大家遇到的问题都可以先在这里查看
 
 ## 致谢
 

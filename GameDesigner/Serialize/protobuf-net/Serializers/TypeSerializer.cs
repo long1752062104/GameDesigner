@@ -147,11 +147,7 @@ namespace ProtoBuf.Serializers
         private IProtoSerializer GetMoreSpecificSerializer(object value)
         {
             if (!CanHaveInheritance) return null;
-#if CLOSE_ILR
             Type actualType = value.GetType();
-#else
-            Type actualType = Net.Share.ObjectExtensions.GetType(value);
-#endif
             if (actualType == forType) return null;
 
             for (int i = 0; i < serializers.Length; i++)

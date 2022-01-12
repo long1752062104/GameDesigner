@@ -27,28 +27,6 @@ namespace Hotfix
             MsgPanel.Hide();//隐藏消息框
 
             GameEvent.OnPlayerDead += OnPlayerDead;
-
-            //object list = new List<Character>() { new Character() { accountId = 1, gender = true, name = "123" } };
-            //var data = Net.Serialize.NetConvert.Serialize(new Net.Share.RPCModel(0, "CreateCharacterCallBack", new object[] { false, "角色名已存在", list }));
-            //Debug.Log("序列化通过");
-            //var func = Net.Serialize.NetConvert.Deserialize(data);
-            //Debug.Log(func.name);
-
-            //Net.Serialize.NetConvertFast.AddNetworkType<Character>();
-            //Net.Serialize.NetConvertFast.AddNetworkType<List<Character>>();
-            //object list = new List<Character>() { new Character() { accountId = 1, gender = true, name = "123" } };
-            //var data = Net.Serialize.NetConvertFast.Serialize(new Net.Share.RPCModel(0, "CreateCharacterCallBack", new object[] { false, "角色名已存在", list }));
-            //Debug.Log("序列化通过");
-            //var func = Net.Serialize.NetConvertFast.Deserialize(data, 0, data.Length);
-            //Debug.Log(func.name);
-
-            //Net.Serialize.NetConvertBinary.AddSerializeType<Character>();
-            //Net.Serialize.NetConvertBinary.AddSerializeType<List<Character>>();
-            //object list = new List<Character>() { new Character() { accountId = 1, gender = true, name = "123" } };
-            //var data = Net.Serialize.NetConvertBinary.SerializeModel(new Net.Share.RPCModel(0, "CreateCharacterCallBack", new object[] { false, "角色名已存在", list }));
-            //Debug.Log("序列化通过");
-            //var func = Net.Serialize.NetConvertBinary.DeserializeModel(data, 0, data.Length);
-            //Debug.Log(func.name);
         }
 
         private static void SetUIPanel(GameObject panel, Transform level)

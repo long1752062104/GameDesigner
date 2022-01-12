@@ -874,7 +874,7 @@
                 if (hasMask) WriteValue(stream, model.methodMask);
                 foreach (var obj in model.pars)
                 {
-                    Type type = obj.GetType();
+                    var type = obj.GetType();
                     byte[] typeBytes = BitConverter.GetBytes(TypeToIndex(type));
                     stream.Write(typeBytes, 0, 2);
                     WriteObject(stream, type, obj, false, false);

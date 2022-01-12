@@ -113,9 +113,6 @@ namespace Newtonsoft_X.Json.Serialization
             {
                 throw new ArgumentNullException("type");
             }
-#if !CLOSE_ILR
-            type = Net.Share.ObjectExtensions.GetType(type);
-#endif
             DefaultContractResolverState state = GetState();
             ResolverContractKey key = new ResolverContractKey(GetType(), type);
             Dictionary<ResolverContractKey, JsonContract> contractCache = state.ContractCache;

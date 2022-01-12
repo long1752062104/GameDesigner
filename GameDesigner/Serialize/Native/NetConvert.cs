@@ -97,11 +97,7 @@
                     List<Data> datas = new List<Data>();
                     foreach (object obj in model.pars)
                     {
-#if CLOSE_ILR
                         var type = obj.GetType();
-#else
-                        Type type = ObjectExtensions.GetType(obj);
-#endif
                         Data data = new Data() { type = type.ToString() };
                         if (type.IsGenericType)
                         {

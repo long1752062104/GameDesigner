@@ -592,7 +592,6 @@
     <None Include="GameDesigner\MVC\View\Editor\FieldCollectionEdit.cs.meta" />
     <None Include="GameDesigner\MVC\View\FieldCollection.cs.meta" />
     <None Include="GameDesigner\MVC\View\PanelBase.cs.meta" />
-    <None Include="GameDesigner\NetProto.dll.meta" />
     <None Include="GameDesigner\Network.meta" />
     <None Include="GameDesigner\Network\Adapter.meta" />
     <None Include="GameDesigner\Network\Adapter\CallSiteRpcAdapter.cs.meta" />
@@ -1183,7 +1182,6 @@
     <Content Include="GameDesigner\Editor\Resources\server_list_bg1.png" />
     <Content Include="GameDesigner\Editor\Resources\state.jpg" />
     <Content Include="GameDesigner\Editor\Resources\stateStyle.png" />
-    <Content Include="GameDesigner\NetProto.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Buffers.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.dll" />
     <Content Include="GameDesigner\Network\dotNetty~\Plugins\DotNetty.Codecs.Protobuf.dll" />

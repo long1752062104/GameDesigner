@@ -347,8 +347,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathMode: 1
-  dllPath: GameDesigner/Example/Example2/Hotfix~/bin/Debug/Hotfix.dll
-  pdbPath: GameDesigner/Example/Example2/Hotfix~/bin/Debug/Hotfix.pdb
+  dllPath: GameDesigner\Example\Example2\Hotfix~\bin\Debug\Hotfix.dll
+  pdbPath: GameDesigner\Example\Example2\Hotfix~\bin\Debug\Hotfix.pdb
   entryType: Hotfix.GameEntry
 --- !u!114 &770559495
 MonoBehaviour:

@@ -191,11 +191,7 @@ namespace ProtoBuf.Meta
         private void SerializeCore(ProtoWriter writer, object value)
         {
             if (value == null) throw new ArgumentNullException("value");
-#if CLOSE_ILR
             Type type = value.GetType();
-#else
-            Type type = Net.Share.ObjectExtensions.GetType(value);
-#endif
             int key = GetKey(ref type);
             if (key >= 0)
             {
