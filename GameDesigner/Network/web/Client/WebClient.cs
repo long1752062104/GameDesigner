@@ -1,4 +1,4 @@
-﻿#if UNITY_STANDALONE_WIN || UNITY_WSA
+﻿#if UNITY_STANDALONE_WIN || UNITY_WSA || SERVICE
 namespace Net.Client
 {
     using Net.Event;

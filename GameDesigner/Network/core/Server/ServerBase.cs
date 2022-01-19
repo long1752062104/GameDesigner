@@ -2768,10 +2768,18 @@ namespace Net.Server
             Players.TryRemove(client.PlayerID, out _);
             UIDClients.TryRemove(client.UserID, out _);
             ExitScene(client, false);
-            client.PlayerID = client.UserID.ToString();
             client.Login = false;
+            OnSignOut(client);
             client.OnSignOut();
             Debug.Log("[" + client.PlayerID + "]退出登录...!");
+        }
+
+        /// <summary>
+        /// 当客户端退出登录
+        /// </summary>
+        /// <param name="client"></param>
+        public virtual void OnSignOut(Player client)
+        {
         }
 
         /// <summary>

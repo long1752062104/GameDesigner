@@ -111,4 +111,30 @@ public static class ArrayExtend
             return ProtoBuf.Serializer.Deserialize<T>(stream);
         }
     }
+
+    public static T Find<T>(this List<T> self, Func<T, bool> func)
+    {
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (func(self[i]))
+            {
+                return self[i];
+            }
+        }
+        return default;
+    }
+
+    public static bool Find<T>(this List<T> self, Func<T, bool> func, out T item)
+    {
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (func(self[i]))
+            {
+                item = self[i];
+                return true;
+            }
+        }
+        item = default;
+        return false;
+    }
 }

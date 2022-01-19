@@ -66,7 +66,7 @@ public class BuildComponentTools : EditorWindow
         str.AppendLine("namespace BuildComponent");
         str.AppendLine("{");
         str.AppendLine("    /// <summary>");
-        str.AppendLine($"    /// {type.Name}同步组件, 此代码由BuildComponentTools工具生成, 如果同步发生怪异的字段或属性, 请自行检查处理一下!");
+        str.AppendLine($"    /// {type.Name}同步组件, 此代码由BuildComponentTools工具生成, 如果同步发生相互影响的字段或属性, 请自行检查处理一下!");
         str.AppendLine("    /// </summary>");
         str.AppendLine($"    [RequireComponent(typeof({type.FullName}))]");
         str.AppendLine($"    public class Network{type.Name} : NetworkBehaviour");
