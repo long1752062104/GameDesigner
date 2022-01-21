@@ -5,32 +5,27 @@ using Net.System;
 
 namespace Binding
 {
-	public struct NetColor32Bind : ISerialize<Net.Color32>, ISerialize
+	public struct UnityEngineVector3IntBind : ISerialize<UnityEngine.Vector3Int>, ISerialize
 	{
-		public void Write(Net.Color32 value, Segment stream)
+		public void Write(UnityEngine.Vector3Int value, Segment stream)
 		{
 			int pos = stream.Position;
 			stream.Position += 1;
 			byte[] bits = new byte[1];
-			if(value.r != 0)
+			if(value.x != 0)
 			{
 				NetConvertBase.SetBit(ref bits[0], 1, true);
-				stream.WriteValue(value.r);
+				stream.WriteValue(value.x);
 			}
-			if(value.g != 0)
+			if(value.y != 0)
 			{
 				NetConvertBase.SetBit(ref bits[0], 2, true);
-				stream.WriteValue(value.g);
+				stream.WriteValue(value.y);
 			}
-			if(value.b != 0)
+			if(value.z != 0)
 			{
 				NetConvertBase.SetBit(ref bits[0], 3, true);
-				stream.WriteValue(value.b);
-			}
-			if(value.a != 0)
-			{
-				NetConvertBase.SetBit(ref bits[0], 4, true);
-				stream.WriteValue(value.a);
+				stream.WriteValue(value.z);
 			}
 			int pos1 = stream.Position;
 			stream.Position = pos;
@@ -38,24 +33,22 @@ namespace Binding
 			stream.Position = pos1;
 		}
 
-		public Net.Color32 Read(Segment stream)
+		public UnityEngine.Vector3Int Read(Segment stream)
 		{
 			byte[] bits = stream.Read(1);
-			var value = new Net.Color32();
+			var value = new UnityEngine.Vector3Int();
 			if(NetConvertBase.GetBit(bits[0], 1))
-				value.r = stream.ReadValue<Byte>();
+				value.x = stream.ReadValue<Int32>();
 			if(NetConvertBase.GetBit(bits[0], 2))
-				value.g = stream.ReadValue<Byte>();
+				value.y = stream.ReadValue<Int32>();
 			if(NetConvertBase.GetBit(bits[0], 3))
-				value.b = stream.ReadValue<Byte>();
-			if(NetConvertBase.GetBit(bits[0], 4))
-				value.a = stream.ReadValue<Byte>();
+				value.z = stream.ReadValue<Int32>();
 			return value;
 		}
 
 		public void WriteValue(object value, Segment stream)
 		{
-			Write((Net.Color32)value, stream);
+			Write((UnityEngine.Vector3Int)value, stream);
 		}
 
 		public object ReadValue(Segment stream)
@@ -67,24 +60,24 @@ namespace Binding
 
 namespace Binding
 {
-	public struct NetColor32ArrayBind : ISerialize<Net.Color32[]>, ISerialize
+	public struct UnityEngineVector3IntArrayBind : ISerialize<UnityEngine.Vector3Int[]>, ISerialize
 	{
-		public void Write(Net.Color32[] value, Segment stream)
+		public void Write(UnityEngine.Vector3Int[] value, Segment stream)
 		{
 			int count = value.Length;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			var bind = new NetColor32Bind();
+			var bind = new UnityEngineVector3IntBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
 
-		public Net.Color32[] Read(Segment stream)
+		public UnityEngine.Vector3Int[] Read(Segment stream)
 		{
 			var count = stream.ReadValue<int>();
-			var value = new Net.Color32[count];
+			var value = new UnityEngine.Vector3Int[count];
 			if (count == 0) return value;
-			var bind = new NetColor32Bind();
+			var bind = new UnityEngineVector3IntBind();
 			for (int i = 0; i < count; i++)
 				value[i] = bind.Read(stream);
 			return value;
@@ -92,7 +85,7 @@ namespace Binding
 
 		public void WriteValue(object value, Segment stream)
 		{
-			Write((Net.Color32[])value, stream);
+			Write((UnityEngine.Vector3Int[])value, stream);
 		}
 
 		public object ReadValue(Segment stream)
@@ -104,24 +97,24 @@ namespace Binding
 
 namespace Binding
 {
-	public struct NetColor32GenericBind : ISerialize<List<Net.Color32>>, ISerialize
+	public struct UnityEngineVector3IntGenericBind : ISerialize<List<UnityEngine.Vector3Int>>, ISerialize
 	{
-		public void Write(List<Net.Color32> value, Segment stream)
+		public void Write(List<UnityEngine.Vector3Int> value, Segment stream)
 		{
 			int count = value.Count;
 			stream.WriteValue(count);
 			if (count == 0) return;
-			var bind = new NetColor32Bind();
+			var bind = new UnityEngineVector3IntBind();
 			foreach (var value1 in value)
 				bind.Write(value1, stream);
 		}
 
-		public List<Net.Color32> Read(Segment stream)
+		public List<UnityEngine.Vector3Int> Read(Segment stream)
 		{
 			var count = stream.ReadValue<int>();
-			var value = new List<Net.Color32>();
+			var value = new List<UnityEngine.Vector3Int>();
 			if (count == 0) return value;
-			var bind = new NetColor32Bind();
+			var bind = new UnityEngineVector3IntBind();
 			for (int i = 0; i < count; i++)
 				value.Add(bind.Read(stream));
 			return value;
@@ -129,7 +122,7 @@ namespace Binding
 
 		public void WriteValue(object value, Segment stream)
 		{
-			Write((List<Net.Color32>)value, stream);
+			Write((List<UnityEngine.Vector3Int>)value, stream);
 		}
 
 		public object ReadValue(Segment stream)

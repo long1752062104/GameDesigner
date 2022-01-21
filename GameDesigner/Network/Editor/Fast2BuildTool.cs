@@ -74,7 +74,7 @@ public class Fast2BuildTools1 : EditorWindow
             IList<Type> list = (IList<Type>)method.Invoke(null, null);
             foreach (var type in list)
             {
-                Fast2BuildMethod.Build(type, true, savePath, serField, serProperty);
+                Fast2BuildMethod.Build(type, true, savePath, serField, serProperty, new List<string>());
                 Fast2BuildMethod.BuildArray(type, true, savePath);
                 Fast2BuildMethod.BuildGeneric(type, true, savePath);
             }
@@ -102,11 +102,11 @@ public class Fast2BuildTools1 : EditorWindow
 
 public class Fast2BuildTools2 : EditorWindow
 {
-    private List<string> typeNames = new List<string>();
+    private List<FoldoutData> typeNames = new List<FoldoutData>();
     private bool selectType;
     private string search = "", search1 = "";
     private DateTime searchTime;
-    private string[] types;
+    private TypeData[] types;
     private Vector2 scrollPosition;
     private Vector2 scrollPosition1;
     private string savePath, savePath1;
@@ -117,19 +117,21 @@ public class Fast2BuildTools2 : EditorWindow
     static void ShowWindow()
     {
         var window = GetWindow<Fast2BuildTools2>("快速序列化2生成工具");
-        window.position = new Rect(window.position.position, new Vector2(400, 200));
+        //window.position = new Rect(window.position.position, new Vector2(400, 200));
         window.Show();
     }
 
     private void OnEnable()
     {
-        HashSet<string> types1 = new HashSet<string>();
-        var types2 = typeof(MVC.Control.GameInit).Assembly.GetTypes().Where(t => !t.IsAbstract & !t.IsInterface & !t.IsGenericType).ToArray();
-        foreach (var obj in types2)
+        List<TypeData> types1 = new List<TypeData>();
+        var types2 = typeof(MVC.Control.GameInit).Assembly.GetTypes().Where(t => !t.IsAbstract & !t.IsInterface & !t.IsGenericType & !t.IsGenericType & !t.IsGenericTypeDefinition).ToArray();
+        var types3 = typeof(Vector2).Assembly.GetTypes().Where(t => !t.IsAbstract & !t.IsInterface & !t.IsGenericType & !t.IsGenericType & !t.IsGenericTypeDefinition).ToArray();
+        var typeslist = new List<Type>(types2);
+        typeslist.AddRange(types3);
+        foreach (var obj in typeslist)
         {
             var str = obj.FullName;
-            if (!types1.Contains(str))
-                types1.Add(str);
+            types1.Add(new TypeData() { name = str, type = obj });
         }
         types = types1.ToArray();
         LoadData();
@@ -141,16 +143,48 @@ public class Fast2BuildTools2 : EditorWindow
         EditorGUILayout.LabelField("绑定类型列表:");
         if (typeNames.Count != 0)
         {
-            scrollPosition1 = GUILayout.BeginScrollView(scrollPosition1, false, true, GUILayout.MaxHeight(300));
+            scrollPosition1 = GUILayout.BeginScrollView(scrollPosition1, false, true, GUILayout.MaxHeight(position.height / 2));
+            EditorGUI.BeginChangeCheck();
             foreach (var type1 in typeNames)
             {
-                if (GUILayout.Button(type1))
+                var rect = EditorGUILayout.GetControlRect();
+                type1.foldout = EditorGUI.Foldout(new Rect(rect.position, rect.size - new Vector2(50, 0)), type1.foldout, type1.name, true);
+                if (type1.foldout)
+                {
+                    EditorGUI.indentLevel = 1;
+                    for (int i = 0; i < type1.fields.Count; i++)
+                    {
+                        type1.fields[i].serialize = EditorGUILayout.Toggle(type1.fields[i].name, type1.fields[i].serialize);
+                    }
+                    EditorGUI.indentLevel = 0;
+                }
+                if (GUI.Button(new Rect(rect.position + new Vector2(position.width - 50, 0), new Vector2(20, rect.height)), "x"))
                 {
                     typeNames.Remove(type1);
                     SaveData();
                     return;
                 }
+                if (rect.Contains(Event.current.mousePosition) & Event.current.button == 1)
+                {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddItem(new GUIContent("全部勾上"), false, ()=>
+                    {
+                        type1.fields.ForEach(item => item.serialize = true);
+                    }); 
+                    menu.AddItem(new GUIContent("全部取消"), false, () =>
+                    {
+                        type1.fields.ForEach(item => item.serialize = false);
+                    });
+                    menu.AddItem(new GUIContent("移除"), false, () =>
+                    {
+                        typeNames.Remove(type1);
+                        SaveData();
+                    });
+                    menu.ShowAsContext();
+                }
             }
+            if (EditorGUI.EndChangeCheck())
+                SaveData();
             GUILayout.EndScrollView();
         }
         if (search != search1)
@@ -161,15 +195,32 @@ public class Fast2BuildTools2 : EditorWindow
         }
         if (DateTime.Now > searchTime & !selectType & search.Length > 0)
         {
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.MaxHeight(400));
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.MaxHeight(position.height / 2));
             foreach (var type1 in types)
             {
-                if (!type1.ToLower().Contains(search.ToLower()))
+                if (!type1.name.ToLower().Contains(search.ToLower()))
                     continue;
-                if (GUILayout.Button(type1))
+                if (GUILayout.Button(type1.name))
                 {
-                    if (!typeNames.Contains(type1))
-                        typeNames.Add(type1);
+                    if (typeNames.Find(item => item.name == type1.name) == null)
+                    {
+                        var fields = type1.type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                        var properties = type1.type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                        var fields1 = new List<FieldData>();
+                        foreach (var item in fields)
+                        {
+                            fields1.Add(new FieldData() { name = item.Name, serialize = true });
+                        }
+                        foreach (var item in properties)
+                        {
+                            if (!item.CanRead | !item.CanWrite)
+                                continue;
+                            if (item.GetIndexParameters().Length > 0)
+                                continue;
+                            fields1.Add(new FieldData() { name = item.Name, serialize = true });
+                        }
+                        typeNames.Add(new FoldoutData() { name = type1.name, fields = fields1, foldout = false });
+                    }
                     SaveData();
                     return;
                 }
@@ -203,13 +254,13 @@ public class Fast2BuildTools2 : EditorWindow
             }
             foreach (var type1 in typeNames)
             {
-                Type type = Net.Serialize.NetConvertOld.GetType(type1);
-                Fast2BuildMethod.Build(type, true, savePath, serField, serProperty);
+                Type type = Net.Serialize.NetConvertOld.GetType(type1.name);
+                Fast2BuildMethod.Build(type, true, savePath, serField, serProperty, type1.fields.ConvertAll((item)=> !item.serialize ? item.name : ""));
                 Fast2BuildMethod.BuildArray(type, true, savePath);
                 Fast2BuildMethod.BuildGeneric(type, true, savePath);
                 if (!string.IsNullOrEmpty(savePath1)) 
                 {
-                    Fast2BuildMethod.Build(type, true, savePath1, serField, serProperty);
+                    Fast2BuildMethod.Build(type, true, savePath1, serField, serProperty, type1.fields.ConvertAll((item) => !item.serialize ? item.name : ""));
                     Fast2BuildMethod.BuildArray(type, true, savePath1);
                     Fast2BuildMethod.BuildGeneric(type, true, savePath1);
                 }
@@ -245,10 +296,29 @@ public class Fast2BuildTools2 : EditorWindow
         File.WriteAllText(path, jsonstr);
     }
 
+    internal class FoldoutData 
+    {
+        public string name;
+        public bool foldout;
+        public List<FieldData> fields = new List<FieldData>();
+    }
+
+    internal class FieldData 
+    {
+        public string name;
+        public bool serialize;
+    }
+
+    internal class TypeData 
+    {
+        public string name;
+        public Type type;
+    }
+
     internal class Data
     {
         public string savepath, savepath1;
-        public List<string> typeNames;
+        public List<FoldoutData> typeNames;
     }
 }
 #endif

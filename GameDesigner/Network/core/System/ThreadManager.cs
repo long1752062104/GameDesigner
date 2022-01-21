@@ -31,6 +31,7 @@ namespace Net.System
                     }
                 }
             }) { IsBackground = true };
+            MainThread.Priority = ThreadPriority.Highest;
             MainThread.Start();
         }
 

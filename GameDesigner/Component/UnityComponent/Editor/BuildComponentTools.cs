@@ -6,11 +6,15 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using static Fast2BuildTools2;
 
 public class BuildComponentTools : EditorWindow
 {
     private string savePath, savePath1;
     private Component component;
+    private Component oldComponent;
+    private FoldoutData foldout;
+    private Vector2 scrollPosition1;
 
     [MenuItem("GameDesigner/Network/BuildComponentTools")]
     public static void Init()
@@ -24,6 +28,69 @@ public class BuildComponentTools : EditorWindow
     void OnGUI()
     {
         component = (Component)EditorGUILayout.ObjectField("组件", component, typeof(Component), true);
+        if (component != oldComponent) 
+        {
+            oldComponent = component;
+            if (component != null)
+            {
+                var type = component.GetType();
+                //var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                var fields1 = new List<FieldData>();
+                //foreach (var item in fields)
+                //{
+                //    fields1.Add(new FieldData() { name = item.Name, serialize = true });
+                //}
+                foreach (var item in properties)
+                {
+                    if (!item.CanRead | !item.CanWrite)
+                        continue;
+                    if (item.GetIndexParameters().Length > 0)
+                        continue;
+                    if (item.GetCustomAttribute<ObsoleteAttribute>() != null)
+                        continue;
+                    var ptype = item.PropertyType;
+                    var code = Type.GetTypeCode(ptype);
+                    if (code == TypeCode.Object & ptype != typeof(Vector2) & ptype != typeof(Vector3) & ptype != typeof(Vector4) &
+                        ptype != typeof(Rect) & ptype != typeof(Quaternion) & ptype != typeof(Color)
+                        & ptype != typeof(Color32) & ptype != typeof(Net.Vector2) & ptype != typeof(Net.Vector3)
+                        & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
+                        & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object)))
+                        continue;
+                    fields1.Add(new FieldData() { name = item.Name, serialize = true });
+                }
+                foldout = new FoldoutData() { name = type.Name, fields = fields1, foldout = true };
+            }
+        }
+        if (foldout != null)
+        {
+            scrollPosition1 = GUILayout.BeginScrollView(scrollPosition1, false, true);
+            var rect = EditorGUILayout.GetControlRect();
+            foldout.foldout = EditorGUI.Foldout(rect, foldout.foldout, foldout.name, true);
+            if (foldout.foldout)
+            {
+                EditorGUI.indentLevel = 1;
+                for (int i = 0; i < foldout.fields.Count; i++)
+                {
+                    foldout.fields[i].serialize = EditorGUILayout.Toggle(foldout.fields[i].name, foldout.fields[i].serialize);
+                }
+                EditorGUI.indentLevel = 0;
+            }
+            if (rect.Contains(Event.current.mousePosition) & Event.current.button == 1)
+            {
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("全部勾上"), false, () =>
+                {
+                    foldout.fields.ForEach(item => item.serialize = true);
+                });
+                menu.AddItem(new GUIContent("全部取消"), false, () =>
+                {
+                    foldout.fields.ForEach(item => item.serialize = false);
+                });
+                menu.ShowAsContext();
+            }
+            GUILayout.EndScrollView();
+        }
         GUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("保存路径:", savePath);
         if (GUILayout.Button("选择路径", GUILayout.Width(100)))
@@ -45,14 +112,14 @@ public class BuildComponentTools : EditorWindow
                 return;
             }
             var type = component.GetType();
-            var str = Build(type);
+            var str = Build(type, foldout.fields.ConvertAll((item) => !item.serialize ? item.name : ""));
             File.WriteAllText(savePath + $"//Network{type.Name}.cs", str.ToString());
             Debug.Log("生成脚本成功!"); 
             AssetDatabase.Refresh();
         }
     }
 
-    static StringBuilder Build(Type type)
+    static StringBuilder Build(Type type, List<string> ignores)
     {
         var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
         var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public);
@@ -88,6 +155,8 @@ public class BuildComponentTools : EditorWindow
                 & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
                 & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
                 )
+                continue;
+            if (ignores.Contains(item.Name))
                 continue;
             parNum++;
             var fieldName = item.Name + parNum;
@@ -148,6 +217,8 @@ public class BuildComponentTools : EditorWindow
                 & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
                 )
                 continue;
+            if (ignores.Contains(item.Name))
+                continue;
             parNum++;
             var fieldName = item.Name + parNum;
             str.AppendLine($"          {fieldName} = self.{item.Name};");
@@ -168,6 +239,8 @@ public class BuildComponentTools : EditorWindow
                 & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
                 & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
                 )
+                continue;
+            if (ignores.Contains(item.Name))
                 continue;
             parNum++;
             var fieldName = item.Name + parNum;
@@ -302,6 +375,8 @@ public class BuildComponentTools : EditorWindow
                 & ptype != typeof(Net.Vector4) & ptype != typeof(Net.Rect) & ptype != typeof(Net.Quaternion)
                 & ptype != typeof(Net.Color) & ptype != typeof(Net.Color32) & ptype != typeof(UnityEngine.Object) & !ptype.IsSubclassOf(typeof(UnityEngine.Object))
                 )
+                continue;
+            if (ignores.Contains(item.Name))
                 continue;
             parNum++;
             var fieldName = item.Name + parNum;

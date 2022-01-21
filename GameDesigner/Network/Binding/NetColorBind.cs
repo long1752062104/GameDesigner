@@ -32,11 +32,6 @@ namespace Binding
 				NetConvertBase.SetBit(ref bits[0], 4, true);
 				stream.WriteValue(value.a);
 			}
-			if (!string.IsNullOrEmpty(value.hex))
-			{
-				NetConvertBase.SetBit(ref bits[0], 5, true);
-				stream.WriteValue(value.hex);
-			}
 			int pos1 = stream.Position;
 			stream.Position = pos;
 			stream.Write(bits, 0, 1);
@@ -55,8 +50,6 @@ namespace Binding
 				value.b = stream.ReadValue<Single>();
 			if(NetConvertBase.GetBit(bits[0], 4))
 				value.a = stream.ReadValue<Single>();
-			if(NetConvertBase.GetBit(bits[0], 5))
-				value.hex = stream.ReadValue<String>();
 			return value;
 		}
 

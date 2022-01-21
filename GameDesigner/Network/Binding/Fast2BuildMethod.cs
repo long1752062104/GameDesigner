@@ -43,7 +43,7 @@ public static class Fast2BuildMethod
         List<string> codes = new List<string>();
         foreach (var type in types)
         {
-            var str = Build(type, true, true, true);
+            var str = Build(type, true, true, true, new List<string>());
             str.Append(BuildArray(type, true));
             str.Append(BuildGeneric(type, true));
             codes.Add(str.ToString());
@@ -82,19 +82,19 @@ public static class Fast2BuildMethod
 
     public static void Build(Type type, string savePath)
     {
-        var str = Build(type, false, true, true);
+        var str = Build(type, false, true, true, new List<string>());
         var className = type.FullName.Replace(".", "").Replace("+", "");
         File.WriteAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
 
-    public static void Build(Type type, bool addNs, string savePath, bool serField, bool serProperty)
+    public static void Build(Type type, bool addNs, string savePath, bool serField, bool serProperty, List<string> ignores)
     {
-        var str = Build(type, addNs, serField, serProperty);
+        var str = Build(type, addNs, serField, serProperty, ignores);
         var className = type.FullName.Replace(".", "").Replace("+", "");
         File.WriteAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
 
-    public static StringBuilder Build(Type type, bool addNs, bool serField, bool serProperty)
+    public static StringBuilder Build(Type type, bool addNs, bool serField, bool serProperty, List<string> ignores)
     {
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace) | addNs;
@@ -121,6 +121,8 @@ public static class Fast2BuildMethod
         foreach (var field in fields)
         {
             if (field.GetCustomAttribute<Net.Serialize.NonSerialized>() != null)
+                continue;
+            if (ignores.Contains(field.Name))
                 continue;
             var member = new Member()
             {
@@ -160,6 +162,8 @@ public static class Fast2BuildMethod
             if (!property.CanRead | !property.CanWrite)
                 continue;
             if (property.GetIndexParameters().Length > 0)
+                continue;
+            if (ignores.Contains(property.Name))
                 continue;
             var member = new Member()
             {
