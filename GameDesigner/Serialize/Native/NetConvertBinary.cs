@@ -39,8 +39,10 @@
         /// </summary>
         public static bool Init()
         {
-            serializeTypes = new MyDictionary<ushort, Type>();
-            serializeType1s = new MyDictionary<Type, ushort>();
+            serializeTypes.Clear();
+            serializeType1s.Clear();
+            serializeOnly.Clear();
+            serializeIgnore.Clear();
             AddSerializeBaseType();
             MakeNonSerializedAttribute<NonSerializedAttribute>();
             return true;
