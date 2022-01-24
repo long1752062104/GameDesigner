@@ -45,6 +45,8 @@ namespace Net.UnityComponent
                 }
                 identity = m_identity;
                 sm.identitys.Add(m_identity, this);
+                foreach (var item in networkBehaviours)
+                    item.OnNetworkObjectInit(identity);
                 return;
             }
             if (IDENTITY_POOL.Count <= 0)
