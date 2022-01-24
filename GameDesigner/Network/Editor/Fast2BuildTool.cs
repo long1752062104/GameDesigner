@@ -175,6 +175,17 @@ public class Fast2BuildTools2 : EditorWindow
                     {
                         type1.fields.ForEach(item => item.serialize = false);
                     });
+                    menu.AddItem(new GUIContent("更新字段"), false, () =>
+                    {
+                        UpdateField(type1);
+                        SaveData();
+                    });
+                    menu.AddItem(new GUIContent("全部字段更新"), false, () =>
+                    {
+                        UpdateFields();
+                        SaveData();
+                        Debug.Log("全部字段已更新完成!");
+                    });
                     menu.AddItem(new GUIContent("移除"), false, () =>
                     {
                         typeNames.Remove(type1);
@@ -209,6 +220,8 @@ public class Fast2BuildTools2 : EditorWindow
                         var fields1 = new List<FieldData>();
                         foreach (var item in fields)
                         {
+                            if (item.GetCustomAttribute<Net.Serialize.NonSerialized>() != null)
+                                continue;
                             fields1.Add(new FieldData() { name = item.Name, serialize = true });
                         }
                         foreach (var item in properties)
@@ -216,6 +229,8 @@ public class Fast2BuildTools2 : EditorWindow
                             if (!item.CanRead | !item.CanWrite)
                                 continue;
                             if (item.GetIndexParameters().Length > 0)
+                                continue;
+                            if (item.GetCustomAttribute<Net.Serialize.NonSerialized>() != null)
                                 continue;
                             fields1.Add(new FieldData() { name = item.Name, serialize = true });
                         }
@@ -269,6 +284,60 @@ public class Fast2BuildTools2 : EditorWindow
             AssetDatabase.Refresh();
         }
         EditorGUILayout.HelpBox("指定主入口类型和调用入口方法，然后选择生成代码文件夹路径，最后点击生成。绑定入口案例:请看Net.Binding.BindingEntry类的GetBindTypes方法", MessageType.Info);
+    }
+
+    private void UpdateFields() 
+    {
+        foreach (var fd in typeNames) 
+        {
+            UpdateField(fd);
+        }
+        SaveData();
+    }
+
+    private void UpdateField(FoldoutData fd)
+    {
+        Type type = null;
+        foreach (var type2 in types)
+        {
+            if (fd.name == type2.name)
+            {
+                type = type2.type;
+                break;
+            }
+        }
+        if (type == null)
+        {
+            Debug.Log(fd.name + "类型为空!");
+            return;
+        }
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var fields1 = new List<FieldData>();
+        foreach (var item in fields)
+        {
+            if (item.GetCustomAttribute<Net.Serialize.NonSerialized>() != null)
+                continue;
+            fields1.Add(new FieldData() { name = item.Name, serialize = true });
+        }
+        foreach (var item in properties)
+        {
+            if (!item.CanRead | !item.CanWrite)
+                continue;
+            if (item.GetIndexParameters().Length > 0)
+                continue;
+            if (item.GetCustomAttribute<Net.Serialize.NonSerialized>() != null)
+                continue;
+            fields1.Add(new FieldData() { name = item.Name, serialize = true });
+        }
+        foreach (var item in fields1)
+        {
+            if (fd.fields.Find(item1 => item1.name == item.name, out var fd1))
+            {
+                item.serialize = fd1.serialize;
+            }
+        }
+        fd.fields = fields1;
     }
 
     void LoadData() 
