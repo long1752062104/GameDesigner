@@ -205,6 +205,11 @@
                 RPCFun rpc = info.GetCustomAttribute<RPCFun>();
                 if (rpc != null)
                 {
+                    if (rpc.mask != 0)
+                        if (!RpcMaskDic.TryGetValue(rpc.mask, out string func))
+                            RpcMaskDic.Add(rpc.mask, info.Name);
+                        else if (func != info.Name)
+                            NDebug.LogError($"错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
                     if (!Rpcs.ContainsKey(info.Name))
                         Rpcs.Add(info.Name, new RPCMethod(target, info as MethodInfo, rpc.cmd));
                     else if (replace)
@@ -381,33 +386,6 @@
         /// <returns></returns>
         public virtual bool OnOperationSync(OperationList list) { return false; }
         #endregion
-
-        /// <summary>
-        /// 添加一个对象的所有Rpc方法
-        /// </summary>
-        /// <param name="target"></param>
-        public void AddRpcHandle(object target)
-        {
-            foreach (MethodInfo info in target.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-            {
-                RPCFun rpc = info.GetCustomAttribute<RPCFun>();
-                if (rpc != null)
-                {
-                    RPCMethod item = new RPCMethod(target, info, rpc.cmd);
-                    if (rpc.mask != 0)
-                    {
-                        if (!RpcMaskDic.TryGetValue(rpc.mask, out string func))
-                            RpcMaskDic.Add(rpc.mask, info.Name);
-                        else if (func != info.Name)
-                            NDebug.LogError($"错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
-                    }
-                    if (!Rpcs.ContainsKey(item.method.Name))
-                        Rpcs.Add(item.method.Name, item);
-                    else
-                        NDebug.LogWarning($"Rpc函数冲突(同名): {item.method.Name}, 请修改函数名称! Rpc函数名是唯一的...");
-                }
-            }
-        }
 
         /// <summary>
         /// 此方法需要自己实现, 实现内容如下: <see langword="xxServer.Instance.RemoveClient(this);"/>

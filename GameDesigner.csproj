@@ -212,6 +212,7 @@
     <None Include="GameDesigner\Component\UnityComponent.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Editor.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Editor\BuildComponentTools.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Editor\NetworkTransformMultiEdit.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkAnimation.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkBoxCollider.cs.meta" />
@@ -223,6 +224,8 @@
     <None Include="GameDesigner\Component\UnityComponent\NetworkResources.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkSceneManager.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkTransform.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\NetworkTransformBase.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\NetworkTransformMulti.cs.meta" />
     <None Include="GameDesigner\ECS.meta" />
     <None Include="GameDesigner\ECS\ArrayPool.cs.meta" />
     <None Include="GameDesigner\ECS\Component.cs.meta" />
@@ -615,7 +618,9 @@
     <None Include="GameDesigner\Network\Binding\UnityEngineQuaternionBind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\UnityEngineRectBind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\UnityEngineVector2Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineVector2IntBind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\UnityEngineVector3Bind.cs.meta" />
+    <None Include="GameDesigner\Network\Binding\UnityEngineVector3IntBind.cs.meta" />
     <None Include="GameDesigner\Network\Binding\UnityEngineVector4Bind.cs.meta" />
     <None Include="GameDesigner\Network\core.meta" />
     <None Include="GameDesigner\Network\core\Client.meta" />
@@ -717,6 +722,7 @@
     <None Include="GameDesigner\Network\dotNetty~\Plugins\Linux\linux-x64\libuv.so" />
     <None Include="GameDesigner\Network\dotNetty~\Plugins\macOS\libuv.dylib" />
     <None Include="GameDesigner\Network\Editor.meta" />
+    <None Include="GameDesigner\Network\Editor\ExternalReferenceTool.cs.meta" />
     <None Include="GameDesigner\Network\Editor\Fast2BuildTool.cs.meta" />
     <None Include="GameDesigner\Network\enet.meta" />
     <None Include="GameDesigner\Network\enet\Client.meta" />
@@ -1295,6 +1301,7 @@
     <Compile Include="GameDesigner\Component\RoomData.cs" />
     <Compile Include="GameDesigner\Component\SqlServerHelper.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Editor\BuildComponentTools.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\Editor\NetworkTransformMultiEdit.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkAnimation.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkBoxCollider.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkCamera.cs" />
@@ -1305,6 +1312,8 @@
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkResources.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkSceneManager.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkTransform.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\NetworkTransformBase.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\NetworkTransformMulti.cs" />
     <Compile Include="GameDesigner\ECS\ArrayPool.cs" />
     <Compile Include="GameDesigner\ECS\Component.cs" />
     <Compile Include="GameDesigner\ECS\Entity.cs" />
@@ -1614,7 +1623,9 @@
     <Compile Include="GameDesigner\Network\Binding\UnityEngineQuaternionBind.cs" />
     <Compile Include="GameDesigner\Network\Binding\UnityEngineRectBind.cs" />
     <Compile Include="GameDesigner\Network\Binding\UnityEngineVector2Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineVector2IntBind.cs" />
     <Compile Include="GameDesigner\Network\Binding\UnityEngineVector3Bind.cs" />
+    <Compile Include="GameDesigner\Network\Binding\UnityEngineVector3IntBind.cs" />
     <Compile Include="GameDesigner\Network\Binding\UnityEngineVector4Bind.cs" />
     <Compile Include="GameDesigner\Network\core\Client\ClientBase.cs" />
     <Compile Include="GameDesigner\Network\core\Client\NetBehaviour.cs" />
@@ -1703,6 +1714,7 @@
     <Compile Include="GameDesigner\Network\dotNetty~\Client\DotNettyClient.cs" />
     <Compile Include="GameDesigner\Network\dotNetty~\Server\DNPlayer.cs" />
     <Compile Include="GameDesigner\Network\dotNetty~\Server\DotNettyServer.cs" />
+    <Compile Include="GameDesigner\Network\Editor\ExternalReferenceTool.cs" />
     <Compile Include="GameDesigner\Network\Editor\Fast2BuildTool.cs" />
     <Compile Include="GameDesigner\Network\enet\Client\ENetClient.cs" />
     <Compile Include="GameDesigner\Network\enet\ENet\ENet.cs" />
