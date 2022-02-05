@@ -320,6 +320,8 @@
         /// <param name="opts"></param>
         public virtual void AddOperations(Operation[] opts)
         {
+            if (opts == null)
+                return;
             foreach (Operation opt in opts)
                 AddOperation(opt);
         }
@@ -330,7 +332,7 @@
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{Name}:{Players.Count}/{sceneCapacity}";
+            return $"{Name}:{Players.Count}/{sceneCapacity} opts:{operations.Count}";
         }
 
         /// <summary>

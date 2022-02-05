@@ -31,7 +31,6 @@ namespace GameDesigner
         /// <summary>
         /// 当动作处于循环模式时, 子动作动画每次结束都会调用一次
         /// </summary>
-        /// <param name="state"></param>
         public virtual void OnActionExit() { }
 
         public StateBehaviour InitBehaviour()

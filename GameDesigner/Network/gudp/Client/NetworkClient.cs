@@ -66,8 +66,8 @@ namespace Net.Client
                         while (UID == 0)
                             if (DateTime.Now >= time)
                                 throw new Exception("uid赋值失败!");
-                        stackStreamName = persistentDataPath + "/c" + UID + ".stream";
-                        StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                        //stackStreamName = persistentDataPath + "/c" + UID + ".stream";
+                        StackStream = BufferStreamPool.Take();//new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                         InvokeContext((arg) => {
                             networkState = NetworkState.Connected;
                             result(true);
@@ -128,7 +128,7 @@ namespace Net.Client
             StartThread("SendDataHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
             StartThread("TCPReceiveHandle", TCPReceiveHandle);
-            StartThread("CheckRpcHandle", CheckRpcHandle);
+            ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
             ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
             ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
@@ -323,9 +323,8 @@ namespace Net.Client
             stack = 0;
             stackIndex = 0;
             stackCount = 0;
-            if (File.Exists(stackStreamName) & !string.IsNullOrEmpty(stackStreamName))
-                File.Delete(stackStreamName);
-            stackStreamName = "";
+            revdRTStream?.Close();
+            revdRTStream = null;
             if (Instance == this)
                 Instance = null;
             Config.GlobalConfig.ThreadPoolRun = false;

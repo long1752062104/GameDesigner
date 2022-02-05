@@ -29,7 +29,7 @@ namespace Net.Server
         {
             byte[] buff = new byte[len];
             Marshal.Copy(new IntPtr(buf), buff, 0, len);
-            sendDataBeProcessed.Enqueue(new SendDataBuffer(this, buff));
+            sendQueue.Enqueue(new SendDataBuffer(this, buff));
             return 0;
         }
 

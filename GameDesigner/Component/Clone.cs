@@ -25,7 +25,6 @@
         /// <summary>
         /// 克隆对象, 脱离引用对象的地址
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="target"></param>
         /// <returns></returns>
         public static object Instance(object target)
@@ -67,7 +66,6 @@
         /// <summary>
         /// 深复制
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="target"></param>
         /// <returns></returns>
         public static object DeepCopy(object target)
@@ -78,7 +76,6 @@
         /// <summary>
         /// 深复制
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="target"></param>
         /// <returns></returns>
         public static object DeepCopy(Type type, object target)

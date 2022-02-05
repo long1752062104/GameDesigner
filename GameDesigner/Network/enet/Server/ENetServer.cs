@@ -96,13 +96,13 @@
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
-                QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
-                RevdDataBeProcesseds.Add(revdDataBeProcessed);
+                QueueSafe<RevdDataBuffer> revdQueue = new QueueSafe<RevdDataBuffer>();
+                RevdQueues.Add(revdQueue);
                 Thread revd = new Thread(RevdDataHandle) { IsBackground = true, Name = "RevdDataHandle" + i };
-                revd.Start(revdDataBeProcessed);
+                revd.Start(revdQueue);
                 threads.Add("RevdDataHandle" + i, revd);
                 QueueSafe<SendDataBuffer> sendDataBeProcessed = new QueueSafe<SendDataBuffer>();
-                SendDataBeProcesseds.Add(sendDataBeProcessed);
+                SendQueues.Add(sendDataBeProcessed);
                 Thread proSend = new Thread(ProcessSend) { IsBackground = true, Name = "ProcessSend" + i };
                 proSend.Start(sendDataBeProcessed);
                 threads.Add("ProcessSend" + i, proSend);
@@ -140,7 +140,7 @@
                     {
                         case EventType.Connect:
                             UserIDStack.TryPop(out int uid);
-                            Player unClient = ObjectPool<Player>.Take();
+                            Player unClient = new Player();
                             unClient.UserID = uid;
                             unClient.PlayerID = uid.ToString();
                             unClient.EClient = netEvent.Peer;
@@ -154,9 +154,9 @@
                             Interlocked.Increment(ref ignoranceNumber);
                             AllClients.TryAdd(remotePoint, unClient);
                             OnHasConnectHandle(unClient);
-                            unClient.revdDataBeProcessed = RevdDataBeProcesseds[threadNum];
-                            unClient.sendDataBeProcessed = SendDataBeProcesseds[threadNum];
-                            if (++threadNum >= RevdDataBeProcesseds.Count)
+                            unClient.revdQueue = RevdQueues[threadNum];
+                            unClient.sendQueue = SendQueues[threadNum];
+                            if (++threadNum >= RevdQueues.Count)
                                 threadNum = 0;
                             break;
                         case EventType.Disconnect:
@@ -172,7 +172,7 @@
                                 netEvent.Packet.CopyTo(buffer);
                                 receiveCount += count;
                                 receiveAmount++;
-                                client1.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client1, buffer = buffer, count = count, tcp_udp = false });
+                                client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = buffer, count = count, tcp_udp = false });
                             }
                             else
                             {

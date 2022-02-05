@@ -44,7 +44,7 @@ namespace Net.Server
                 {
                     var segment = new Segment(buffer.Array, buffer.ArrayOffset, buffer.ArrayOffset + buffer.ReadableBytes, false);
                     Instance.SetRAC(segment.Count - segment.Index);
-                    client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = segment, index = segment.Index, count = segment.Count, tcp_udp = true });
+                    client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = segment, index = segment.Index, count = segment.Count, tcp_udp = true });
                 }
             }
 
@@ -109,7 +109,7 @@ namespace Net.Server
                         {
                             IChannelPipeline pipeline = channel.Pipeline;
                             TcpChannel client = channel as TcpChannel;
-                            Player unClient = ObjectPool<Player>.Take();
+                            Player unClient = new Player();
                             unClient.channel = channel;
                             unClient.LastTime = DateTime.Now.AddMinutes(5);
                             unClient.TcpRemoteEndPoint = client.RemoteAddress;
@@ -118,8 +118,8 @@ namespace Net.Server
                             UserIDStack.TryPop(out int uid);
                             unClient.UserID = uid;
                             unClient.PlayerID = uid.ToString();
-                            unClient.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
-                            unClient.stackStream = new FileStream(unClient.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                            //unClient.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
+                            unClient.stackStream = BufferStreamPool.Take();//new FileStream(unClient.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                             unClient.isDispose = false;
                             unClient.CloseSend = false;
                             OnHasConnectHandle(unClient);
@@ -131,9 +131,9 @@ namespace Net.Server
                             Array.Copy(uidbytes, 0, buffer, 0, 4);
                             Array.Copy(identify, 0, buffer, 4, identify.Length);
                             SendRT(unClient, NetCmd.Identify, buffer);
-                            unClient.revdDataBeProcessed = RevdDataBeProcesseds[threadNum];
-                            unClient.sendDataBeProcessed = SendDataBeProcesseds[threadNum];
-                            if (++threadNum >= RevdDataBeProcesseds.Count)
+                            unClient.revdQueue = RevdQueues[threadNum];
+                            unClient.sendQueue = SendQueues[threadNum];
+                            if (++threadNum >= RevdQueues.Count)
                                 threadNum = 0;
                         }
                     }));
@@ -157,13 +157,13 @@ namespace Net.Server
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
-                QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
-                RevdDataBeProcesseds.Add(revdDataBeProcessed);
+                QueueSafe<RevdDataBuffer> revdQueue = new QueueSafe<RevdDataBuffer>();
+                RevdQueues.Add(revdQueue);
                 Thread revd = new Thread(RevdDataHandle) { IsBackground = true, Name = "RevdDataHandle" + i };
-                revd.Start(revdDataBeProcessed);
+                revd.Start(revdQueue);
                 threads.Add("RevdDataHandle" + i, revd);
                 QueueSafe<SendDataBuffer> sendDataBeProcessed = new QueueSafe<SendDataBuffer>();
-                SendDataBeProcesseds.Add(sendDataBeProcessed);
+                SendQueues.Add(sendDataBeProcessed);
                 Thread proSend = new Thread(ProcessSend) { IsBackground = true, Name = "ProcessSend" + i };
                 proSend.Start(sendDataBeProcessed);
                 threads.Add("ProcessSend" + i, proSend);
@@ -190,12 +190,12 @@ namespace Net.Server
 
         protected override void ProcessSend(object state)
         {
-            QueueSafe<SendDataBuffer> SendDataBeProcessed = state as QueueSafe<SendDataBuffer>;
+            var sendQueue = state as QueueSafe<SendDataBuffer>;
             while (IsRunServer)
             {
                 try
                 {
-                    int count = SendDataBeProcessed.Count;
+                    int count = sendQueue.Count;
                     if (count <= 0)
                     {
                         Thread.Sleep(1);
@@ -203,7 +203,7 @@ namespace Net.Server
                     }
                     for (int i = 0; i < count; i++)
                     {
-                        if (SendDataBeProcessed.TryDequeue(out SendDataBuffer sendData))
+                        if (sendQueue.TryDequeue(out SendDataBuffer sendData))
                         {
                             Player client = sendData.client as Player;
                             IByteBuffer byteBuffer = Unpooled.Buffer(sendData.buffer.Length);
@@ -223,14 +223,14 @@ namespace Net.Server
 
         protected override void SendByteData(Player client, byte[] buffer, bool reliable)
         {
-            if (client.sendDataBeProcessed.Count >= 268435456)//最大只能处理每秒256m数据
+            if (client.sendQueue.Count >= 268435456)//最大只能处理每秒256m数据
             {
                 Debug.LogError("发送缓冲列表已经超出限制!");
                 return;
             }
             if (buffer.Length == frame)//解决长度==6的问题(没有数据)
                 return;
-            client.sendDataBeProcessed.Enqueue(new SendDataBuffer(client, buffer));
+            client.sendQueue.Enqueue(new SendDataBuffer(client, buffer));
         }
 
         protected override void HeartHandle()

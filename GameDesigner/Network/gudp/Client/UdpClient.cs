@@ -80,11 +80,11 @@
                         }
                     }
                 });
-                int threadNum = (clientLen / 50) + 1;
+                int threadNum = (clientLen / 1000) + 1;
                 for (int i = 0; i < threadNum; i++) 
                 {
-                    int index = i * 50;
-                    int end = index + 50;
+                    int index = i * 1000;
+                    int end = index + 1000;
                     Task.Run(()=> 
                     {
                         if (end > clientLen)
@@ -97,8 +97,8 @@
                                 try
                                 {
                                     var client = clients[ii];
-                                    //client.Send(NetCmd.Local, new byte[dataLen]);
-                                    client.AddOperation(new Operation(NetCmd.Local) { buffer = new byte[dataLen] });
+                                    client.SendRT(NetCmd.Local, new byte[dataLen]);
+                                    //client.AddOperation(new Operation(NetCmd.Local) { buffer = new byte[dataLen] });
                                     client.Update();
                                 }
                                 catch (Exception ex)
@@ -142,7 +142,7 @@
             addressBuffer = (byte[])socketAddress.GetType().GetField("m_Buffer", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(socketAddress);
             SendByteData(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.Connect, 0, 0, 0, 0 }, false);
             Connected = true;
-            fileStreamName = Path.GetTempFileName();
+            //fileStreamName = Path.GetTempFileName();
             return null;
         }
         protected override void StartupThread() { }

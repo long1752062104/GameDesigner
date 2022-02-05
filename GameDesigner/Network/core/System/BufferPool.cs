@@ -717,12 +717,14 @@ namespace Net.System
         /// </summary>
         public static bool Log { get; set; }
 
-        private static readonly StackSafe<Segment>[] STACKS = new StackSafe<Segment>[23];
+        private static readonly StackSafe<Segment>[] STACKS = new StackSafe<Segment>[37];
         private static readonly int[] TABLE = new int[] {
-            256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576,2097152,4194304,8388608,16777216,33554432,67108864,134217728,268435456,536870912,1073741824
+            256,512,1024,2048,4096,8192,16384,32768,65536,98304,131072,196608,262144,393216,524288,786432,1048576,
+            1572864,2097152,3145728,4194304,6291456,8388608,12582912,16777216,25165824,33554432,50331648,67108864,
+            100663296,134217728,201326592,268435456,402653184,536870912,805306368,1073741824
         };
 
-        static BufferPool() 
+        static BufferPool()
         {
             for (int i = 0; i < TABLE.Length; i++)
             {

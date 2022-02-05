@@ -4,7 +4,6 @@
     using Net.Share;
     using global::System;
     using global::System.Collections.Generic;
-    using global::System.IO;
     using global::System.Net;
     using global::System.Net.Sockets;
     using global::System.Reflection;
@@ -68,13 +67,13 @@
         /// TCP叠包值， 0:正常 >1:叠包次数 >25:清空叠包缓存流
         /// </summary>
         internal int stack = 0;
-        internal string stackStreamName;
+        //internal string stackStreamName;
         internal int stackIndex;
         internal int stackCount;
         /// <summary>
         /// TCP叠包临时缓存流
         /// </summary>
-        internal FileStream stackStream;
+        internal BufferStream stackStream;
         /// <summary>
         /// 用户唯一身份标识
         /// </summary>
@@ -93,8 +92,8 @@
         public double currRto = 50;
         internal Dictionary<uint, FrameList> revdFrames = new Dictionary<uint, FrameList>();
         internal long fileStreamCurrPos;
-        internal QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
-        internal QueueSafe<SendDataBuffer> sendDataBeProcessed = new QueueSafe<SendDataBuffer>();
+        internal QueueSafe<RevdDataBuffer> revdQueue = new QueueSafe<RevdDataBuffer>();
+        internal QueueSafe<SendDataBuffer> sendQueue = new QueueSafe<SendDataBuffer>();
         public bool Login { get; internal set; }
         internal bool isDispose;
         /// <summary>
@@ -170,9 +169,6 @@
             tcpRPCModels = new QueueSafe<RPCModel>();//可能这个类并非真正释放, 而是在运行时数据库, 
             udpRPCModels = new QueueSafe<RPCModel>();//为了下次登录不出错,所以下线要清除在线时的发送数据
             Login = false;
-            if (File.Exists(stackStreamName) & !string.IsNullOrEmpty(stackStreamName))
-                File.Delete(stackStreamName);
-            stackStreamName = "";
             addressBuffer = null;
         }
         #endregion

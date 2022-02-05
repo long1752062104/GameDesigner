@@ -637,7 +637,6 @@
     <None Include="GameDesigner\Network\core\Helper.meta" />
     <None Include="GameDesigner\Network\core\Helper\SyncVarHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Server.meta" />
-    <None Include="GameDesigner\Network\core\Server\DataBase.cs.meta" />
     <None Include="GameDesigner\Network\core\Server\NetBehaviour.cs.meta" />
     <None Include="GameDesigner\Network\core\Server\NetPlayer.cs.meta" />
     <None Include="GameDesigner\Network\core\Server\NetPort.cs.meta" />
@@ -686,6 +685,7 @@
     <None Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs.meta" />
     <None Include="GameDesigner\Network\core\System.meta" />
     <None Include="GameDesigner\Network\core\System\BufferPool.cs.meta" />
+    <None Include="GameDesigner\Network\core\System\BufferStream.cs.meta" />
     <None Include="GameDesigner\Network\core\System\Dictionary.cs.meta" />
     <None Include="GameDesigner\Network\core\System\ExceptionArgument.cs.meta" />
     <None Include="GameDesigner\Network\core\System\ExceptionResource.cs.meta" />
@@ -1636,7 +1636,6 @@
     <Compile Include="GameDesigner\Network\core\Event\NDebug.cs" />
     <Compile Include="GameDesigner\Network\core\Event\TimerEvent.cs" />
     <Compile Include="GameDesigner\Network\core\Helper\SyncVarHelper.cs" />
-    <Compile Include="GameDesigner\Network\core\Server\DataBase.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetBehaviour.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetPlayer.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetPort.cs" />
@@ -1683,6 +1682,7 @@
     <Compile Include="GameDesigner\Network\core\Share\UnZipHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs" />
     <Compile Include="GameDesigner\Network\core\System\BufferPool.cs" />
+    <Compile Include="GameDesigner\Network\core\System\BufferStream.cs" />
     <Compile Include="GameDesigner\Network\core\System\Dictionary.cs" />
     <Compile Include="GameDesigner\Network\core\System\ExceptionArgument.cs" />
     <Compile Include="GameDesigner\Network\core\System\ExceptionResource.cs" />

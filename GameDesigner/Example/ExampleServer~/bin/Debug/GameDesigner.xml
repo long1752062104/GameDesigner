@@ -1938,7 +1938,6 @@
             <summary>
             当动作处于循环模式时, 子动作动画每次结束都会调用一次
             </summary>
-            <param name="state"></param>
         </member>
         <member name="T:GameDesigner.StateMachine">
             <summary>
@@ -2256,7 +2255,6 @@
             <summary>
             克隆对象, 脱离引用对象的地址
             </summary>
-            <typeparam name="T"></typeparam>
             <param name="target"></param>
             <returns></returns>
         </member>
@@ -2280,7 +2278,6 @@
             <summary>
             深复制
             </summary>
-            <typeparam name="T"></typeparam>
             <param name="target"></param>
             <returns></returns>
         </member>
@@ -2288,7 +2285,6 @@
             <summary>
             深复制
             </summary>
-            <typeparam name="T"></typeparam>
             <param name="target"></param>
             <returns></returns>
         </member>
@@ -2833,11 +2829,6 @@
         <member name="F:Net.Client.ClientBase.sendRTListCount">
             <summary>
             可靠传输最大值
-            </summary>
-        </member>
-        <member name="F:Net.Client.ClientBase.fileStreamName">
-            <summary>
-            可靠传输流文件名称
             </summary>
         </member>
         <member name="F:Net.Client.ClientBase.revdRTStream">
@@ -3711,8 +3702,6 @@
             </summary>
             <param name="mono"></param>
             <param name="milliseconds"></param>
-            <param name="updateAct"></param>
-            <param name="endAct"></param>
         </member>
         <member name="M:Net.Client.NetEvent.AddCoroutineEvent(UnityEngine.MonoBehaviour,System.Int32,System.Action,System.Action)">
             <summary>
@@ -3748,27 +3737,21 @@
             添加携程事件
             </summary>
             <param name="mono"></param>
-            <param name="milliseconds"></param>
             <param name="updateAct"></param>
-            <param name="endAct"></param>
         </member>
         <member name="M:Net.Client.NetEvent.AddCoroutineEvent(UnityEngine.MonoBehaviour,System.Func{System.Object,System.Boolean},System.Object)">
             <summary>
             添加携程事件
             </summary>
             <param name="mono"></param>
-            <param name="milliseconds"></param>
             <param name="updateAct"></param>
-            <param name="endAct"></param>
         </member>
         <member name="M:Net.Client.NetEvent.AddCoroutineEvent``1(UnityEngine.MonoBehaviour,System.Func{``0,System.Boolean},``0)">
             <summary>
             添加携程事件
             </summary>
             <param name="mono"></param>
-            <param name="milliseconds"></param>
             <param name="updateAct"></param>
-            <param name="endAct"></param>
         </member>
         <member name="T:Net.Client.NetworkCondition">
             <summary>
@@ -3873,7 +3856,7 @@
             </summary>
             <param name="useUnityThread">使用unity多线程?</param>
         </member>
-        <member name="M:Net.Client.TcpClient.Testing(System.String,System.Int32,System.Int32,System.Int32,System.Action{Net.Client.TcpClient.TcpClientTest},System.Action{System.Collections.Generic.List{Net.Client.TcpClient.TcpClientTest}})">
+        <member name="M:Net.Client.TcpClient.Testing(System.String,System.Int32,System.Int32,System.Int32,System.Action{Net.Client.TcpClient.TcpClientTest},System.Action{System.Collections.Generic.List{Net.Client.TcpClient.TcpClientTest}},Net.Share.IAdapter)">
             <summary>
             tcp压力测试
             </summary>
@@ -3962,6 +3945,32 @@
         <member name="M:Net.Client.UdxClient.Testing(System.String,System.Int32,System.Int32,System.Int32)">
             <summary>
             udx压力测试
+            </summary>
+            <param name="ip">服务器ip</param>
+            <param name="port">服务器端口</param>
+            <param name="clientLen">测试客户端数量</param>
+            <param name="dataLen">每个客户端数据大小</param>
+        </member>
+        <member name="T:Net.Client.WebClient">
+            <summary>
+            web客户端类型
+            第三版本 2020.9.14
+            </summary>
+        </member>
+        <member name="M:Net.Client.WebClient.#ctor">
+            <summary>
+            构造不可靠传输客户端
+            </summary>
+        </member>
+        <member name="M:Net.Client.WebClient.#ctor(System.Boolean)">
+            <summary>
+            构造不可靠传输客户端
+            </summary>
+            <param name="useUnityThread">使用unity多线程?</param>
+        </member>
+        <member name="M:Net.Client.WebClient.Testing(System.String,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            udp压力测试
             </summary>
             <param name="ip">服务器ip</param>
             <param name="port">服务器端口</param>
@@ -4557,12 +4566,6 @@
             </summary>
             <param name="list"></param>
             <returns></returns>
-        </member>
-        <member name="M:Net.Server.NetPlayer.AddRpcHandle(System.Object)">
-            <summary>
-            添加一个对象的所有Rpc方法
-            </summary>
-            <param name="target"></param>
         </member>
         <member name="M:Net.Server.NetPlayer.Close">
             <summary>
@@ -5433,7 +5436,7 @@
         </member>
         <member name="M:Net.Server.ServerBase`2.SendDirect(`0)">
             <summary>
-            立刻发送, 不需要等待帧时间 (当你要强制把客户端下线时,你还希望客户端先发送完数据后,再强制客户端退出游戏用到)
+            立刻发送, 不需要等待内核时间 (当你要强制把客户端下线时,你还希望客户端先发送完数据后,再强制客户端退出游戏用到)
             </summary>
             <param name="client"></param>
         </member>
@@ -5831,6 +5834,12 @@
         <member name="M:Net.Server.ServerBase`2.SignOut(`0)">
             <summary>
             退出登录, 将client客户端从在线字段<see cref="P:Net.Server.ServerBase`2.Players"/>和<see cref="P:Net.Server.ServerBase`2.UIDClients"/>字段中移除
+            </summary>
+            <param name="client"></param>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.OnSignOut(`0)">
+            <summary>
+            当客户端退出登录
             </summary>
             <param name="client"></param>
         </member>
@@ -7480,7 +7489,6 @@
             玩家输入方向指令
             </summary>
             <param name="cmd"></param>
-            <param name="name"></param>
             <param name="direction"></param>
         </member>
         <member name="M:Net.Share.Operation.#ctor(System.Byte,System.String,System.Int32)">
@@ -8253,6 +8261,11 @@
             </summary>
             <param name="segment"></param>
         </member>
+        <member name="T:Net.System.BufferStream">
+            <summary>
+            共享文件流, 此类会瓜分一个文件流的段数据作为数据缓存位置
+            </summary>
+        </member>
         <member name="T:Net.System.ListSafe`1">
             <summary>
             线程安全的List类
@@ -8881,7 +8894,6 @@
             <summary>
             反序列化
             </summary>
-            <typeparam name="T"></typeparam>
             <param name="segment"></param>
             <param name="recordType"></param>
             <param name="ignore">忽略不使用<see cref="M:Net.Serialize.NetConvertBinary.AddBaseType``1"/>方法也会被序列化</param>

@@ -16,11 +16,6 @@ namespace Net.Helper
             SyncVar syncVar = info.GetCustomAttribute<SyncVar>();
             if (syncVar == null)
                 return;
-            //if (syncVar.id == 0)
-            //{
-            //    NDebug.LogError($"错误! 请赋值ID字段 :{target.GetType().Name}类的{info.Name}字段");
-            //    return;
-            //}
             Type type1 = null;
             SyncVarInfo syncVarInfo = null;
             if (info is FieldInfo field)
@@ -62,7 +57,11 @@ namespace Net.Helper
             }
             else if (code == TypeCode.Object & type1.IsClass)//解决string, string也是类
                 isClass = true;
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
             var isUnityObject = type1.IsSubclassOf(typeof(UnityEngine.Object)) | type1 == typeof(UnityEngine.Object);
+#else
+            var isUnityObject = false;
+#endif
             syncVarInfo.id = syncVar.id;
             syncVarInfo.type = type1;
             syncVarInfo.target = target;

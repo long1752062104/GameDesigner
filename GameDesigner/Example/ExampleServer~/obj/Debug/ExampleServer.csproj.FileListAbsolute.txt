@@ -143,3 +143,5 @@ D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\ExampleServe
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\ExampleServer.exe
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\ExampleServer.pdb
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.csproj.CopyComplete
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\WebSocket4Net.dll
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\SuperSocket.ClientEngine.dll

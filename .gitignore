@@ -5,3 +5,4 @@ obj/
 packages/
 packages.config
 *.stream
+*.pool

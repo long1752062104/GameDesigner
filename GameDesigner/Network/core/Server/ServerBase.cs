@@ -386,12 +386,6 @@ namespace Net.Server
         /// </summary>
         public ServerBase()
         {
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
-            rootPath = UnityEngine.Application.persistentDataPath;
-#else
-            rootPath = AppDomain.CurrentDomain.BaseDirectory;
-#endif
-            Directory.CreateDirectory(rootPath + "/reliable/");
         }
 
         #region 索引
@@ -631,13 +625,13 @@ namespace Net.Server
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
-                QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
-                RevdDataBeProcesseds.Add(revdDataBeProcessed);
+                QueueSafe<RevdDataBuffer> revdQueue = new QueueSafe<RevdDataBuffer>();
+                RevdQueues.Add(revdQueue);
                 Thread revd = new Thread(RevdDataHandle) { IsBackground = true, Name = "RevdDataHandle" + i };
-                revd.Start(revdDataBeProcessed);
+                revd.Start(revdQueue);
                 threads.Add("RevdDataHandle" + i, revd);
                 QueueSafe<SendDataBuffer> sendDataBeProcessed = new QueueSafe<SendDataBuffer>();
-                SendDataBeProcesseds.Add(sendDataBeProcessed);
+                SendQueues.Add(sendDataBeProcessed);
                 Thread proSend = new Thread(ProcessSend) { IsBackground = true, Name = "ProcessSend" + i };
                 proSend.Start(sendDataBeProcessed);
                 threads.Add("ProcessSend" + i, proSend);
@@ -828,7 +822,11 @@ namespace Net.Server
                 }
                 exceededNumber = 0;
                 blockConnection = 0;
-                UserIDStack.TryPop(out int uid);
+                if (!UserIDStack.TryPop(out int uid)) 
+                {
+                    Debug.LogError("uid已用尽!");
+                    return;
+                }
                 client = new Player();
                 client.UserID = uid;
                 client.PlayerID = uid.ToString();
@@ -839,27 +837,27 @@ namespace Net.Server
                 OnHasConnectHandle(client);
                 AllClients.TryAdd(remotePoint, client);
                 Interlocked.Increment(ref ignoranceNumber);
-                client.revdDataBeProcessed = RevdDataBeProcesseds[threadNum];
-                client.sendDataBeProcessed = SendDataBeProcesseds[threadNum];
-                if (++threadNum >= RevdDataBeProcesseds.Count)
+                client.revdQueue = RevdQueues[threadNum];
+                client.sendQueue = SendQueues[threadNum];
+                if (++threadNum >= RevdQueues.Count)
                     threadNum = 0;
             }
-            client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, count = count, tcp_udp = tcp_udp });
+            client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, count = count, tcp_udp = tcp_udp });
         }
 
         protected volatile int threadNum;
-        protected List<QueueSafe<RevdDataBuffer>> RevdDataBeProcesseds = new List<QueueSafe<RevdDataBuffer>>();
-        protected List<QueueSafe<SendDataBuffer>> SendDataBeProcesseds = new List<QueueSafe<SendDataBuffer>>();
+        protected List<QueueSafe<RevdDataBuffer>> RevdQueues = new List<QueueSafe<RevdDataBuffer>>();
+        protected List<QueueSafe<SendDataBuffer>> SendQueues = new List<QueueSafe<SendDataBuffer>>();
 
         protected virtual void RevdDataHandle(object state)//处理线程
         {
-            QueueSafe<RevdDataBuffer> RevdDataBeProcessed = state as QueueSafe<RevdDataBuffer>;
+            var revdQueue = state as QueueSafe<RevdDataBuffer>;
             while (IsRunServer)
             {
                 try
                 {
                     revdLoopNum++;
-                    int count = RevdDataBeProcessed.Count;
+                    int count = revdQueue.Count;
                     if (count <= 0)
                     {
                         Thread.Sleep(1);
@@ -867,7 +865,7 @@ namespace Net.Server
                     }
                     for (int i = 0; i < count; i++)
                     {
-                        if (RevdDataBeProcessed.TryDequeue(out RevdDataBuffer revdData))
+                        if (revdQueue.TryDequeue(out RevdDataBuffer revdData))
                         {
                             DataHandle(revdData.client as Player, revdData.buffer, revdData.index, revdData.count);
                             BufferPool.Push(revdData.buffer);
@@ -1100,13 +1098,10 @@ namespace Net.Server
                         return;
                     }
                     if (client.stackStream == null)
+                        client.stackStream = BufferStreamPool.Take();
+                    if (!client.revdFrames.TryGetValue(frame, out var revdFrame))
                     {
-                        client.stackStreamName = rootPath + $"/reliable/{Name}-" + client.UserID + ".stream";//解决当运行两个服务器以上时共用一个文件问题
-                        client.stackStream = new FileStream(client.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    }
-                    if (!client.revdFrames.ContainsKey(frame))
-                    {
-                        client.revdFrames.Add(frame, new FrameList(entry)
+                        client.revdFrames.Add(frame, revdFrame = new FrameList(entry)
                         {
                             streamPos = client.fileStreamCurrPos,
                             frameLen = entry,
@@ -1114,10 +1109,9 @@ namespace Net.Server
                             dataCount = dataCount
                         });
                         client.fileStreamCurrPos += dataCount;
-                        if (client.fileStreamCurrPos > (1024 * 1024 * 1024))//如果文件大于1g, 则从0开始记录
+                        if (client.fileStreamCurrPos >= client.stackStream.Length)//如果文件大于总长度, 则从0开始记录
                             client.fileStreamCurrPos = 0;
                     }
-                    FrameList revdFrame = client.revdFrames[frame];
                     if (revdFrame.Add(index))
                     {
                         client.stackStream.Seek(revdFrame.streamPos + (index * MTU), SeekOrigin.Begin);
@@ -1127,13 +1121,11 @@ namespace Net.Server
                     Buffer.BlockCopy(BitConverter.GetBytes(frame), 0, rtbuffer, 0, 4);
                     Buffer.BlockCopy(BitConverter.GetBytes(index), 0, rtbuffer, 4, 2);
                     Send(client, NetCmd.ReliableCallback, rtbuffer);
-                    if (client.revdFrames.ContainsKey(client.revdReliableFrame))//排序执行
-                        revdFrame = client.revdFrames[client.revdReliableFrame];
-                    else //让客户端发送revdReliableFrame帧的所有帧数据
+                    if (!client.revdFrames.TryGetValue(client.revdReliableFrame, out revdFrame))//排序执行
                     {
                         rtbuffer = new byte[4];
                         Buffer.BlockCopy(BitConverter.GetBytes(client.revdReliableFrame), 0, rtbuffer, 0, 4);
-                        Send(client, NetCmd.TakeFrameList, rtbuffer);
+                        Send(client, NetCmd.TakeFrameList, rtbuffer);//让客户端发送revdReliableFrame帧的所有帧数据
                         return;
                     }
                     while (revdFrame.Count >= revdFrame.frameLen)
@@ -1310,15 +1302,7 @@ namespace Net.Server
 
         protected internal byte[] OnSerializeOptInternal(OperationList list)
         {
-            var segment = BufferPool.Take();
-            using (MemoryStream stream = new MemoryStream(segment))
-            {
-                stream.SetLength(0);
-                ProtoBuf.Serializer.Serialize(stream, list);
-                var buffer = stream.ToArray();
-                BufferPool.Push(segment);
-                return buffer;
-            }
+            return NetConvertFast2.SerializeObject(list).ToArray(true);
         }
 
         protected virtual OperationList OnDeserializeOpt(byte[] buffer, int index, int count)
@@ -1328,11 +1312,8 @@ namespace Net.Server
 
         protected internal OperationList OnDeserializeOptInternal(byte[] buffer, int index, int count)
         {
-            using (MemoryStream stream = new MemoryStream(buffer, index, count))
-            {
-                OperationList list = ProtoBuf.Serializer.Deserialize<OperationList>(stream);
-                return list;
-            }
+            Segment segment = new Segment(buffer, index, count, false);
+            return NetConvertFast2.DeserializeObject<OperationList>(segment);
         }
 
         protected virtual void ReliableTransportComplete(Player client, Segment buffer, int count)//为了与NetworkServer协议接轨增加的方法
@@ -1376,7 +1357,7 @@ namespace Net.Server
 
         protected virtual void SendDataHandle()//发送线程
         {
-            Player[] allClients = new Player[0];
+            var allClients = new Player[0];
             while (IsRunServer)
             {
                 try
@@ -1384,10 +1365,9 @@ namespace Net.Server
                     Thread.Sleep(1);
                     if (allClients.Length != AllClients.Count)
                         allClients = AllClients.Values.ToArray();
-                    Parallel.ForEach(allClients, client =>
-                    {
-                        SendDirect(client);
-                    });
+                    var result = Parallel.ForEach(allClients, client => SendDirect(client));
+                    while (!result.IsCompleted)
+                        Thread.Sleep(1);
                     sendLoopNum++;
                 }
                 catch (Exception ex)
@@ -1398,7 +1378,7 @@ namespace Net.Server
         }
 
         /// <summary>
-        /// 立刻发送, 不需要等待帧时间 (当你要强制把客户端下线时,你还希望客户端先发送完数据后,再强制客户端退出游戏用到)
+        /// 立刻发送, 不需要等待内核时间 (当你要强制把客户端下线时,你还希望客户端先发送完数据后,再强制客户端退出游戏用到)
         /// </summary>
         /// <param name="client"></param>
         public virtual void SendDirect(Player client)
@@ -1587,7 +1567,7 @@ namespace Net.Server
 
         protected virtual void SendByteData(Player client, byte[] buffer, bool reliable)
         {
-            if (client.sendDataBeProcessed.Count >= 268435456)//最大只能处理每秒256m数据
+            if (client.sendQueue.Count >= 268435456)//最大只能处理每秒256m数据
             {
                 Debug.LogError("发送缓冲列表已经超出限制!");
                 return;
@@ -1595,19 +1575,19 @@ namespace Net.Server
             if (buffer.Length == frame)//解决长度==6的问题(没有数据)
                 return;
             if (buffer.Length <= 65507)
-                client.sendDataBeProcessed.Enqueue(new SendDataBuffer(client, buffer));
+                client.sendQueue.Enqueue(new SendDataBuffer(client, buffer));
             else
                 Debug.LogError("数据太大! 请使用SendRT");
         }
 
         protected unsafe virtual void ProcessSend(object state)
         {
-            QueueSafe<SendDataBuffer> SendDataBeProcessed = state as QueueSafe<SendDataBuffer>;
+            var sendQueue = state as QueueSafe<SendDataBuffer>;
             while (IsRunServer)
             {
                 try
                 {
-                    int count = SendDataBeProcessed.Count;
+                    int count = sendQueue.Count;
                     if (count <= 0)
                     {
                         Thread.Sleep(1);
@@ -1615,7 +1595,7 @@ namespace Net.Server
                     }
                     for (int i = 0; i < count; i++)
                     {
-                        if (SendDataBeProcessed.TryDequeue(out SendDataBuffer sendData))
+                        if (sendQueue.TryDequeue(out SendDataBuffer sendData))
                         {
                             Player client = sendData.client as Player;
 #if WINDOWS
@@ -2055,8 +2035,8 @@ namespace Net.Server
             if (this == Instance)//有多个服务器实例, 需要
                 Instance = null;
             threads.Clear();
-            SendDataBeProcesseds.Clear();
-            RevdDataBeProcesseds.Clear();
+            SendQueues.Clear();
+            RevdQueues.Clear();
             OnStartingHandle -= OnStarting;
             OnStartupCompletedHandle -= OnStartupCompleted;
             OnHasConnectHandle -= OnHasConnect;

@@ -121,7 +121,6 @@
         /// 玩家输入方向指令
         /// </summary>
         /// <param name="cmd"></param>
-        /// <param name="name"></param>
         /// <param name="direction"></param>
         public Operation(byte cmd, int identity, Vector3 direction) : this(cmd)
         {

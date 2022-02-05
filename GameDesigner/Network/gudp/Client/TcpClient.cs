@@ -58,8 +58,7 @@
                     while (UID == 0)
                         if (DateTime.Now >= time)
                             throw new Exception("uid赋值失败!");
-                    stackStreamName = persistentDataPath + "/c" + UID + ".stream";
-                    StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                    StackStream = BufferStreamPool.Take();
                     InvokeContext((arg) => {
                         networkState = NetworkState.Connected;
                         result(true);
@@ -103,7 +102,7 @@
             Connected = true;
             StartThread("SendDataHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
-            StartThread("CheckRpcHandle", CheckRpcHandle);
+            ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
             ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
             ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
@@ -200,9 +199,8 @@
             stack = 0;
             stackIndex = 0;
             stackCount = 0;
-            if (File.Exists(stackStreamName) & !string.IsNullOrEmpty(stackStreamName))
-                File.Delete(stackStreamName);
-            stackStreamName = "";
+            revdRTStream?.Close();
+            revdRTStream = null;
             if (Instance == this)
                 Instance = null;
             Config.GlobalConfig.ThreadPoolRun = false;
@@ -216,7 +214,7 @@
         /// <param name="port">服务器端口</param>
         /// <param name="clientLen">测试客户端数量</param>
         /// <param name="dataLen">每个客户端数据大小</param>
-        public static CancellationTokenSource Testing(string ip, int port, int clientLen, int dataLen, Action<TcpClientTest> onInit = null, Action<List<TcpClientTest>> fpsAct = null)
+        public static CancellationTokenSource Testing(string ip, int port, int clientLen, int dataLen, Action<TcpClientTest> onInit = null, Action<List<TcpClientTest>> fpsAct = null, IAdapter adapter = null)
         {
             CancellationTokenSource cts = new CancellationTokenSource();
             Task.Run(() =>
@@ -226,7 +224,14 @@
                 {
                     TcpClientTest client = new TcpClientTest();
                     onInit?.Invoke(client);
-                    client.Connect(ip, port);
+                    if(adapter != null)
+                        client.AddAdapter(adapter);
+                    try { 
+                        client.Connect(ip, port);
+                    } catch (Exception ex) {
+                        NDebug.LogError(ex);
+                        break;
+                    }
                     clients.Add(client);
                 }
                 byte[] buffer = new byte[dataLen];
@@ -243,23 +248,25 @@
                         }
                     }
                 });
-                int threadNum = (clientLen / 50) + 1;
+                int threadNum = (clientLen / 1000) + 1;
                 for (int i = 0; i < threadNum; i++)
                 {
-                    int index = i * 50;
-                    int end = index + 50;
+                    int index = i * 1000;
+                    int end = index + 1000;
                     Task.Run(() =>
                     {
                         if (end > clientLen)
                             end = clientLen;
                         while (!cts.IsCancellationRequested)
                         {
-                            Thread.Sleep(30);
+                            Thread.Sleep(1000);
                             for (int ii = index; ii < end; ii++)
                             {
                                 try
                                 {
                                     var client = clients[ii];
+                                    if (client.Client == null)
+                                        continue;
                                     if (client.Client.Poll(0, SelectMode.SelectRead))
                                     {
                                         var buffer1 = BufferPool.Take(65536);
@@ -267,7 +274,8 @@
                                         client.ResolveBuffer(buffer1, 0, count, false);
                                         BufferPool.Push(buffer1);
                                     }
-                                    client.Send(NetCmd.Local, buffer);
+                                    //client.Send(NetCmd.Local, buffer);
+                                    client.SendRT("Register", RandomHelper.Range(10000,9999999).ToString(), "123");
                                     client.SendDirect();
                                 }
                                 catch (Exception ex)
@@ -309,8 +317,8 @@
                 Client.NoDelay = true;
                 SendByteData(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.Connect, 0, 0, 0, 0 }, false);
                 Connected = true;
-                stackStreamName = Path.GetTempFileName();
-                StackStream = new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                //stackStreamName = Path.GetTempFileName();
+                StackStream = BufferStreamPool.Take();//new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                 return null;
             }
             protected override void StartupThread() { }

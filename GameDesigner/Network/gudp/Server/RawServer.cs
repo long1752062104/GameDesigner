@@ -104,13 +104,13 @@
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
-                QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
-                RevdDataBeProcesseds.Add(revdDataBeProcessed);
+                QueueSafe<RevdDataBuffer> revdQueue = new QueueSafe<RevdDataBuffer>();
+                RevdQueues.Add(revdQueue);
                 Thread revd = new Thread(RevdDataHandle) { IsBackground = true, Name = "RevdDataHandle" + i };
-                revd.Start(revdDataBeProcessed);
+                revd.Start(revdQueue);
                 threads.Add("RevdDataHandle" + i, revd);
                 QueueSafe<SendDataBuffer> sendDataBeProcessed = new QueueSafe<SendDataBuffer>();
-                SendDataBeProcesseds.Add(sendDataBeProcessed);
+                SendQueues.Add(sendDataBeProcessed);
                 Thread proSend = new Thread(ProcessSend) { IsBackground = true, Name = "ProcessSend" + i };
                 proSend.Start(sendDataBeProcessed);
                 threads.Add("ProcessSend" + i, proSend);
@@ -185,7 +185,7 @@
                 exceededNumber = 0;
                 blockConnection = 0;
                 UserIDStack.TryPop(out int uid);
-                client = ObjectPool<Player>.Take();
+                client = new Player();
                 client.UserID = uid;
                 client.PlayerID = uid.ToString();
                 client.RemotePoint = remotePoint;
@@ -217,12 +217,12 @@
                 OnHasConnectHandle(client);
                 AllClients.TryAdd(remotePoint, client);
                 Interlocked.Increment(ref ignoranceNumber);
-                client.revdDataBeProcessed = RevdDataBeProcesseds[threadNum];
-                client.sendDataBeProcessed = SendDataBeProcesseds[threadNum];
-                if (++threadNum >= RevdDataBeProcesseds.Count)
+                client.revdQueue = RevdQueues[threadNum];
+                client.sendQueue = SendQueues[threadNum];
+                if (++threadNum >= RevdQueues.Count)
                     threadNum = 0;
             }
-            client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, index = 28, count = count, tcp_udp = tcp_udp });
+            client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, index = 28, count = count, tcp_udp = tcp_udp });
         }
 
         protected override bool IsInternalCommand(Player client, RPCModel model)

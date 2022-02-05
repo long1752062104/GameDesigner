@@ -1453,7 +1453,6 @@
         /// <summary>
         /// 反序列化
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="segment"></param>
         /// <param name="recordType"></param>
         /// <param name="ignore">忽略不使用<see cref="AddBaseType"/>方法也会被序列化</param>

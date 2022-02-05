@@ -101,20 +101,12 @@
         {
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
-            StartThread("CheckRpcHandle", CheckRpcHandle);
+            ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
             ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
             ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
                 ThreadManager.Invoke("UpdateHandle", UpdateHandler);
-#if UNITY_ANDROID
-            InvokeContext((arg) => {
-                var randomName = RandomHelper.Range(0, int.MaxValue);
-                fileStreamName = UnityEngine.Application.persistentDataPath + "/rtTemp" + randomName + ".tmp";
-            });
-#else
-            fileStreamName = global::System.IO.Path.GetTempFileName();
-#endif
         }
 
         protected void ProcessReceive(UDXEVENT_TYPE type, int erro, IntPtr cli, IntPtr pData, int len)//cb回调
@@ -202,6 +194,7 @@
             sendRTList.Clear();
             revdRTList.Clear();
             StackStream?.Close();
+            StackStream = null;
             stack = 0;
             if (Instance == this)
                 Instance = null;

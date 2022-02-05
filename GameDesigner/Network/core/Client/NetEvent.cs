@@ -56,8 +56,6 @@ namespace Net.Client
         /// </summary>
         /// <param name="mono"></param>
         /// <param name="milliseconds"></param>
-        /// <param name="updateAct"></param>
-        /// <param name="endAct"></param>
         public static void AddCoroutineEvent(MonoBehaviour mono, int milliseconds, Action act)
         {
             mono.StartCoroutine(WaitHandle(milliseconds, () => { }, act));
@@ -126,9 +124,7 @@ namespace Net.Client
         /// 添加携程事件
         /// </summary>
         /// <param name="mono"></param>
-        /// <param name="milliseconds"></param>
         /// <param name="updateAct"></param>
-        /// <param name="endAct"></param>
         public static void AddCoroutineEvent(MonoBehaviour mono, Func<bool> updateAct)
         {
             mono.StartCoroutine(WaitHandle(updateAct));
@@ -148,9 +144,7 @@ namespace Net.Client
         /// 添加携程事件
         /// </summary>
         /// <param name="mono"></param>
-        /// <param name="milliseconds"></param>
         /// <param name="updateAct"></param>
-        /// <param name="endAct"></param>
         public static void AddCoroutineEvent(MonoBehaviour mono, Func<object, bool> updateAct, object obj)
         {
             mono.StartCoroutine(WaitHandle(updateAct, obj));
@@ -160,9 +154,7 @@ namespace Net.Client
         /// 添加携程事件
         /// </summary>
         /// <param name="mono"></param>
-        /// <param name="milliseconds"></param>
         /// <param name="updateAct"></param>
-        /// <param name="endAct"></param>
         public static void AddCoroutineEvent<T>(MonoBehaviour mono, Func<T, bool> updateAct, T obj)
         {
             mono.StartCoroutine(WaitHandle(updateAct, obj));

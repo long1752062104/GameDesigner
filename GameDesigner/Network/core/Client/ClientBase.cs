@@ -299,14 +299,14 @@ namespace Net.Client
         /// 可靠传输最大值
         /// </summary>
         protected int sendRTListCount;
-        /// <summary>
-        /// 可靠传输流文件名称
-        /// </summary>
-        protected string fileStreamName;
+        ///// <summary>
+        ///// 可靠传输流文件名称
+        ///// </summary>
+        ////protected string fileStreamName;
         /// <summary>
         /// 可靠传输文件流对象
         /// </summary>
-        protected FileStream revdRTStream;
+        protected BufferStream revdRTStream;
         /// <summary>
         /// 帧尾或叫数据长度(4) + 2CRC协议 = 6
         /// </summary>
@@ -335,13 +335,9 @@ namespace Net.Client
         [Obsolete("已弃用, 发送频率固定为1ms!", false)]
         public int SyncFrequency { get; set; } = 1;
         /// <summary>
-        /// 在多线程调用unity主线程的上下文对象
-        /// </summary>
-        public SynchronizationContext Context { get; protected set; }
-        /// <summary>
         /// 同步线程上下文任务队列
         /// </summary>
-        public QueueSafe<SendOrPostCallback> workQueue = new QueueSafe<SendOrPostCallback>();
+        public QueueSafe<SendOrPostCallback> workerQueue = new QueueSafe<SendOrPostCallback>();
         /// <summary>
         /// 允许叠包缓冲器最大值 默认可发送5242880(5M)的数据包
         /// </summary>
@@ -354,13 +350,13 @@ namespace Net.Client
         /// TCP叠包值， 0:正常 >1:叠包次数 > StackNumberMax :清空叠包缓存流
         /// </summary>
         protected int stack;
-        internal string stackStreamName;
+        //internal string stackStreamName;
         internal int stackIndex;
         internal int stackCount;
         /// <summary>
         /// TCP叠包临时缓存流
         /// </summary>
-        protected FileStream StackStream { get; set; }
+        protected BufferStream StackStream { get; set; }
         /// <summary>
         /// 在多线程中调用OperationSync事件?
         /// </summary>
@@ -425,8 +421,6 @@ namespace Net.Client
         /// 组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
         /// </summary>
         public int PackageLength { get; set; } = 1000;
-
-        internal string persistentDataPath;
         private readonly MyDictionary<uint, FrameList> revdFrames = new MyDictionary<uint, FrameList>();
         private long fileStreamCurrPos;
         private readonly MyDictionary<ushort, SyncVarInfo> syncVarDic = new MyDictionary<ushort, SyncVarInfo>();
@@ -708,14 +702,6 @@ namespace Net.Client
         }
 
         /// <summary>
-        /// 开启心跳线程
-        /// </summary>
-        //public void StartHeartHandle()
-        //{
-        //    StartThread("HeartHandle", HeartHandle);
-        //}
-
-        /// <summary>
         /// 开启线程
         /// </summary>
         /// <param name="threadKey">线程名称</param>
@@ -777,10 +763,10 @@ namespace Net.Client
         /// </summary>
         public void NetworkEventUpdate()
         {
-            int count = workQueue.Count;
+            int count = workerQueue.Count;
             for (int i = 0; i < count; i++)
             {
-                if (workQueue.TryDequeue(out SendOrPostCallback callback))
+                if (workerQueue.TryDequeue(out SendOrPostCallback callback))
                 {
                     callback(null);
                 }
@@ -931,8 +917,6 @@ namespace Net.Client
             networkState = NetworkState.Connection;
             if (Instance == null)
                 Instance = this;
-            if (Context == null)
-                Context = SynchronizationContext.Current;
             if (OnAddRpcHandle == null) OnAddRpcHandle = AddRpcInternal;
             if (OnRPCExecute == null) OnRPCExecute = AddRpcBuffer;
             if (OnRemoveRpc == null) OnRemoveRpc = RemoveRpcInternal;
@@ -941,11 +925,6 @@ namespace Net.Client
             if (OnSerializeOPT == null) OnSerializeOPT = OnSerializeOptInternal;
             if (OnDeserializeOPT == null) OnDeserializeOPT = OnDeserializeOptInternal;
             AddRpcHandle(this, false);
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
-            persistentDataPath = UnityEngine.Application.persistentDataPath;
-#else
-            persistentDataPath = AppDomain.CurrentDomain.BaseDirectory;
-#endif
             if (Client == null) //如果套接字为空则说明没有连接上服务器
             {
                 this.host = host;
@@ -1054,9 +1033,7 @@ namespace Net.Client
 
         protected void InvokeContext(SendOrPostCallback action, object arg = null)
         {
-            if (Context != null)
-                workQueue.Enqueue(action);
-            else action(arg);
+            workerQueue.Enqueue(action);
         }
 
         /// <summary>
@@ -1080,8 +1057,6 @@ namespace Net.Client
             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 5000);
             bool isDone = false;
-            if (Context == null)
-                Context = SynchronizationContext.Current;
             Task.Run(() =>
             {
                 while (!isDone)
@@ -1126,20 +1101,12 @@ namespace Net.Client
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
-            StartThread("CheckRpcHandle", CheckRpcHandle);
+            ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
             ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
             ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
                 ThreadManager.Invoke("UpdateHandle", UpdateHandler);
-#if UNITY_ANDROID
-            InvokeContext((arg)=> {
-                var randomName = RandomHelper.Range(0, int.MaxValue);
-                fileStreamName = UnityEngine.Application.persistentDataPath + "/rtTemp" + randomName + ".tmp";
-            });
-#else
-            fileStreamName = Path.GetTempFileName();
-#endif
         }
 
         /// <summary>
@@ -1198,37 +1165,38 @@ namespace Net.Client
             return Connected;
         }
 
-        /// <summary>
-        /// rpc检查处理线程
-        /// </summary>
-        protected void CheckRpcHandle()
+        private FieldInfo[] fieldEvents;
+
+        protected void InitFieldEvents()
         {
             Type type = typeof(ClientBase);
             var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
             var fields1 = new List<FieldInfo>();
             for (int i = 0; i < fields.Length; i++)
-            {
                 if (fields[i].FieldType.IsSubclassOf(typeof(Delegate)))
                     fields1.Add(fields[i]);
-            }
-            fields = fields1.ToArray();
-            fields1.Clear();
-            fields1 = null;
-            while (Connected)
+            fieldEvents = fields1.ToArray();
+        }
+
+        /// <summary>
+        /// rpc检查处理线程
+        /// </summary>
+        protected bool CheckRpcHandle()
+        {
+            try
             {
-                try
-                {
-                    Thread.Sleep(1);
-                    CheckEventsUpdate(fields);
-                    if (OnCheckRpcUpdate == null)
-                        OnCheckRpcUpdate = CheckRpcUpdate;
-                    OnCheckRpcUpdate();
-                }
-                catch (Exception e)
-                {
-                    NDebug.LogError(e);
-                }
+                if (fieldEvents == null)
+                    InitFieldEvents();
+                CheckEventsUpdate(fieldEvents);
+                if (OnCheckRpcUpdate == null)
+                    OnCheckRpcUpdate = CheckRpcUpdate;
+                OnCheckRpcUpdate();
             }
+            catch (Exception ex)
+            {
+                NDebug.LogError(ex);
+            }
+            return Connected;
         }
 
         //检查rpc函数
@@ -1354,24 +1322,13 @@ namespace Net.Client
 
         protected internal virtual byte[] OnSerializeOptInternal(OperationList list)
         {
-            var segment = BufferPool.Take();
-            using (MemoryStream stream = new MemoryStream(segment))
-            {
-                stream.SetLength(0);
-                ProtoBuf.Serializer.Serialize(stream, list);
-                var buffer = stream.ToArray();
-                BufferPool.Push(segment);
-                return buffer;
-            }
+            return NetConvertFast2.SerializeObject(list).ToArray(true);
         }
 
         protected internal virtual OperationList OnDeserializeOptInternal(byte[] buffer, int index, int count)
         {
-            using (MemoryStream stream = new MemoryStream(buffer, index, count))
-            {
-                OperationList list = ProtoBuf.Serializer.Deserialize<OperationList>(stream);
-                return list;
-            }
+            Segment segment = new Segment(buffer, index, count, false);
+            return NetConvertFast2.DeserializeObject<OperationList>(segment);
         }
 
         /// <summary>
@@ -1845,10 +1802,10 @@ namespace Net.Client
                         return;
                     }
                     if (revdRTStream == null)
-                        revdRTStream = new FileStream(fileStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    if (!revdFrames.ContainsKey(frame))
+                        revdRTStream = BufferStreamPool.Take();
+                    if (!revdFrames.TryGetValue(frame, out var revdFrame))
                     {
-                        revdFrames.Add(frame, new FrameList(entry)
+                        revdFrames.Add(frame, revdFrame = new FrameList(entry)
                         {
                             streamPos = fileStreamCurrPos,
                             frameLen = entry,
@@ -1856,10 +1813,9 @@ namespace Net.Client
                             dataCount = dataCount
                         });
                         fileStreamCurrPos += dataCount;
-                        if (fileStreamCurrPos > (1024 * 1024 * 1024))//如果文件大于1g, 则从0开始记录
+                        if (fileStreamCurrPos >= revdRTStream.Length)//如果文件大于总长度, 则从0开始记录
                             fileStreamCurrPos = 0;
                     }
-                    FrameList revdFrame = revdFrames[frame];
                     if (revdFrame.Add(index))
                     {
                         revdRTStream.Seek(revdFrame.streamPos + (index * MTU), SeekOrigin.Begin);
@@ -1869,13 +1825,11 @@ namespace Net.Client
                     Buffer.BlockCopy(BitConverter.GetBytes(frame), 0, rtbuffer, 0, 4);
                     Buffer.BlockCopy(BitConverter.GetBytes(index), 0, rtbuffer, 4, 2);
                     Send(NetCmd.ReliableCallback, rtbuffer);
-                    if (revdFrames.ContainsKey(revdReliableFrame))//排序执行
-                        revdFrame = revdFrames[revdReliableFrame];
-                    else //让客户端发送revdReliableFrame帧的所有帧数据
+                    if (!revdFrames.TryGetValue(revdReliableFrame, out revdFrame))//排序执行
                     {
                         rtbuffer = new byte[4];
                         Buffer.BlockCopy(BitConverter.GetBytes(revdReliableFrame), 0, rtbuffer, 0, 4);
-                        Send(NetCmd.TakeFrameList, rtbuffer);
+                        Send(NetCmd.TakeFrameList, rtbuffer);//让客户端发送revdReliableFrame帧的所有帧数据
                         return;
                     }
                     while (revdFrame.Count >= revdFrame.frameLen)
@@ -2254,9 +2208,10 @@ namespace Net.Client
             revdRTList.Clear();
             rtRPCModels = new QueueSafe<RPCModel>();
             rPCModels = new QueueSafe<RPCModel>();
-            if (File.Exists(stackStreamName) & !string.IsNullOrEmpty(stackStreamName))
-                File.Delete(stackStreamName);
-            stackStreamName = "";
+            StackStream?.Close();
+            StackStream = null;
+            revdRTStream?.Close();
+            revdRTStream = null;
             if (Instance == this)
                 Instance = null;
             sendReliableFrame = 0;
@@ -2404,7 +2359,7 @@ namespace Net.Client
         /// <param name="pars">远程参数</param>
         public virtual void Send(byte cmd, string func, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, params object[] pars)
         {
-            Send(cmd, func, funcCB, callback, millisecondsDelay, outTimeAct, Context, pars);
+            Send(cmd, func, funcCB, callback, millisecondsDelay, outTimeAct, SynchronizationContext.Current, pars);
         }
 
         /// <summary>
@@ -2608,7 +2563,7 @@ namespace Net.Client
         /// <param name="pars">远程参数</param>
         public virtual void SendRT(byte cmd, string func, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, params object[] pars)
         {
-            SendRT(cmd, func, funcCB, callback, millisecondsDelay, outTimeAct, Context, pars);
+            SendRT(cmd, func, funcCB, callback, millisecondsDelay, outTimeAct, SynchronizationContext.Current, pars);
         }
 
         /// <summary>
@@ -2678,7 +2633,7 @@ namespace Net.Client
         /// <param name="pars">远程参数</param>
         public virtual void SendRT(byte cmd, ushort func, ushort funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, params object[] pars)
         {
-            SendRT(cmd, func, funcCB, callback, millisecondsDelay, outTimeAct, Context, pars);
+            SendRT(cmd, func, funcCB, callback, millisecondsDelay, outTimeAct, SynchronizationContext.Current, pars);
         }
 
         public virtual void SendRT(byte cmd, ushort func, ushort funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, SynchronizationContext context, params object[] pars)

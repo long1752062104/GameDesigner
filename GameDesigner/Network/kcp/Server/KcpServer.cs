@@ -67,7 +67,7 @@
                 exceededNumber = 0;
                 blockConnection = 0;
                 UserIDStack.TryPop(out int uid);
-                client = ObjectPool<Player>.Take();
+                client = new Player();
                 client.UserID = uid;
                 client.PlayerID = uid.ToString();
                 client.RemotePoint = remotePoint;
@@ -83,9 +83,9 @@
                 OnHasConnectHandle(client);
                 AllClients.TryAdd(remotePoint, client);
                 Interlocked.Increment(ref ignoranceNumber);
-                client.revdDataBeProcessed = RevdDataBeProcesseds[threadNum];
-                client.sendDataBeProcessed = SendDataBeProcesseds[threadNum];
-                if (++threadNum >= RevdDataBeProcesseds.Count)
+                client.revdQueue = RevdQueues[threadNum];
+                client.sendQueue = SendQueues[threadNum];
+                if (++threadNum >= RevdQueues.Count)
                     threadNum = 0;
             }
             fixed (byte* p = &buffer.Buffer[0])
@@ -100,7 +100,7 @@
                 fixed (byte* p1 = &buffer1.Buffer[0])
                 {
                     ikcp_recv(client.Kcp, p1, len);
-                    client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer1, count = len, tcp_udp = false });
+                    client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer1, count = len, tcp_udp = false });
                 }
             }
             client.heart = 0;

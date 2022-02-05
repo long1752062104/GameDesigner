@@ -2,15 +2,12 @@
 {
     using Net.Share;
     using global::System;
-    using global::System.Collections.Concurrent;
     using global::System.Collections.Generic;
     using global::System.IO;
-    using global::System.Linq;
     using global::System.Net;
     using global::System.Net.Sockets;
     using global::System.Text;
     using global::System.Threading;
-    using global::System.Threading.Tasks;
     using Debug = Event.NDebug;
     using Net.System;
 
@@ -92,13 +89,13 @@
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             for (int i = 0; i < MaxThread; i++)
             {
-                QueueSafe<RevdDataBuffer> revdDataBeProcessed = new QueueSafe<RevdDataBuffer>();
-                RevdDataBeProcesseds.Add(revdDataBeProcessed);
+                QueueSafe<RevdDataBuffer> revdQueue = new QueueSafe<RevdDataBuffer>();
+                RevdQueues.Add(revdQueue);
                 Thread revd = new Thread(RevdDataHandle) { IsBackground = true, Name = "RevdDataHandle" + i };
-                revd.Start(revdDataBeProcessed);
+                revd.Start(revdQueue);
                 threads.Add("RevdDataHandle" + i, revd);
                 QueueSafe<SendDataBuffer> sendDataBeProcessed = new QueueSafe<SendDataBuffer>();
-                SendDataBeProcesseds.Add(sendDataBeProcessed);
+                SendQueues.Add(sendDataBeProcessed);
                 Thread proSend = new Thread(ProcessSend) { IsBackground = true, Name = "ProcessSend" + i };
                 proSend.Start(sendDataBeProcessed);
                 threads.Add("ProcessSend" + i, proSend);
@@ -156,15 +153,14 @@
                         args1.Completed += OnTCPIOCompleted;
                         args1.SetBuffer(new byte[65507], 0, 65507);
                         args1.UserToken = client;
-                        Player unClient = ObjectPool<Player>.Take();
+                        Player unClient = new Player();
                         unClient.Client = client;
                         unClient.LastTime = DateTime.Now.AddMinutes(5);
                         unClient.TcpRemoteEndPoint = client.RemoteEndPoint;
                         UserIDStack.TryPop(out int uid);
                         unClient.UserID = uid;
                         unClient.PlayerID = uid.ToString();
-                        unClient.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
-                        unClient.stackStream = new FileStream(unClient.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                        unClient.stackStream = BufferStreamPool.Take();
                         unClient.isDispose = false;
                         unClient.CloseSend = false;
                         Interlocked.Increment(ref ignoranceNumber);
@@ -177,9 +173,9 @@
                         Array.Copy(uidbytes, 0, buffer, 0, 4);
                         Array.Copy(identify, 0, buffer, 4, identify.Length);
                         SendRT(unClient, NetCmd.Identify, buffer);
-                        unClient.revdDataBeProcessed = RevdDataBeProcesseds[threadNum];
-                        unClient.sendDataBeProcessed = SendDataBeProcesseds[threadNum];
-                        if (++threadNum >= RevdDataBeProcesseds.Count)
+                        unClient.revdQueue = RevdQueues[threadNum];
+                        unClient.sendQueue = SendQueues[threadNum];
+                        if (++threadNum >= RevdQueues.Count)
                             threadNum = 0;
                         willRaiseEvent = client.ReceiveAsync(args1);
                     }
@@ -208,7 +204,7 @@
                         receiveAmount++;
                         EndPoint remotePoint = client.RemoteEndPoint;
                         if (AllClients.TryGetValue(remotePoint, out Player client1))//在线客户端  得到client对象
-                            client1.revdDataBeProcessed.Enqueue(new RevdDataBuffer(client1, buffer, 0, count, true));
+                            client1.revdQueue.Enqueue(new RevdDataBuffer(client1, buffer, 0, count, true));
                         if (!client.ReceiveAsync(args))
                             goto RevdData;
                     }
@@ -218,13 +214,13 @@
 
         protected override void RevdDataHandle(object state)
         {
-            QueueSafe<RevdDataBuffer> RevdDataBeProcessed = state as QueueSafe<RevdDataBuffer>;
+            var revdQueue = state as QueueSafe<RevdDataBuffer>;
             while (IsRunServer)
             {
                 try
                 {
                     revdLoopNum++;
-                    int count = RevdDataBeProcessed.Count;
+                    int count = revdQueue.Count;
                     if (count <= 0)
                     {
                         Thread.Sleep(1);
@@ -232,7 +228,7 @@
                     }
                     for (int i = 0; i < count; i++)
                     {
-                        if (RevdDataBeProcessed.TryDequeue(out RevdDataBuffer revdData))
+                        if (revdQueue.TryDequeue(out RevdDataBuffer revdData))
                         {
                             DataHandle(revdData.client as Player, revdData.buffer, revdData.index, revdData.count, revdData.tcp_udp);
                             BufferPool.Push(revdData.buffer);
@@ -263,11 +259,11 @@
             }
             else
             {
-                BufferHandle(client, buffer, index, count);
+                BufferHandle(client, ref buffer, index, count);
             }
         }
 
-        private void BufferHandle(Player client, Segment buffer, int index, int count)
+        private void BufferHandle(Player client, ref Segment buffer, int index, int count)
         {
             client.heart = 0;
             if (client.stack > StackNumberMax)//不能一直叠包
@@ -291,7 +287,8 @@
                 }
                 index = 0;
                 count = (int)client.stackStream.Position;//.Length; //错误问题,不能用length, 这是文件总长度, 之前可能已经有很大一波数据
-                buffer = BufferPool.Take(count);
+                BufferPool.Push(buffer);//要回收掉, 否则会提示内存泄露
+                buffer = BufferPool.Take(count);//ref 才不会导致提示内存泄露
                 client.stackStream.Seek(0, SeekOrigin.Begin);
                 client.stackStream.Read(buffer, 0, count);
             }
@@ -371,7 +368,7 @@
                             EndPoint remotePoint = args.RemoteEndPoint;
                             int uid = BitConverter.ToInt32(buffer, 6);
                             if (UIDClients.TryGetValue(uid, out Player client))//在线客户端  得到client对象
-                                client.revdDataBeProcessed.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, count = count, tcp_udp = false });
+                                client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, count = count, tcp_udp = false });
                         }
                     }
                     catch (Exception ex)
@@ -441,24 +438,24 @@
 
         protected override void SendByteData(Player client, byte[] buffer, bool reliable)
         {
-            if (client.sendDataBeProcessed.Count >= 268435456)//最大只能处理每秒256m数据
+            if (client.sendQueue.Count >= 268435456)//最大只能处理每秒256m数据
             {
                 Debug.LogError("发送缓冲列表已经超出限制!");
                 return;
             }
             if (buffer.Length == frame)//解决长度==6的问题(没有数据)
                 return;
-            client.sendDataBeProcessed.Enqueue(new SendDataBuffer(client, buffer, reliable));
+            client.sendQueue.Enqueue(new SendDataBuffer(client, buffer, reliable));
         }
 
         protected override void ProcessSend(object state)
         {
-            QueueSafe<SendDataBuffer> SendDataBeProcessed = state as QueueSafe<SendDataBuffer>;
+            var sendQueue = state as QueueSafe<SendDataBuffer>;
             while (IsRunServer)
             {
                 try
                 {
-                    int count = SendDataBeProcessed.Count;
+                    int count = sendQueue.Count;
                     if (count <= 0)
                     {
                         Thread.Sleep(1);
@@ -466,7 +463,7 @@
                     }
                     for (int i = 0; i < count; i++)
                     {
-                        if (SendDataBeProcessed.TryDequeue(out SendDataBuffer sendData))
+                        if (sendQueue.TryDequeue(out SendDataBuffer sendData))
                         {
                             Player client = sendData.client as Player;
                             if (!client.Client.Connected)

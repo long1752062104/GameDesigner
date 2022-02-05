@@ -98,22 +98,12 @@ namespace Net.Client
         {
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
-            StartThread("CheckRpcHandle", CheckRpcHandle);
+            ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
             ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
             ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
                 ThreadManager.Invoke("UpdateHandle", UpdateHandler);
-#if UNITY_ANDROID
-            if (Context == null)
-                return;
-            Context.Post(new SendOrPostCallback((o)=> {
-                var randomName = RandomHelper.Range(0, int.MaxValue);
-                fileStreamName = UnityEngine.Application.persistentDataPath + "/rtTemp" + randomName + ".tmp";
-            }),null);
-#else
-            fileStreamName = Path.GetTempFileName();
-#endif
         }
 
         internal void ResolveBuffer(IByteBuffer buffer)
