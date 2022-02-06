@@ -25,6 +25,10 @@
         /// </summary>
         public EndPoint RemotePoint { get; set; }
         /// <summary>
+        /// IOCP异步套接字
+        /// </summary>
+        public SocketAsyncEventArgs SocketAsync { get; set; }
+        /// <summary>
         /// 此玩家所在的场景ID
         /// </summary>
         public string SceneID { get; set; } = string.Empty;
@@ -170,6 +174,12 @@
             udpRPCModels = new QueueSafe<RPCModel>();//为了下次登录不出错,所以下线要清除在线时的发送数据
             Login = false;
             addressBuffer = null;
+            if (SocketAsync != null)
+            {
+                SocketAsync.SetBuffer(null, 0, 0);
+                SocketAsync.Dispose();
+            }
+            SocketAsync = null;
         }
         #endregion
 

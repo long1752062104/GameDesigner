@@ -1760,7 +1760,8 @@ namespace Net.Server
                     {
                         Debug.Log($"赖在服务器的客户端:{client.Key}被强制下线!");
                         client.Value.RemotePoint = client.Key;//解决key偶尔不对导致一直移除不了问题
-                        goto J;
+                        RemoveClient(client.Value);
+                        continue;
                     }
                 }
                 if (client.Value.heart <= HeartLimit)//有5次确认心跳包
@@ -1770,7 +1771,6 @@ namespace Net.Server
                     Send(client.Value, NetCmd.SendHeartbeat, new byte[0]);
                     continue;
                 }
-            J: RemoveClient(client.Value);
             }
         }
 

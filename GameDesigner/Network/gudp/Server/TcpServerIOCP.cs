@@ -137,6 +137,7 @@
                         unClient.stackStream = BufferStreamPool.Take();
                         unClient.isDispose = false;
                         unClient.CloseSend = false;
+                        unClient.SocketAsync = args1;
                         Interlocked.Increment(ref ignoranceNumber);
                         AllClients.TryAdd(client.RemoteEndPoint, unClient);
                         OnHasConnectHandle(unClient);
@@ -367,13 +368,18 @@
                         Debug.Log($"赖在服务器的客户端:{client.Key}被强制下线!");
                         client.Value.TcpRemoteEndPoint = client.Key;//解决key偶尔不对导致一直移除不了问题
                         RemoveClient(client.Value);
-                        break;
+                        continue;
                     }
                 }
                 if (client.Value.heart <= HeartLimit)//有5次确认心跳包
                     continue;
                 SendRT(client.Value, NetCmd.SendHeartbeat, new byte[0]);//保活连接状态
             }
+        }
+
+        public override void RemoveClient(Player client)
+        {
+            base.RemoveClient(client);
         }
 
         public override void Close()

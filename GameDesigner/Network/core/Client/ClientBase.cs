@@ -2195,7 +2195,7 @@ namespace Net.Client
         /// <param name="millisecondsTimeout">等待毫秒数</param>
         public virtual void Close(bool await = true, int millisecondsTimeout = 1000)
         {
-            if (NetworkState != NetworkState.ConnectClosed)
+            if (NetworkState != NetworkState.ConnectClosed & NetworkState == NetworkState.Connection)
                 Client?.Send(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.QuitGame, 0, 0, 0, 0 });
             Connected = false;
             openClient = false;

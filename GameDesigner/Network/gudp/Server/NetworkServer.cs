@@ -163,6 +163,7 @@
                         unClient.stackStream = BufferStreamPool.Take();
                         unClient.isDispose = false;
                         unClient.CloseSend = false;
+                        unClient.SocketAsync = args1;
                         Interlocked.Increment(ref ignoranceNumber);
                         AllClients.TryAdd(remoteEndPoint, unClient);
                         UIDClients.TryAdd(uid, unClient);
@@ -510,7 +511,6 @@
                     Debug.Log($"赖在服务器的客户端:{client.Key}被强制下线!");
                     client.Value.TcpRemoteEndPoint = client.Key;//解决key偶尔不对导致一直移除不了问题
                     RemoveClient(client.Value);
-                    break;
                 }
             }
         }

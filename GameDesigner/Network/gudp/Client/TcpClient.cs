@@ -230,7 +230,7 @@
                         client.Connect(ip, port);
                     } catch (Exception ex) {
                         NDebug.LogError(ex);
-                        break;
+                        return;
                     }
                     clients.Add(client);
                 }
@@ -274,8 +274,8 @@
                                         client.ResolveBuffer(buffer1, 0, count, false);
                                         BufferPool.Push(buffer1);
                                     }
-                                    //client.Send(NetCmd.Local, buffer);
-                                    client.SendRT("Register", RandomHelper.Range(10000,9999999).ToString(), "123");
+                                    client.Send(NetCmd.Local, buffer);
+                                    //client.SendRT("Register", RandomHelper.Range(10000,9999999).ToString(), "123");
                                     client.SendDirect();
                                 }
                                 catch (Exception ex)
