@@ -145,3 +145,11 @@ D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\ExampleServe
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\obj\Debug\ExampleServer.csproj.CopyComplete
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\WebSocket4Net.dll
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\SuperSocket.ClientEngine.dll
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\EntityFramework.dll
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\EntityFramework.SqlServer.dll
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Data.SQLite.dll
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Data.SQLite.EF6.dll
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Data.SQLite.Linq.dll
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\EntityFramework.xml
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\EntityFramework.SqlServer.xml
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Data.SQLite.xml

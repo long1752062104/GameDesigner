@@ -8,34 +8,19 @@ using System.Threading;
 
 namespace Example2
 {
-    public class PlayerData : ISerializableData
-    {
-        public string UIDKey { get; set; }
-        public string account { get => UIDKey; set => UIDKey = value; }
-        public long StreamPosition { get; set; }
-        public DataRow Row { get; set; }
-
-        public string password;
-        public float moveSpeed = 5f;
-        public Vector3 position;
-        public Quaternion rotation;
-        public float health = 100;
-        public float healthMax = 100;
-    }
-
     /// <summary>
     /// 服务器玩家组件, 这个组件处理 玩家移动操作, 后面增加攻击操作, 碰撞操作....
     /// </summary>
     public class Player : WebPlayer, ISendHandle
     {
-        public PlayerData data = new PlayerData();
+        public UserinfoData data;
         internal NTransform transform = new NTransform();
         internal bool isDead;
         internal Scene scene;
 
         public override void OnEnter()
         {
-            data.health = 100;
+            data.Health = 100;
             isDead = false;
             scene = Scene as Scene;
         }
@@ -43,7 +28,7 @@ namespace Example2
         public override void OnUpdate()
         {
             scene.AddOperation(new Operation(Command.PlayerState, UserID) {
-               index1 = (int)data.health
+               index1 = (int)data.Health
             });
         }
 
@@ -51,17 +36,17 @@ namespace Example2
         {
             if (isDead)
                 return;
-            data.health -= damage;
-            if (data.health <= 0)
+            data.Health -= damage;
+            if (data.Health <= 0)
             {
                 isDead = true;
-                data.health = 0;
+                data.Health = 0;
             }
         }
 
         public void Resurrection()
         {
-            data.health = data.healthMax;
+            data.Health = data.HealthMax;
             isDead = false;
         }
 

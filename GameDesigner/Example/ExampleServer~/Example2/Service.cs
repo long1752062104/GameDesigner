@@ -17,8 +17,6 @@
         /// </summary>
         protected override void OnStarting()
         {
-            DBComponent.Instance.Load().Wait();
-            NDebug.Log("数据库加载完成!");
             SetHeartTime(5, 300);//我们设置心跳检测时间, 时间越小检测越快, 跳检测时间也不能太小, 太小会直接判断为离线状态
         }
 
@@ -100,17 +98,19 @@
         /// </summary>
         private void Register(Player unClient, string acc, string pwd)
         {
-            if (DBComponent.Instance.HasAccout(acc))
+            Example2DB.I.Invoke(()=>
             {
-                SendRT(unClient, "RegisterCallback", "账号已经存在!");
-                return;
-            }
-            Player p = new Player();
-            p.PlayerID = acc;
-            p.data.account = acc;
-            p.data.password = pwd;
-            DBComponent.Instance.AddPlayerAndSave(p.data);
-            SendRT(unClient, "RegisterCallback", "注册成功！");
+                if (Example2DB.I.UserinfoDatas.TryGetValue(acc, out var data))
+                {
+                    SendRT(unClient, "RegisterCallback", "账号已经存在!");
+                    return;
+                }
+                data = new UserinfoData();
+                data.Row = Example2DB.I.AccountNewRow(Example2DB.I.UserinfoTable.Rows.Count + 1, acc, pwd, null, null, null, 100, 100);
+                data.Init(data.Row);
+                Example2DB.I.UserinfoDatas.TryAdd(acc, data);
+                SendRT(unClient, "RegisterCallback", "注册成功！");
+            });
         }
 
         /// <summary>
@@ -120,13 +120,12 @@
         [Rpc(NetCmd.SafeCall)]
         private bool Login(Player unClient, string acc, string pwd)
         {
-            if (!DBComponent.Instance.HasAccout(acc))
+            if (!Example2DB.I.UserinfoDatas.TryGetValue(acc, out var data))
             {
                 SendRT(unClient, "LoginCallback", false, "账号或密码错误!");
                 return false;
             }
-            PlayerData data = DBComponent.Instance[acc];
-            if (data.password != pwd)
+            if (data.Password != pwd)
             {
                 SendRT(unClient, "LoginCallback", false, "账号或密码错误!");
                 return false;

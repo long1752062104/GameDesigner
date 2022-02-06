@@ -19,4 +19,7 @@ UnityEngine.CoreModule.dll需要到unity的安装路径下找到, 可以使用�
 
 序列化重要提示: 序列化网络类型必须在主工程定义, 什么热更网络类型? 热更新时必须新下载主工程apk替换旧的, 由于主工程的apk大小也不是很大, 所以是可以这样更新的
 
-7.如果要编译exe, apk 必须设置GameInit组件的dllpath字段为StreamingAssets模式加载, 前面的路径都不需要, 只填: hotfix.dll 即可
+7.如果要编译exe, apk 必须设置GameInit组件的dllpath字段为StreamingAssets模式加载, 前面的路径都不需要, 只填: hotfix.dll 即可, 然后找到Hotfix.dll放到编译好的exe程序目录的StreamingAssets文件夹里面, 安卓的需要放到persistentDataPath路径
+
+8.服务器数据库采用了SQLite数据库, 方便新手直接下载gdnet项目后即可运行查看结果, 如果熟悉gdnet后, 你需要更换Mysql数据库, gdnet提供了一个生成SQLite, MySql的列表转类工具, 并且能自动与数据库更新
+工具地址:https://gitee.com/leng_yue/my-sql-data-build

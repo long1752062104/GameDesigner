@@ -2868,12 +2868,7 @@
             网络数据发送频率, 大概每秒发送1000个数据
             </summary>
         </member>
-        <member name="P:Net.Client.ClientBase.Context">
-            <summary>
-            在多线程调用unity主线程的上下文对象
-            </summary>
-        </member>
-        <member name="F:Net.Client.ClientBase.workQueue">
+        <member name="F:Net.Client.ClientBase.workerQueue">
             <summary>
             同步线程上下文任务队列
             </summary>
@@ -4123,188 +4118,6 @@
             <param name="obj"></param>
             <returns></returns>
         </member>
-        <member name="T:Net.Server.ISerializableData">
-            <summary>
-            序列化数据接口, 需要序列化的主类要继承此接口
-            </summary>
-        </member>
-        <member name="P:Net.Server.ISerializableData.UIDKey">
-            <summary>
-            用户标识, 记录玩家键值对, 可以以账号来记录或玩家名称来记录等等
-            </summary>
-        </member>
-        <member name="P:Net.Server.ISerializableData.StreamPosition">
-            <summary>
-            记录数据存储在文件内部的位置索引 (内部自动赋值,不要修改其值)
-            </summary>
-        </member>
-        <member name="P:Net.Server.ISerializableData.Row">
-            <summary>
-            每个玩家的数据在mysql,sqlserver数据库的数据行
-            </summary>
-        </member>
-        <member name="T:Net.Server.DataBase`1">
-            <summary>
-            服务器运行时数据库 19.10.4
-            可以重写此类的一些Save和AddPlayer方法转接到mySql数据库
-            </summary>
-        </member>
-        <member name="T:Net.Server.DataBase`2">
-            <summary>
-            服务器运行时数据库 19.10.4
-            可以重写此类的一些Save和AddPlayer方法转接到mySql数据库
-            </summary>
-        </member>
-        <member name="F:Net.Server.DataBase`2.Instance">
-            <summary>
-            数据库单例
-            </summary>
-        </member>
-        <member name="P:Net.Server.DataBase`2.DataSize">
-            <summary>
-            单个玩家可以存储的数据大小
-            </summary>
-        </member>
-        <member name="P:Net.Server.DataBase`2.StreamPosition">
-            <summary>
-            当前的流位置
-            </summary>
-        </member>
-        <member name="F:Net.Server.DataBase`2.rootPath">
-            <summary>
-            当前程序工作路径, 数据库保存路径
-            </summary>
-        </member>
-        <member name="F:Net.Server.DataBase`2.DataPath">
-            <summary>
-            玩家数据保存路径
-            </summary>
-        </member>
-        <member name="F:Net.Server.DataBase`2.PlayerInfos">
-            <summary>
-            所有玩家信息
-            </summary>
-        </member>
-        <member name="F:Net.Server.DataBase`2.Table">
-            <summary>
-            数据表, 接入mysql, sqlserver数据库后可以批量处理数据库
-            </summary>
-        </member>
-        <member name="P:Net.Server.DataBase`2.Item(System.String)">
-            <summary>
-            直接读取数据库玩家对象
-            </summary>
-            <param name="playerID"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Server.DataBase`2.Players">
-            <summary>
-            获得所有玩家帐号数据
-            </summary>
-        </member>
-        <member name="M:Net.Server.DataBase`2.Load">
-            <summary>
-            加载数据库信息
-            </summary>
-        </member>
-        <member name="M:Net.Server.DataBase`2.Load(System.Action{`1})">
-            <summary>
-            加载数据库信息
-            </summary>
-            <param name="lastHandle">需要做最后的处理的, Player.playerID必须指定 </param>
-        </member>
-        <member name="M:Net.Server.DataBase`2.LoadAsync(System.Action{`1})">
-            <summary>
-            异步加载数据库信息
-            </summary>
-            <param name="lastHandle">需要做最后的处理的, Player.playerID必须指定 </param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Server.DataBase`2.OnSerialize(`1)">
-            <summary>
-            当序列化数据, 即将写入磁盘文件时调用
-            </summary>
-            <param name="player"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Server.DataBase`2.OnLoad">
-            <summary>
-            当加载持久文件数据时调用, 加载的数据在PlayerInfos属性里面
-            </summary>
-        </member>
-        <member name="M:Net.Server.DataBase`2.SaveAll">
-            <summary>
-            存储全部玩家数据到文件里
-            </summary>
-        </member>
-        <member name="M:Net.Server.DataBase`2.Save(`1)">
-            <summary>
-            存储单个玩家的数据到文件里
-            </summary>
-        </member>
-        <member name="M:Net.Server.DataBase`2.Delete(`1)">
-            <summary>
-            删除磁盘里面的单个用户的全部数据
-            </summary>
-        </member>
-        <member name="M:Net.Server.DataBase`2.AddPlayer(`1)">
-            <summary>
-            添加网络玩家到数据库
-            </summary>
-            <param name="player"></param>
-        </member>
-        <member name="M:Net.Server.DataBase`2.AddPlayer(System.String,`1)">
-            <summary>
-            添加网络玩家到数据库
-            </summary>
-            <param name="playerID"></param>
-            <param name="player"></param>
-        </member>
-        <member name="M:Net.Server.DataBase`2.AddPlayerAndSave(`1)">
-            <summary>
-            添加玩家数据并保存到文件
-            </summary>
-            <param name="player"></param>
-        </member>
-        <member name="M:Net.Server.DataBase`2.OnAddPlayer(System.String,`1)">
-            <summary>
-            当添加玩家注册的账号数据到数据库时调用
-            </summary>
-            <param name="playerID"></param>
-            <param name="player"></param>
-        </member>
-        <member name="M:Net.Server.DataBase`2.Contains(System.String)">
-            <summary>
-            是否包含玩家ID
-            </summary>
-            <param name="playerID"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Server.DataBase`2.HasAccout(System.String)">
-            <summary>
-            数据库是否已经有这个playerID账号?
-            </summary>
-            <param name="playerID"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Server.DataBase`2.Remove(`1)">
-            <summary>
-            尝试移除网络玩家
-            </summary>
-            <param name="player"></param>
-        </member>
-        <member name="M:Net.Server.DataBase`2.Remove(System.String)">
-            <summary>
-            尝试移除网络玩家
-            </summary>
-            <param name="playerID"></param>
-        </member>
-        <member name="M:Net.Server.DataBase`2.OnDelete(`1)">
-            <summary>
-            当从数据库删除playerID的账号时调用
-            </summary>
-            <param Player="player"></param>
-        </member>
         <member name="T:Net.Server.NetBehaviour`2">
             <summary>
             服务器网络行为
@@ -4357,6 +4170,11 @@
         <member name="P:Net.Server.NetPlayer.RemotePoint">
             <summary>
             存储UDP客户端终端
+            </summary>
+        </member>
+        <member name="P:Net.Server.NetPlayer.SocketAsync">
+            <summary>
+            IOCP异步套接字
             </summary>
         </member>
         <member name="P:Net.Server.NetPlayer.SceneID">
