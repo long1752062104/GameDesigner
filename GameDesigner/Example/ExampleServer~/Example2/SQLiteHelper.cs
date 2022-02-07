@@ -1,5 +1,6 @@
 ﻿using Net.Event;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 
@@ -64,6 +65,29 @@ public static class SQLiteHelper
         {
             cmd.CommandText = cmdText;
             cmd.Connection = Connect;
+            int res = cmd.ExecuteNonQuery();
+            return res;
+        }
+        catch (Exception ex)
+        {
+            NDebug.LogError(cmdText + " 错误:" + ex);
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// 执行不带参数的增删改SQL语句或存储过程
+    /// </summary>
+    /// <param name="cmdText">增删改SQL语句或存储过程的字符串</param>
+    /// <returns>受影响的函数</returns>
+    public static int ExecuteNonQuery(string cmdText, List<SQLiteParameter> parameters)
+    {
+        try
+        {
+            cmd.CommandText = cmdText;
+            cmd.Connection = Connect;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddRange(parameters.ToArray());
             int res = cmd.ExecuteNonQuery();
             return res;
         }
@@ -297,4 +321,10 @@ public class ColumnData
     /// 列值
     /// </summary>
     public object value;
+
+    public ColumnData(string name, object value)
+    {
+        this.name = name;
+        this.value = value;
+    }
 }

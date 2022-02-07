@@ -3,6 +3,8 @@ using Net.Share;
 using Net.System;
 using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ExampleServer
@@ -62,11 +64,29 @@ namespace ExampleServer
             ThreadManager.Invoke(0f, ()=> {//每帧检查调用mysql线程调用中心
                 Example2DB.I.ExecutedContext();
                 return true;
-            });
+            }, true);
             ThreadManager.Invoke(1f, ()=> {//每秒检查有没有数据需要往mysql数据库更新
                 Example2DB.I.Executed();
                 return true;
-            });
+            }, true);
+            //Task.Run(() =>
+            //{
+            //    while (true)
+            //    {
+            //        Thread.Sleep(100);
+            //        byte num = 0;
+            //        foreach (var user in Example2DB.I.UserinfoDatas.Values)
+            //        {
+            //            //user.Position = RandomHelper.Range(10000, 9999999).ToString();
+            //            //user.Health = RandomHelper.Range(10000, 9999999);
+            //            //user.MoveSpeed = RandomHelper.Range(10000, 9999999);
+            //            //user.Rotation = RandomHelper.Range(10000, 9999999).ToString();
+            //            //if (num++ >= 5)
+            //            //    break;
+            //            //user.BufferBytes = new byte[] { 1,2,3,4,5,6,7, num++, 9 };
+            //        }
+            //    }
+            //});
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)

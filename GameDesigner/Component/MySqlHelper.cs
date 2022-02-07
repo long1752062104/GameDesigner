@@ -3,6 +3,7 @@ using Net.Event;
 using System;
 using System.Data;
 using MySql.Data.MySqlClient;
+using System.Collections.Generic;
 
 /// <summary>
 /// MySqlHelper 的摘要说明
@@ -15,9 +16,9 @@ public static class MySqlHelper
     private static MySqlDataAdapter sda = null;
 
     //数据库连接字符串
-    public static string connStr = "Database='deadstrike';Data Source='127.0.0.1';Port=3306;User Id='root';Password='root';charset='utf8';pooling=true";
+    public static string connStr = "Database='example2';Data Source='127.0.0.1';Port=3306;User Id='root';Password='root';charset='utf8';pooling=true";
 
-    private static MySqlConnection Connect
+    public static MySqlConnection Connect
     {
         get
         {
@@ -65,6 +66,30 @@ public static class MySqlHelper
         {
             cmd.CommandText = cmdText;
             cmd.Connection = Connect;
+            cmd.Parameters.Clear();
+            int res = cmd.ExecuteNonQuery();
+            return res;
+        }
+        catch (Exception ex)
+        {
+            NDebug.LogError(cmdText + " 错误:" + ex);
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// 执行不带参数的增删改SQL语句或存储过程
+    /// </summary>
+    /// <param name="cmdText">增删改SQL语句或存储过程的字符串</param>
+    /// <returns>受影响的函数</returns>
+    public static int ExecuteNonQuery(string cmdText, List<MySqlParameter> parameters)
+    {
+        try
+        {
+            cmd.CommandText = cmdText;
+            cmd.Connection = Connect;
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddRange(parameters.ToArray());
             int res = cmd.ExecuteNonQuery();
             return res;
         }
@@ -87,6 +112,7 @@ public static class MySqlHelper
         {
             cmd.CommandText = cmdText;
             cmd.Connection = Connect;
+            cmd.Parameters.Clear();
             using (sdr = cmd.ExecuteReader())
             {
                 dt.Load(sdr);
@@ -281,22 +307,8 @@ public static class MySqlHelper
         MySqlDataAdapter myDA = new MySqlDataAdapter(sQuery, Connect);
         myDA.RowUpdating += new MySqlRowUpdatingEventHandler((o, e)=> { e.Status = UpdateStatus.Continue; });
         new MySqlCommandBuilder(myDA);//需要留着才能增删改查
+        myDA.UpdateBatchSize = 2000;
         myDA.Update(table);
     }
-}
-
-/// <summary>
-/// 列参数数据
-/// </summary>
-public class ColumnData
-{
-    /// <summary>
-    /// 列名
-    /// </summary>
-    public string name;
-    /// <summary>
-    /// 列值
-    /// </summary>
-    public object value;
 }
 #endif

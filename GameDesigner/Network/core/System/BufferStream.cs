@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
@@ -19,13 +20,13 @@ namespace Net.System
 
         public void Write(byte[] buffer, int index, int count)
         {
-            BufferStreamPool.Write(offset + position, buffer, index, count);
+            BufferStreamShare.Write(offset + position, buffer, index, count);
             position += count;
         }
 
         public void Read(byte[] buffer, int index, int count)
         {
-            BufferStreamPool.Read(offset + position, buffer, index, count);
+            BufferStreamShare.Read(offset + position, buffer, index, count);
             position += count;
         }
 
@@ -36,16 +37,19 @@ namespace Net.System
 
         public void Close()
         {
-            BufferStreamPool.Push(this);
+            BufferStreamShare.Push(this);
         }
 
         ~BufferStream() 
         {
-            BufferStreamPool.Push(this);
+            BufferStreamShare.Push(this);
         }
     }
 
-    public static class BufferStreamPool
+    /// <summary>
+    /// 共享文件流类
+    /// </summary>
+    public static class BufferStreamShare
     {
         private static readonly string filePath;
         private static readonly FileStream stream;
@@ -60,22 +64,24 @@ namespace Net.System
         }
 #endif
 
-        static BufferStreamPool()
+        static BufferStreamShare()
         {
 #if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 #if UNITY_STANDALONE || UNITY_WSA
             var streamingAssetsPath = UnityEngine.Application.streamingAssetsPath;
             if (!Directory.Exists(streamingAssetsPath))
                 Directory.CreateDirectory(streamingAssetsPath);
-            filePath = streamingAssetsPath + "/BufferStreamPool.pool";
+            var path = streamingAssetsPath;
 #else
-            filePath = UnityEngine.Application.persistentDataPath + "/BufferStreamPool.pool";
+            var path = UnityEngine.Application.persistentDataPath;
 #endif
 #else
-            filePath = AppDomain.CurrentDomain.BaseDirectory + "/BufferStreamPool.pool";
+            var path = AppDomain.CurrentDomain.BaseDirectory;
 #endif
-            if (File.Exists(filePath))
-                File.Delete(filePath);
+            var files = Directory.GetFiles(path, "*.stream");
+            foreach (var file in files)
+                try { File.Delete(file); } catch{ }//尝试删除没用的之前的共享文件流
+            filePath = path + $"/{Process.GetCurrentProcess().Id}.stream";
             stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
         }
 

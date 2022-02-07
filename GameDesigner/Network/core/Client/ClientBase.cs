@@ -1802,7 +1802,7 @@ namespace Net.Client
                         return;
                     }
                     if (revdRTStream == null)
-                        revdRTStream = BufferStreamPool.Take();
+                        revdRTStream = BufferStreamShare.Take();
                     if (!revdFrames.TryGetValue(frame, out var revdFrame))
                     {
                         revdFrames.Add(frame, revdFrame = new FrameList(entry)

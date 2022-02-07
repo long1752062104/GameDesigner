@@ -17,10 +17,4 @@ public partial class Example2DB
             UserinfoDatas.TryAdd(data1.Account, data1);
         }
     }
-
-    public DataRow AccountNewRow(params object[] values)
-    {
-        var row = UserinfoTable.Rows.Add(values);
-        return row;
-    }
 }

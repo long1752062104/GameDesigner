@@ -106,7 +106,9 @@
                     return;
                 }
                 data = new UserinfoData();
-                data.Row = Example2DB.I.AccountNewRow(Example2DB.I.UserinfoTable.Rows.Count + 1, acc, pwd, null, null, null, 100, 100);
+                int id = Example2DB.I.UserinfoTable.Rows.Count + 1;
+                object buffer = new byte[] { 1,2,3, (byte)id };
+                data.Row = Example2DB.I.AddUserinfoNewRow(id, acc, pwd, null, null, null, 100, 100, buffer);
                 data.Init(data.Row);
                 Example2DB.I.UserinfoDatas.TryAdd(acc, data);
                 SendRT(unClient, "RegisterCallback", "注册成功！");

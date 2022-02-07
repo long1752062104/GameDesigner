@@ -6,4 +6,7 @@ public class DBEntity
     public DataRow row;
     public int index;
     public object value;
+    public int id;
+    public string name;
+    public string idName;
 }

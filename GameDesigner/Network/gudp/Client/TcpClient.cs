@@ -58,7 +58,7 @@
                     while (UID == 0)
                         if (DateTime.Now >= time)
                             throw new Exception("uid赋值失败!");
-                    StackStream = BufferStreamPool.Take();
+                    StackStream = BufferStreamShare.Take();
                     InvokeContext((arg) => {
                         networkState = NetworkState.Connected;
                         result(true);
@@ -274,8 +274,8 @@
                                         client.ResolveBuffer(buffer1, 0, count, false);
                                         BufferPool.Push(buffer1);
                                     }
-                                    client.Send(NetCmd.Local, buffer);
-                                    //client.SendRT("Register", RandomHelper.Range(10000,9999999).ToString(), "123");
+                                    //client.Send(NetCmd.Local, buffer);
+                                    client.SendRT("Register", RandomHelper.Range(10000,9999999).ToString(), "123");
                                     client.SendDirect();
                                 }
                                 catch (Exception ex)
@@ -318,7 +318,7 @@
                 SendByteData(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.Connect, 0, 0, 0, 0 }, false);
                 Connected = true;
                 //stackStreamName = Path.GetTempFileName();
-                StackStream = BufferStreamPool.Take();//new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                StackStream = BufferStreamShare.Take();//new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                 return null;
             }
             protected override void StartupThread() { }

@@ -67,7 +67,7 @@ namespace Net.Client
                             if (DateTime.Now >= time)
                                 throw new Exception("uid赋值失败!");
                         //stackStreamName = persistentDataPath + "/c" + UID + ".stream";
-                        StackStream = BufferStreamPool.Take();//new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                        StackStream = BufferStreamShare.Take();//new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                         InvokeContext((arg) => {
                             networkState = NetworkState.Connected;
                             result(true);

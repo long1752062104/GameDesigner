@@ -35,29 +35,29 @@ namespace Net.System
             MainThread.Start();
         }
 
-        public static int Invoke(Func<bool> ptr) 
+        public static int Invoke(Func<bool> ptr, bool isAsync = false) 
         {
-            return Event.AddEvent(0, ptr);
+            return Event.AddEvent(0, ptr, isAsync);
         }
 
-        public static int Invoke(Action ptr)
+        public static int Invoke(Action ptr, bool isAsync = false)
         {
-            return Event.AddEvent(0, ptr);
+            return Event.AddEvent(0, ptr, isAsync);
         }
 
-        public static int Invoke(string name, Func<bool> ptr)
+        public static int Invoke(string name, Func<bool> ptr, bool isAsync = false)
         {
-            return Event.AddEvent(name, 0, ptr);
+            return Event.AddEvent(name, 0, ptr, isAsync);
         }
 
-        public static int Invoke(float time, Func<bool> ptr)
+        public static int Invoke(float time, Func<bool> ptr, bool isAsync = false)
         {
-            return Event.AddEvent(time, ptr);
+            return Event.AddEvent(time, ptr, isAsync);
         }
 
-        public static int Invoke(string name, float time, Func<bool> ptr)
+        public static int Invoke(string name, float time, Func<bool> ptr, bool isAsync = false)
         {
-            return Event.AddEvent(name, time, ptr);
+            return Event.AddEvent(name, time, ptr, isAsync);
         }
     }
 }

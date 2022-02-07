@@ -113,7 +113,7 @@
                     UserIDStack.TryPop(out int uid);
                     client.UserID = uid;
                     client.PlayerID = uid.ToString();
-                    client.stackStream = BufferStreamPool.Take();
+                    client.stackStream = BufferStreamShare.Take();
                     Interlocked.Increment(ref ignoranceNumber);
                     AllClients.TryAdd(socket.RemoteEndPoint, client);
                     OnHasConnectHandle(client);

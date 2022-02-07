@@ -153,3 +153,4 @@ D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Data.
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\EntityFramework.xml
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\EntityFramework.SqlServer.xml
 D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\System.Data.SQLite.xml
+D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\MySql.Data.dll

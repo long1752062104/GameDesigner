@@ -119,7 +119,7 @@ namespace Net.Server
                             unClient.UserID = uid;
                             unClient.PlayerID = uid.ToString();
                             //unClient.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
-                            unClient.stackStream = BufferStreamPool.Take();//new FileStream(unClient.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                            unClient.stackStream = BufferStreamShare.Take();//new FileStream(unClient.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                             unClient.isDispose = false;
                             unClient.CloseSend = false;
                             OnHasConnectHandle(unClient);

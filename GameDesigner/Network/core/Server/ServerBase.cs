@@ -1098,7 +1098,7 @@ namespace Net.Server
                         return;
                     }
                     if (client.stackStream == null)
-                        client.stackStream = BufferStreamPool.Take();
+                        client.stackStream = BufferStreamShare.Take();
                     if (!client.revdFrames.TryGetValue(frame, out var revdFrame))
                     {
                         client.revdFrames.Add(frame, revdFrame = new FrameList(entry)

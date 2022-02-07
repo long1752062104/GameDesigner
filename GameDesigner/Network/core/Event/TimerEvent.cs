@@ -1,5 +1,6 @@
 ﻿using Net.System;
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Net.Event
@@ -19,6 +20,8 @@ namespace Net.Event
             public int invokeNum;
             internal long timeMax;
             internal int eventId;
+            internal bool async;
+            internal bool complete = true;
 
             public override string ToString()
             {
@@ -35,15 +38,17 @@ namespace Net.Event
         /// </summary>
         /// <param name="time"></param>
         /// <param name="ptr"></param>
+        /// <param name="isAsync">如果是耗时任务, 需要设置true</param>
         /// <returns></returns>
-        public int AddEvent(float time, Action ptr)
+        public int AddEvent(float time, Action ptr, bool isAsync = false)
         {
             var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
             {
                 time = (long)(this.time + (time * 1000)),
                 ptr1 = (o) => { ptr(); },
-                eventId = enentID
+                eventId = enentID,
+                async = isAsync,
             });
             return enentID;
         }
@@ -54,8 +59,9 @@ namespace Net.Event
         /// <param name="time"></param>
         /// <param name="ptr"></param>
         /// <param name="obj"></param>
+        /// <param name="isAsync">如果是耗时任务, 需要设置true</param>
         /// <returns></returns>
-        public int AddEvent(float time, Action<object> ptr, object obj)
+        public int AddEvent(float time, Action<object> ptr, object obj, bool isAsync = false)
         {
             var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
@@ -63,7 +69,8 @@ namespace Net.Event
                 time = (long)(this.time + (time * 1000)),
                 ptr1 = ptr,
                 obj = obj,
-                eventId = enentID
+                eventId = enentID,
+                async = isAsync,
             });
             return enentID;
         }
@@ -75,8 +82,9 @@ namespace Net.Event
         /// <param name="invokeNum">调用次数, -1则是无限循环</param>
         /// <param name="ptr"></param>
         /// <param name="obj"></param>
+        /// <param name="isAsync">如果是耗时任务, 需要设置true</param>
         /// <returns></returns>
-        public int AddEvent(float time, int invokeNum, Action<object> ptr, object obj)
+        public int AddEvent(float time, int invokeNum, Action<object> ptr, object obj, bool isAsync = false)
         {
             var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
@@ -86,7 +94,8 @@ namespace Net.Event
                 obj = obj,
                 invokeNum = invokeNum,
                 timeMax = (long)(time * 1000),
-                eventId = enentID
+                eventId = enentID,
+                async = isAsync,
             });
             return enentID;
         }
@@ -96,10 +105,11 @@ namespace Net.Event
         /// </summary>
         /// <param name="time"></param>
         /// <param name="ptr"></param>
+        /// <param name="isAsync">如果是耗时任务, 需要设置true</param>
         /// <returns></returns>
-        public int AddEvent(float time, Func<bool> ptr)
+        public int AddEvent(float time, Func<bool> ptr, bool isAsync = false)
         {
-            return AddEvent("", time, ptr);
+            return AddEvent("", time, ptr, isAsync);
         }
 
         /// <summary>
@@ -108,8 +118,9 @@ namespace Net.Event
         /// <param name="name"></param>
         /// <param name="time"></param>
         /// <param name="ptr"></param>
+        /// <param name="isAsync">如果是耗时任务, 需要设置true</param>
         /// <returns></returns>
-        public int AddEvent(string name, float time, Func<bool> ptr)
+        public int AddEvent(string name, float time, Func<bool> ptr, bool isAsync = false)
         {
             var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
@@ -119,6 +130,7 @@ namespace Net.Event
                 ptr2 = (o) => { return ptr(); },
                 eventId = enentID,
                 timeMax = (long)(time * 1000),
+                async = isAsync,
             });
             return enentID;
         }
@@ -129,8 +141,9 @@ namespace Net.Event
         /// <param name="time"></param>
         /// <param name="ptr"></param>
         /// <param name="obj"></param>
+        /// <param name="isAsync">如果是耗时任务, 需要设置true</param>
         /// <returns></returns>
-        public int AddEvent(float time, Func<object, bool> ptr, object obj)
+        public int AddEvent(float time, Func<object, bool> ptr, object obj, bool isAsync = false)
         {
             var enentID = Interlocked.Increment(ref eventId);
             events.Add(new Event()
@@ -140,7 +153,8 @@ namespace Net.Event
                 obj = obj,
                 invokeNum = 1,
                 timeMax = (long)(time * 1000),
-                eventId = enentID
+                eventId = enentID,
+                async = isAsync,
             });
             return enentID;
         }
@@ -152,10 +166,23 @@ namespace Net.Event
             {
                 if (time > events[i].time)
                 {
-                    events[i].ptr1?.Invoke(events[i].obj);
-                    if (events[i].ptr2 != null)
+                    if (events[i].ptr1 != null)
+                    {
+                        if (events[i].async)
+                            WorkExecute1(events[i]);
+                        else
+                            events[i].ptr1(events[i].obj);
+                    }
+                    else if (events[i].ptr2 != null)
+                    {
+                        if (events[i].async)
+                        {
+                            WorkExecute2(events[i]);
+                            continue;
+                        }
                         if (events[i].ptr2(events[i].obj))
                             goto J;
+                    }
                     if (events[i].invokeNum == -1)
                         goto J;
                     if (--events[i].invokeNum <= 0)
@@ -167,6 +194,33 @@ namespace Net.Event
                 J: events[i].time = time + events[i].timeMax;
                 }
             }
+        }
+
+        private async void WorkExecute1(Event @event)
+        {
+            if (!@event.complete)
+                return;
+            @event.complete = false;
+            await default(YieldAwaitable);
+            @event.ptr1(@event.obj);
+            if (--@event.invokeNum <= 0)
+                events.Remove(@event);
+            else
+                @event.time = time + @event.timeMax;
+            @event.complete = true;
+        }
+
+        private async void WorkExecute2(Event @event)
+        {
+            if (!@event.complete)
+                return;
+            @event.complete = false;
+            await default(YieldAwaitable);
+            if (@event.ptr2(@event.obj))
+                @event.time = time + @event.timeMax;
+            else
+                events.Remove(@event);
+            @event.complete = true;
         }
 
         public void RemoveEvent(int eventId)

@@ -134,7 +134,7 @@
                         UserIDStack.TryPop(out int uid);
                         unClient.UserID = uid;
                         unClient.PlayerID = uid.ToString();
-                        unClient.stackStream = BufferStreamPool.Take();
+                        unClient.stackStream = BufferStreamShare.Take();
                         unClient.isDispose = false;
                         unClient.CloseSend = false;
                         unClient.SocketAsync = args1;

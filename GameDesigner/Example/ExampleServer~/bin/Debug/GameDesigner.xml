@@ -4065,24 +4065,26 @@
             时间计时器类
             </summary>
         </member>
-        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Action)">
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Action,System.Boolean)">
             <summary>
             添加计时器事件, time时间后调用ptr
             </summary>
             <param name="time"></param>
             <param name="ptr"></param>
+            <param name="isAsync">如果是耗时任务, 需要设置true</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Action{System.Object},System.Object)">
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Action{System.Object},System.Object,System.Boolean)">
             <summary>
             添加计时器事件, time时间后调用ptr
             </summary>
             <param name="time"></param>
             <param name="ptr"></param>
             <param name="obj"></param>
+            <param name="isAsync">如果是耗时任务, 需要设置true</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Int32,System.Action{System.Object},System.Object)">
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Int32,System.Action{System.Object},System.Object,System.Boolean)">
             <summary>
             添加计时器事件, 当time时间到调用ptr, 总共调用invokeNum次数
             </summary>
@@ -4090,32 +4092,36 @@
             <param name="invokeNum">调用次数, -1则是无限循环</param>
             <param name="ptr"></param>
             <param name="obj"></param>
+            <param name="isAsync">如果是耗时任务, 需要设置true</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Func{System.Boolean})">
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Func{System.Boolean},System.Boolean)">
             <summary>
             添加计时器事件, 当time时间到调用ptr, 当ptr返回true则time时间后再次调用ptr, 直到ptr返回false为止
             </summary>
             <param name="time"></param>
             <param name="ptr"></param>
+            <param name="isAsync">如果是耗时任务, 需要设置true</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Event.TimerEvent.AddEvent(System.String,System.Single,System.Func{System.Boolean})">
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.String,System.Single,System.Func{System.Boolean},System.Boolean)">
             <summary>
             添加计时器事件, 当time时间到调用ptr, 当ptr返回true则time时间后再次调用ptr, 直到ptr返回false为止
             </summary>
             <param name="name"></param>
             <param name="time"></param>
             <param name="ptr"></param>
+            <param name="isAsync">如果是耗时任务, 需要设置true</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Func{System.Object,System.Boolean},System.Object)">
+        <member name="M:Net.Event.TimerEvent.AddEvent(System.Single,System.Func{System.Object,System.Boolean},System.Object,System.Boolean)">
             <summary>
             添加计时事件, 当time时间到调用ptr, 当ptr返回true则time时间后再次调用ptr, 直到ptr返回false为止
             </summary>
             <param name="time"></param>
             <param name="ptr"></param>
             <param name="obj"></param>
+            <param name="isAsync">如果是耗时任务, 需要设置true</param>
             <returns></returns>
         </member>
         <member name="T:Net.Server.NetBehaviour`2">
@@ -8082,6 +8088,11 @@
         <member name="T:Net.System.BufferStream">
             <summary>
             共享文件流, 此类会瓜分一个文件流的段数据作为数据缓存位置
+            </summary>
+        </member>
+        <member name="T:Net.System.BufferStreamShare">
+            <summary>
+            共享文件流类
             </summary>
         </member>
         <member name="T:Net.System.ListSafe`1">
