@@ -1,12 +1,14 @@
-﻿using GGPhysUnity;
-using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using GGPhys.Core;
+using GGPhysUnity;
 
 public class CallbackTest : RigidBodyCallBack
 {
-    public override void OnBCollisionEnter(BRigidBody otherBody, TSVector3 contactPoint)
+    public override void OnBCollisionEnter(BRigidBody otherBody, Vector3d contactPoint)
     {
-        Debug.Log("CollisionEnter" + "----" + otherBody.name + "----ContactPoint:" + contactPoint);
+        Debug.Log("CollisionEnter" + "----" + otherBody.name + "----ContactPoint:" + contactPoint.ToVector3());
     }
 
     public override void OnBCollisionStay(BRigidBody otherBody)

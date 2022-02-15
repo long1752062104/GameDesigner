@@ -26,5 +26,27 @@ namespace TrueSync
             EditorGUI.EndChangeCheck();
         }
     }
+
+    [CustomPropertyDrawer(typeof(FixMath.FP))]
+    public class TSFPDrawer1 : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginChangeCheck();//解决影响下行字段的值（多选问题）
+            EditorGUI.BeginProperty(position, label, property);
+            var rawProp = property.FindPropertyRelative("Raw");
+
+            FixMath.FP fpValue = FixMath.FP.FromRaw(rawProp.longValue);
+            fpValue = EditorGUI.FloatField(position, label, fpValue);
+            if (GUI.changed)
+            {
+                rawProp.longValue = fpValue.Raw;
+                EditorUtility.SetDirty(rawProp.serializedObject.targetObject);
+                GUI.changed = false;
+            }
+            EditorGUI.EndProperty();
+            EditorGUI.EndChangeCheck();
+        }
+    }
 }
 #endif

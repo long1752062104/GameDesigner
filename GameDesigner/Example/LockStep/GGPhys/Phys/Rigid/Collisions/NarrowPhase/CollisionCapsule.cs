@@ -1,5 +1,8 @@
-﻿using GGPhys.Core;
-using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
+using GGPhys.Core;
+using GGPhys.Rigid;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
@@ -8,19 +11,19 @@ namespace GGPhys.Rigid.Collisions
     ///</summary>
     public class CollisionCapsule : CollisionPrimitive
     {
-        public FP Radius; //半径
-        public FP Height; //两端圆心距离
-        public TSVector3 HalfHeight; // 半高向量
-        public TSVector3 CenterOne; //一端圆心
-        public TSVector3 CenterTwo; //另一端圆心
-        public TSVector3 CenterOneToTwo; //圆心一到圆心二向量
-        public TSVector3 CenterTwoToOne; //圆心二到圆心一向量
+        public REAL Radius; //半径
+        public REAL Height; //两端圆心距离
+        public Vector3d HalfHeight; // 半高向量
+        public Vector3d CenterOne; //一端圆心
+        public Vector3d CenterTwo; //另一端圆心
+        public Vector3d CenterOneToTwo; //圆心一到圆心二向量
+        public Vector3d CenterTwoToOne; //圆心二到圆心一向量
 
-        public CollisionCapsule(FP radius, FP height)
+        public CollisionCapsule(REAL radius, REAL height)
         {
             Radius = radius;
             Height = height;
-            HalfHeight = new TSVector3(0, 0.5 * height, 0);
+            HalfHeight = new Vector3d(0, 0.5 * height, 0);
             BoundingVolum = new BoundingBox();
             BoundingVolum.Init(this);
         }

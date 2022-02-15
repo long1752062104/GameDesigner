@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
+using GGPhys.Core;
 
 namespace GGPhys.Rigid.Collisions
 {
     public class OctreeNode
     {
-        public TSVector3 Center;
+        public Vector3d Center;
         public bool IsLeaf;
         public OctreeNode[] ChildNodes;
         public List<CollisionPrimitive> Primitives;

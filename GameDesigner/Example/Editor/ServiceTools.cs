@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ServiceTools
 {
-    [MenuItem("GameDesigner/Example/OpenExample1_Service")]
+    [MenuItem("GameDesigner/Example/Example1_Service")]
     static void Init() 
     {
         var exe = Application.dataPath + "/GameDesigner/Example/ExampleServer~/bin/Debug/ExampleServer.exe";
@@ -14,7 +14,7 @@ public class ServiceTools
         p.StartInfo.Arguments = "Example1";
         p.Start();
     }
-    [MenuItem("GameDesigner/Example/OpenExample2_Service")]
+    [MenuItem("GameDesigner/Example/Example2_Service")]
     static void Init1()
     {
         var exe = Application.dataPath + "/GameDesigner/Example/ExampleServer~/bin/Debug/ExampleServer.exe";
@@ -23,7 +23,7 @@ public class ServiceTools
         p.StartInfo.Arguments = "Example2";
         p.Start();
     }
-    [MenuItem("GameDesigner/Example/OpenExample3_Service")]
+    [MenuItem("GameDesigner/Example/LockStepService")]
     static void Init2()
     {
         var exe = Application.dataPath + "/GameDesigner/Example/ExampleServer~/bin/Debug/ExampleServer.exe";
@@ -32,7 +32,7 @@ public class ServiceTools
         p.StartInfo.Arguments = "Example3";
         p.Start();
     }
-    [MenuItem("GameDesigner/Example/OpenExample4_Service")]
+    [MenuItem("GameDesigner/Example/AOIService")]
     static void Init3()
     {
         var exe = Application.dataPath + "/GameDesigner/Example/ExampleServer~/bin/Debug/ExampleServer.exe";

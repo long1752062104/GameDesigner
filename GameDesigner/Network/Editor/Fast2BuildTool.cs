@@ -270,6 +270,11 @@ public class Fast2BuildTools2 : EditorWindow
             foreach (var type1 in typeNames)
             {
                 Type type = Net.Serialize.NetConvertOld.GetType(type1.name);
+                if (type == null)
+                {
+                    Debug.Log($"类型:{type1.name}已不存在!");
+                    continue;
+                }
                 Fast2BuildMethod.Build(type, true, savePath, serField, serProperty, type1.fields.ConvertAll((item)=> !item.serialize ? item.name : ""));
                 Fast2BuildMethod.BuildArray(type, true, savePath);
                 Fast2BuildMethod.BuildGeneric(type, true, savePath);

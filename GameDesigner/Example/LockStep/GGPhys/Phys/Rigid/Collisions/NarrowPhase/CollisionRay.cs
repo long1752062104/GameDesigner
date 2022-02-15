@@ -1,16 +1,19 @@
-﻿using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 public struct CollisionRay
 {
-    public TSVector3 start;
-    public TSVector3 end;
-    public TSVector3 direction;
+    public Vector3d start;
+    public Vector3d end;
+    public Vector3d direction;
     public uint layerMask;
 
-    public TSVector3 gridStart;
-    public TSVector3 gridEnd;
+    public Vector3d gridStart;
+    public Vector3d gridEnd;
 
-    public void Init(TSVector3 start, TSVector3 end, TSVector3 direction, uint layerMask)
+    public void Init(Vector3d start, Vector3d end, Vector3d direction, uint layerMask)
     {
         this.start = start;
         this.end = end;

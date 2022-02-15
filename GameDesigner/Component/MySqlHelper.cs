@@ -4,6 +4,8 @@ using System;
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 /// <summary>
 /// MySqlHelper 的摘要说明
@@ -305,10 +307,72 @@ public static class MySqlHelper
     {
         string sQuery = $"SELECT * FROM {table.TableName}";
         MySqlDataAdapter myDA = new MySqlDataAdapter(sQuery, Connect);
-        myDA.RowUpdating += new MySqlRowUpdatingEventHandler((o, e)=> { e.Status = UpdateStatus.Continue; });
+        myDA.RowUpdating += new MySqlRowUpdatingEventHandler((o, e) => { e.Status = UpdateStatus.Continue; });
         new MySqlCommandBuilder(myDA);//需要留着才能增删改查
         myDA.UpdateBatchSize = 2000;
         myDA.Update(table);
+    }
+
+    /// <summary>
+    /// sql语法转义成能识别的字符串, 如果 '\0
+    /// </summary>
+    /// <param name="buffer"></param>
+    /// <returns></returns>
+    public static string EscapeString(byte[] buffer)
+    {
+        return EscapeString(buffer, 0, buffer.Length);
+    }
+
+    /// <summary>
+    /// sql语法转义成能识别的字符串, 如果 '\0
+    /// </summary>
+    /// <param name="buffer"></param>
+    /// <returns></returns>
+    public static string EscapeString(byte[] buffer, int index, int count)
+    {
+        using (var stream = new MemoryStream()) 
+        {
+            for (int i = index; i < count; i++)
+            {
+                byte b = buffer[i];
+                if (b == 0)
+                {
+                    stream.WriteByte(92);
+                    stream.WriteByte(48);
+                }
+                else if (b == 92 || b == 39 || b == 34)
+                {
+                    stream.WriteByte(92);
+                    stream.WriteByte(b);
+                }
+                else
+                {
+                    stream.WriteByte(b);
+                }
+            }
+            return Encoding.UTF8.GetString(stream.ToArray());
+        }
+    }
+}
+
+/// <summary>
+/// 列参数数据
+/// </summary>
+public class ColumnData
+{
+    /// <summary>
+    /// 列名
+    /// </summary>
+    public string name;
+    /// <summary>
+    /// 列值
+    /// </summary>
+    public object value;
+
+    public ColumnData(string name, object value)
+    {
+        this.name = name;
+        this.value = value;
     }
 }
 #endif

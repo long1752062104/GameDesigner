@@ -27,8 +27,9 @@ import java.lang.Double;
  * Use up-to C# 3 features to keep the library compatible with older versions
  * of Unity.
  */
-using System.Diagnostics;
+using System;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 #endif
 
 #if !TRANSPILE
@@ -45,7 +46,7 @@ namespace FixPointCS
     {
 #endif
         public const int Shift = 32;
-        public const long FractionMask = (1L << Shift) - 1; // Space before 1L needed because of hacky C++ code generator
+        public const long FractionMask = ( 1L << Shift ) - 1; // Space before 1L needed because of hacky C++ code generator
         public const long IntegerMask = ~FractionMask;
 
         // Constants
@@ -65,9 +66,9 @@ namespace FixPointCS
         public const long MaxValue = 9223372036854775807L;
 
         // Private constants
-        private const long RCP_LN2 = 0x171547652L; // 1.0 / log(2.0) ~= 1.4426950408889634
-        private const long RCP_LOG2_E = 2977044471L;  // 1.0 / log2(e) ~= 0.6931471805599453
-        private const int RCP_HALF_PI = 683565276; // 1.0 / (4.0 * 0.5 * Math.PI);  // the 4.0 factor converts directly to s2.30
+        private const long RCP_LN2      = 0x171547652L; // 1.0 / log(2.0) ~= 1.4426950408889634
+        private const long RCP_LOG2_E   = 2977044471L;  // 1.0 / log2(e) ~= 0.6931471805599453
+        private const int  RCP_HALF_PI  = 683565276; // 1.0 / (4.0 * 0.5 * Math.PI);  // the 4.0 factor converts directly to s2.30
 
         /// <summary>
         /// Converts an integer to a fixed-point value.
@@ -129,7 +130,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static double ToDouble(long v)
         {
-            return v * (1.0 / 4294967296.0);
+            return (double)v * (1.0 / 4294967296.0);
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static float ToFloat(long v)
         {
-            return v * (1.0f / 4294967296.0f);
+            return (float)v * (1.0f / 4294967296.0f);
         }
 
         /// <summary>
@@ -279,18 +280,16 @@ namespace FixPointCS
         public static long Mul(long a, long b)
         {
             long ai = a >> Shift;
-            long af = a & FractionMask;
+            long af = (a & FractionMask);
             long bi = b >> Shift;
-            long bf = b & FractionMask;
-            return (af * bf >> Shift) + ai * b + af * bi;
-
-            //long result = (long)((float)a / One * ((float)b / One) * One);
-            //return result;
+            long bf = (b & FractionMask);
+            return FixedUtil.LogicalShiftRight(af * bf, Shift) + ai * b + af * bi;
         }
 
         [MethodImpl(FixedUtil.AggressiveInlining)]
         private static int MulIntLongLow(int a, long b)
         {
+            Debug.Assert(a >= 0);
             int bi = (int)(b >> Shift);
             long bf = b & FractionMask;
             return (int)FixedUtil.LogicalShiftRight(a * bf, Shift) + a * bi;
@@ -299,6 +298,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         private static long MulIntLongLong(int a, long b)
         {
+            Debug.Assert(a >= 0);
             long bi = b >> Shift;
             long bf = b & FractionMask;
             return FixedUtil.LogicalShiftRight(a * bf, Shift) + a * bi;
@@ -404,9 +404,6 @@ namespace FixPointCS
             long ret = q1 * b + q0;
             return (sign_dif < 0) ? -ret : ret;
 #else
-
-            //return (long)((float)arg_a / One / ((float)arg_b / One) * One);
-
             long sign_dif = arg_a ^ arg_b;
 
             const ulong b = 0x100000000L; // Number base (32 bits)
@@ -424,7 +421,7 @@ namespace FixPointCS
 
             // Shift amount for norm
             int s = Nlz(v); // 0 <= s <= 63
-            v <<= s; // Normalize the divisor
+            v = v << s; // Normalize the divisor
             ulong vn1 = v >> 32; // Break the divisor into two 32-bit digits
             ulong vn0 = v & 0xffffffffL;
 
@@ -441,8 +438,8 @@ namespace FixPointCS
             {
                 if ((q1 >= b) || ((q1 * vn0) > (b * rhat + un1)))
                 {
-                    q1 -= 1;
-                    rhat += vn1;
+                    q1 = q1 - 1;
+                    rhat = rhat + vn1;
                 }
                 else break;
             } while (rhat < b);
@@ -456,11 +453,15 @@ namespace FixPointCS
             {
                 if ((q0 >= b) || ((q0 * vn0) > (b * rhat + un0)))
                 {
-                    q0 -= 1;
-                    rhat += vn1;
+                    q0 = q0 - 1;
+                    rhat = rhat + vn1;
                 }
                 else break;
             } while (rhat < b);
+
+            // Calculate the remainder
+            // ulong r = (un21 * b + un0 - q0 * v) >> s;
+            // rem = (long)r;
 
             ulong ret = q1 * b + q0;
             return (sign_dif < 0) ? -(long)ret : (long)ret;
@@ -971,7 +972,7 @@ namespace FixPointCS
             long y = (long)FixedUtil.LogPoly5Lut8(n - ONE) << 2;
 
             // Combine integer and fractional parts (into s32.32).
-            return offset * RCP_LOG2_E + y;
+            return (long)offset * RCP_LOG2_E + y;
         }
 
         public static long LogFast(long x)
@@ -991,7 +992,7 @@ namespace FixPointCS
             long y = (long)FixedUtil.LogPoly3Lut8(n - ONE) << 2;
 
             // Combine integer and fractional parts (into s32.32).
-            return offset * RCP_LOG2_E + y;
+            return (long)offset * RCP_LOG2_E + y;
         }
 
         public static long LogFastest(long x)
@@ -1011,7 +1012,7 @@ namespace FixPointCS
             long y = (long)FixedUtil.LogPoly5(n - ONE) << 2;
 
             // Combine integer and fractional parts (into s32.32).
-            return offset * RCP_LOG2_E + y;
+            return (long)offset * RCP_LOG2_E + y;
         }
 
         public static long Log2(long x)

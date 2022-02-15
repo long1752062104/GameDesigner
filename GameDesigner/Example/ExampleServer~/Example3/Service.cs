@@ -5,7 +5,7 @@ using Net.Share;
 
 namespace LockStep.Server
 {
-    public class Service : UdpServer<Player, Scene>
+    public class Service : TcpServer<Player, Scene>
     {
         protected override void OnStartupCompleted()
         {
@@ -56,7 +56,10 @@ namespace LockStep.Server
         [Rpc(NetCmd.SafeCall)]
         void ExitRoom(Player client)
         {
-            ExitScene(client, false);
+            if (client.Scene.CurrNum == 1)
+                RemoveScene(client.SceneID, false);
+            else 
+                ExitScene(client, false);
             SendRT(client, "ExitRoomCallback", "退出房间!");
             NDebug.Log($"退出房间!");
         }
@@ -114,6 +117,8 @@ namespace LockStep.Server
                 return;
             }
             scene.Remove(client);
+            if (scene.CurrNum == 0)
+                RemoveScene(scene.Name, false);
             SendRT(client, "ExitBattle", client.UserID);
             NDebug.Log("退出战斗");
         }

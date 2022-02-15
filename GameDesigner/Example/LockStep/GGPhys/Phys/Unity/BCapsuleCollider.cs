@@ -1,70 +1,56 @@
-﻿using GGPhys.Core;
-using GGPhys.Rigid.Collisions;
-using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using GGPhys.Core;
+using GGPhys.Rigid.Collisions;
+using REAL = FixMath.FP;
 
 namespace GGPhysUnity
 {
+
     public class BCapsuleCollider : BCollider
     {
-        public FP radius = 1f;
-        public FP height = 1f;
+        public float radius;
+        public float height;
 
         public override void AddToEngine(BRigidBody bBody)
         {
-            CollisionCapsule shape = new CollisionCapsule(radius, height)
-            {
-                Body = bBody.Body,
-                Offset = Matrix4.IdentityOffset(CenterOffset /*- bBody.CenterOfMassOffset*/),
-                IsTrigger = IsTrigger,
-                CollisionLayer = (uint)bBody.collsionLayer,
-                CollisionMask = (uint)bBody.collsionMask
-            };
-            bBody.Body.Offset = CenterOffset;
+            base.AddToEngine(bBody);
+
+            var shape = new CollisionCapsule(radius, height);
+            shape.Body = bBody.Body;
+            shape.Offset = Matrix4.IdentityOffset(CenterOffset.ToVector3d() - bBody.CenterOfMassOffset);
+            shape.IsTrigger = IsTrigger;
+            shape.CollisionLayer = (uint)bBody.collsionLayer;
+            shape.CollisionMask = (uint)bBody.collsionMask;
             Primitive = shape;
             RigidPhysicsEngine.Instance.Collisions.AddPrimitive(shape);
         }
 
-        public override Matrix3 CalculateInertiaTensor(FP mass)
+        public override Matrix3 CalculateInertiaTensor(REAL mass)
         {
-            FP fHeight = height;
-            FP fRadius = radius;
-            Matrix3 inertiaTensor = Matrix3.Identity;
-            FP Ixx = mass * ((3 * fRadius + 2 * fHeight) * 0.125) * fHeight;
-            inertiaTensor.data0 *= Ixx;
-            inertiaTensor.data4 *= 0.4 * mass * (fRadius * fRadius);
-            inertiaTensor.data8 *= Ixx;
+            REAL fHeight = height;
+            REAL fRadius = radius;
+            var inertiaTensor = Matrix3.Identity;
+            //REAL Ixx = mass * ((3 * fRadius + 2 * fHeight) * 0.125) * fHeight;
+            //inertiaTensor.data0 *= Ixx;
+            //inertiaTensor.data4 *= 0.4 * mass * (fRadius * fRadius);
+            //inertiaTensor.data8 *= Ixx;
             return inertiaTensor;
         }
 
-        private void OnDrawGizmos()
+
+        private void OnDrawGizmosSelected()
         {
-            if (transform == null)
-                transform = GetComponent<TSTransform>();
-            TSVector3 offsetOne = new TSVector3(CenterOffset.x, CenterOffset.y + 0.5 * height + radius, CenterOffset.z);
-            TSVector3 offsetTwo = new TSVector3(CenterOffset.x, CenterOffset.y - 0.5 * height - radius, CenterOffset.z);
-            TSVector3 centerOneWorld = transform.position + transform.TransformDirection(offsetOne);
-            TSVector3 centerTwoWorld = transform.position + transform.TransformDirection(offsetTwo);
-            DebugExtension.DrawCapsule(centerOneWorld, centerTwoWorld, Color.green, (float)radius);
+            var offsetOne = new Vector3d(CenterOffset.x, CenterOffset.y + 0.5 * height + radius, CenterOffset.z);
+            var offsetTwo = new Vector3d(CenterOffset.x, CenterOffset.y - 0.5 * height - radius, CenterOffset.z);
+            var centerOneWorld = transform.position + transform.TransformDirection(offsetOne.ToVector3());
+            var centerTwoWorld = transform.position + transform.TransformDirection(offsetTwo.ToVector3());
+            DebugExtension.DrawCapsule(centerOneWorld, centerTwoWorld, new Color(0, 128, 255), radius);
         }
 
-        public void Reset()
-        {
-            CapsuleCollider box = GetComponent<CapsuleCollider>();
-            if (box == null)
-            {
-                box = gameObject.AddComponent<CapsuleCollider>();
-                CenterOffset = box.center;
-                radius = box.radius;
-                height = box.height / 2f;
-                DestroyImmediate(box, true);
-            }
-            else
-            {
-                CenterOffset = box.center;
-                radius = box.radius;
-                height = box.height / 2f;
-            }
-        }
+
+
     }
+
 }

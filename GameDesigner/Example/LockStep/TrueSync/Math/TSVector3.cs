@@ -17,6 +17,7 @@
 *  3. This notice may not be removed or altered from any source distribution. 
 */
 
+using GGPhys.Core;
 using System;
 using UnityEngine;
 
@@ -906,6 +907,16 @@ namespace TrueSync
         public static implicit operator TSVector3(Vector3 v)
         {
             return new TSVector3(v.x, v.y, v.z);
+        }
+
+        public static implicit operator Vector3d(TSVector3 v)
+        {
+            return new Vector3d(v.x.Raw, v.y.Raw, v.z.Raw);
+        }
+
+        public static implicit operator TSVector3(Vector3d v)
+        {
+            return new TSVector3(v.x.Raw, v.y.Raw, v.z.Raw);
         }
 
         /// <summary>

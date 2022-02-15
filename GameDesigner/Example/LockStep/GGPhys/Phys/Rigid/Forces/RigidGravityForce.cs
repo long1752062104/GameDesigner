@@ -1,4 +1,7 @@
-using TrueSync;
+using System;
+using System.Collections.Generic;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Forces
 {
@@ -12,14 +15,14 @@ namespace GGPhys.Rigid.Forces
         ///<summary>
         /// 重力设置
         ///<summary>
-        TSVector3 m_gravity;
+        Vector3d m_gravity;
 
-        public RigidGravityForce(FP gravity)
+        public RigidGravityForce(REAL gravity)
         {
-            m_gravity = new TSVector3(0, gravity, 0);
+            m_gravity = new Vector3d(0, gravity, 0);
         }
 
-        public RigidGravityForce(TSVector3 gravity)
+        public RigidGravityForce(Vector3d gravity)
         {
             m_gravity = gravity;
         }
@@ -28,15 +31,15 @@ namespace GGPhys.Rigid.Forces
         /// 设置重力
         /// </summary>
         /// <param name="gravity"></param>
-        public void SetGravity(FP gravity)
+        public void SetGravity(REAL gravity)
         {
-            m_gravity = new TSVector3(0, gravity, 0);
+            m_gravity = new Vector3d(0, gravity, 0);
         }
 
         ///<summary>
         /// 运用作用力
         ///</summary>
-        public override void UpdateForce(RigidBody body, FP dt)
+        public override void UpdateForce(RigidBody body, REAL dt)
         {
             if (body.HasInfiniteMass) return;
             body.AddForce(m_gravity * body.GetMass());

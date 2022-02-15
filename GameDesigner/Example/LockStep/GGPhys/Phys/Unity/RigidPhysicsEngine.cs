@@ -1,14 +1,15 @@
-﻿using GGPhys.Rigid;
-using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using TrueSync;
 using UnityEngine;
+using GGPhys.Rigid;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 namespace GGPhysUnity
 {
     public class RigidPhysicsEngine : MonoBehaviour
     {
-        public int iterations = 4;
+        public int iterations = 0;
         public float gravity = -9.81f;
         public int maxThreadCount = 32;
 
@@ -16,29 +17,32 @@ namespace GGPhysUnity
         public Vector3 gridCellSize;
         public Vector3 gridCenterOffset;
 
-        private readonly float belta = 0.22f;
-        private readonly float slop = 0.001f;
-        private readonly float tolerence = 0.0008f;
+        public float belta = 0.22f;
+        public float slop = 0.001f;
+        public float tolerence = 0.0008f;
+
+        public float timeStep = 0.01f;
+
+        public bool autoStep = true;
 
         private static List<BRigidBody> m_WaitAddedRigidBodies;
 
         public static RigidBodyEngine Instance { get; private set; }
-        public RigidBodyEngine instance;
 
-        protected virtual void Awake()
+        private void Awake()
         {
-            Instance = new RigidBodyEngine(gravity, gridSize, gridCellSize, gridCenterOffset, maxThreadCount);
+            Instance = new RigidBodyEngine(gravity, gridSize.ToVector3d(), gridCellSize.ToVector3d(), gridCenterOffset.ToVector3d(), maxThreadCount);
             Instance.SIResolver.Interations = iterations;
             Instance.SIResolver.Belta = belta;
             Instance.SIResolver.Slop = -slop;
             Instance.SIResolver.Tolerence = tolerence;
-            instance = Instance;
+
             AddWaitRigidBodies();
         }
 
         private void OnDestroy()
         {
-            foreach (RigidBody body in Instance.Bodies)
+            foreach (var body in Instance.Bodies)
             {
                 body.UnityBody = null;
             }
@@ -59,27 +63,37 @@ namespace GGPhysUnity
         }
 
         /// <summary>
+        /// 射线检测
+        /// </summary>
+        /// <param name="contactBody">第一个碰撞到的刚体</param>
+        /// <param name="contactPoint">碰撞点</param>
+        /// <returns></returns>
+        //public static bool RayCastStatic(Vector3d start, Vector3d direction, REAL distance, uint layerMask, ref BRigidBody contactBody, ref Vector3d contactPoint)
+        //{
+        //    RigidBody body = null;
+        //    bool result = Instance.Collisions.RayCastStatic(start, direction, distance, layerMask, ref body, ref contactPoint);
+        //    contactBody = body.UnityBody;
+        //    return result;
+        //}
+
+
+        /// <summary>
         /// 按顺序把排队刚体加入
         /// </summary>
         void AddWaitRigidBodies()
         {
             if (m_WaitAddedRigidBodies == null) return;
-            foreach (BRigidBody rigidBody in m_WaitAddedRigidBodies)
+            foreach (var rigidBody in m_WaitAddedRigidBodies)
             {
                 rigidBody.AddToEngine();
             }
             m_WaitAddedRigidBodies.Clear();
         }
 
-        public static void Simulate(FP step)
-        {
-            Instance.RunPhysics(step);
-        }
-
         private void OnDrawGizmosSelected()
         {
             DebugExtension.DrawBounds(new Bounds(gridCenterOffset, gridCellSize), Color.green);
-            DebugExtension.DrawBounds(new Bounds(gridCenterOffset, gridSize.Multiply(gridCellSize)), Color.green);
+            DebugExtension.DrawBounds(new Bounds(gridCenterOffset, (gridSize.ToVector3d() * gridCellSize.ToVector3d()).ToVector3()), Color.green);
         }
     }
 }

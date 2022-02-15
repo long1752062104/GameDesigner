@@ -1,4 +1,8 @@
-﻿namespace GGPhys.Rigid.Collisions
+﻿using System.Collections;
+using System.Collections.Generic;
+using GGPhys.Core;
+
+namespace GGPhys.Rigid.Collisions
 {
     /// <summary>
     /// 网格类
@@ -11,19 +15,20 @@
 
         public Grid ParentGrid; //父格子
 
+
         /// <summary>
         /// 添加几何体
         /// </summary>
         /// <param name="primitive"></param>
         public void AddPrimitive(CollisionPrimitive primitive)
         {
-            if (HeadPrimitive == null)
+            if(HeadPrimitive == null)
             {
                 HeadPrimitive = PrimitiveNodePool.Spawn();
                 HeadPrimitive.obj = primitive;
                 return;
             }
-            LinkedNode<CollisionPrimitive> newHead = PrimitiveNodePool.Spawn();
+            var newHead = PrimitiveNodePool.Spawn();
             newHead.obj = primitive;
             newHead.next = HeadPrimitive;
             HeadPrimitive = newHead;
@@ -41,7 +46,7 @@
                 HeadStaticPrimitive.obj = primitive;
                 return;
             }
-            LinkedNode<CollisionPrimitive> newHead = PrimitiveNodePool.Spawn();
+            var newHead = PrimitiveNodePool.Spawn();
             newHead.obj = primitive;
             newHead.next = HeadStaticPrimitive;
             HeadStaticPrimitive = newHead;
@@ -53,8 +58,8 @@
         /// <param name="primitive"></param>
         public void RemoveStaticPrimitive(CollisionPrimitive primitive)
         {
-            LinkedNode<CollisionPrimitive> node = HeadStaticPrimitive;
-            if (node.obj == primitive)
+            var node = HeadStaticPrimitive;
+            if(node.obj == primitive)
             {
                 HeadStaticPrimitive = node.next;
                 ClearNode(node);
@@ -62,9 +67,9 @@
             }
             while (node.next != null)
             {
-                if (node.next.obj == primitive)
+                if(node.next.obj == primitive)
                 {
-                    LinkedNode<CollisionPrimitive> next = node.next;
+                    var next = node.next;
                     node.next = next.next;
                     ClearNode(next);
                     return;
@@ -90,9 +95,9 @@
         /// </summary>
         public void Clear()
         {
-            while (HeadPrimitive != null)
+            while(HeadPrimitive != null)
             {
-                LinkedNode<CollisionPrimitive> next = HeadPrimitive.next;
+                var next = HeadPrimitive.next;
                 HeadPrimitive.obj = null;
                 HeadPrimitive.next = null;
                 PrimitiveNodePool.Recycle(HeadPrimitive);
@@ -111,7 +116,7 @@
             return HeadPrimitive != null;
         }
     }
-
+    
     /// <summary>
     /// 几何体节点
     /// </summary>

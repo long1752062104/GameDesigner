@@ -1,16 +1,20 @@
-﻿using FixMath;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using TrueSync;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using GGPhys.Core;
 using UnityEngine;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
     public struct SupportInfo
     {
-        public TSVector3 vertice1;
-        public TSVector3 vertice2;
+        public Vector3d vertice1;
+        public Vector3d vertice2;
 
-        public SupportInfo(TSVector3 one, TSVector3 two)
+        public SupportInfo(Vector3d one, Vector3d two)
         {
             vertice1 = one;
             vertice2 = two;
@@ -21,30 +25,30 @@ namespace GGPhys.Rigid.Collisions
     {
         public struct SimplexPlane
         {
-            public SimplexPlane(TSVector3 normal, FP distance, TSVector3 A, TSVector3 B, TSVector3 C)
+            public SimplexPlane(Vector3d normal, REAL distance, Vector3d A, Vector3d B, Vector3d C)
             {
                 this.normal = normal;
-                sqrDistance = distance;
+                this.sqrDistance = distance;
                 this.A = A;
                 this.B = B;
                 this.C = C;
-                originInPlane = OriginInPlane(normal, A, B, C);
+                this.originInPlane = OriginInPlane(normal, A, B, C);
             }
 
-            public TSVector3 normal;
-            public FP sqrDistance;
-            public TSVector3 A;
-            public TSVector3 B;
-            public TSVector3 C;
+            public Vector3d normal;
+            public REAL sqrDistance;
+            public Vector3d A;
+            public Vector3d B;
+            public Vector3d C;
             public bool originInPlane;
 
-            public static bool OriginInPlane(TSVector3 normal, TSVector3 A, TSVector3 B, TSVector3 C)
+            public static bool OriginInPlane(Vector3d normal, Vector3d A, Vector3d B, Vector3d C)
             {
-                TSVector3 AF = normal - A;
-                FP signPAB = FP.Sign(TSVector3.Dot(normal, TSVector3.Cross(B - A, AF)));
-                FP signPAC = FP.Sign(TSVector3.Dot(normal, TSVector3.Cross(AF, C - A)));
+                Vector3d AF = normal - A;
+                REAL signPAB = REAL.Sign(Vector3d.Dot(normal, Vector3d.Cross(B - A, AF)));
+                REAL signPAC = REAL.Sign(Vector3d.Dot(normal, Vector3d.Cross(AF, C - A)));
                 if ((signPAB * signPAC) == -1) return false;
-                FP signPBC = FP.Sign(TSVector3.Dot(normal, TSVector3.Cross(C - B, normal - B)));
+                REAL signPBC = REAL.Sign(Vector3d.Dot(normal, Vector3d.Cross(C - B, normal - B)));
                 if ((signPBC * signPAB) == -1 || (signPBC * signPAC) == -1) return false;
 
                 return true;
@@ -52,20 +56,20 @@ namespace GGPhys.Rigid.Collisions
 
         }
 
-        public List<TSVector3> points;
+        public List<Vector3d> points;
         public List<SimplexPlane> planes;
 
 
-        public TSVector3 A { get => points[0]; }
-        public TSVector3 B { get => points[1]; }
-        public TSVector3 C { get => points[2]; }
-        public TSVector3 D { get => points[3]; }
+        public Vector3d A { get => points[0]; }
+        public Vector3d B { get => points[1]; }
+        public Vector3d C { get => points[2]; }
+        public Vector3d D { get => points[3]; }
 
         public int Count { get => points.Count; }
 
         public Simplex()
         {
-            points = new List<TSVector3>();
+            points = new List<Vector3d>();
             planes = new List<SimplexPlane>();
         }
 
@@ -75,7 +79,7 @@ namespace GGPhys.Rigid.Collisions
             planes.Clear();
         }
 
-        public void Add(TSVector3 point)
+        public void Add(Vector3d point)
         {
             points.Add(point);
         }
@@ -85,35 +89,35 @@ namespace GGPhys.Rigid.Collisions
             points.RemoveAt(index);
         }
 
-        public bool ContainsPoint(TSVector3 point)
+        public bool ContainsPoint(Vector3d point)
         {
             if (Count < 4) return false;
 
-            TSVector3 AB = B - A;
-            TSVector3 BC = C - B;
-            TSVector3 AC = C - A;
-            TSVector3 CD = D - C;
-            TSVector3 AD = D - A;
-            TSVector3 DB = B - D;
-            TSVector3 BD = D - B;
-            TSVector3 DC = C - D;
+            Vector3d AB = B - A;
+            Vector3d BC = C - B;
+            Vector3d AC = C - A;
+            Vector3d CD = D - C;
+            Vector3d AD = D - A;
+            Vector3d DB = B - D;
+            Vector3d BD = D - B;
+            Vector3d DC = C - D;
 
-            TSVector3 NormalABC = TSVector3.Cross(AB, BC);
-            TSVector3 NormalACD = TSVector3.Cross(AC, CD);
-            TSVector3 NormalADB = TSVector3.Cross(AD, DB);
-            TSVector3 NormalBDC = TSVector3.Cross(BD, DC);
+            Vector3d NormalABC = Vector3d.Cross(AB, BC);
+            Vector3d NormalACD = Vector3d.Cross(AC, CD);
+            Vector3d NormalADB = Vector3d.Cross(AD, DB);
+            Vector3d NormalBDC = Vector3d.Cross(BD, DC);
 
-            TSVector3 AP = point - A;
-            TSVector3 BP = point - B;
+            Vector3d AP = point - A;
+            Vector3d BP = point - B;
 
             //可能为0
-            int signABC = FP.Sign(TSVector3.Dot(NormalABC, AP));
+            int signABC = REAL.Sign(Vector3d.Dot(NormalABC, AP));
             if (signABC == 0) return false;
-            int signACD = FP.Sign(TSVector3.Dot(NormalACD, AP));
+            int signACD = REAL.Sign(Vector3d.Dot(NormalACD, AP));
             if (signACD == 0 || signACD * signABC == -1) return false;
-            int signADB = FP.Sign(TSVector3.Dot(NormalADB, AP));
+            int signADB = REAL.Sign(Vector3d.Dot(NormalADB, AP));
             if (signADB == 0 || signADB * signABC == -1) return false;
-            int signBDC = FP.Sign(TSVector3.Dot(NormalBDC, BP));
+            int signBDC = REAL.Sign(Vector3d.Dot(NormalBDC, BP));
             if (signBDC == 0 || signBDC * signABC == -1) return false;
 
             return true;
@@ -134,10 +138,10 @@ namespace GGPhys.Rigid.Collisions
         {
             if (points.Count < 4) return;
             planes.Clear();
-            TSVector3 NormalABC = GJKDetecotor.FootPointOnPlane(A, B, C, TSVector3.Zero);
-            TSVector3 NormalACD = GJKDetecotor.FootPointOnPlane(A, C, D, TSVector3.Zero);
-            TSVector3 NormalADB = GJKDetecotor.FootPointOnPlane(A, D, B, TSVector3.Zero);
-            TSVector3 NormalBDC = GJKDetecotor.FootPointOnPlane(B, D, C, TSVector3.Zero);
+            Vector3d NormalABC = GJKDetecotor.FootPointOnPlane(A, B, C, Vector3d.Zero);
+            Vector3d NormalACD = GJKDetecotor.FootPointOnPlane(A, C, D, Vector3d.Zero);
+            Vector3d NormalADB = GJKDetecotor.FootPointOnPlane(A, D, B, Vector3d.Zero);
+            Vector3d NormalBDC = GJKDetecotor.FootPointOnPlane(B, D, C, Vector3d.Zero);
 
             SimplexPlane planeABC = new SimplexPlane(NormalABC, NormalABC.SqrMagnitude, A, B, C);
             SimplexPlane planeACD = new SimplexPlane(NormalACD, NormalACD.SqrMagnitude, A, C, D);
@@ -156,16 +160,16 @@ namespace GGPhys.Rigid.Collisions
             planes.Clear();
             if (points.Count == 3)
             {
-                TSVector3 NormalABC = GJKDetecotor.FootPointOnPlane(A, B, C, TSVector3.Zero);
+                Vector3d NormalABC = GJKDetecotor.FootPointOnPlane(A, B, C, Vector3d.Zero);
                 SimplexPlane planeABC = new SimplexPlane(NormalABC, NormalABC.SqrMagnitude, A, B, C);
                 planes.Add(planeABC);
             }
             else
             {
-                TSVector3 NormalABC = GJKDetecotor.FootPointOnPlane(A, B, C, TSVector3.Zero);
-                TSVector3 NormalACD = GJKDetecotor.FootPointOnPlane(A, C, D, TSVector3.Zero);
-                TSVector3 NormalADB = GJKDetecotor.FootPointOnPlane(A, D, B, TSVector3.Zero);
-                TSVector3 NormalBDC = GJKDetecotor.FootPointOnPlane(B, D, C, TSVector3.Zero);
+                Vector3d NormalABC = GJKDetecotor.FootPointOnPlane(A, B, C, Vector3d.Zero);
+                Vector3d NormalACD = GJKDetecotor.FootPointOnPlane(A, C, D, Vector3d.Zero);
+                Vector3d NormalADB = GJKDetecotor.FootPointOnPlane(A, D, B, Vector3d.Zero);
+                Vector3d NormalBDC = GJKDetecotor.FootPointOnPlane(B, D, C, Vector3d.Zero);
 
                 SimplexPlane planeABC = new SimplexPlane(NormalABC, NormalABC.SqrMagnitude, A, B, C);
                 SimplexPlane planeACD = new SimplexPlane(NormalACD, NormalACD.SqrMagnitude, A, C, D);
@@ -176,15 +180,15 @@ namespace GGPhys.Rigid.Collisions
                 planes.Add(planeACD);
                 planes.Add(planeADB);
                 planes.Add(planeBDC);
-            }
+            } 
         }
 
 
-        public void InsertPlanePoint(TSVector3 point, SimplexPlane plane)
+        public void InsertPlanePoint(Vector3d point, SimplexPlane plane)
         {
-            TSVector3 NormalPAB = GJKDetecotor.FootPointOnPlane(point, plane.A, plane.B, TSVector3.Zero);
-            TSVector3 NormalPAC = GJKDetecotor.FootPointOnPlane(point, plane.A, plane.C, TSVector3.Zero);
-            TSVector3 NormalPBC = GJKDetecotor.FootPointOnPlane(point, plane.B, plane.C, TSVector3.Zero);
+            Vector3d NormalPAB = GJKDetecotor.FootPointOnPlane(point, plane.A, plane.B, Vector3d.Zero);
+            Vector3d NormalPAC = GJKDetecotor.FootPointOnPlane(point, plane.A, plane.C, Vector3d.Zero);
+            Vector3d NormalPBC = GJKDetecotor.FootPointOnPlane(point, plane.B, plane.C, Vector3d.Zero);
 
             SimplexPlane planePAB = new SimplexPlane(NormalPAB, NormalPAB.SqrMagnitude, point, plane.A, plane.B);
             SimplexPlane planePAC = new SimplexPlane(NormalPAC, NormalPAC.SqrMagnitude, point, plane.A, plane.C);
@@ -193,7 +197,7 @@ namespace GGPhys.Rigid.Collisions
             RemovePlane(plane);
 
 
-            if (planePAB.originInPlane)
+            if(planePAB.originInPlane)
                 planes.Add(planePAB);
             if (planePAC.originInPlane)
                 planes.Add(planePAC);
@@ -207,7 +211,7 @@ namespace GGPhys.Rigid.Collisions
         {
             for (int i = planes.Count - 1; i >= 0; i--)
             {
-                SimplexPlane p = planes[i];
+                var p = planes[i];
                 if (p.normal == plane.normal
                     && p.sqrDistance == plane.sqrDistance
                     && p.A == plane.A
@@ -221,13 +225,13 @@ namespace GGPhys.Rigid.Collisions
     public class GJKDetecotor
     {
         public Simplex simplex;
-        private Dictionary<TSVector3, SupportInfo> supports;
+        private Dictionary<Vector3d, SupportInfo> supports;
 
 
         public GJKDetecotor()
         {
             simplex = new Simplex();
-            supports = new Dictionary<TSVector3, SupportInfo>();
+            supports = new Dictionary<Vector3d, SupportInfo>();
         }
 
         public void Clear()
@@ -236,29 +240,29 @@ namespace GGPhys.Rigid.Collisions
             supports.Clear();
         }
 
-        public bool GJKTest(TSVector3[] vertices1, TSVector3[] vertices2)
+        public bool GJKTest(Vector3d[] vertices1, Vector3d[] vertices2)
         {
             simplex.Clear();
             supports.Clear();
             // 得到初始的方向
-            TSVector3 direction = FindFirstDirection(vertices1, vertices2);
+            Vector3d direction = FindFirstDirection(vertices1, vertices2);
             // 得到首个support点
             simplex.Add(Support(vertices1, vertices2, direction));
             // 得到第二个方向
             direction = -direction;
 
-            int maxIterations = vertices1.Length + vertices2.Length;
+            var maxIterations = vertices1.Length + vertices2.Length;
             for (int i = 0; i < maxIterations; i++)
             {
-                TSVector3 p = Support(vertices1, vertices2, direction);
+                Vector3d p = Support(vertices1, vertices2, direction);
                 // 沿着dir的方向，已经找不到能够跨越原点的support点了。
-                if (TSVector3.Dot(p, direction) < 0)
+                if (Vector3d.Dot(p, direction) < 0)
                     return false;
 
                 simplex.Add(p);
 
                 // 单形体包含原点了
-                if (simplex.ContainsPoint(TSVector3.Zero))
+                if (simplex.ContainsPoint(Vector3d.Zero))
                 {
                     return true;
                 }
@@ -270,31 +274,31 @@ namespace GGPhys.Rigid.Collisions
             return false;
         }
 
-        public bool GJK(TSVector3[] vertices1, TSVector3[] vertices2, ref TSVector3 normal, ref TSVector3 contactPoint, ref FP penetration)
+        public bool GJK(Vector3d[] vertices1, Vector3d[] vertices2, ref Vector3d normal, ref Vector3d contactPoint, ref REAL penetration)
         {
             simplex.Clear();
             supports.Clear();
             // 得到初始的方向
-            TSVector3 direction = FindFirstDirection(vertices1, vertices2);
+            Vector3d direction = FindFirstDirection(vertices1, vertices2);
             // 得到首个support点
             simplex.Add(Support(vertices1, vertices2, direction));
             // 得到第二个方向
             direction = -direction;
 
-            int maxIterations = vertices1.Length + vertices2.Length;
+            var maxIterations = vertices1.Length + vertices2.Length;
             for (int i = 0; i < maxIterations; i++)
             {
-                TSVector3 p = Support(vertices1, vertices2, direction);
+                Vector3d p = Support(vertices1, vertices2, direction);
                 // 沿着dir的方向，已经找不到能够跨越原点的support点了。
-                if (TSVector3.Dot(p, direction) < 0)
+                if (Vector3d.Dot(p, direction) < 0)
                     return false;
 
                 simplex.Add(p);
 
                 // 单形体包含原点了
-                if (simplex.ContainsPoint(TSVector3.Zero))
+                if (simplex.ContainsPoint(Vector3d.Zero))
                 {
-                    if (EPA(vertices1, vertices2, ref normal, ref contactPoint, ref penetration))
+                    if(EPA(vertices1, vertices2, ref normal, ref contactPoint, ref penetration))
                     {
                         return true;
                     }
@@ -308,31 +312,31 @@ namespace GGPhys.Rigid.Collisions
             return false;
         }
 
-        public bool GJKDist(TSVector3[] vertices1, TSVector3[] vertices2, ref TSVector3 normal, ref TSVector3 contactPoint, ref FP penetration)
+        public bool GJKDist(Vector3d[] vertices1, Vector3d[] vertices2, ref Vector3d normal, ref Vector3d contactPoint, ref REAL penetration)
         {
             simplex.Clear();
             supports.Clear();
             // 得到初始的方向
-            TSVector3 direction = FindFirstDirection(vertices1, vertices2);
+            Vector3d direction = FindFirstDirection(vertices1, vertices2);
             // 得到首个support点
             simplex.Add(Support(vertices1, vertices2, direction));
             // 得到第二个方向
             direction = -direction;
 
-            int maxIterations = vertices1.Length + vertices2.Length;
+            var maxIterations = vertices1.Length + vertices2.Length;
             for (int i = 0; i < maxIterations; i++)
             {
-                TSVector3 p = Support(vertices1, vertices2, direction);
+                Vector3d p = Support(vertices1, vertices2, direction);
                 // 沿着dir的方向，已经找不到能够跨越原点的support点了。
-                if (TSVector3.Dot(p, direction) < 0)
+                if (Vector3d.Dot(p, direction) < 0)
                 {
                     simplex.GeneratePlanes();
-                    Simplex.SimplexPlane? plane = simplex.FindClosestPlane();
+                    var plane = simplex.FindClosestPlane();
                     if (plane == null) return false;
                     Simplex.SimplexPlane simplexPlane = (Simplex.SimplexPlane)plane;
                     if (!simplexPlane.originInPlane) return false;
                     normal = simplexPlane.normal.Normalized;
-                    penetration = F64.SqrtFastest(simplexPlane.sqrDistance);
+                    penetration = REAL.SqrtFastest(simplexPlane.sqrDistance);
                     contactPoint = DistContactPoint(simplexPlane.A, simplexPlane.B, simplexPlane.C, simplexPlane.normal);
                     return true;
                 }
@@ -344,7 +348,7 @@ namespace GGPhys.Rigid.Collisions
             return false;
         }
 
-        public bool EPA(TSVector3[] vertices1, TSVector3[] vertices2, ref TSVector3 normal, ref TSVector3 contactPoint, ref FP penetration)
+        public bool EPA(Vector3d[] vertices1, Vector3d[] vertices2, ref Vector3d normal, ref Vector3d contactPoint, ref REAL penetration)
         {
             int maxIterations = vertices1.Length + vertices2.Length;
             simplex.InitPlanes();
@@ -355,14 +359,14 @@ namespace GGPhys.Rigid.Collisions
                 if (p == null) break;
                 Simplex.SimplexPlane plane = (Simplex.SimplexPlane)p;
                 // 沿着边的法线方向，尝试找一个新的support点
-                TSVector3 point = Support(vertices1, vertices2, plane.normal);
+                Vector3d point = Support(vertices1, vertices2, plane.normal);
                 // 无法找到能够跨越该边的support点了。也就是说，该边就是差集最近边
-                FP distance = TSVector3.Dot(point, plane.normal);
+                REAL distance = Vector3d.Dot(point, plane.normal);
                 if (distance - plane.sqrDistance <= 0.001)
                 {
                     // 返回碰撞信息
-                    normal = -plane.normal.Normalized;
-                    penetration = F64.SqrtFastest(plane.sqrDistance);
+                    normal = - plane.normal.Normalized;
+                    penetration = REAL.SqrtFastest(plane.sqrDistance);
                     contactPoint = ContactPoint(plane.A, plane.B, plane.C, plane.normal);
                     return true;
                 }
@@ -373,11 +377,11 @@ namespace GGPhys.Rigid.Collisions
             return false;
         }
 
-        TSVector3 ContactPoint(TSVector3 sp1, TSVector3 sp2, TSVector3 sp3, TSVector3 normal)
+        Vector3d ContactPoint(Vector3d sp1, Vector3d sp2, Vector3d sp3, Vector3d normal)
         {
-            SupportInfo si1 = supports[sp1];
-            SupportInfo si2 = supports[sp2];
-            SupportInfo si3 = supports[sp3];
+            var si1 = supports[sp1];
+            var si2 = supports[sp2];
+            var si3 = supports[sp3];
 
             if ((si1.vertice1 == si2.vertice1) && (si2.vertice1 == si3.vertice1))
             {
@@ -389,20 +393,20 @@ namespace GGPhys.Rigid.Collisions
                 return si1.vertice2;
             }
 
-            TSVector3 one1 = si1.vertice1;
-            TSVector3 one2 = si2.vertice1 == one1 ? si3.vertice1 : si2.vertice1;
-            TSVector3 two1 = si1.vertice2;
-            TSVector3 two2 = si2.vertice2 == two1 ? si3.vertice2 : si2.vertice2;
+            Vector3d one1 = si1.vertice1;
+            Vector3d one2 = si2.vertice1 == one1 ? si3.vertice1 : si2.vertice1;
+            Vector3d two1 = si1.vertice2;
+            Vector3d two2 = si2.vertice2 == two1 ? si3.vertice2 : si2.vertice2;
 
             return ClosestPointOnTwoLines(one1, one2, two1, two2);
 
         }
 
-        TSVector3 DistContactPoint(TSVector3 sp1, TSVector3 sp2, TSVector3 sp3, TSVector3 normal)
+        Vector3d DistContactPoint(Vector3d sp1, Vector3d sp2, Vector3d sp3, Vector3d normal)
         {
-            SupportInfo si1 = supports[sp1];
-            SupportInfo si2 = supports[sp2];
-            SupportInfo si3 = supports[sp3];
+            var si1 = supports[sp1];
+            var si2 = supports[sp2];
+            var si3 = supports[sp3];
 
             if ((si1.vertice1 == si2.vertice1) && (si2.vertice1 == si3.vertice1))
             {
@@ -414,20 +418,20 @@ namespace GGPhys.Rigid.Collisions
                 return si1.vertice2 + normal;
             }
 
-            TSVector3 one1 = si1.vertice1;
-            TSVector3 one2 = si2.vertice1 == one1 ? si3.vertice1 : si2.vertice1;
-            TSVector3 two1 = si1.vertice2;
-            TSVector3 two2 = si2.vertice2 == two1 ? si3.vertice2 : si2.vertice2;
+            Vector3d one1 = si1.vertice1;
+            Vector3d one2 = si2.vertice1 == one1 ? si3.vertice1 : si2.vertice1;
+            Vector3d two1 = si1.vertice2;
+            Vector3d two2 = si2.vertice2 == two1 ? si3.vertice2 : si2.vertice2;
 
             return ClosestPointOnTwoLines(one1, one2, two1, two2);
 
         }
 
-        TSVector3 FindFirstDirection(TSVector3[] vertices1, TSVector3[] vertices2, int startIndex = 0)
+        Vector3d FindFirstDirection(Vector3d[] vertices1, Vector3d[] vertices2, int startIndex = 0)
         {
-            if ((vertices1.Length <= startIndex) || (vertices2.Length <= startIndex)) return TSVector3.one;
-            TSVector3 direction = vertices1[startIndex] - vertices2[startIndex];
-            if (direction == TSVector3.Zero)
+            if ((vertices1.Length <= startIndex) || (vertices2.Length <= startIndex)) return Vector3d.One;
+            Vector3d direction = vertices1[startIndex] - vertices2[startIndex];
+            if(direction == Vector3d.Zero)
             {
                 int index = startIndex;
                 index++;
@@ -437,29 +441,29 @@ namespace GGPhys.Rigid.Collisions
 
         }
 
-        TSVector3 Support(TSVector3[] vertices1, TSVector3[] vertices2, TSVector3 dir)
+        Vector3d Support(Vector3d[] vertices1, Vector3d[] vertices2, Vector3d dir)
         {
-            TSVector3 a = GetFarthestPointInDirection(vertices1, dir);
-            TSVector3 b = GetFarthestPointInDirection(vertices2, -dir);
-            TSVector3 support = a - b;
+            Vector3d a = GetFarthestPointInDirection(vertices1, dir);
+            Vector3d b = GetFarthestPointInDirection(vertices2, -dir);
+            Vector3d support = a - b;
             CacheSupport(support, a, b);
             return support;
         }
 
-        void CacheSupport(TSVector3 support, TSVector3 vertice1, TSVector3 vertice2)
+        void CacheSupport(Vector3d support,Vector3d vertice1, Vector3d vertice2)
         {
             if (supports.ContainsKey(support)) return;
-            SupportInfo si = new SupportInfo(vertice1, vertice2);
+            var si = new SupportInfo(vertice1, vertice2);
             supports.Add(support, si);
         }
 
-        TSVector3 GetFarthestPointInDirection(TSVector3[] vertices, TSVector3 direction)
+        Vector3d GetFarthestPointInDirection(Vector3d[] vertices, Vector3d direction)
         {
-            FP maxDistance = FP.MinValue;
+            REAL maxDistance = REAL.MinValue;
             int maxIndex = 0;
             for (int i = 0; i < vertices.Length; ++i)
             {
-                FP distance = TSVector3.Dot(vertices[i], direction);
+                REAL distance = Vector3d.Dot(vertices[i], direction);
                 if (distance > maxDistance)
                 {
                     maxDistance = distance;
@@ -469,34 +473,34 @@ namespace GGPhys.Rigid.Collisions
             return vertices[maxIndex];
         }
 
-        TSVector3 FindNextDirection()
+        Vector3d FindNextDirection()
         {
             int count = simplex.Count;
             if (count == 2)
             {
                 // 计算原点到直线01的垂足
-                TSVector3 crossPoint = ClosestPointOnLine(simplex.A, simplex.B, TSVector3.Zero);
+                Vector3d crossPoint = ClosestPointOnLine(simplex.A, simplex.B, Vector3d.Zero);
                 // 取靠近原点方向的向量
-                return TSVector3.Zero - crossPoint;
+                return Vector3d.Zero - crossPoint;
             }
-            else if (count == 3)
+            else if(count == 3)
             {
                 // 计算原点到面012的垂足
-                TSVector3 crossPoint = FootPointOnPlane(simplex.A, simplex.B, simplex.C, TSVector3.Zero);
-                return TSVector3.Zero - crossPoint;
+                Vector3d crossPoint = FootPointOnPlane(simplex.A, simplex.B, simplex.C, Vector3d.Zero);
+                return Vector3d.Zero - crossPoint;
             }
             else if (count == 4)
             {
                 // 计算原点到面301的垂足
-                TSVector3 crossOnDAB = FootPointOnPlane(simplex.D, simplex.A, simplex.B, TSVector3.Zero);
+                Vector3d crossOnDAB = FootPointOnPlane(simplex.D, simplex.A, simplex.B, Vector3d.Zero);
                 // 计算原点到面302的垂足
-                TSVector3 crossOnDAC = FootPointOnPlane(simplex.D, simplex.A, simplex.C, TSVector3.Zero);
+                Vector3d crossOnDAC = FootPointOnPlane(simplex.D, simplex.A, simplex.C, Vector3d.Zero);
                 // 计算原点到面312的垂足
-                TSVector3 crossOnDBC = FootPointOnPlane(simplex.D, simplex.B, simplex.C, TSVector3.Zero);
+                Vector3d crossOnDBC = FootPointOnPlane(simplex.D, simplex.B, simplex.C, Vector3d.Zero);
 
-                FP originToDAB = crossOnDAB.SqrMagnitude;
-                FP originToDAC = crossOnDAC.SqrMagnitude;
-                FP originToDBC = crossOnDBC.SqrMagnitude;
+                REAL originToDAB = crossOnDAB.SqrMagnitude;
+                REAL originToDAC = crossOnDAC.SqrMagnitude;
+                REAL originToDBC = crossOnDBC.SqrMagnitude;
 
                 int minIndex = MinIndex(originToDAB, originToDAC, originToDBC);
 
@@ -504,30 +508,30 @@ namespace GGPhys.Rigid.Collisions
                 if (minIndex == 1)
                 {
                     simplex.RemoveAt(2);
-                    return TSVector3.Zero - crossOnDAB;
+                    return Vector3d.Zero - crossOnDAB;
                 }
                 if (minIndex == 2)
                 {
                     simplex.RemoveAt(1);
-                    return TSVector3.Zero - crossOnDAC;
+                    return Vector3d.Zero - crossOnDAC;
                 }
                 else
                 {
                     simplex.RemoveAt(0);
-                    return TSVector3.Zero - crossOnDBC;
+                    return Vector3d.Zero - crossOnDBC;
                 }
             }
             else
             {
                 // 不应该执行到这里
-                return TSVector3.Zero;
+                return Vector3d.Zero;
             }
         }
 
-        public static TSVector3 ClosestPointOnLine(TSVector3 linePointA, TSVector3 linePointB, TSVector3 point)
+        public static Vector3d ClosestPointOnLine(Vector3d linePointA, Vector3d linePointB, Vector3d point)
         {
-            TSVector3 AB = linePointB - linePointA;
-            FP t = TSVector3.Dot(point - linePointA, AB) / TSVector3.Dot(AB, AB);
+            Vector3d AB = linePointB - linePointA;
+            REAL t = Vector3d.Dot(point - linePointA, AB) / Vector3d.Dot(AB, AB); 
             return linePointA + t * AB;
         }
 
@@ -539,10 +543,10 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="lineTwoPointA"></param>
         /// <param name="lineTwoPointB"></param>
         /// <returns></returns>
-        public static TSVector3 ClosestPointFromLineTwo(TSVector3 lineOnePointA, TSVector3 lineOnePointB, TSVector3 lineTwoPointA, TSVector3 lineTwoPointB)
+        public static Vector3d ClosestPointFromLineTwo(Vector3d lineOnePointA, Vector3d lineOnePointB, Vector3d lineTwoPointA, Vector3d lineTwoPointB)
         {
-            TSVector3 bestA = TSVector3.Zero;
-            TSVector3 bestB = TSVector3.Zero;
+            Vector3d bestA = Vector3d.Zero;
+            Vector3d bestB = Vector3d.Zero;
             ClosestPoinsOnTwoLines(lineOnePointA, lineOnePointB, lineTwoPointA, lineTwoPointB, ref bestA, ref bestB);
             return bestB;
         }
@@ -556,18 +560,18 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="lineTwoPointB"></param>
         /// <param name="bestA"></param>
         /// <param name="bestB"></param>
-        public static void ClosestPoinsOnTwoLines(TSVector3 lineOnePointA, TSVector3 lineOnePointB, TSVector3 lineTwoPointA, TSVector3 lineTwoPointB, ref TSVector3 bestA, ref TSVector3 bestB)
+        public static void ClosestPoinsOnTwoLines(Vector3d lineOnePointA, Vector3d lineOnePointB, Vector3d lineTwoPointA, Vector3d lineTwoPointB, ref Vector3d bestA, ref Vector3d bestB)
         {
-            FP episolon = 0.0001;
-            TSVector3 d1 = lineOnePointB - lineOnePointA;
-            TSVector3 d2 = lineTwoPointB - lineTwoPointA;
-            TSVector3 r = lineOnePointA - lineTwoPointA;
-            FP a = TSVector3.Dot(d1, d1);
-            FP e = TSVector3.Dot(d2, d2);
-            FP f = TSVector3.Dot(d2, r);
+            REAL episolon = 0.0001;
+            Vector3d d1 = lineOnePointB - lineOnePointA;
+            Vector3d d2 = lineTwoPointB - lineTwoPointA;
+            Vector3d r = lineOnePointA - lineTwoPointA;
+            REAL a = Vector3d.Dot(d1, d1);
+            REAL e = Vector3d.Dot(d2, d2);
+            REAL f = Vector3d.Dot(d2, r);
 
-            FP s = 0;
-            FP t = 0;
+            REAL s = 0;
+            REAL t = 0;
 
             if (a <= episolon && e <= episolon)
             {
@@ -581,32 +585,32 @@ namespace GGPhys.Rigid.Collisions
             {
                 s = 0;
                 t = f / e;
-                t = FP.Clamp(t, 0, 1);
+                t = REAL.Clamp(t, 0, 1);
             }
             else
             {
-                FP c = TSVector3.Dot(d1, r);
+                REAL c = Vector3d.Dot(d1, r);
                 if (e <= episolon)
                 {
                     t = 0;
-                    s = FP.Clamp(-c / a, 0, 1);
+                    s = REAL.Clamp(-c / a, 0, 1);
                 }
                 else
                 {
-                    FP b = TSVector3.Dot(d1, d2);
-                    FP denom = a * e - b * b;
-                    s = denom == 0 ? 0 : FP.Clamp((b * f - c * e) / denom, 0, 1);
+                    REAL b = Vector3d.Dot(d1, d2);
+                    REAL denom = a * e - b * b;
+                    s = denom == 0 ? 0 : REAL.Clamp((b * f - c * e) / denom, 0, 1);
 
-                    FP tnom = b * s + f;
+                    REAL tnom = b * s + f;
                     if (tnom < 0)
                     {
                         t = 0;
-                        s = FP.Clamp(-c / a, 0, 1);
+                        s = REAL.Clamp(-c / a, 0, 1);
                     }
                     else if (tnom > e)
                     {
                         t = 1;
-                        s = FP.Clamp((b - c) / a, 0, 1);
+                        s = REAL.Clamp((b - c) / a, 0, 1);
                     }
                     else
                     {
@@ -627,10 +631,10 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="lineTwoPointA"></param>
         /// <param name="lineTwoPointB"></param>
         /// <returns></returns>
-        public static TSVector3 ClosestPointOnTwoLines(TSVector3 lineOnePointA, TSVector3 lineOnePointB, TSVector3 lineTwoPointA, TSVector3 lineTwoPointB)
+        public static Vector3d ClosestPointOnTwoLines(Vector3d lineOnePointA, Vector3d lineOnePointB, Vector3d lineTwoPointA, Vector3d lineTwoPointB)
         {
-            TSVector3 bestA = TSVector3.Zero;
-            TSVector3 bestB = TSVector3.Zero;
+            Vector3d bestA = Vector3d.Zero;
+            Vector3d bestB = Vector3d.Zero;
             ClosestPoinsOnTwoLines(lineOnePointA, lineOnePointB, lineTwoPointA, lineTwoPointB, ref bestA, ref bestB);
             return bestA + (bestB - bestA) * 0.5;
         }
@@ -642,36 +646,36 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="linePointB"></param>
         /// <param name="Point"></param>
         /// <returns></returns>
-        public static TSVector3 ClosestPointOnLineSegment(TSVector3 linePointA, TSVector3 linePointB, TSVector3 Point)
+        public static Vector3d ClosestPointOnLineSegment(Vector3d linePointA, Vector3d linePointB, Vector3d Point)
         {
-            TSVector3 AB = linePointB - linePointA;
-            FP t = TSVector3.Dot(Point - linePointA, AB) / TSVector3.Dot(AB, AB);
-            return linePointA + FP.Clamp(t, 0, 1) * AB;
+            Vector3d AB = linePointB - linePointA;
+            REAL t = Vector3d.Dot(Point - linePointA, AB) / Vector3d.Dot(AB, AB);
+            return linePointA + REAL.Clamp(t, 0, 1) * AB;
         }
 
-        public static TSVector3 FootPointOnPlane(TSVector3 planePointA, TSVector3 planePointB, TSVector3 planePointC, TSVector3 point)
+        public static Vector3d FootPointOnPlane(Vector3d planePointA, Vector3d planePointB, Vector3d planePointC, Vector3d point)
         {
-            TSVector3 normal = TSVector3.Cross(planePointB - planePointA, planePointC - planePointA);// not normalized
-            if (normal == TSVector3.Zero) return TSVector3.Zero;
+            Vector3d normal = Vector3d.Cross(planePointB - planePointA, planePointC - planePointA);// not normalized
+            if (normal == Vector3d.Zero) return Vector3d.Zero;
 
-            TSVector3 PA = planePointA - point;
-            FP t = TSVector3.Dot(PA, normal) / TSVector3.Dot(normal, normal);
+            Vector3d PA= planePointA - point;
+            REAL t = Vector3d.Dot(PA, normal) / Vector3d.Dot(normal, normal);
             return point + t * normal;
         }
 
-        public static FP PlaneCenterDistance(TSVector3 planePointA, TSVector3 planePointB, TSVector3 planePointC)
+        public static REAL PlaneCenterDistance(Vector3d planePointA, Vector3d planePointB, Vector3d planePointC)
         {
-            FP x = (planePointA.x + planePointB.x + planePointC.x) * 0.33333;
-            FP y = (planePointA.y + planePointB.y + planePointC.y) * 0.33333;
-            FP z = (planePointA.z + planePointB.z + planePointC.z) * 0.33333;
+            REAL x = (planePointA.x + planePointB.x + planePointC.x) * 0.33333;
+            REAL y = (planePointA.y + planePointB.y + planePointC.y) * 0.33333;
+            REAL z = (planePointA.z + planePointB.z + planePointC.z) * 0.33333;
             return x * x + y * y + z * z;
         }
 
 
-        public static int MinIndex(FP one, FP two, FP three)
+        public static int MinIndex(REAL one, REAL two, REAL three)
         {
             int index = one < two ? 1 : 2;
-            if (index == 1)
+            if(index == 1)
             {
                 index = one < three ? 1 : 3;
             }
@@ -682,7 +686,7 @@ namespace GGPhys.Rigid.Collisions
             return index;
         }
 
-        public static int MaxIndex(FP one, FP two, FP three)
+        public static int MaxIndex(REAL one, REAL two, REAL three)
         {
             int index = one > two ? 1 : 2;
             if (index == 1)

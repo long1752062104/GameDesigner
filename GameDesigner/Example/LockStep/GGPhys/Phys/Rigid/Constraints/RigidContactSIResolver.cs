@@ -1,6 +1,9 @@
-﻿using GGPhys.Rigid.Collisions;
+﻿using System.Collections;
 using System.Collections.Generic;
-using TrueSync;
+using GGPhys.Core;
+using GGPhys.Rigid.Collisions;
+using UnityEngine;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Constraints
 {
@@ -9,11 +12,11 @@ namespace GGPhys.Rigid.Constraints
     /// </summary>
     public class RigidContactSIResolver
     {
-        public FP Belta = 0.3; //处理相交部分的程度
-        public FP Slop = -0.001; //控制什么范围开始处理相交
-        public FP Tolerence = 0.0005; //相交小于该值，则移除对应碰撞
+        public REAL Belta = 0.3; //处理相交部分的程度
+        public REAL Slop = - 0.001; //控制什么范围开始处理相交
+        public REAL Tolerence = 0.0005; //相交小于该值，则移除对应碰撞
         public int Interations; //迭代次数
-        public List<FP> ContactBias = new List<FP>(); //相交部分需要修正的偏置
+        public REAL[] ContactBias; //相交部分需要修正的偏置
         public List<RigidContact> EndContacts; //迭代结束后需要结束的碰撞
 
 
@@ -23,7 +26,7 @@ namespace GGPhys.Rigid.Constraints
             EndContacts = new List<RigidContact>();
         }
 
-        public void ResolveContacts(CollisionData collisionData, FP dt)
+        public void Resolve(CollisionData collisionData, REAL dt)
         {
             PrepareContacts(collisionData.Contacts, dt);
             Integrate(collisionData, Interations, dt);
@@ -34,19 +37,9 @@ namespace GGPhys.Rigid.Constraints
         /// </summary>
         /// <param name="contacts"></param>
         /// <param name="dt"></param>
-        public void PrepareContacts(List<RigidContact> contacts, FP dt)
+        public void PrepareContacts(List<RigidContact> contacts, REAL dt)
         {
-            //ContactBias.Clear(); //= new FP[contacts.Count];
-            if (ContactBias.Count >= contacts.Count)
-            {
-                for (int i = 0; i < contacts.Count; i++)
-                    ContactBias[i] = 0;
-            }
-            else
-            {
-                for (int i = 0; i < contacts.Count; i++)
-                    ContactBias.Add(0);
-            }
+            ContactBias = new REAL[contacts.Count];
         }
 
         /// <summary>
@@ -55,110 +48,123 @@ namespace GGPhys.Rigid.Constraints
         /// <param name="collisionData"></param>
         /// <param name="interations"></param>
         /// <param name="dt"></param>
-        void Integrate(CollisionData collisionData, int interations, FP dt)
+        void Integrate(CollisionData collisionData, int interations, REAL dt)
         {
-            List<RigidContact> contacts = collisionData.Contacts;
+            var contacts = collisionData.Contacts;
             for (int i = 0; i < interations; i++)
             {
-                for (int j = 0; j < contacts.Count; j++)
+                IntegrateContacts(contacts, dt, i);
+            }
+            KillContacts(collisionData);
+        }
+
+        /// <summary>
+        /// 碰撞求解迭代
+        /// </summary>
+        /// <param name="contacts"></param>
+        /// <param name="dt"></param>
+        /// <param name="interation"></param>
+        void IntegrateContacts(List<RigidContact> contacts, REAL dt, int interation)
+        {
+            for (int i = 0; i < contacts.Count; i++)
+            {
+                var contact = contacts[i];
+
+                var body1 = contact.Body[0];
+                var body2 = contact.Body[1];
+
+                bool bodyOneStatic = body1.IsStatic || !body1.GetAwake();
+                bool bodyTwoStatic = body2.IsStatic || !body2.GetAwake();
+
+                var oneV = body1.Velocity;
+                var twoV = body2.Velocity;
+                var oneR = body1.Rotation;
+                var twoR = body2.Rotation;
+
+                var oneVN = bodyOneStatic ? 0 : Vector3d.Dot(contact.ContactNormal, oneV);
+                var oneRN = bodyOneStatic ? 0 : Vector3d.Dot(contact.CrossOne, oneR);
+                var twoVN = bodyTwoStatic ? 0 : Vector3d.Dot(-contact.ContactNormal, twoV);
+                var twoRN = bodyTwoStatic ? 0 : Vector3d.Dot(contact.CrossTwo, twoR);
+
+                var fOneVN = bodyOneStatic ? 0 : Vector3d.Dot(contact.ContactPerpendicular, oneV);
+                var fOneRN = bodyOneStatic ? 0 : Vector3d.Dot(contact.FCrossOne, oneR);
+                var fTwoVN = bodyTwoStatic ? 0 : Vector3d.Dot(-contact.ContactPerpendicular, twoV);
+                var fTwoRN = bodyTwoStatic ? 0 : Vector3d.Dot(contact.FCrossTwo, twoR);
+
+                REAL JV = oneVN + twoVN + oneRN + twoRN;
+                REAL FJV = fOneVN + fTwoVN + fOneRN + fTwoRN;
+
+                if (interation == 0)
                 {
-                    RigidContact contact = contacts[j];
+                    ContactBias[i] = -(contact.Penetration + Slop) * Belta / dt;
+                }
 
-                    RigidBody body1 = contact.Body[0];
-                    RigidBody body2 = contact.Body[1];
+                var Bias = ContactBias[i];
+                var VR = contact.ContactVR;
+                REAL lambda;
+                REAL flambda;
+                if (contact.Penetration > -Slop)
+                {
+                    lambda = -(JV - VR + Bias) / contact.JMJ;
+                }
+                else
+                {
+                    lambda = -(JV - VR) / contact.JMJ;
+                }
 
-                    bool bodyOneStatic = body1.IsStatic || !body1.GetAwake();
-                    bool bodyTwoStatic = body2.IsStatic || !body2.GetAwake();
+                flambda = -FJV / contact.FJMJ;
 
-                    TSVector3 oneV = body1.Velocity;
-                    TSVector3 twoV = body2.Velocity;
-                    TSVector3 oneR = body1.Rotation;
-                    TSVector3 twoR = body2.Rotation;
+                var oldLambda = contact.Lambda;
+                contact.Lambda += lambda;
+                contact.Lambda = REAL.Clamp(contact.Lambda, 0, REAL.MaxValue);
+                var lambdaDelta = contact.Lambda - oldLambda;
 
-                    FP oneVN = bodyOneStatic ? 0 : TSVector3.Dot(contact.ContactNormal, oneV);
-                    FP oneRN = bodyOneStatic ? 0 : TSVector3.Dot(contact.CrossOne, oneR);
-                    FP twoVN = bodyTwoStatic ? 0 : TSVector3.Dot(-contact.ContactNormal, twoV);
-                    FP twoRN = bodyTwoStatic ? 0 : TSVector3.Dot(contact.CrossTwo, twoR);
+                var fOldLambda = contact.FLambda;
+                contact.FLambda += flambda;
+                contact.FLambda = REAL.Clamp(contact.FLambda, -contact.Lambda * contact.Friction, contact.Lambda * contact.Friction);
+                var fLambdaDelta = contact.FLambda - fOldLambda;
+                
+                Vector3d linearImpulse1 = lambdaDelta * contact.ContactNormal + fLambdaDelta * contact.ContactPerpendicular;
+                Vector3d linearImpulse2 = -linearImpulse1;
+                Vector3d angularImpulse1 = lambdaDelta * contact.CrossOne + fLambdaDelta * contact.FCrossOne;
+                Vector3d angularImpulse2 = lambdaDelta * contact.CrossTwo + fLambdaDelta * contact.FCrossTwo;
 
-                    FP fOneVN = bodyOneStatic ? 0 : TSVector3.Dot(contact.ContactPerpendicular, oneV);
-                    FP fOneRN = bodyOneStatic ? 0 : TSVector3.Dot(contact.FCrossOne, oneR);
-                    FP fTwoVN = bodyTwoStatic ? 0 : TSVector3.Dot(-contact.ContactPerpendicular, twoV);
-                    FP fTwoRN = bodyTwoStatic ? 0 : TSVector3.Dot(contact.FCrossTwo, twoR);
+                if (!bodyOneStatic)
+                {
+                    body1.ApplyLinearImpulse(linearImpulse1);
+                    body1.ApplyAngularImpulse(angularImpulse1);
+                }
 
-                    FP JV = oneVN + twoVN + oneRN + twoRN;
-                    FP FJV = fOneVN + fTwoVN + fOneRN + fTwoRN;
+                if (!bodyTwoStatic)
+                {
+                    body2.ApplyLinearImpulse(linearImpulse2);
+                    body2.ApplyAngularImpulse(angularImpulse2);
+                }
 
-                    if (i == 0)
+                if (interation == Interations - 1)
+                {
+                    contact.IntegrateTimes += 1;
+                    contact.Penetration *= REAL.Exp(-Belta * contact.IntegrateTimes);
+
+                    if (contact.Penetration < Tolerence || !contact.HasMultiContacts)
                     {
-                        ContactBias[j] = -(contact.Penetration + Slop) * Belta / dt;
-                    }
-
-                    FP Bias = ContactBias[j];
-                    FP VR = contact.ContactVR;
-                    FP lambda;
-                    if (contact.Penetration > -Slop)
-                    {
-                        lambda = -(JV - VR + Bias) / contact.JMJ;
-                    }
-                    else
-                    {
-                        lambda = -(JV - VR) / contact.JMJ;
-                    }
-
-                    FP flambda = -FJV / contact.FJMJ;
-
-                    FP oldLambda = contact.Lambda;
-                    contact.Lambda += lambda;
-                    contact.Lambda = FP.Clamp(contact.Lambda, 0, 10 /*FP.MaxValue*/);
-                    FP lambdaDelta = contact.Lambda - oldLambda;
-
-                    FP fOldLambda = contact.FLambda;
-                    contact.FLambda += flambda;
-                    contact.FLambda = FP.Clamp(contact.FLambda, -contact.Lambda * contact.Friction, contact.Lambda * contact.Friction);
-                    FP fLambdaDelta = contact.FLambda - fOldLambda;
-
-                    //if (lambdaDelta > 10f)
-                    //    lambdaDelta = 10f;
-                    if (lambdaDelta <= 0f)
-                        lambdaDelta = 0.0001f;
-                    //if (fLambdaDelta > 10f)
-                    //    fLambdaDelta = 10f;
-                    if (fLambdaDelta <= 0f)
-                        fLambdaDelta = 0.0001f;
-
-                    //线性弹跳, 穿模
-                    TSVector3 linearImpulse1 = TSVector3.zero;
-                    if (!bodyOneStatic | !bodyTwoStatic)
-                        linearImpulse1 = lambdaDelta * contact.ContactNormal + fLambdaDelta * contact.ContactPerpendicular;
-                    TSVector3 linearImpulse2 = -linearImpulse1;
-                    TSVector3 angularImpulse1 = lambdaDelta * contact.CrossOne + fLambdaDelta * contact.FCrossOne;
-                    TSVector3 angularImpulse2 = lambdaDelta * contact.CrossTwo + fLambdaDelta * contact.FCrossTwo;
-
-                    if (!bodyOneStatic)
-                    {
-                        body1.ApplyLinearImpulse(linearImpulse1);
-                        body1.ApplyAngularImpulse(angularImpulse1);
-                    }
-
-                    if (!bodyTwoStatic)
-                    {
-                        body2.ApplyLinearImpulse(linearImpulse2);
-                        body2.ApplyAngularImpulse(angularImpulse2);
-                    }
-
-                    if (i == interations - 1)
-                    {
-                        contact.IntegrateTimes += 1;
-                        contact.Penetration *= TSMathf.Exp(-Belta * contact.IntegrateTimes);
-
-                        if (contact.Penetration < Tolerence | contact.Penetration < -10000 | contact.Penetration > 10000)
-                        {
-                            contact.Penetration = 0;
-                            collisionData.RecycleContact(contact);
-                        }
+                        EndContacts.Add(contact);
+                        continue;
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 清除结束的碰撞
+        /// </summary>
+        void KillContacts(CollisionData collisionData)
+        {
+            foreach (var contact in EndContacts)
+            {
+                collisionData.RecycleContact(contact);
+            }
+            EndContacts.Clear();
         }
     }
 }

@@ -1,8 +1,10 @@
-﻿using GGPhys.Core;
-using GGPhys.Rigid.Collisions;
+﻿using System.Collections;
 using System.Collections.Generic;
-using TrueSync;
+using System.Threading.Tasks;
+using GGPhys.Core;
+using GGPhys.Rigid.Collisions;
 using UnityEngine;
+using REAL = FixMath.FP;
 
 namespace GGPhysUnity
 {
@@ -15,11 +17,13 @@ namespace GGPhysUnity
 
         public override void AddToEngine(BRigidBody bBody)
         {
+            base.AddToEngine(bBody);
             Primitives = new List<CollisionPrimitive>();
             AddTriangles(bBody);
+            
         }
 
-        public override Matrix3 CalculateInertiaTensor(FP mass)
+        public override Matrix3 CalculateInertiaTensor(REAL mass)
         {
             return Matrix3.Zero;
         }
@@ -32,44 +36,73 @@ namespace GGPhysUnity
         void AddTriangles(BRigidBody bBody)
         {
             if (mesh == null) return;
-            int size = mesh.triangles.Length;
+            var size = mesh.triangles.Length;
             if (size % 3 != 0) return;
             int triangleCount = size / 3;
             triangles = new BTriangle[triangleCount];
-            int[] meshTriangles = mesh.triangles;
-            Vector3[] meshVertices = mesh.vertices;
-            Vector3 lossyScale = gameObject.transform.lossyScale;
-
-            for (int i = 0; i < size; i += 3)
+            var meshTriangles = mesh.triangles;
+            var meshVertices = mesh.vertices;
+            var lossyScale = transform.lossyScale.ToVector3d();
+            int batchCount = (size / (maxThreadCount * 3)) * 3;
+            if(batchCount == 0)
             {
-                int verticeIndexA = meshTriangles[i];
-                int verticeIndexB = meshTriangles[i + 1];
-                int verticeIndexC = meshTriangles[i + 2];
-                Vector3 a = meshVertices[verticeIndexA].Multiply(lossyScale);
-                Vector3 b = meshVertices[verticeIndexB].Multiply(lossyScale);
-                Vector3 c = meshVertices[verticeIndexC].Multiply(lossyScale);
-
-                BTriangle triangle = new BTriangle
+                for (int i = 0; i < size; i += 3)
                 {
-                    A = a,
-                    B = b,
-                    C = c
-                };
-                triangles[i / 3] = triangle;
+                    var verticeIndexA = meshTriangles[i];
+                    var verticeIndexB = meshTriangles[i + 1];
+                    var verticeIndexC = meshTriangles[i + 2];
+                    var a = meshVertices[verticeIndexA].ToVector3d() * lossyScale;
+                    var b = meshVertices[verticeIndexB].ToVector3d() * lossyScale;
+                    var c = meshVertices[verticeIndexC].ToVector3d() * lossyScale;
+
+                    var triangle = new BTriangle();
+                    triangle.A = a;
+                    triangle.B = b;
+                    triangle.C = c;
+                    triangles[i / 3] = triangle;
+                }
             }
+            else //多线程加速
+            {
+                int taskCount = size % batchCount == 0 ? size / batchCount : size / batchCount + 1;
+                Task[] tasks = new Task[taskCount];
+                for (int k = 0; k < size; k += batchCount)
+                {
+                    int start = k;
+                    int end = start + batchCount;
+                    tasks[start / batchCount] = Task.Factory.StartNew(() =>
+                    {
+                        for (int i = start; (i < size && i < end); i += 3)
+                        {
+                            var verticeIndexA = meshTriangles[i];
+                            var verticeIndexB = meshTriangles[i + 1];
+                            var verticeIndexC = meshTriangles[i + 2];
+                            var a = meshVertices[verticeIndexA].ToVector3d() * lossyScale;
+                            var b = meshVertices[verticeIndexB].ToVector3d() * lossyScale;
+                            var c = meshVertices[verticeIndexC].ToVector3d() * lossyScale;
+
+                            var triangle = new BTriangle();
+                            triangle.A = a;
+                            triangle.B = b;
+                            triangle.C = c;
+                            triangles[i / 3] = triangle;
+                        }
+                    });
+                }
+
+                Task.WaitAll(tasks);
+            }
+            
 
             for (int i = 0; i < triangles.Length; i++)
             {
-                BTriangle triangle = triangles[i];
-                CollisionTriangle shape = new CollisionTriangle(triangle.A, triangle.B, triangle.C)
-                {
-                    Body = bBody.Body,
-                    Offset = Matrix4.IdentityOffset(CenterOffset /*- bBody.CenterOfMassOffset*/),
-                    IsTrigger = IsTrigger,
-                    CollisionLayer = (uint)bBody.collsionLayer,
-                    CollisionMask = (uint)bBody.collsionMask
-                };
-                bBody.Body.Offset = CenterOffset;
+                var triangle = triangles[i];
+                var shape = new CollisionTriangle(triangle.A, triangle.B, triangle.C);
+                shape.Body = bBody.Body;
+                shape.Offset = Matrix4.IdentityOffset(CenterOffset.ToVector3d() - bBody.CenterOfMassOffset);
+                shape.IsTrigger = IsTrigger;
+                shape.CollisionLayer = (uint)bBody.collsionLayer;
+                shape.CollisionMask = (uint)bBody.collsionMask;
                 Primitives.Add(shape);
                 RigidPhysicsEngine.Instance.Collisions.AddPrimitive(shape);
             }
@@ -79,33 +112,19 @@ namespace GGPhysUnity
 
         void UpdateMesh()
         {
-            MeshFilter meshFilter = gameObject.GetComponent<MeshFilter>();
+            var meshFilter = gameObject.GetComponent<MeshFilter>();
             if (meshFilter != null)
             {
                 mesh = meshFilter.sharedMesh;
             }
         }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (mesh == null)
-                UpdateMesh();
-            if (mesh == null)
-                return;
-            if (transform == null)
-                transform = GetComponent<TSTransform>();
-            if (transform == null)
-                return;
-            Gizmos.color = new Color(0, 128, 255);
-            Gizmos.DrawWireMesh(mesh, transform.position + transform.TransformDirection(CenterOffset), transform.rotation, transform.localScale);
-        }
     }
 
     public struct BTriangle
     {
-        public TSVector3 A;
-        public TSVector3 B;
-        public TSVector3 C;
+        public Vector3d A;
+        public Vector3d B;
+        public Vector3d C;
     }
 }
 

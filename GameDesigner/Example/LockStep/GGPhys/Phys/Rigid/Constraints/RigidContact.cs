@@ -1,7 +1,8 @@
-using GGPhys.Core;
-using GGPhys.Rigid.Collisions;
 using System;
-using TrueSync;
+using System.Collections.Generic;
+using GGPhys.Core;
+using REAL = FixMath.FP;
+using GGPhys.Rigid.Collisions;
 
 namespace GGPhys.Rigid.Constraints
 {
@@ -24,62 +25,64 @@ namespace GGPhys.Rigid.Constraints
         ///<summary>
         /// 摩擦系数
         ///</summary>
-        public FP Friction;
+        public REAL Friction;
 
         ///<summary>
         /// 回弹系数
         ///</summary>
-        public FP Restitution;
+        public REAL Restitution;
 
         ///<summary>
         /// 碰撞点
         ///</summary>
-        public TSVector3 ContactPoint;
+        public Vector3d ContactPoint;
 
         ///<summary>
         /// 碰撞法线
         ///</summary>
-        public TSVector3 ContactNormal;
+        public Vector3d ContactNormal;
 
         /// <summary>
         /// 碰撞切线
         /// </summary>
-        public TSVector3 ContactPerpendicular;
+        public Vector3d ContactPerpendicular;
 
-        public FP ContactVR; //在连续冲量求解约束中预先计算好的参数
+        public REAL ContactVR; //在连续冲量求解约束中预先计算好的参数
 
-        public TSVector3 CrossOne; //在连续冲量求解约束中预先计算好的参数
+        public Vector3d CrossOne; //在连续冲量求解约束中预先计算好的参数
 
-        public TSVector3 CrossTwo; //在连续冲量求解约束中预先计算好的参数
+        public Vector3d CrossTwo; //在连续冲量求解约束中预先计算好的参数
 
-        public TSVector3 FCrossOne; //在连续冲量求解约束中预先计算好的参数
+        public Vector3d FCrossOne; //在连续冲量求解约束中预先计算好的参数
 
-        public TSVector3 FCrossTwo; //在连续冲量求解约束中预先计算好的参数
+        public Vector3d FCrossTwo; //在连续冲量求解约束中预先计算好的参数
 
-        public FP JMJ; //在连续冲量求解约束中预先计算好的参数
+        public REAL JMJ; //在连续冲量求解约束中预先计算好的参数
 
-        public FP FJMJ; //在连续冲量求解约束中预先计算好的参数
+        public REAL FJMJ; //在连续冲量求解约束中预先计算好的参数
 
-        public FP Lambda; //碰撞发现方向拉格朗日乘子
+        public REAL Lambda; //碰撞发现方向拉格朗日乘子
 
-        public FP FLambda; //摩擦力方向拉格朗日乘子
+        public REAL FLambda; //摩擦力方向拉格朗日乘子
 
         public int IntegrateTimes = 0; //该碰撞参与迭代过的次数
+
+        public bool HasMultiContacts = false; //是否允许同时求解多个碰撞
 
         ///<summary>
         /// 相交深度
         ///</summary>
-        public FP Penetration;
+        public REAL Penetration;
 
         ///<summary>
         /// 闭合速度
         ///</summary>
-        public TSVector3 ContactVelocity;
+        public Vector3d ContactVelocity;
 
         ///<summary>
         /// 两刚体各自的中心到碰撞点的向量
         ///</summary>
-        public TSVector3[] RelativeContactPosition = new TSVector3[2];
+        public Vector3d[] RelativeContactPosition = new Vector3d[2];
 
 
         ///<summary>
@@ -87,8 +90,8 @@ namespace GGPhys.Rigid.Constraints
         ///</summary>
         public void SetData(RigidContactPotential pContact)
         {
-            RigidBody one = pContact.Primitive1.Body;
-            RigidBody two = pContact.Primitive2.Body;
+            var one = pContact.Primitive1.Body;
+            var two = pContact.Primitive2.Body;
             one.AddContactBody(two, pContact.ContactPoint);
             two.AddContactBody(one, pContact.ContactPoint);
             Body[0] = one;
@@ -109,6 +112,17 @@ namespace GGPhys.Rigid.Constraints
             FJMJ = pContact.FJMJ;
             RelativeContactPosition[0] = pContact.RelativeContactPosition[0];
             RelativeContactPosition[1] = pContact.RelativeContactPosition[1];
+
+            if((pContact.Primitive1 is CollisionBox || pContact.Primitive2 is CollisionBox || pContact.Primitive1 is CollisionConvex || pContact.Primitive2 is CollisionConvex)
+                && !(pContact.Primitive1 is CollisionCapsule || pContact.Primitive2 is CollisionCapsule)
+                && !(pContact.Primitive1 is CollisionSphere || pContact.Primitive2 is CollisionSphere))
+            {
+                HasMultiContacts = true;
+            }
+            else
+            {
+                HasMultiContacts = false;
+            }
 
             MatchAwakeState();
         }
@@ -134,8 +148,8 @@ namespace GGPhys.Rigid.Constraints
             if (Body[0] == null || Body[1] == null)
                 throw new NullReferenceException("Body null");
 
-            RigidBody body1 = Body[0];
-            RigidBody body2 = Body[1];
+            var body1 = Body[0];
+            var body2 = Body[1];
 
             RelativeContactPosition[0] = ContactPoint - body1.Position;
             RelativeContactPosition[1] = ContactPoint - body2.Position;
@@ -143,39 +157,39 @@ namespace GGPhys.Rigid.Constraints
             ContactVelocity = CalculateLocalVelocity(0);
             if (!Body[1].IsStatic)
                 ContactVelocity -= CalculateLocalVelocity(1);
-            FP normalContactVelocity = TSVector3.Dot(ContactVelocity, -ContactNormal);
+            var normalContactVelocity = Vector3d.Dot(ContactVelocity, -ContactNormal);
             ContactPerpendicular = -(ContactVelocity + normalContactVelocity * ContactNormal).Normalized;
 
             ContactVR = normalContactVelocity * Restitution;
 
-            CrossOne = TSVector3.Cross(-RelativeContactPosition[0], -ContactNormal);
-            CrossTwo = TSVector3.Cross(RelativeContactPosition[1], -ContactNormal);
+            CrossOne = Vector3d.Cross(-RelativeContactPosition[0], -ContactNormal);
+            CrossTwo = Vector3d.Cross(RelativeContactPosition[1], -ContactNormal);
 
-            FCrossOne = TSVector3.Cross(RelativeContactPosition[0], ContactPerpendicular);
-            FCrossTwo = TSVector3.Cross(RelativeContactPosition[1], -ContactPerpendicular);
+            FCrossOne = Vector3d.Cross(RelativeContactPosition[0], ContactPerpendicular);
+            FCrossTwo = Vector3d.Cross(RelativeContactPosition[1], - ContactPerpendicular);
 
-            FP oneMass = body1.IsStatic ? 0 : body1.InverseMass;
-            FP twoMass = body2.IsStatic ? 0 : body2.InverseMass;
-            Matrix3 oneTensor = body1.IsStatic ? Matrix3.Zero : body1.InverseInertiaTensorWorld;
-            Matrix3 twoTensor = body2.IsStatic ? Matrix3.Zero : body2.InverseInertiaTensorWorld;
+            var oneMass = body1.IsStatic ? 0 : body1.InverseMass;
+            var twoMass = body2.IsStatic ? 0 : body2.InverseMass;
+            var oneTensor = body1.IsStatic ? Matrix3.Zero : body1.InverseInertiaTensorWorld;
+            var twoTensor = body2.IsStatic ? Matrix3.Zero : body2.InverseInertiaTensorWorld;
 
-            FP linearPart = TSVector3.Dot(ContactNormal, ContactNormal) * (oneMass + twoMass);
-            FP angularPart = TSVector3.Dot(CrossOne, oneTensor * CrossOne) + TSVector3.Dot(CrossTwo, twoTensor * CrossTwo);
+            REAL linearPart = Vector3d.Dot(ContactNormal, ContactNormal) * (oneMass + twoMass);
+            REAL angularPart = Vector3d.Dot(CrossOne, oneTensor * CrossOne) + Vector3d.Dot(CrossTwo, twoTensor * CrossTwo);
             JMJ = linearPart + angularPart;
 
-            FP flinearPart = TSVector3.Dot(ContactPerpendicular, ContactPerpendicular) * (oneMass + twoMass);
-            FP fangularPart = TSVector3.Dot(FCrossOne, oneTensor * FCrossOne) + TSVector3.Dot(FCrossTwo, twoTensor * FCrossTwo);
+            REAL flinearPart = Vector3d.Dot(ContactPerpendicular, ContactPerpendicular) * (oneMass + twoMass);
+            REAL fangularPart = Vector3d.Dot(FCrossOne, oneTensor * FCrossOne) + Vector3d.Dot(FCrossTwo, twoTensor * FCrossTwo);
             FJMJ = flinearPart + fangularPart;
         }
 
         ///<summary>
         /// 计算碰撞点的线性速度，包含刚体线性移动产生的部分和刚体旋转产生的部分
         ///</summary>
-        public TSVector3 CalculateLocalVelocity(int bodyIndex)
+        public Vector3d CalculateLocalVelocity(int bodyIndex)
         {
             RigidBody thisBody = Body[bodyIndex];
 
-            TSVector3 velocity = TSVector3.Cross(thisBody.Rotation, RelativeContactPosition[bodyIndex]);
+            Vector3d velocity = Vector3d.Cross(thisBody.Rotation, RelativeContactPosition[bodyIndex]);
             velocity += thisBody.Velocity;
 
             return velocity;
@@ -186,8 +200,8 @@ namespace GGPhys.Rigid.Constraints
         ///</summary>
         public void MatchAwakeState()
         {
-            RigidBody body0 = Body[0];
-            RigidBody body1 = Body[1];
+            var body0 = Body[0];
+            var body1 = Body[1];
 
             bool body0awake = body0.GetAwake();
             bool body1awake = body1.GetAwake();

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace GGPhys.Rigid.Constraints
 {
 
@@ -9,7 +12,7 @@ namespace GGPhys.Rigid.Constraints
         /// <summary>
         /// 生成碰撞数据
         /// </summary>
-        public abstract void GenerateContacts();
+        public abstract void PrepareConstraintData();
     }
 
 }

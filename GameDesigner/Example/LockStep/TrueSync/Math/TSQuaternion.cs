@@ -561,6 +561,16 @@ namespace TrueSync
             return new TSQuaternion(q.x, q.y, q.z, q.w);
         }
 
+        public static implicit operator GGPhys.Core.Quaternion(TSQuaternion q)
+        {
+            return new GGPhys.Core.Quaternion(q.x.Raw, q.y.Raw, q.z.Raw, q.w.Raw);
+        }
+
+        public static implicit operator TSQuaternion(GGPhys.Core.Quaternion q)
+        {
+            return new TSQuaternion(q.RawX, q.RawY, q.RawZ, q.RawW);
+        }
+
         public override string ToString()
         {
             return string.Format("({0:f1}, {1:f1}, {2:f1}, {3:f1})", x.AsFloat(), y.AsFloat(), z.AsFloat(), w.AsFloat());

@@ -1,5 +1,6 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 using ECS;
+using GGPhysUnity;
 using Net.Component;
 using Net.Share;
 using System.Collections.Generic;
@@ -31,7 +32,10 @@ namespace LockStep.Client
                 actor.objectView = actor.gameObject.GetComponent<ObjectView>();
                 actor.objectView.actor = actor;
                 actor.objectView.anim = actor.gameObject.GetComponent<Animation>();
-                actor.transform = actor.gameObject.GetComponent<TSTransform>();
+                //actor.transform = actor.gameObject.GetComponent<TSTransform>();
+                actor.rigidBody = actor.gameObject.GetComponent<BRigidBody>();
+                if (opt.identity == ClientManager.UID)
+                    FindObjectOfType<ARPGcamera>().target = actor.gameObject.transform;
                 return actor;
             };
             gameSystem.OnExitBattle += ()=> {

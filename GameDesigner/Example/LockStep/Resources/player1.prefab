@@ -1830,7 +1830,6 @@ GameObject:
   - component: {fileID: 619350524187504670}
   - component: {fileID: 619350524177331614}
   - component: {fileID: 619350524187274746}
-  - component: {fileID: 619350524187274745}
   - component: {fileID: 619350524187274744}
   - component: {fileID: 619350524187274751}
   m_Layer: 0
@@ -1848,7 +1847,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 619350524187274750}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 619350524187504672}
@@ -1908,75 +1907,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e8497a8f02bae1479d2a27f28a39d19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anim: {fileID: 0}
   actor:
     name: 
     gameObject: {fileID: 0}
-    transform: {fileID: 0}
+    rigidBody: {fileID: 0}
   lerpSpeed: 0.25
---- !u!114 &619350524187274745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 619350524187274750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df3e4ecc2c78eaa409dad488c230d65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _localPosition:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
-  _position:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
-  _localRotation:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
-    w:
-      _serializedValue: 4294967296
-  _rotation:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
-    w:
-      _serializedValue: 4294967296
-  _scale:
-    x:
-      _serializedValue: 4294967296
-    y:
-      _serializedValue: 4294967296
-    z:
-      _serializedValue: 4294967296
-  _localScale:
-    x:
-      _serializedValue: 4294967296
-    y:
-      _serializedValue: 4294967296
-    z:
-      _serializedValue: 4294967296
-  edit: 0
-  tsCollider: {fileID: 0}
-  tsParent: {fileID: 0}
-  initialized: 0
-  rb: {fileID: 0}
-  autoSyncTransform: 1
 --- !u!114 &619350524187274744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1989,22 +1925,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2c3d219b6ae4d048aca6ac0b511408d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transform: {fileID: 619350524187274745}
   IsTrigger: 0
   CollisionLayer: 0
   CollisionMask: 0
-  CenterOffset:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 2147483648
-    z:
-      _serializedValue: 0
-  showGizmos: 1
-  radius:
-    _serializedValue: 2147483648
-  height:
-    _serializedValue: 4294967296
+  CenterOffset: {x: 0, y: 1, z: 0}
+  radius: 0.5
+  height: 1
 --- !u!114 &619350524187274751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2019,43 +1945,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isStatic: 0
   autoSyncTransform: 1
-  canSleep: 0
+  canSleep: 1
   sleepOnAwake: 0
   useGravity: 1
-  mass:
-    _serializedValue: 4294967296
-  linearDamping:
-    _serializedValue: 429496736
-  angularDamping:
-    _serializedValue: 0
-  friction:
-    _serializedValue: 0
-  restitution:
-    _serializedValue: 0
-  sleepEpsilon:
-    _serializedValue: 0
-  awakeVelocityLimit:
-    _serializedValue: 0
+  mass: 1
+  linearDamping: 0.9
+  angularDamping: 0.9
+  friction: 0.1
+  restitution: 0
+  sleepEpsilon: 0.12
+  awakeVelocityLimit: 0.1
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
   CenterOfMassOffset:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
+    RawX: 0
+    RawY: 0
+    RawZ: 0
   CenterOfMassOffsetWorld:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
+    RawX: 0
+    RawY: 0
+    RawZ: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
-  edit: 0

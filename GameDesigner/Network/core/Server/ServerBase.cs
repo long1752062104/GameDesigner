@@ -201,7 +201,7 @@ namespace Net.Server
         /// 心跳时间间隔, 默认每2秒检查一次玩家是否离线, 玩家心跳确认为5次, 如果超出5次 则移除玩家客户端. 确认玩家离线总用时10秒, 
         /// 如果设置的值越小, 确认的速度也会越快. 但发送的数据也会增加. [开发调式时尽量把心跳值设置高点]
         /// </summary>
-        public int HeartInterval { get; set; } = 2000;
+        public int HeartInterval { get; set; } = 500;
         /// <summary>
         /// <para>心跳检测次数, 默认为5次检测, 如果5次发送心跳给客户端或服务器, 没有收到回应的心跳包, 则进入断开连接处理</para>
         /// <para>当一直有数据往来时是不会发送心跳数据的, 只有当没有数据往来了, 才会进入发送心跳数据</para>
@@ -616,13 +616,12 @@ namespace Net.Server
             UdpStartReceive();
             Thread send = new Thread(SendDataHandle) { IsBackground = true, Name = "SendDataHandle" };
             send.Start();
-            Thread hupdate = new Thread(CheckHeartHandle) { IsBackground = true, Name = "HeartUpdate" };
-            hupdate.Start();
             Thread suh = new Thread(SceneUpdateHandle) { IsBackground = true, Name = "SceneUpdateHandle" };
             suh.Start();
             ThreadManager.Invoke("DataTrafficHandler", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
+            ThreadManager.Invoke("CheckHeartHandler", HeartInterval / 1000f, CheckHeartHandler, true);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdQueue = new QueueSafe<RevdDataBuffer>();
@@ -637,7 +636,6 @@ namespace Net.Server
                 threads.Add("ProcessSend" + i, proSend);
             }
             threads.Add("SendDataHandle", send);
-            threads.Add("HeartUpdate", hupdate);
             threads.Add("SceneUpdateHandle", suh);
             KeyValuePair<string, Scene> scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
@@ -1726,20 +1724,17 @@ namespace Net.Server
         /// <summary>
         /// 心跳检测处理线程
         /// </summary>
-        protected void CheckHeartHandle()
+        protected bool CheckHeartHandler()
         {
-            while (IsRunServer)
+            try
             {
-                Thread.Sleep(HeartInterval);
-                try
-                {
-                    HeartHandle();
-                }
-                catch (Exception ex)
-                {
-                    Debug.Log("心跳异常: " + ex);
-                }
+                HeartHandle();
             }
+            catch (Exception ex)
+            {
+                Debug.Log("心跳异常: " + ex);
+            }
+            return IsRunServer;
         }
 
         /// <summary>
@@ -1766,11 +1761,12 @@ namespace Net.Server
                 }
                 if (client.Value.heart <= HeartLimit)//有5次确认心跳包
                     continue;
-                if (client.Value.heart < HeartLimit + 5)
+                if (client.Value.heart < HeartLimit * 2)
                 {
                     Send(client.Value, NetCmd.SendHeartbeat, new byte[0]);
                     continue;
                 }
+                RemoveClient(client.Value);
             }
         }
 

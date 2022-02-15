@@ -1,8 +1,11 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 using ECS;
+using GGPhys.Core;
+using GGPhysUnity;
 using Net.Share;
 using System;
 using TrueSync;
+using UnityEngine;
 
 namespace LockStep.Client
 {
@@ -10,9 +13,9 @@ namespace LockStep.Client
     public class Player : Actor, IUpdate
     {
         public ObjectView objectView;
-        public FP moveSpeed = 5f;
+        public FP moveSpeed = 6f;
         internal Operation opt;
-
+        
         public void Update()
         {
             Net.Vector3 dir = opt.direction;
@@ -21,7 +24,9 @@ namespace LockStep.Client
             else
             {
                 objectView.anim.Play("soldierRun");
-                transform.position += new TSVector3(dir.x, dir.y, dir.z) * moveSpeed * LSTime.deltaTime;
+                //rigidBody.transform.position += (Vector3)(new TSVector3(dir.x, dir.y, dir.z) * moveSpeed * LSTime.deltaTime);
+                rigidBody.Move((Vector3)(new TSVector3(dir.x, dir.y, dir.z) * moveSpeed * LSTime.deltaTime));
+                //rigidBody.AddForce((Vector3)(new TSVector3(dir.x, dir.y, dir.z) * moveSpeed));
             }
         }
 

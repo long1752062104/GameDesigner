@@ -1,4 +1,7 @@
-﻿using TrueSync;
+﻿using GGPhys.Core;
+using System.Collections;
+using System.Collections.Generic;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
@@ -9,7 +12,7 @@ namespace GGPhys.Rigid.Collisions
         /// </summary>
         /// <param name="center"></param>
         /// <returns></returns>
-        public override byte OverlapNodes(TSVector3 center)
+        public override byte OverlapNodes(Vector3d center)
         {
             byte nodeIndex = 0b11111111;
 
@@ -60,8 +63,8 @@ namespace GGPhys.Rigid.Collisions
 
         public override void Update(CollisionSphere sphere)
         {
-            TSVector3 center = sphere.GetAxis(3);
-            FP radius = sphere.Radius;
+            var center = sphere.GetAxis(3);
+            var radius = sphere.Radius;
             minX = center.x - radius;
             maxX = center.x + radius;
             minY = center.y - radius;
@@ -73,13 +76,13 @@ namespace GGPhys.Rigid.Collisions
 
         public override void Update(CollisionBox box)
         {
-            //GetMinMaxPoint(box.Vertices);//获取包围盒最大和最小点
+            GetMinMaxPoint(box.Vertices);
             GetSizeLevel();
         }
 
         public override void Update(CollisionCapsule capsule)
         {
-            if (capsule.CenterOne.x < capsule.CenterTwo.x)
+            if(capsule.CenterOne.x < capsule.CenterTwo.x)
             {
                 minX = capsule.CenterOne.x - capsule.Radius;
                 maxX = capsule.CenterTwo.x + capsule.Radius;
@@ -129,17 +132,17 @@ namespace GGPhys.Rigid.Collisions
         /// 生成AABB最小最大值
         /// </summary>
         /// <param name="vertices"></param>
-        void GetMinMaxPoint(TSVector3[] vertices)
+        void GetMinMaxPoint(Vector3d[] vertices)
         {
-            minX = FP.MaxValue;
-            maxX = FP.MinValue;
-            minY = FP.MaxValue;
-            maxY = FP.MinValue;
-            minZ = FP.MaxValue;
-            maxZ = FP.MinValue;
+            minX = REAL.MaxValue;
+            maxX = REAL.MinValue;
+            minY = REAL.MaxValue;
+            maxY = REAL.MinValue;
+            minZ = REAL.MaxValue;
+            maxZ = REAL.MinValue;
             for (int i = 0; i < vertices.Length; ++i)
             {
-                TSVector3 vertice = vertices[i];
+                var vertice = vertices[i];
                 if (vertice.x > maxX) maxX = vertice.x;
                 if (vertice.x < minX) minX = vertice.x;
                 if (vertice.y > maxY) maxY = vertice.y;

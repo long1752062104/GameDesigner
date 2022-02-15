@@ -1,15 +1,15 @@
+using System.Collections.Generic;
+using GGPhys.Core;
 using GGPhys.Rigid.Constraints;
 using GGPhys.Rigid.Forces;
-using System.Collections.Generic;
+using REAL = FixMath.FP;
 using System.Threading.Tasks;
-using TrueSync;
 
 namespace GGPhys.Rigid
 {
     ///<summary>
     /// 刚体引擎类
     ///</summary>
-    [System.Serializable]
     public class RigidBodyEngine
     {
         ///<summary>
@@ -48,13 +48,21 @@ namespace GGPhys.Rigid
         public RigidGravityForce GravityForceArea;
 
         /// <summary>
+        /// 刚体对象池
+        /// </summary>
+        private ClassObjectPool<RigidBody> m_BodiesPool;
+
+        /// <summary>
+        /// 刚体序号，用于对刚体进行标识
+        /// </summary>
+        private int m_CurrentBodyIndex = 1;
+
+        /// <summary>
         /// 最大使用线程数
         /// </summary>
-#pragma warning disable IDE0052 // 删除未读的私有成员
-        private readonly int m_MaxThread;
-#pragma warning restore IDE0052 // 删除未读的私有成员
+        private int m_MaxThread;
 
-        public RigidBodyEngine(FP gravity, TSVector3 gridSize, TSVector3 gridCellSize, TSVector3 gridCenterOffset, int maxThreadCount)
+        public RigidBodyEngine(REAL gravity, Vector3d gridSize, Vector3d gridCellSize, Vector3d gridCenterOffset, int maxThreadCount)
         {
             m_MaxThread = maxThreadCount;
 
@@ -63,6 +71,7 @@ namespace GGPhys.Rigid
             Forces = new List<RigidForce>();
             Constraints = new List<RigidConstraint>();
             SIResolver = new RigidContactSIResolver();
+            m_BodiesPool = new ClassObjectPool<RigidBody>(2000);
 
             GravityForceArea = new RigidGravityForce(gravity);
             ForceAreas.Add(GravityForceArea);
@@ -86,42 +95,26 @@ namespace GGPhys.Rigid
         ///<summary>
         public void StartFrame()
         {
-            foreach (RigidBody body in Bodies)
+            foreach (var body in Bodies)
             {
                 body.ClearAccumulators();
             }
         }
 
-        internal System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-        public long ApplyForcesTime, GenerateContactsTime, IntegrateTime, PostUpdateTime;
-
         ///<summary>
         /// 完整执行一次迭代
         ///<summary>
-        public void RunPhysics(FP dt)
+        public void RunPhysics(REAL dt)
         {
-            sw.Restart();
-            ApplyForces(dt);//增加向下的力和角速度 没有这个不会下落， 但碰撞在
-            sw.Stop();
-            ApplyForcesTime = sw.ElapsedMilliseconds;
+            ApplyForces(dt);
 
-            sw.Restart();
-            GenerateContacts(); //没有这个碰撞失效
-            sw.Stop();
-            GenerateContactsTime = sw.ElapsedMilliseconds;
+            PrepareConstraintData();
 
-            if (Collisions.CollisionData.Contacts.Count > 0)//没有这个会掉地形
-                SIResolver.ResolveContacts(Collisions.CollisionData, dt);
+            SIResolver.Resolve(Collisions.CollisionData, dt); ;
 
-            sw.Restart();
-            Integrate(dt);//没有这个碰撞失效
-            sw.Stop();
-            IntegrateTime = sw.ElapsedMilliseconds;
+            Integrate(dt);
 
-            sw.Restart();
-            PostUpdate();//没有这个移动失效
-            sw.Stop();
-            PostUpdateTime = sw.ElapsedMilliseconds;
+            LateUpdate();
         }
 
         /// <summary>
@@ -129,44 +122,80 @@ namespace GGPhys.Rigid
         /// </summary>
         public void CalculateDerivedData()
         {
-            for (int i = 0; i < Bodies.Count; i++)
+            Task[] tasks = new Task[m_MaxThread];
+            int rowNum = Bodies.Count / m_MaxThread + 1;
+            for (int k = 0; k < m_MaxThread; k++)
             {
-                if (Bodies[i].IsStatic)
-                    continue;
-                Bodies[i].CalculateDerivedData();
-                Bodies[i].UnityBody.CalculateInternals();
+                int start = rowNum * k;
+                int end = rowNum * (k + 1);
+                tasks[k] = Task.Factory.StartNew(() =>
+                {
+                    for (int i = start; (i < Bodies.Count && i < end); i++)
+                    {
+                        var body = Bodies[i];
+                        body.CalculateDerivedData();
+                        body.UnityBody.CalculateInternals();
+                    }
+                });
             }
+            Task.WaitAll(tasks);
+        }
+
+        /// <summary>
+        /// 生产一个刚体
+        /// </summary>
+        /// <returns></returns>
+        public RigidBody SpawnBody()
+        {
+            RigidBody body = m_BodiesPool.Spawn();
+            body.Active = true;
+            body.ID = m_CurrentBodyIndex;
+            m_CurrentBodyIndex += 1;
+            return body;
+        }
+
+        /// <summary>
+        /// 回收一个刚体
+        /// </summary>
+        /// <param name="body"></param>
+        public void RecycleBody(RigidBody body)
+        {
+            body.Clear();
+            m_BodiesPool.Recycle(body);
         }
 
         /// <summary>
         /// 运用作用力
         /// </summary>
         /// <param name="dt"></param>
-        private void ApplyForces(FP dt)
+        private void ApplyForces(REAL dt)
         {
-            for (int i = 0; i < ForceAreas.Count; i++)
+            foreach (var f in ForceAreas)
             {
-                for (int j = 0; j < Bodies.Count; j++)
+                foreach (var b in Bodies)
                 {
-                    if (Bodies[j].IsStatic)
-                        continue;
-                    if (!Bodies[j].UseAreaForce)
-                        goto J;
-                    ForceAreas[i].UpdateForce(Bodies[j], dt);//更新向下的力
-                J: Bodies[j].ApplyForceToVelocity(dt);//更新角速度
+                    if (b.IsStatic) continue;
+                    if (!b.UseAreaForce) continue;
+                    f.UpdateForce(b, dt);
                 }
+            }
+
+            foreach (var b in Bodies)
+            {
+                if (b.IsStatic) continue;
+                b.ApplyForceToVelocity(dt);
             }
         }
 
 
         ///<summary>
-        /// 产生碰撞数据
+        /// 产生约束数据
         ///<summary>
-        private void GenerateContacts()
+        private void PrepareConstraintData()
         {
-            for (int i = 0; i < Constraints.Count; i++)
+            foreach (var gen in Constraints)
             {
-                Constraints[i].GenerateContacts();//CollisionConstraint类
+                gen.PrepareConstraintData();
             }
         }
 
@@ -174,18 +203,18 @@ namespace GGPhys.Rigid
         /// 刚体逐个迭代
         /// </summary>
         /// <param name="dt"></param>
-        private void Integrate(FP dt)
+        private void Integrate(REAL dt)
         {
-            for (int i = 0; i < Bodies.Count; i++)
+            foreach (var b in Bodies)
             {
-                Bodies[i].Integrate(dt);
+                b.Integrate(dt);
             }
         }
 
         /// <summary>
         /// 循环最后更新
         /// </summary>
-        private void PostUpdate()
+        private void LateUpdate()
         {
             CalculateDerivedData();
         }

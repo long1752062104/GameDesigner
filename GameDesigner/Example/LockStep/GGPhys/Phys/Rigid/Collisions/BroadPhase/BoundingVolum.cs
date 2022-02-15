@@ -1,23 +1,26 @@
-﻿using GGPhysUnity;
-using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
+using GGPhys.Core;
+using REAL = FixMath.FP;
+using GGPhysUnity;
 
 namespace GGPhys.Rigid.Collisions
 {
     public class BoundingVolum
     {
-        public FP minX;
-        public FP maxX;
-        public FP minY;
-        public FP maxY;
-        public FP minZ;
-        public FP maxZ;
+        public REAL minX;
+        public REAL maxX;
+        public REAL minY;
+        public REAL maxY;
+        public REAL minZ;
+        public REAL maxZ;
         public int sizeLevel = -1;
-        private TSVector3 gridSize;
+        private Vector3d gridSize;
         private int gridGroupScale;
         private int gridLimit1;
         private int gridLimit2;
 
-        public virtual void Init(CollisionPrimitive primitive)
+        public virtual void Init(CollisionPrimitive primitive) 
         {
             gridSize = RigidPhysicsEngine.Instance.Collisions.GridCellSize;
             gridGroupScale = RigidPhysicsEngine.Instance.Collisions.GridGroupScale;
@@ -29,7 +32,7 @@ namespace GGPhys.Rigid.Collisions
         public virtual void Update(CollisionCapsule capsule) { }
         public virtual void Update(CollisionConvex convex) { }
         public virtual void Update(CollisionTriangle triangle) { }
-        public virtual byte OverlapNodes(TSVector3 center) { return 0b00000000; }
+        public virtual byte OverlapNodes(Vector3d center) { return 0b00000000; }
         public virtual bool Overlap(BoundingVolum volum) { return false; }
 
         /// <summary>
@@ -37,15 +40,15 @@ namespace GGPhys.Rigid.Collisions
         /// </summary>
         public void GetSizeLevel()
         {
-            FP deltaX = (maxX - minX) / gridSize.x;
-            FP deltaY = (maxY - minY) / gridSize.y;
-            FP deltaZ = (maxZ - minZ) / gridSize.z;
-            FP volum = deltaX * deltaY * deltaZ;
-            if (volum > gridLimit2)
+            var deltaX = (maxX - minX) / gridSize.x;
+            var deltaY = (maxY - minY) / gridSize.y;
+            var deltaZ = (maxZ - minZ) / gridSize.z;
+            var volum = deltaX * deltaY * deltaZ;
+            if(volum > gridLimit2)
             {
                 sizeLevel = 0;
             }
-            else if (volum > gridLimit1)
+            else if(volum > gridLimit1)
             {
                 sizeLevel = 1;
             }

@@ -1,7 +1,8 @@
-﻿using FixMath;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using TrueSync;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
@@ -17,15 +18,15 @@ namespace GGPhys.Rigid.Collisions
         public Grid[,,] Grids; // 格子数组
         public Grid[,,] MidGrids; // 中等格子数组
         public Grid[,,] LargeGrids; // 大格子数组
-        public TSVector3 GridSize; // 每个格子尺寸
-        public TSVector3 StartPosition; // 整体网格起始位置
+        public Vector3d GridSize; // 每个格子尺寸
+        public Vector3d StartPosition; // 整体网格起始位置
         public DMapList<Grid> ContactGrids; // 潜在碰撞格子
         public DMapList<Grid> MidContactGrids; // 潜在mid碰撞格子
         public DMapList<Grid> LargeContactGrids; // 潜在large碰撞格子
         public int StaticHashOrder = -1; // 静态几何体编码序号
 
-        private TSVector3 MidGridSize;
-        private TSVector3 LargeGridSize;
+        private Vector3d MidGridSize;
+        private Vector3d LargeGridSize;
 
         private int LargeSizeX;
         private int LargeSizeY;
@@ -35,7 +36,7 @@ namespace GGPhys.Rigid.Collisions
         private int MidSizeZ;
 
 
-        public GridManager(int sizeX, int sizeY, int sizeZ, TSVector3 gridSize, TSVector3 centerOffset, int groupScale)
+        public GridManager(int sizeX, int sizeY, int sizeZ, Vector3d gridSize, Vector3d centerOffset, int groupScale)
         {
             SizeX = sizeX;
             SizeY = sizeY;
@@ -44,11 +45,11 @@ namespace GGPhys.Rigid.Collisions
             GridSizeGroupScale = groupScale;
             MidGridSize = gridSize * GridSizeGroupScale;
             LargeGridSize = MidGridSize * GridSizeGroupScale;
-            StartPosition = new TSVector3(-sizeX * 0.5f, -sizeY * 0.5f, -sizeZ * 0.5f).Multiply(gridSize) + centerOffset;
+            StartPosition = new Vector3d(-sizeX * 0.5, -sizeY * 0.5, -sizeZ * 0.5) * gridSize + centerOffset;
             ContactGrids = new DMapList<Grid>();
             MidContactGrids = new DMapList<Grid>();
             LargeContactGrids = new DMapList<Grid>();
-            Grid.PrimitiveNodePool = new ClassObjectPool<LinkedNode<CollisionPrimitive>>(1000);
+            Grid.PrimitiveNodePool = new ClassObjectPool<LinkedNode<CollisionPrimitive>>(20000);
         }
 
         ~GridManager()
@@ -61,9 +62,9 @@ namespace GGPhys.Rigid.Collisions
         /// </summary>
         public void InitGrids()
         {
-            int largeSizeScale = GridSizeGroupScale * GridSizeGroupScale;
+            var largeSizeScale = GridSizeGroupScale * GridSizeGroupScale;
 
-            if (SizeX % largeSizeScale != 0)
+            if(SizeX % largeSizeScale != 0)
             {
                 throw new NotSupportedException("SizeX Must be a multiple of 16!");
             }
@@ -96,7 +97,7 @@ namespace GGPhys.Rigid.Collisions
                 {
                     for (int k = 0; k < LargeSizeZ; k++)
                     {
-                        Grid grid = new Grid();
+                        var grid = new Grid();
                         LargeGrids[i, j, k] = grid;
                         CreateSubGrids(i * GridSizeGroupScale, j * GridSizeGroupScale, k * GridSizeGroupScale, 1, grid);
                     }
@@ -114,23 +115,23 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="parent"></param>
         void CreateSubGrids(int startX, int startY, int startZ, int level, Grid parent)
         {
-            int endX = startX + GridSizeGroupScale;
-            int endY = startY + GridSizeGroupScale;
-            int endZ = startZ + GridSizeGroupScale;
+            var endX = startX + GridSizeGroupScale;
+            var endY = startY + GridSizeGroupScale;
+            var endZ = startZ + GridSizeGroupScale;
             for (int i = startX; i < endX; i++)
             {
                 for (int j = startY; j < endY; j++)
                 {
                     for (int k = startZ; k < endZ; k++)
                     {
-                        Grid grid = new Grid();
+                        var grid = new Grid();
                         grid.ParentGrid = parent;
-                        if (level == 1)
+                        if(level == 1)
                         {
                             MidGrids[i, j, k] = grid;
                             CreateSubGrids(i * GridSizeGroupScale, j * GridSizeGroupScale, k * GridSizeGroupScale, 2, grid);
                         }
-                        if (level == 2)
+                        if(level == 2)
                         {
                             Grids[i, j, k] = grid;
                         }
@@ -146,19 +147,19 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="data"></param>
         public void GeneratePotentialContacts(CollisionData data)
         {
-            int size = ContactGrids.Size();
+            var size = ContactGrids.Size();
             for (int i = 0; i < size; i++)
             {
                 AddPotentialContact(ContactGrids.Pop(), data);
             }
 
-            int midSize = MidContactGrids.Size();
+            var midSize = MidContactGrids.Size();
             for (int i = 0; i < midSize; i++)
             {
                 AddPotentialContact(MidContactGrids.Pop(), data);
             }
 
-            int largeSize = LargeContactGrids.Size();
+            var largeSize = LargeContactGrids.Size();
             for (int i = 0; i < largeSize; i++)
             {
                 AddPotentialContact(LargeContactGrids.Pop(), data);
@@ -174,11 +175,11 @@ namespace GGPhys.Rigid.Collisions
         {
             while (grid.HeadPrimitive != null)
             {
-                LinkedNode<CollisionPrimitive> node1 = grid.HeadPrimitive;
-                LinkedNode<CollisionPrimitive> node2 = grid.HeadPrimitive.next;
-                LinkedNode<CollisionPrimitive> node3 = grid.HeadStaticPrimitive;
-                LinkedNode<CollisionPrimitive> node4 = grid.ParentGrid?.HeadPrimitive;
-                LinkedNode<CollisionPrimitive> node5 = (grid.ParentGrid != null && grid.ParentGrid.ParentGrid != null) ? grid.ParentGrid.ParentGrid.HeadPrimitive : null;
+                var node1 = grid.HeadPrimitive;
+                var node2 = grid.HeadPrimitive.next;
+                var node3 = grid.HeadStaticPrimitive;
+                var node4 = grid.ParentGrid != null ? grid.ParentGrid.HeadPrimitive : null;
+                var node5 = (grid.ParentGrid != null && grid.ParentGrid.ParentGrid != null) ? grid.ParentGrid.ParentGrid.HeadPrimitive : null;
                 while (node2 != null)
                 {
                     data.AddPotentialContact(node1.obj, node2.obj);
@@ -211,7 +212,7 @@ namespace GGPhys.Rigid.Collisions
         {
             for (int i = 0; i < primitives.Count; i++)
             {
-                CollisionPrimitive primitive = primitives[i];
+                var primitive = primitives[i];
                 primitive.HashOrder = i;
                 AddPrimitive(primitive);
             }
@@ -221,7 +222,7 @@ namespace GGPhys.Rigid.Collisions
         /// 把几何体加入网格
         /// </summary>
         /// <param name="primitive"></param>
-        public void AddPrimitive(CollisionPrimitive primitive)
+        void AddPrimitive(CollisionPrimitive primitive)
         {
             AddPrimitive(primitive, primitive.BoundingVolum.sizeLevel);
         }
@@ -233,14 +234,14 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="level"></param>
         void AddPrimitive(CollisionPrimitive primitive, int level)
         {
-            if (level == 0)
+            if(level == 0)
             {
-                int startX = GetIndexX(primitive.BoundingVolum.minX, LargeGridSize);
-                int endX = GetIndexX(primitive.BoundingVolum.maxX, LargeGridSize);
-                int startY = GetIndexY(primitive.BoundingVolum.minY, LargeGridSize);
-                int endY = GetIndexY(primitive.BoundingVolum.maxY, LargeGridSize);
-                int startZ = GetIndexZ(primitive.BoundingVolum.minZ, LargeGridSize);
-                int endZ = GetIndexZ(primitive.BoundingVolum.maxZ, LargeGridSize);
+                var startX = GetIndexX(primitive.BoundingVolum.minX, LargeGridSize);
+                var endX = GetIndexX(primitive.BoundingVolum.maxX, LargeGridSize);
+                var startY = GetIndexY(primitive.BoundingVolum.minY, LargeGridSize);
+                var endY = GetIndexY(primitive.BoundingVolum.maxY, LargeGridSize);
+                var startZ = GetIndexZ(primitive.BoundingVolum.minZ, LargeGridSize);
+                var endZ = GetIndexZ(primitive.BoundingVolum.maxZ, LargeGridSize);
                 if (startX < 0 || startY < 0 || startZ < 0 || endX >= LargeSizeX || endY >= LargeSizeY || endZ >= LargeSizeZ) return;
                 for (int i = startX; i <= endX; i++)
                 {
@@ -248,7 +249,7 @@ namespace GGPhys.Rigid.Collisions
                     {
                         for (int k = startZ; k <= endZ; k++)
                         {
-                            Grid grid = LargeGrids[i, j, k];
+                            var grid = LargeGrids[i, j, k];
                             grid.AddPrimitive(primitive);
                             LargeContactGrids.Insert(grid);
                         }
@@ -257,12 +258,12 @@ namespace GGPhys.Rigid.Collisions
             }
             if (level == 1)
             {
-                int startX = GetIndexX(primitive.BoundingVolum.minX, MidGridSize);
-                int endX = GetIndexX(primitive.BoundingVolum.maxX, MidGridSize);
-                int startY = GetIndexY(primitive.BoundingVolum.minY, MidGridSize);
-                int endY = GetIndexY(primitive.BoundingVolum.maxY, MidGridSize);
-                int startZ = GetIndexZ(primitive.BoundingVolum.minZ, MidGridSize);
-                int endZ = GetIndexZ(primitive.BoundingVolum.maxZ, MidGridSize);
+                var startX = GetIndexX(primitive.BoundingVolum.minX, MidGridSize);
+                var endX = GetIndexX(primitive.BoundingVolum.maxX, MidGridSize);
+                var startY = GetIndexY(primitive.BoundingVolum.minY, MidGridSize);
+                var endY = GetIndexY(primitive.BoundingVolum.maxY, MidGridSize);
+                var startZ = GetIndexZ(primitive.BoundingVolum.minZ, MidGridSize);
+                var endZ = GetIndexZ(primitive.BoundingVolum.maxZ, MidGridSize);
                 if (startX < 0 || startY < 0 || startZ < 0 || endX >= MidSizeX || endY >= MidSizeY || endZ >= MidSizeZ) return;
                 for (int i = startX; i <= endX; i++)
                 {
@@ -270,7 +271,7 @@ namespace GGPhys.Rigid.Collisions
                     {
                         for (int k = startZ; k <= endZ; k++)
                         {
-                            Grid grid = MidGrids[i, j, k];
+                            var grid = MidGrids[i, j, k];
                             grid.AddPrimitive(primitive);
                             MidContactGrids.Insert(grid);
                         }
@@ -279,12 +280,12 @@ namespace GGPhys.Rigid.Collisions
             }
             if (level == 2)
             {
-                int startX = GetIndexX(primitive.BoundingVolum.minX, GridSize);
-                int endX = GetIndexX(primitive.BoundingVolum.maxX, GridSize);
-                int startY = GetIndexY(primitive.BoundingVolum.minY, GridSize);
-                int endY = GetIndexY(primitive.BoundingVolum.maxY, GridSize);
-                int startZ = GetIndexZ(primitive.BoundingVolum.minZ, GridSize);
-                int endZ = GetIndexZ(primitive.BoundingVolum.maxZ, GridSize);
+                var startX = GetIndexX(primitive.BoundingVolum.minX, GridSize);
+                var endX = GetIndexX(primitive.BoundingVolum.maxX, GridSize);
+                var startY = GetIndexY(primitive.BoundingVolum.minY, GridSize);
+                var endY = GetIndexY(primitive.BoundingVolum.maxY, GridSize);
+                var startZ = GetIndexZ(primitive.BoundingVolum.minZ, GridSize);
+                var endZ = GetIndexZ(primitive.BoundingVolum.maxZ, GridSize);
                 if (startX < 0 || startY < 0 || startZ < 0 || endX >= SizeX || endY >= SizeY || endZ >= SizeZ) return;
                 for (int i = startX; i <= endX; i++)
                 {
@@ -292,14 +293,14 @@ namespace GGPhys.Rigid.Collisions
                     {
                         for (int k = startZ; k <= endZ; k++)
                         {
-                            Grid grid = Grids[i, j, k];
-                            grid.AddPrimitive(primitive); // 60k GC
-                            ContactGrids.Insert(grid);// 30k GC
+                            var grid = Grids[i, j, k];
+                            grid.AddPrimitive(primitive);
+                            ContactGrids.Insert(grid);
                         }
                     }
                 }
             }
-
+            
         }
 
         /// <summary>
@@ -310,12 +311,14 @@ namespace GGPhys.Rigid.Collisions
         {
             primitive.HashOrder = StaticHashOrder;
             StaticHashOrder -= 1;
-            int startX = GetIndexX(primitive.BoundingVolum.minX, GridSize);
-            int endX = GetIndexX(primitive.BoundingVolum.maxX, GridSize);
-            int startY = GetIndexY(primitive.BoundingVolum.minY, GridSize);
-            int endY = GetIndexY(primitive.BoundingVolum.maxY, GridSize);
-            int startZ = GetIndexZ(primitive.BoundingVolum.minZ, GridSize);
-            int endZ = GetIndexZ(primitive.BoundingVolum.maxZ, GridSize);
+            int startX = 0, endX = 0, startY = 0, endY = 0, startZ = 0, endZ = 0;
+
+            startX = GetIndexX(primitive.BoundingVolum.minX, GridSize);
+            endX = GetIndexX(primitive.BoundingVolum.maxX, GridSize);
+            startY = GetIndexY(primitive.BoundingVolum.minY, GridSize);
+            endY = GetIndexY(primitive.BoundingVolum.maxY, GridSize);
+            startZ = GetIndexZ(primitive.BoundingVolum.minZ, GridSize);
+            endZ = GetIndexZ(primitive.BoundingVolum.maxZ, GridSize);
             if (startX < 0 || startY < 0 || startZ < 0 || endX >= SizeX || endY >= SizeY || endZ >= SizeZ) return;
             for (int i = startX; i <= endX; i++)
             {
@@ -323,7 +326,7 @@ namespace GGPhys.Rigid.Collisions
                 {
                     for (int k = startZ; k <= endZ; k++)
                     {
-                        Grid grid = Grids[i, j, k];
+                        var grid = Grids[i, j, k];
                         grid.AddStaticPrimitive(primitive);
                     }
                 }
@@ -342,7 +345,7 @@ namespace GGPhys.Rigid.Collisions
                 {
                     for (int k = startZ; k <= endZ; k++)
                     {
-                        Grid grid = MidGrids[i, j, k];
+                        var grid = MidGrids[i, j, k];
                         grid.AddStaticPrimitive(primitive);
                     }
                 }
@@ -361,7 +364,7 @@ namespace GGPhys.Rigid.Collisions
                 {
                     for (int k = startZ; k <= endZ; k++)
                     {
-                        Grid grid = LargeGrids[i, j, k];
+                        var grid = LargeGrids[i, j, k];
                         grid.AddStaticPrimitive(primitive);
                     }
                 }
@@ -374,12 +377,14 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="primitive"></param>
         public void RemoveStaticPrimitive(CollisionPrimitive primitive)
         {
-            int startX = GetIndexX(primitive.BoundingVolum.minX, GridSize);
-            int endX = GetIndexX(primitive.BoundingVolum.maxX, GridSize);
-            int startY = GetIndexY(primitive.BoundingVolum.minY, GridSize);
-            int endY = GetIndexY(primitive.BoundingVolum.maxY, GridSize);
-            int startZ = GetIndexZ(primitive.BoundingVolum.minZ, GridSize);
-            int endZ = GetIndexZ(primitive.BoundingVolum.maxZ, GridSize);
+            int startX = 0, endX = 0, startY = 0, endY = 0, startZ = 0, endZ = 0;
+
+            startX = GetIndexX(primitive.BoundingVolum.minX, GridSize);
+            endX = GetIndexX(primitive.BoundingVolum.maxX, GridSize);
+            startY = GetIndexY(primitive.BoundingVolum.minY, GridSize);
+            endY = GetIndexY(primitive.BoundingVolum.maxY, GridSize);
+            startZ = GetIndexZ(primitive.BoundingVolum.minZ, GridSize);
+            endZ = GetIndexZ(primitive.BoundingVolum.maxZ, GridSize);
             if (startX < 0 || startY < 0 || startZ < 0 || endX >= SizeX || endY >= SizeY || endZ >= SizeZ) return;
             for (int i = startX; i <= endX; i++)
             {
@@ -387,7 +392,7 @@ namespace GGPhys.Rigid.Collisions
                 {
                     for (int k = startZ; k <= endZ; k++)
                     {
-                        Grid grid = Grids[i, j, k];
+                        var grid = Grids[i, j, k];
                         grid.RemoveStaticPrimitive(primitive);
                     }
                 }
@@ -406,7 +411,7 @@ namespace GGPhys.Rigid.Collisions
                 {
                     for (int k = startZ; k <= endZ; k++)
                     {
-                        Grid grid = MidGrids[i, j, k];
+                        var grid = MidGrids[i, j, k];
                         grid.RemoveStaticPrimitive(primitive);
                     }
                 }
@@ -425,7 +430,7 @@ namespace GGPhys.Rigid.Collisions
                 {
                     for (int k = startZ; k <= endZ; k++)
                     {
-                        Grid grid = LargeGrids[i, j, k];
+                        var grid = LargeGrids[i, j, k];
                         grid.RemoveStaticPrimitive(primitive);
                     }
                 }
@@ -448,9 +453,9 @@ namespace GGPhys.Rigid.Collisions
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        int GetIndexX(FP x, TSVector3 gridSize)
+        int GetIndexX(REAL x, Vector3d gridSize)
         {
-            return F64.FloorToInt((x - StartPosition.x) / gridSize.x);
+            return REAL.FloorToInt((x - StartPosition.x) / gridSize.x);
         }
 
         /// <summary>
@@ -458,9 +463,9 @@ namespace GGPhys.Rigid.Collisions
         /// </summary>
         /// <param name="y"></param>
         /// <returns></returns>
-        int GetIndexY(FP y, TSVector3 gridSize)
+        int GetIndexY(REAL y, Vector3d gridSize)
         {
-            return F64.FloorToInt((y - StartPosition.y) / gridSize.y);
+            return REAL.FloorToInt((y - StartPosition.y) / gridSize.y);
         }
 
         /// <summary>
@@ -468,9 +473,9 @@ namespace GGPhys.Rigid.Collisions
         /// </summary>
         /// <param name="z"></param>
         /// <returns></returns>
-        int GetIndexZ(FP z, TSVector3 gridSize)
+        int GetIndexZ(REAL z, Vector3d gridSize)
         {
-            return F64.FloorToInt((z - StartPosition.z) / gridSize.z);
+            return REAL.FloorToInt((z - StartPosition.z) / gridSize.z);
         }
     }
 }

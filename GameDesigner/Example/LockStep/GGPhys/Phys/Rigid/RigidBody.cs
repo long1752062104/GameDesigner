@@ -1,12 +1,13 @@
-using GGPhys.Core;
-using GGPhysUnity;
+using System;
 using System.Collections.Generic;
-using TrueSync;
+using GGPhys.Core;
+using REAL = FixMath.FP;
+using GGPhysUnity;
 
 namespace GGPhys.Rigid
 {
 
-    public delegate void OnCollisionEnterCallBack(BRigidBody otherBody, TSVector3 contactPoint);
+    public delegate void OnCollisionEnterCallBack(BRigidBody otherBody, Vector3d contactPoint);
     public delegate void OnCollisionStayCallBack(BRigidBody otherBody);
     public delegate void OnCollisionExitCallBack(BRigidBody otherBody);
 
@@ -19,6 +20,7 @@ namespace GGPhys.Rigid
     ///</summary>
     public class RigidBody
     {
+
         public event OnCollisionEnterCallBack OnCollisionEnterEvent; // 碰撞产生回调
         public event OnCollisionStayCallBack OnCollisionStayEvent; // 碰撞停留回调
         public event OnCollisionExitCallBack OnCollisionExitEvent; // 碰撞结束回调
@@ -27,12 +29,20 @@ namespace GGPhys.Rigid
         public event OnTriggerStayCallBack OnTriggerStayEvent; // 触发停留回调
         public event OnTriggerExitCallBack OnTriggerExitEvent; // 触发结束回调
 
-        public string name;
-
         /// <summary>
         /// Unity中的RigidBody
         /// </summary>
         public BRigidBody UnityBody;
+
+        /// <summary>
+        /// 是否处于激活状态
+        /// </summary>
+        public bool Active;
+
+        /// <summary>
+        /// 刚体标识
+        /// </summary>
+        public int ID;
 
         /// <summary>
         /// 是否是静态刚体
@@ -56,27 +66,27 @@ namespace GGPhys.Rigid
         /// <summary>
         /// 摩擦力
         /// </summary>
-        public FP Friction = 0.1;
+        public REAL Friction = 0.1;
 
         /// <summary>
         /// 回弹系数
         /// </summary>
-        public FP Restitution = 0;
+        public REAL Restitution = 0;
 
         /// <summary>
         /// 休眠系数
         /// </summary>
-        public FP SleepEpsilon = 0.12;
+        public REAL SleepEpsilon = 0.12;
 
         /// <summary>
         /// 唤醒速度限制
         /// </summary>
-        public FP AwakeVelocityLimit = 0.1;
+        public REAL AwakeVelocityLimit = 0.1;
 
         ///<summary>
         /// 质量的倒数
         ///</summary>
-        public FP InverseMass;
+        public REAL InverseMass;
 
         ///<summary>
         /// 是否为有穷质量
@@ -97,32 +107,32 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 线性阻尼系数
         ///</summary>
-        public FP LinearDamping = 0.99;
+        public REAL LinearDamping = 0.99;
 
         ///<summary>
         /// 角速度阻尼系数
         ///</summary>
-        public FP AngularDamping = 0.99;
+        public REAL AngularDamping = 0.99;
 
         ///<summary>
         /// 位置
         ///</summary>
-        public TSVector3 Position;
+        public Vector3d Position;
 
         ///<summary>
         /// 旋转
         ///</summary>
-        public TSQuaternion Orientation;
+        public Quaternion Orientation;
 
         ///<summary>
         /// 线性速度
         ///</summary>
-        public TSVector3 Velocity;
+        public Vector3d Velocity;
 
         ///<summary>
         /// 角速度
         ///</summary>
-        public TSVector3 Rotation;
+        public Vector3d Rotation;
 
         ///<summary>
         /// 世界坐标逆惯性张量
@@ -132,7 +142,7 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 运动程度，用于休眠
         ///</summary>
-        private FP m_motion;
+        private REAL m_motion;
 
         ///<summary>
         /// 是否苏醒状态
@@ -152,22 +162,22 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 合作用力
         ///</summary>
-        private TSVector3 m_forceAccum;
+        private Vector3d m_forceAccum;
 
         ///<summary>
         /// 合转矩
         ///</summary>
-        private TSVector3 m_torqueAccum;
+        private Vector3d m_torqueAccum;
 
         ///<summary>
         /// 固定加速度
         ///</summary>
-        private TSVector3 m_acceleration;
+        private Vector3d m_acceleration;
 
         ///<summary>
         /// 上一帧加速度
         ///</summary>
-        public TSVector3 LastFrameAcceleration;
+        public Vector3d LastFrameAcceleration;
 
         /// <summary>
         /// 当前碰撞到的刚体
@@ -189,14 +199,14 @@ namespace GGPhys.Rigid
         /// </summary>
         public Dictionary<RigidBody, int> TriggerRigidBodiesMap;
 
-        public TSVector3 ForceAccum { get => m_forceAccum; }
+        public Vector3d ForceAccum { get => m_forceAccum; }
 
-        public TSVector3 TorqueAccum { get => m_torqueAccum; }
+        public Vector3d TorqueAccum { get => m_torqueAccum; }
 
 
         public RigidBody()
         {
-            Orientation = TSQuaternion.identity;
+            Orientation = Quaternion.Identity;
             InverseInertiaTensor = Matrix3.Identity;
             Transform = Matrix4.Identity;
             ContactRigidBodies = new List<RigidBody>();
@@ -212,7 +222,7 @@ namespace GGPhys.Rigid
         {
             if (FreezePosition != 0)
             {
-                if ((FreezePosition & 0x01) != 0)
+                if((FreezePosition & 0x01) != 0)
                 {
                     Velocity.x = 0;
                 }
@@ -234,9 +244,9 @@ namespace GGPhys.Rigid
         {
             if (FreezeRotation != 0)
             {
-                FP Ixx = (FreezeRotation & 0x01) != 0 ? 0 : InverseInertiaTensor.data0;
-                FP Iyy = (FreezeRotation & 0x02) != 0 ? 0 : InverseInertiaTensor.data4;
-                FP Izz = (FreezeRotation & 0x04) != 0 ? 0 : InverseInertiaTensor.data8;
+                var Ixx = (FreezeRotation & 0x01) != 0 ? 0 : InverseInertiaTensor.data0;
+                var Iyy = (FreezeRotation & 0x02) != 0 ? 0 : InverseInertiaTensor.data4;
+                var Izz = (FreezeRotation & 0x04) != 0 ? 0 : InverseInertiaTensor.data8;
                 InverseInertiaTensor.data0 = Ixx;
                 InverseInertiaTensor.data4 = Iyy;
                 InverseInertiaTensor.data8 = Izz;
@@ -247,7 +257,7 @@ namespace GGPhys.Rigid
         /// 新增一个碰撞到的刚体
         /// </summary>
         /// <param name="body"></param>
-        public void AddContactBody(RigidBody body, TSVector3 contactPoint)
+        public void AddContactBody(RigidBody body, Vector3d contactPoint)
         {
             if (!ContactRigidBodies.Contains(body))
             {
@@ -258,6 +268,8 @@ namespace GGPhys.Rigid
             else
             {
                 ContactRigidBodiesMap[body] += 1;
+                if (ContactRigidBodiesMap[body] > 2)
+                    ContactRigidBodiesMap[body] = 2;
             }
         }
 
@@ -289,6 +301,8 @@ namespace GGPhys.Rigid
             else
             {
                 TriggerRigidBodiesMap[body] += 1;
+                if (TriggerRigidBodiesMap[body] > 2)
+                    TriggerRigidBodiesMap[body] = 2;
             }
         }
 
@@ -309,63 +323,88 @@ namespace GGPhys.Rigid
         {
             for (int i = ContactRigidBodies.Count - 1; i >= 0; i--)
             {
-                RigidBody body = ContactRigidBodies[i];
+                var body = ContactRigidBodies[i];
                 ContactRigidBodiesMap[body] -= 1;
                 if (ContactRigidBodiesMap[body] <= 0)
                 {
                     RemoveContactBody(body);
                 }
+                else
+                {
+                    OnCollisionStay(body);
+                }
             }
             for (int i = TriggerRigidBodies.Count - 1; i >= 0; i--)
             {
-                RigidBody body = TriggerRigidBodies[i];
+                var body = TriggerRigidBodies[i];
                 TriggerRigidBodiesMap[body] -= 1;
                 if (TriggerRigidBodiesMap[body] <= 0)
                 {
                     RemoveTriggerBody(body);
                 }
+                else
+                {
+                    OnTriggerStay(body);
+                }
             }
         }
-
-        internal TSVector3 Offset;
 
         ///<summary>
         /// 计算内置数据
         ///</summary>
         public void CalculateDerivedData()
         {
-            Orientation.Normalize();
+            Orientation.Normalise();
+
             // 计算变换矩阵
-            CalculateTransformMatrix(ref Transform, Position + Offset, Orientation);
+            CalculateTransformMatrix(ref Transform, Position, Orientation);
+
             // 计算世界坐标逆惯性张量
             TransformInertiaTensor(ref InverseInertiaTensorWorld, InverseInertiaTensor, Transform);
+        }
+
+        public void Clear()
+        {
+            Active = false;
+            UnityBody = null;
+            Position = Vector3d.Zero;
+            Orientation = Quaternion.Identity;
+            Velocity = Vector3d.Zero;
+            Rotation = Vector3d.Zero;
+            InverseInertiaTensor = Matrix3.Identity;
+            Transform = Matrix4.Identity;
+            LastFrameAcceleration = Vector3d.Zero;
+            ContactRigidBodies.Clear();
+            ContactRigidBodiesMap.Clear();
+            TriggerRigidBodies.Clear();
+            TriggerRigidBodiesMap.Clear();
         }
 
         /// <summary>
         /// 运用作用力到速度角速度
         /// </summary>
         /// <param name="dt"></param>
-        public void ApplyForceToVelocity(FP dt)
+        public void ApplyForceToVelocity(REAL dt)
         {
             if (!m_isAwake || IsStatic) return;
 
             LastFrameAcceleration = m_acceleration;
             LastFrameAcceleration += m_forceAccum * InverseMass;
 
-            TSVector3 angularAcceleration = InverseInertiaTensorWorld * m_torqueAccum;
+            Vector3d angularAcceleration = InverseInertiaTensorWorld * m_torqueAccum;
 
             Velocity += LastFrameAcceleration * dt;
 
             Rotation += angularAcceleration * dt;
 
-            Velocity *= TSMathf.Pow(LinearDamping, dt);
-            Rotation *= TSMathf.Pow(AngularDamping, dt);
+            Velocity *= REAL.Pow(LinearDamping, dt);
+            Rotation *= REAL.Pow(AngularDamping, dt);
         }
 
         ///<summary>
         /// 迭代位置旋转
         ///</summary>
-        public void Integrate(FP dt)
+        public void Integrate(REAL dt)
         {
             RemoveContactAndTriggerBodys();
             ClearAccumulators();
@@ -380,9 +419,9 @@ namespace GGPhys.Rigid
 
             if (m_canSleep)
             {
-                FP currentMotion = TSVector3.Dot(Velocity, Velocity) + TSVector3.Dot(Rotation, Rotation);
+                REAL currentMotion = Vector3d.Dot(Velocity, Velocity) + Vector3d.Dot(Rotation, Rotation);
 
-                FP bias = 0.92;
+                REAL bias = 0.92;
                 m_motion = bias * m_motion + (1 - bias) * currentMotion;
 
                 if (m_motion < SleepEpsilon)
@@ -396,7 +435,7 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 赋值质量
         ///</summary>
-        public void SetMass(FP mass)
+        public void SetMass(REAL mass)
         {
             if (mass <= 0)
                 InverseMass = 0;
@@ -407,10 +446,10 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 获取质量
         ///</summary>
-        public FP GetMass()
+        public REAL GetMass()
         {
             if (InverseMass == 0)
-                return FP.MaxValue;
+                return REAL.MaxValue;
             else
                 return 1.0 / InverseMass;
         }
@@ -442,7 +481,7 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 转换一个点的世界坐标到本地坐标
         ///</summary>
-        public TSVector3 GetPointInLocalSpace(TSVector3 point)
+        public Vector3d GetPointInLocalSpace(Vector3d point)
         {
             return Transform.TransformInverse(point);
         }
@@ -450,7 +489,7 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 转换一个点的本地坐标到世界坐标
         ///</summary>
-        public TSVector3 GetPointInWorldSpace(TSVector3 point)
+        public Vector3d GetPointInWorldSpace(Vector3d point)
         {
             return Transform.Transform(point);
         }
@@ -458,7 +497,7 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 转换一个向量从世界坐标到本地坐标
         ///</summary>
-        public TSVector3 GetDirectionInLocalSpace(TSVector3 direction)
+        public Vector3d GetDirectionInLocalSpace(Vector3d direction)
         {
             return Transform.TransformInverseDirection(direction);
         }
@@ -466,7 +505,7 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 转换一个向量从本地坐标到世界坐标
         ///</summary>
-        public TSVector3 GetDirectionInWorldSpace(TSVector3 direction)
+        public Vector3d GetDirectionInWorldSpace(Vector3d direction)
         {
             return Transform.TransformDirection(direction);
         }
@@ -487,16 +526,16 @@ namespace GGPhys.Rigid
             if (awake)
             {
                 if (m_isAwake) return;
-
+                
                 m_isAwake = true;
-                m_motion = SleepEpsilon * 10; //刚苏醒，需要一个初始移动量，否则可能又立即休眠
+                m_motion = SleepEpsilon * 4; //刚苏醒，需要一个初始移动量，否则可能又立即休眠
             }
             else
             {
                 m_isAwake = false;
-                Velocity = TSVector3.Zero;
-                Rotation = TSVector3.Zero;
-                LastFrameAcceleration = TSVector3.Zero;
+                Velocity = Vector3d.Zero;
+                Rotation = Vector3d.Zero;
+                LastFrameAcceleration = Vector3d.Zero;
             }
         }
 
@@ -517,80 +556,79 @@ namespace GGPhys.Rigid
         ///</summary>
         public void ClearAccumulators()
         {
-            m_forceAccum = TSVector3.Zero;
-            m_torqueAccum = TSVector3.Zero;
+            m_forceAccum = Vector3d.Zero;
+            m_torqueAccum = Vector3d.Zero;
         }
 
         ///<summary>
         /// 添加力
         ///</summary>
-        public void AddForce(TSVector3 force, bool awakeBody = false)
+        public void AddForce(Vector3d force, bool awakeBody = false)
         {
             m_forceAccum += force;
-            if (awakeBody)
-                SetAwake(true);
+            if (awakeBody) m_isAwake = true;
         }
 
         ///<summary>
         /// 在某个点上添加力
         ///</summary>
-        public void AddForceAtPoint(TSVector3 force, TSVector3 point)
+        public void AddForceAtPoint(Vector3d force, Vector3d point, bool awakeBody = false)
         {
-            TSVector3 pt = point - Position;
+            Vector3d pt = point - Position;
 
             m_forceAccum += force;
-            m_torqueAccum += TSVector3.Cross(pt, force);
-            SetAwake(true);
+            m_torqueAccum += Vector3d.Cross(pt, force);
+            if (awakeBody) m_isAwake = true;
         }
 
         ///<summary>
         /// 在某个本地坐标点上添加力
         ///<summary>
-        public void AddForceAtBodyPoint(TSVector3 force, TSVector3 point)
+        public void AddForceAtBodyPoint(Vector3d force, Vector3d point, bool awakeBody = false)
         {
-            TSVector3 pt = GetPointInWorldSpace(point);
-            AddForceAtPoint(force, pt);
+            Vector3d pt = GetPointInWorldSpace(point);
+            AddForceAtPoint(force, pt, awakeBody);
         }
 
         ///<summary>
         /// 添加转矩
         ///<summary>
-        public void AddTorque(TSVector3 torque, bool awakeBody = false)
+        public void AddTorque(Vector3d torque, bool awakeBody = false)
         {
             m_torqueAccum += torque;
-            if (awakeBody)
-                m_isAwake = true;
+            if (awakeBody) m_isAwake = true;
         }
 
         /// <summary>
         /// 运用线性冲量
         /// </summary>
         /// <param name="impulse"></param>
-        public void ApplyLinearImpulse(TSVector3 impulse)
+        public void ApplyLinearImpulse(Vector3d impulse, bool awake = false)
         {
-            TSVector3 linearChange = impulse * InverseMass;
+            Vector3d linearChange = impulse * InverseMass;
             Velocity += linearChange;
-            SetAwake(true);
+            if (awake) m_isAwake = true;
         }
 
         /// <summary>
         /// 运用角冲量
         /// </summary>
         /// <param name="impulse"></param>
-        public void ApplyAngularImpulse(TSVector3 impulse)
+        public void ApplyAngularImpulse(Vector3d impulse, bool awake = false)
         {
-            TSVector3 angularChange = InverseInertiaTensorWorld * impulse;
+            Vector3d angularChange = InverseInertiaTensorWorld * impulse;
             Rotation += angularChange;
-            SetAwake(true);
+            if (awake) m_isAwake = true;
         }
 
         /// <summary>
         /// 移动
         /// </summary>
         /// <param name="delta"></param>
-        public void Move(TSVector3 delta)
+        public void Move(Vector3d delta)
         {
             Position += delta;
+            CalculateDerivedData();
             SetAwake(true);
         }
 
@@ -598,13 +636,14 @@ namespace GGPhys.Rigid
         /// 旋转
         /// </summary>
         /// <param name="delta"></param>
-        public void Rotate(TSVector3 delta)
+        public void Rotate(Vector3d delta)
         {
             Orientation.AddScaledVector(delta, 1);
+            CalculateDerivedData();
             SetAwake(true);
         }
 
-        public void OnCollisionEnter(RigidBody otherBody, TSVector3 contactPoint)
+        public void OnCollisionEnter(RigidBody otherBody, Vector3d contactPoint)
         {
             OnCollisionEnterEvent?.Invoke(otherBody.UnityBody, contactPoint);
         }
@@ -639,7 +678,7 @@ namespace GGPhys.Rigid
         ///</summary>
         private static void TransformInertiaTensor(ref Matrix3 iitWorld, Matrix3 iitBody, Matrix4 rotmat)
         {
-            Matrix3 rotM3 = Matrix3.FromLong(rotmat.raw0, rotmat.raw1, rotmat.raw2,
+            Matrix3 rotM3 = Matrix3.FromRaw(rotmat.raw0, rotmat.raw1, rotmat.raw2,
                                              rotmat.raw4, rotmat.raw5, rotmat.raw6,
                                              rotmat.raw8, rotmat.raw9, rotmat.raw10);
             iitWorld = rotM3 * iitBody * rotM3.Transpose();
@@ -648,14 +687,9 @@ namespace GGPhys.Rigid
         ///<summary>
         /// 计算变换矩阵
         ///</summary>
-        private static void CalculateTransformMatrix(ref Matrix4 transformMatrix, TSVector3 position, TSQuaternion orientation)
+        private static void CalculateTransformMatrix(ref Matrix4 transformMatrix, Vector3d position, Quaternion orientation)
         {
             transformMatrix.SetOrientationAndPos(orientation, position);
-        }
-
-        public override string ToString()
-        {
-            return $"{UnityBody.name}";
         }
     }
 }

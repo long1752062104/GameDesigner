@@ -229,6 +229,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50a7b70453c7df04b9e4fdea2b4d6655, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameSystem:
+    playersView: []
   object: {fileID: 619350524187274750, guid: 5efec1cf334b8274a8d38c63b3fb868f, type: 3}
   enemyObj: {fileID: 2534605082900056454, guid: b0d4c23db4cec1a4cb62004b2c4800b8,
     type: 3}
@@ -268,12 +270,11 @@ MonoBehaviour:
   gridSize: {x: 64, y: 64, z: 64}
   gridCellSize: {x: 6, y: 6, z: 6}
   gridCenterOffset: {x: 0, y: 0, z: 0}
-  instance:
-    ApplyForcesTime: 0
-    GenerateContactsTime: 0
-    IntegrateTime: 0
-    PostUpdateTime: 0
-  autoUpdate: 0
+  belta: 0.22
+  slop: 0.001
+  tolerence: 0.0008
+  timeStep: 0.01
+  autoStep: 0
 --- !u!1 &112916085
 GameObject:
   m_ObjectHideFlags: 0
@@ -1030,6 +1031,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 3
+  isEncrypt: 0
 --- !u!114 &739602733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1042,13 +1044,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b88d6553570e1842b9f31a025b86a92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  protocol: 0
+  protocol: 1
   ip: 127.0.0.1
   port: 6666
   throwException: 0
   debugRpc: 0
   frameRate: 60
   authorize: 0
+  startConnect: 1
+  rpcs: []
 --- !u!4 &739602734
 Transform:
   m_ObjectHideFlags: 0
@@ -2745,8 +2749,6 @@ GameObject:
   - component: {fileID: 4303035326721055092}
   - component: {fileID: 4303035326720252244}
   - component: {fileID: 4303035326719286164}
-  - component: {fileID: 4303035326721279320}
-  - component: {fileID: 4303035326721279319}
   - component: {fileID: 4303035326721279318}
   - component: {fileID: 4303035326721279317}
   m_Layer: 0
@@ -2769,47 +2771,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isStatic: 1
-  autoSyncTransform: 0
-  canSleep: 0
+  autoSyncTransform: 1
+  canSleep: 1
   sleepOnAwake: 0
   useGravity: 0
-  mass:
-    _serializedValue: 4294967296
-  linearDamping:
-    _serializedValue: 3865470464
-  angularDamping:
-    _serializedValue: 3865470464
-  friction:
-    _serializedValue: 429496736
-  restitution:
-    _serializedValue: 0
-  sleepEpsilon:
-    _serializedValue: 515396064
-  awakeVelocityLimit:
-    _serializedValue: 429496736
+  mass: 1
+  linearDamping: 0.9
+  angularDamping: 0.9
+  friction: 0.1
+  restitution: 0
+  sleepEpsilon: 0.12
+  awakeVelocityLimit: 0.1
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
   CenterOfMassOffset:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
+    RawX: 0
+    RawY: 0
+    RawZ: 0
   CenterOfMassOffsetWorld:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
+    RawX: 0
+    RawY: 0
+    RawZ: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
-  edit: 0
 --- !u!114 &4303035326721279318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2822,95 +2810,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16791f435b695944a813bb91cb68d7e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transform: {fileID: 4303035326721279319}
   IsTrigger: 0
   CollisionLayer: 0
   CollisionMask: 0
-  CenterOffset:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
-  showGizmos: 1
+  CenterOffset: {x: 0, y: 0, z: 0}
   mesh: {fileID: 4300002, guid: fb4a4223a5d4ac0489a60bbfdf81d94a, type: 3}
   maxThreadCount: 32
---- !u!114 &4303035326721279319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4303035326721279316}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df3e4ecc2c78eaa409dad488c230d65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _localPosition:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: -4294967296
-    z:
-      _serializedValue: 0
-  _position:
-    x:
-      _serializedValue: 0
-    y:
-      _serializedValue: -4294967296
-    z:
-      _serializedValue: 0
-  _localRotation:
-    x:
-      _serializedValue: -3037000704
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
-    w:
-      _serializedValue: 3037000704
-  _rotation:
-    x:
-      _serializedValue: -3037000704
-    y:
-      _serializedValue: 0
-    z:
-      _serializedValue: 0
-    w:
-      _serializedValue: 3037000704
-  _scale:
-    x:
-      _serializedValue: 4294967296
-    y:
-      _serializedValue: 4294968320
-    z:
-      _serializedValue: 4294968320
-  _localScale:
-    x:
-      _serializedValue: 4294967296
-    y:
-      _serializedValue: 4294967296
-    z:
-      _serializedValue: 4294967296
-  edit: 0
-  tsCollider: {fileID: 0}
-  tsParent: {fileID: 0}
-  initialized: 0
-  rb: {fileID: 0}
-  autoSyncTransform: 1
---- !u!64 &4303035326721279320
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4303035326721279316}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4300002, guid: fb4a4223a5d4ac0489a60bbfdf81d94a, type: 3}

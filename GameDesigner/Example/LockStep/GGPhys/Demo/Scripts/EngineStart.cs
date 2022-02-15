@@ -2,16 +2,23 @@
 
 public class EngineStart : RigidPhysicsEngine
 {
-    public bool autoUpdate;
+    public static EngineStart I;
 
-    protected override void Awake()
+    private void Start()
     {
-        base.Awake();
-        enabled = autoUpdate;
+        I = this;
     }
 
     private void Update()
     {
-        Instance.RunPhysics(0.01f/*Time.deltaTime*/);
+        if (autoStep) 
+        {
+            Step();
+        }
+    }
+
+    public void Step()
+    {
+        Instance.RunPhysics(timeStep);
     }
 }

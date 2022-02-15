@@ -44,7 +44,8 @@ namespace LockStep.Client
                 }
             }
             Update();
-            RigidPhysicsEngine.Instance.RunPhysics(0.02f);
+            for (int i = 0; i < 5; i++)//要让每秒达到60帧或以上
+                EngineStart.I.Step();
             EventSystem.UpdateEvent();//事件帧同步更新
         }
 

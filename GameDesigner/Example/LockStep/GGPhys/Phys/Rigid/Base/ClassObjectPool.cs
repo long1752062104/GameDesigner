@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace GGPhys.Rigid
 {
@@ -49,6 +50,7 @@ namespace GGPhys.Rigid
                     return rtn;
                 }
             }
+
             return default;
         }
 
@@ -61,9 +63,15 @@ namespace GGPhys.Rigid
         {
             if (obj == null)
                 return false;
+
             m_NoRecycleCount--;
+
             if (m_Pool.Count >= m_MaxCount && m_MaxCount > 0)
+            {
+                obj = default;
                 return false;
+            }
+
             m_Pool.Push(obj);
             return true;
         }

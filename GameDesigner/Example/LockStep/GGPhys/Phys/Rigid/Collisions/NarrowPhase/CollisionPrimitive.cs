@@ -1,5 +1,6 @@
+using System;
+using System.Collections.Generic;
 using GGPhys.Core;
-using TrueSync;
 
 namespace GGPhys.Rigid.Collisions
 {
@@ -59,20 +60,16 @@ namespace GGPhys.Rigid.Collisions
         ///</summary>
         public virtual void CalculateInternals()
         {
-            Transform = Body.Transform;// * Offset;
+            Transform = Body.Transform * Offset;
         }
 
         ///<summary>
         /// 获取某方向轴向世界坐标方向
         ///</summary>
-        public TSVector3 GetAxis(int index)
+        public Vector3d GetAxis(int index)
         {
             return Transform.GetAxisVector(index);
         }
 
-        public override string ToString()
-        {
-            return Body.ToString();
-        }
     }
 }

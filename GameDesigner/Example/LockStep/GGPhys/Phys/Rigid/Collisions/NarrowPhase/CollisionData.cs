@@ -1,7 +1,6 @@
-using GGPhys.Rigid.Constraints;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using GGPhys.Rigid.Constraints;
 
 namespace GGPhys.Rigid.Collisions
 {
@@ -22,9 +21,9 @@ namespace GGPhys.Rigid.Collisions
         public CollisionData()
         {
             Contacts = new List<RigidContact>();
-            ContactsPool = new ClassObjectPool<RigidContact>(2000);
+            ContactsPool = new ClassObjectPool<RigidContact>(20000);
             PotentialContacts = new List<RigidContactPotential>();
-            PotentialContactsPool = new ClassObjectPool<RigidContactPotential>(2000);
+            PotentialContactsPool = new ClassObjectPool<RigidContactPotential>(20000);
             PotentialContactsMap = new Dictionary<long, RigidContactPotential>();
         }
 
@@ -44,15 +43,15 @@ namespace GGPhys.Rigid.Collisions
         /// <param name="primitive2"></param>
         public void AddPotentialContact(CollisionPrimitive primitive1, CollisionPrimitive primitive2)
         {
-            if (!DetectLayer(primitive1, primitive2)) return; //检查是否发生碰撞
-            long hash = HashToLong(primitive1.HashOrder, primitive2.HashOrder);
+            if (!DetectLayer(primitive1, primitive2)) return; 
+            var hash = HashToLong(primitive1.HashOrder, primitive2.HashOrder);
             if (!PotentialContactsMap.ContainsKey(hash))
             {
-                RigidContactPotential potentialContact = PotentialContactsPool.Spawn();//从栈弹出一个对象
+                RigidContactPotential potentialContact = PotentialContactsPool.Spawn();
                 potentialContact.Primitive1 = primitive1;
                 potentialContact.Primitive2 = primitive2;
                 potentialContact.Hash = hash;
-                PotentialContactsMap.Add(hash, potentialContact);//将两个即将发生碰撞的对象放入字典
+                PotentialContactsMap.Add(hash, potentialContact);
                 PotentialContacts.Add(potentialContact);
             }
         }
@@ -77,7 +76,7 @@ namespace GGPhys.Rigid.Collisions
             Contacts.Add(contact);
             return contact;
         }
-
+        
         /// <summary>
         /// 回收碰撞对象
         /// </summary>
@@ -136,7 +135,7 @@ namespace GGPhys.Rigid.Collisions
             if (!AABBDetect(primitive1, primitive2)) return false;
             return true;
         }
-
+        
         /// <summary>
         /// AABB检测
         /// </summary>

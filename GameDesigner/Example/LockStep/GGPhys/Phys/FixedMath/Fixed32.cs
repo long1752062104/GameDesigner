@@ -27,8 +27,9 @@ import java.lang.Double;
  * Use up-to C# 3 features to keep the library compatible with older versions
  * of Unity.
  */
-using System.Diagnostics;
+using System;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 #endif
 
 #if !TRANSPILE
@@ -65,9 +66,9 @@ namespace FixPointCS
         public const int MaxValue = 2147483647;
 
         // Private constants
-        private const int RCP_LN2 = (int)(0x171547652L >> 16);    // 1.0 / log(2.0) ~= 1.4426950408889634
-        private const int RCP_LOG2_E = (int)(2977044471L >> 16);     // 1.0 / log2(e) ~= 0.6931471805599453
-        private const int RCP_TWO_PI = 683565276;                    // 1.0 / (4.0 * 0.5 * pi);  -- the 4.0 factor converts directly to s2.30
+        private const int RCP_LN2       = (int)(0x171547652L >> 16);    // 1.0 / log(2.0) ~= 1.4426950408889634
+        private const int RCP_LOG2_E    = (int)(2977044471L >> 16);     // 1.0 / log2(e) ~= 0.6931471805599453
+        private const int RCP_TWO_PI    = 683565276;                    // 1.0 / (4.0 * 0.5 * pi);  -- the 4.0 factor converts directly to s2.30
 
         /// <summary>
         /// Converts an integer to a fixed-point value.
@@ -75,7 +76,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static int FromInt(int v)
         {
-            return v << Shift;
+            return (int)v << Shift;
         }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static int CeilToInt(int v)
         {
-            return (v + (One - 1)) >> Shift;
+            return (int)((v + (One - 1)) >> Shift);
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static int FloorToInt(int v)
         {
-            return v >> Shift;
+            return (int)(v >> Shift);
         }
 
         /// <summary>
@@ -120,7 +121,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static int RoundToInt(int v)
         {
-            return (v + Half) >> Shift;
+            return (int)((v + Half) >> Shift);
         }
 
         /// <summary>
@@ -129,7 +130,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static double ToDouble(int v)
         {
-            return v * (1.0 / 65536.0);
+            return (double)v * (1.0 / 65536.0);
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static float ToFloat(int v)
         {
-            return v * (1.0f / 65536.0f);
+            return (float)v * (1.0f / 65536.0f);
         }
 
         /// <summary>
@@ -278,7 +279,7 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static int Mul(int a, int b)
         {
-            return (int)((a * (long)b) >> Shift);
+            return (int)(((long)a * (long)b) >> Shift);
         }
 
         /// <summary>
@@ -287,8 +288,8 @@ namespace FixPointCS
         [MethodImpl(FixedUtil.AggressiveInlining)]
         public static int Lerp(int a, int b, int t)
         {
-            long ta = a * (One - (long)t);
-            long tb = b * (long)t;
+            long ta = (long)a * (One - (long)t);
+            long tb = (long)b * (long)t;
             return (int)((ta + tb) >> Shift);
         }
 
@@ -320,7 +321,7 @@ namespace FixPointCS
             if (b == MinValue || b == 0)
                 return 0;
 
-            int res = (int)(((long)a << Shift) / b);
+            int res = (int)(((long)a << Shift) / (long)b);
             return res;
         }
 
@@ -1162,7 +1163,7 @@ namespace FixPointCS
             {
                 int k = Atan2Div(nx, ny);
                 int z = FixedUtil.AtanPoly5Lut8(k);
-                int angle = negMask ^ (z >> 14);
+                int angle = negMask ^  (z >> 14);
                 return ((y > 0) ? PiHalf : -PiHalf) - angle;
             }
         }
@@ -1285,7 +1286,7 @@ namespace FixPointCS
             }
 
             // Compute Atan2(x, Sqrt((1+x) * (1-x))), using s32.32.
-            long xx = (One + x) * (long)(One - x);
+            long xx = (long)(One + x) * (long)(One - x);
             long y = Fixed64.Sqrt(xx);
             return (int)(Fixed64.Atan2((long)x << 16, y) >> 16);
         }
@@ -1300,7 +1301,7 @@ namespace FixPointCS
             }
 
             // Compute Atan2(x, Sqrt((1+x) * (1-x))), using s32.32.
-            long xx = (One + x) * (long)(One - x);
+            long xx = (long)(One + x) * (long)(One - x);
             long y = Fixed64.SqrtFast(xx);
             return (int)(Fixed64.Atan2Fast((long)x << 16, y) >> 16);
         }
@@ -1315,7 +1316,7 @@ namespace FixPointCS
             }
 
             // Compute Atan2(x, Sqrt((1+x) * (1-x))), using s32.32.
-            long xx = (One + x) * (long)(One - x);
+            long xx = (long)(One + x) * (long)(One - x);
             long y = Fixed64.SqrtFastest(xx);
             return (int)(Fixed64.Atan2Fastest((long)x << 16, y) >> 16);
         }
@@ -1330,7 +1331,7 @@ namespace FixPointCS
             }
 
             // Compute Atan2(Sqrt((1+x) * (1-x)), x), using s32.32.
-            long xx = (One + x) * (long)(One - x);
+            long xx = (long)(One + x) * (long)(One - x);
             long y = Fixed64.Sqrt(xx);
             return (int)(Fixed64.Atan2(y, (long)x << 16) >> 16);
         }
@@ -1345,7 +1346,7 @@ namespace FixPointCS
             }
 
             // Compute Atan2(Sqrt((1+x) * (1-x)), x), using s32.32.
-            long xx = (One + x) * (long)(One - x);
+            long xx = (long)(One + x) * (long)(One - x);
             long y = Fixed64.SqrtFast(xx);
             return (int)(Fixed64.Atan2Fast(y, (long)x << 16) >> 16);
         }
@@ -1360,7 +1361,7 @@ namespace FixPointCS
             }
 
             // Compute Atan2(Sqrt((1+x) * (1-x)), x), using s32.32.
-            long xx = (One + x) * (long)(One - x);
+            long xx = (long)(One + x) * (long)(One - x);
             long y = Fixed64.SqrtFastest(xx);
             return (int)(Fixed64.Atan2Fastest(y, (long)x << 16) >> 16);
         }

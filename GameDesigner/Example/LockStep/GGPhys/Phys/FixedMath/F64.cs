@@ -1,55 +1,56 @@
-﻿using FixPointCS;
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
-using TrueSync;
+using FixPointCS;
 
 namespace FixMath
 {
+#if !GGPHYS_FIXPOINT32
     /// <summary>
     /// Signed 32.32 fixed point value struct.
     /// </summary>
     [Serializable]
-    public struct F64 : IComparable<F64>, IEquatable<F64>
+    public struct FP : IComparable<FP>, IEquatable<FP>
     {
         // Constants
-        public static F64 Neg1 { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Neg1); } }
-        public static F64 Zero { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Zero); } }
-        public static F64 Half { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Half); } }
-        public static F64 One { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.One); } }
-        public static F64 Two { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Two); } }
-        public static F64 Pi { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Pi); } }
-        public static F64 Pi2 { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Pi2); } }
-        public static F64 PiHalf { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.PiHalf); } }
-        public static F64 E { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.E); } }
+        public static FP Neg1 { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Neg1); } }
+        public static FP Zero { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Zero); } }
+        public static FP Half { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Half); } }
+        public static FP One { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.One); } }
+        public static FP Two { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Two); } }
+        public static FP Pi { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Pi); } }
+        public static FP Pi2 { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.Pi2); } }
+        public static FP PiHalf { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.PiHalf); } }
+        public static FP E { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.E); } }
 
-        public static F64 MinValue { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.MinValue); } }
-        public static F64 MaxValue { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.MaxValue); } }
+        public static FP MinValue { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.MinValue); } }
+        public static FP MaxValue { [MethodImpl(FixedUtil.AggressiveInlining)] get { return FromRaw(Fixed64.MaxValue); } }
 
         // Raw fixed point value
         public long Raw;
 
         // Constructors
-        public F64(int v) { Raw = Fixed64.FromInt(v); }
-        public F64(float v) { Raw = Fixed64.FromFloat(v); }
-        public F64(double v) { Raw = Fixed64.FromDouble(v); }
-        public F64(F32 v) { Raw = (long)v.Raw << 16; }
+        public FP(int v) { Raw = Fixed64.FromInt(v); }
+        public FP(float v) { Raw = Fixed64.FromFloat(v); }
+        public FP(double v) { Raw = Fixed64.FromDouble(v); }
+        public FP(long v) { Raw = v; }
+        //public FP(F32 v) { Raw = (long)v.Raw << 16; }
 
         // Conversions
-        public static int FloorToInt(F64 a) { return Fixed64.FloorToInt(a.Raw); }
-        public static int CeilToInt(F64 a) { return Fixed64.CeilToInt(a.Raw); }
-        public static int RoundToInt(F64 a) { return Fixed64.RoundToInt(a.Raw); }
+        public static int FloorToInt(FP a) { return Fixed64.FloorToInt(a.Raw); }
+        public static int CeilToInt(FP a) { return Fixed64.CeilToInt(a.Raw); }
+        public static int RoundToInt(FP a) { return Fixed64.RoundToInt(a.Raw); }
         public float Float { get { return Fixed64.ToFloat(Raw); } }
         public double Double { get { return Fixed64.ToDouble(Raw); } }
-        public F32 F32 { get { return F32.FromRaw((int)(Raw >> 16)); } }
+        //public F32 F32 { get { return F32.FromRaw((int)(Raw >> 16)); } }
 
         // Creates the fixed point number that's a divided by b.
-        public static F64 Ratio(int a, int b) { return F64.FromRaw(((long)a << 32) / b); }
+        public static FP Ratio(int a, int b) { return FP.FromRaw(((long)a << 32) / b); }
         // Creates the fixed point number that's a divided by 10.
-        public static F64 Ratio10(int a) { return F64.FromRaw(((long)a << 32) / 10); }
+        public static FP Ratio10(int a) { return FP.FromRaw(((long)a << 32) / 10); }
         // Creates the fixed point number that's a divided by 100.
-        public static F64 Ratio100(int a) { return F64.FromRaw(((long)a << 32) / 100); }
+        public static FP Ratio100(int a) { return FP.FromRaw(((long)a << 32) / 100); }
         // Creates the fixed point number that's a divided by 1000.
-        public static F64 Ratio1000(int a) { return F64.FromRaw(((long)a << 32) / 1000); }
+        public static FP Ratio1000(int a) { return FP.FromRaw(((long)a << 32) / 1000); }
 
         public void test()
         {
@@ -64,146 +65,144 @@ namespace FixMath
 
 
         // Operators
-        //public static explicit operator F64(int i) { return new F64(i); }
-        //public static explicit operator F64(float f) { return new F64(f); }
-        //public static explicit operator F64(double d) { return new F64(d); }
-        //public static explicit operator F64(F32 f) { return new F64(f); }
+        //public static explicit operator FP(int i) { return new FP(i); }
+        //public static explicit operator FP(float f) { return new FP(f); }
+        //public static explicit operator FP(double d) { return new FP(d); }
+        //public static explicit operator FP(F32 f) { return new FP(f); }
 
-        //public static explicit operator float(F64 f) { return f.Float; }
-        //public static explicit operator double(F64 d) { return d.Double; }
+        //public static explicit operator float(FP f) { return f.Float; }
+        //public static explicit operator double(FP d) { return d.Double; }
 
-        public static implicit operator F64(int i) { return new F64(i); }
-        public static implicit operator F64(float f) { return new F64(f); }
-        public static implicit operator F64(double d) { return new F64(d); }
-        public static implicit operator F64(F32 f) { return new F64(f); }
+        public static implicit operator FP(int i) { return new FP(i); }
+        public static implicit operator FP(float f) { return new FP(f); }
+        public static implicit operator FP(double d) { return new FP(d); }
+        public static implicit operator FP(long d) { return new FP(d); }
+        //public static implicit operator FP(F32 f) { return new FP(f); }
 
-        public static implicit operator float(F64 f) { return f.Float; }
-        public static implicit operator double(F64 d) { return d.Double; }
+        public static implicit operator float(FP f) { return f.Float; }
+        public static implicit operator double(FP d) { return d.Double; }
 
-        public static implicit operator FP(F64 d) { return new FP(d.Raw); }
-        public static implicit operator F64(FP d) { return new F64() { Raw = d.RawValue }; }
+        public static FP operator -(FP v1) { return FromRaw(-v1.Raw); }
+        public static FP operator +(FP v1, FP v2) { return FromRaw(v1.Raw + v2.Raw); }
+        public static FP operator -(FP v1, FP v2) { return FromRaw(v1.Raw - v2.Raw); }
+        public static FP operator *(FP v1, FP v2) { return FromRaw(Fixed64.Mul(v1.Raw, v2.Raw)); }
+        public static FP operator /(FP v1, FP v2) { return FromRaw(Fixed64.DivPrecise(v1.Raw, v2.Raw)); }
+        public static FP operator %(FP v1, FP v2) { return FromRaw(Fixed64.Mod(v1.Raw, v2.Raw)); }
 
-        public static F64 operator -(F64 v1) { return FromRaw(-v1.Raw); }
-        public static F64 operator +(F64 v1, F64 v2) { return FromRaw(v1.Raw + v2.Raw); }
-        public static F64 operator -(F64 v1, F64 v2) { return FromRaw(v1.Raw - v2.Raw); }
-        public static F64 operator *(F64 v1, F64 v2) { return FromRaw(Fixed64.Mul(v1.Raw, v2.Raw)); }
-        public static F64 operator /(F64 v1, F64 v2) { return FromRaw(Fixed64.DivPrecise(v1.Raw, v2.Raw)); }
-        public static F64 operator %(F64 v1, F64 v2) { return FromRaw(Fixed64.Mod(v1.Raw, v2.Raw)); }
+        public static FP operator +(FP v1, int v2) { return FromRaw(v1.Raw + Fixed64.FromInt(v2)); }
+        public static FP operator +(int v1, FP v2) { return FromRaw(Fixed64.FromInt(v1) + v2.Raw); }
+        public static FP operator -(FP v1, int v2) { return FromRaw(v1.Raw - Fixed64.FromInt(v2)); }
+        public static FP operator -(int v1, FP v2) { return FromRaw(Fixed64.FromInt(v1) - v2.Raw); }
+        public static FP operator *(FP v1, int v2) { return FromRaw(v1.Raw * (long)v2); }
+        public static FP operator *(int v1, FP v2) { return FromRaw((long)v1 * v2.Raw); }
+        public static FP operator /(FP v1, int v2) { return FromRaw(v1.Raw / (long)v2); }
+        public static FP operator /(int v1, FP v2) { return FromRaw(Fixed64.DivPrecise(Fixed64.FromInt(v1), v2.Raw)); }
+        public static FP operator %(FP v1, int v2) { return FromRaw(Fixed64.Mod(v1.Raw, Fixed64.FromInt(v2))); }
+        public static FP operator %(int v1, FP v2) { return FromRaw(Fixed64.Mod(Fixed64.FromInt(v1), v2.Raw)); }
 
-        public static F64 operator +(F64 v1, int v2) { return FromRaw(v1.Raw + Fixed64.FromInt(v2)); }
-        public static F64 operator +(int v1, F64 v2) { return FromRaw(Fixed64.FromInt(v1) + v2.Raw); }
-        public static F64 operator -(F64 v1, int v2) { return FromRaw(v1.Raw - Fixed64.FromInt(v2)); }
-        public static F64 operator -(int v1, F64 v2) { return FromRaw(Fixed64.FromInt(v1) - v2.Raw); }
-        public static F64 operator *(F64 v1, int v2) { return FromRaw(v1.Raw * v2); }
-        public static F64 operator *(int v1, F64 v2) { return FromRaw(v1 * v2.Raw); }
-        public static F64 operator /(F64 v1, int v2) { return FromRaw(v1.Raw / v2); }
-        public static F64 operator /(int v1, F64 v2) { return FromRaw(Fixed64.DivPrecise(Fixed64.FromInt(v1), v2.Raw)); }
-        public static F64 operator %(F64 v1, int v2) { return FromRaw(Fixed64.Mod(v1.Raw, Fixed64.FromInt(v2))); }
-        public static F64 operator %(int v1, F64 v2) { return FromRaw(Fixed64.Mod(Fixed64.FromInt(v1), v2.Raw)); }
+        public static FP operator ++(FP v1) { return FromRaw(v1.Raw + Fixed64.One); }
+        public static FP operator --(FP v1) { return FromRaw(v1.Raw - Fixed64.One); }
 
-        public static F64 operator ++(F64 v1) { return FromRaw(v1.Raw + Fixed64.One); }
-        public static F64 operator --(F64 v1) { return FromRaw(v1.Raw - Fixed64.One); }
+        public static bool operator ==(FP v1, FP v2) { return v1.Raw == v2.Raw; }
+        public static bool operator !=(FP v1, FP v2) { return v1.Raw != v2.Raw; }
+        public static bool operator <(FP v1, FP v2) { return v1.Raw < v2.Raw; }
+        public static bool operator <=(FP v1, FP v2) { return v1.Raw <= v2.Raw; }
+        public static bool operator >(FP v1, FP v2) { return v1.Raw > v2.Raw; }
+        public static bool operator >=(FP v1, FP v2) { return v1.Raw >= v2.Raw; }
 
-        public static bool operator ==(F64 v1, F64 v2) { return v1.Raw == v2.Raw; }
-        public static bool operator !=(F64 v1, F64 v2) { return v1.Raw != v2.Raw; }
-        public static bool operator <(F64 v1, F64 v2) { return v1.Raw < v2.Raw; }
-        public static bool operator <=(F64 v1, F64 v2) { return v1.Raw <= v2.Raw; }
-        public static bool operator >(F64 v1, F64 v2) { return v1.Raw > v2.Raw; }
-        public static bool operator >=(F64 v1, F64 v2) { return v1.Raw >= v2.Raw; }
+        public static bool operator ==(int v1, FP v2) { return Fixed64.FromInt(v1) == v2.Raw; }
+        public static bool operator ==(FP v1, int v2) { return v1.Raw == Fixed64.FromInt(v2); }
+        public static bool operator !=(int v1, FP v2) { return Fixed64.FromInt(v1) != v2.Raw; }
+        public static bool operator !=(FP v1, int v2) { return v1.Raw != Fixed64.FromInt(v2); }
+        public static bool operator <(int v1, FP v2) { return Fixed64.FromInt(v1) < v2.Raw; }
+        public static bool operator <(FP v1, int v2) { return v1.Raw < Fixed64.FromInt(v2); }
+        public static bool operator <=(int v1, FP v2) { return Fixed64.FromInt(v1) <= v2.Raw; }
+        public static bool operator <=(FP v1, int v2) { return v1.Raw <= Fixed64.FromInt(v2); }
+        public static bool operator >(int v1, FP v2) { return Fixed64.FromInt(v1) > v2.Raw; }
+        public static bool operator >(FP v1, int v2) { return v1.Raw > Fixed64.FromInt(v2); }
+        public static bool operator >=(int v1, FP v2) { return Fixed64.FromInt(v1) >= v2.Raw; }
+        public static bool operator >=(FP v1, int v2) { return v1.Raw >= Fixed64.FromInt(v2); }
 
-        public static bool operator ==(int v1, F64 v2) { return Fixed64.FromInt(v1) == v2.Raw; }
-        public static bool operator ==(F64 v1, int v2) { return v1.Raw == Fixed64.FromInt(v2); }
-        public static bool operator !=(int v1, F64 v2) { return Fixed64.FromInt(v1) != v2.Raw; }
-        public static bool operator !=(F64 v1, int v2) { return v1.Raw != Fixed64.FromInt(v2); }
-        public static bool operator <(int v1, F64 v2) { return Fixed64.FromInt(v1) < v2.Raw; }
-        public static bool operator <(F64 v1, int v2) { return v1.Raw < Fixed64.FromInt(v2); }
-        public static bool operator <=(int v1, F64 v2) { return Fixed64.FromInt(v1) <= v2.Raw; }
-        public static bool operator <=(F64 v1, int v2) { return v1.Raw <= Fixed64.FromInt(v2); }
-        public static bool operator >(int v1, F64 v2) { return Fixed64.FromInt(v1) > v2.Raw; }
-        public static bool operator >(F64 v1, int v2) { return v1.Raw > Fixed64.FromInt(v2); }
-        public static bool operator >=(int v1, F64 v2) { return Fixed64.FromInt(v1) >= v2.Raw; }
-        public static bool operator >=(F64 v1, int v2) { return v1.Raw >= Fixed64.FromInt(v2); }
+        //public static bool operator ==(F32 a, FP b) { return FP.FromF32(a) == b; }
+        //public static bool operator ==(FP a, F32 b) { return a == FP.FromF32(b); }
+        //public static bool operator !=(F32 a, FP b) { return FP.FromF32(a) != b; }
+        //public static bool operator !=(FP a, F32 b) { return a != FP.FromF32(b); }
+        //public static bool operator <(F32 a, FP b) { return FP.FromF32(a) < b; }
+        //public static bool operator <(FP a, F32 b) { return a < FP.FromF32(b); }
+        //public static bool operator <=(F32 a, FP b) { return FP.FromF32(a) <= b; }
+        //public static bool operator <=(FP a, F32 b) { return a <= FP.FromF32(b); }
+        //public static bool operator >(F32 a, FP b) { return FP.FromF32(a) > b; }
+        //public static bool operator >(FP a, F32 b) { return a > FP.FromF32(b); }
+        //public static bool operator >=(F32 a, FP b) { return FP.FromF32(a) >= b; }
+        //public static bool operator >=(FP a, F32 b) { return a >= FP.FromF32(b); }
 
-        public static bool operator ==(F32 a, F64 b) { return F64.FromF32(a) == b; }
-        public static bool operator ==(F64 a, F32 b) { return a == F64.FromF32(b); }
-        public static bool operator !=(F32 a, F64 b) { return F64.FromF32(a) != b; }
-        public static bool operator !=(F64 a, F32 b) { return a != F64.FromF32(b); }
-        public static bool operator <(F32 a, F64 b) { return F64.FromF32(a) < b; }
-        public static bool operator <(F64 a, F32 b) { return a < F64.FromF32(b); }
-        public static bool operator <=(F32 a, F64 b) { return F64.FromF32(a) <= b; }
-        public static bool operator <=(F64 a, F32 b) { return a <= F64.FromF32(b); }
-        public static bool operator >(F32 a, F64 b) { return F64.FromF32(a) > b; }
-        public static bool operator >(F64 a, F32 b) { return a > F64.FromF32(b); }
-        public static bool operator >=(F32 a, F64 b) { return F64.FromF32(a) >= b; }
-        public static bool operator >=(F64 a, F32 b) { return a >= F64.FromF32(b); }
+        public static FP RadToDeg(FP a) { return FromRaw(Fixed64.Mul(a.Raw, 246083499198)); } // 180 / FP.Pi
+        public static FP DegToRad(FP a) { return FromRaw(Fixed64.Mul(a.Raw, 74961320)); }     // FP.Pi / 180
 
-        public static F64 RadToDeg(F64 a) { return FromRaw(Fixed64.Mul(a.Raw, 246083499198)); } // 180 / F64.Pi
-        public static F64 DegToRad(F64 a) { return FromRaw(Fixed64.Mul(a.Raw, 74961320)); }     // F64.Pi / 180
+        public static FP Div2(FP a) { return FromRaw(a.Raw >> 1); }
+        public static FP Abs(FP a) { return FromRaw(Fixed64.Abs(a.Raw)); }
+        public static FP Nabs(FP a) { return FromRaw(Fixed64.Nabs(a.Raw)); }
+        public static int Sign(FP a) { return Fixed64.Sign(a.Raw); }
+        public static FP Ceil(FP a) { return FromRaw(Fixed64.Ceil(a.Raw)); }
+        public static FP Floor(FP a) { return FromRaw(Fixed64.Floor(a.Raw)); }
+        public static FP Round(FP a) { return FromRaw(Fixed64.Round(a.Raw)); }
+        public static FP Fract(FP a) { return FromRaw(Fixed64.Fract(a.Raw)); }
+        public static FP Div(FP a, FP b) { return FromRaw(Fixed64.Div(a.Raw, b.Raw)); }
+        public static FP DivFast(FP a, FP b) { return FromRaw(Fixed64.DivFast(a.Raw, b.Raw)); }
+        public static FP DivFastest(FP a, FP b) { return FromRaw(Fixed64.DivFastest(a.Raw, b.Raw)); }
+        public static FP SqrtPrecise(FP a) { return FromRaw(Fixed64.SqrtPrecise(a.Raw)); }
+        public static FP Sqrt(FP a) { return FromRaw(Fixed64.SqrtFastest(a.Raw)); }
+        public static FP SqrtFast(FP a) { return FromRaw(Fixed64.SqrtFastest(a.Raw)); }
+        public static FP SqrtFastest(FP a) { return FromRaw(Fixed64.SqrtFastest(a.Raw)); }
+        public static FP RSqrt(FP a) { return FromRaw(Fixed64.RSqrt(a.Raw)); }
+        public static FP RSqrtFast(FP a) { return FromRaw(Fixed64.RSqrtFast(a.Raw)); }
+        public static FP RSqrtFastest(FP a) { return FromRaw(Fixed64.RSqrtFastest(a.Raw)); }
+        public static FP Rcp(FP a) { return FromRaw(Fixed64.Rcp(a.Raw)); }
+        public static FP RcpFast(FP a) { return FromRaw(Fixed64.RcpFast(a.Raw)); }
+        public static FP RcpFastest(FP a) { return FromRaw(Fixed64.RcpFastest(a.Raw)); }
+        public static FP Exp(FP a) { return FromRaw(Fixed64.Exp(a.Raw)); }
+        public static FP ExpFast(FP a) { return FromRaw(Fixed64.ExpFast(a.Raw)); }
+        public static FP ExpFastest(FP a) { return FromRaw(Fixed64.ExpFastest(a.Raw)); }
+        public static FP Exp2(FP a) { return FromRaw(Fixed64.Exp2(a.Raw)); }
+        public static FP Exp2Fast(FP a) { return FromRaw(Fixed64.Exp2Fast(a.Raw)); }
+        public static FP Exp2Fastest(FP a) { return FromRaw(Fixed64.Exp2Fastest(a.Raw)); }
+        public static FP Log(FP a) { return FromRaw(Fixed64.Log(a.Raw)); }
+        public static FP LogFast(FP a) { return FromRaw(Fixed64.LogFast(a.Raw)); }
+        public static FP LogFastest(FP a) { return FromRaw(Fixed64.LogFastest(a.Raw)); }
+        public static FP Log2(FP a) { return FromRaw(Fixed64.Log2(a.Raw)); }
+        public static FP Log2Fast(FP a) { return FromRaw(Fixed64.Log2Fast(a.Raw)); }
+        public static FP Log2Fastest(FP a) { return FromRaw(Fixed64.Log2Fastest(a.Raw)); }
 
-        public static F64 Div2(F64 a) { return FromRaw(a.Raw >> 1); }
-        public static F64 Abs(F64 a) { return FromRaw(Fixed64.Abs(a.Raw)); }
-        public static F64 Nabs(F64 a) { return FromRaw(Fixed64.Nabs(a.Raw)); }
-        public static int Sign(F64 a) { return Fixed64.Sign(a.Raw); }
-        public static F64 Ceil(F64 a) { return FromRaw(Fixed64.Ceil(a.Raw)); }
-        public static F64 Floor(F64 a) { return FromRaw(Fixed64.Floor(a.Raw)); }
-        public static F64 Round(F64 a) { return FromRaw(Fixed64.Round(a.Raw)); }
-        public static F64 Fract(F64 a) { return FromRaw(Fixed64.Fract(a.Raw)); }
-        public static F64 Div(F64 a, F64 b) { return FromRaw(Fixed64.Div(a.Raw, b.Raw)); }
-        public static F64 DivFast(F64 a, F64 b) { return FromRaw(Fixed64.DivFast(a.Raw, b.Raw)); }
-        public static F64 DivFastest(F64 a, F64 b) { return FromRaw(Fixed64.DivFastest(a.Raw, b.Raw)); }
-        public static F64 SqrtPrecise(F64 a) { return FromRaw(Fixed64.SqrtPrecise(a.Raw)); }
-        public static F64 Sqrt(F64 a) { return FromRaw(Fixed64.SqrtFastest(a.Raw)); }
-        public static F64 SqrtFast(F64 a) { return FromRaw(Fixed64.SqrtFastest(a.Raw)); }
-        public static F64 SqrtFastest(F64 a) { return FromRaw(Fixed64.SqrtFastest(a.Raw)); }
-        public static F64 RSqrt(F64 a) { return FromRaw(Fixed64.RSqrt(a.Raw)); }
-        public static F64 RSqrtFast(F64 a) { return FromRaw(Fixed64.RSqrtFast(a.Raw)); }
-        public static F64 RSqrtFastest(F64 a) { return FromRaw(Fixed64.RSqrtFastest(a.Raw)); }
-        public static F64 Rcp(F64 a) { return FromRaw(Fixed64.Rcp(a.Raw)); }
-        public static F64 RcpFast(F64 a) { return FromRaw(Fixed64.RcpFast(a.Raw)); }
-        public static F64 RcpFastest(F64 a) { return FromRaw(Fixed64.RcpFastest(a.Raw)); }
-        public static F64 Exp(F64 a) { return FromRaw(Fixed64.Exp(a.Raw)); }
-        public static F64 ExpFast(F64 a) { return FromRaw(Fixed64.ExpFast(a.Raw)); }
-        public static F64 ExpFastest(F64 a) { return FromRaw(Fixed64.ExpFastest(a.Raw)); }
-        public static F64 Exp2(F64 a) { return FromRaw(Fixed64.Exp2(a.Raw)); }
-        public static F64 Exp2Fast(F64 a) { return FromRaw(Fixed64.Exp2Fast(a.Raw)); }
-        public static F64 Exp2Fastest(F64 a) { return FromRaw(Fixed64.Exp2Fastest(a.Raw)); }
-        public static F64 Log(F64 a) { return FromRaw(Fixed64.Log(a.Raw)); }
-        public static F64 LogFast(F64 a) { return FromRaw(Fixed64.LogFast(a.Raw)); }
-        public static F64 LogFastest(F64 a) { return FromRaw(Fixed64.LogFastest(a.Raw)); }
-        public static F64 Log2(F64 a) { return FromRaw(Fixed64.Log2(a.Raw)); }
-        public static F64 Log2Fast(F64 a) { return FromRaw(Fixed64.Log2Fast(a.Raw)); }
-        public static F64 Log2Fastest(F64 a) { return FromRaw(Fixed64.Log2Fastest(a.Raw)); }
+        public static FP Sin(FP a) { return FromRaw(Fixed64.SinFastest(a.Raw)); }
+        public static FP SinFast(FP a) { return FromRaw(Fixed64.SinFastest(a.Raw)); }
+        public static FP SinFastest(FP a) { return FromRaw(Fixed64.SinFastest(a.Raw)); }
+        public static FP Cos(FP a) { return FromRaw(Fixed64.CosFastest(a.Raw)); }
+        public static FP CosFast(FP a) { return FromRaw(Fixed64.CosFastest(a.Raw)); }
+        public static FP CosFastest(FP a) { return FromRaw(Fixed64.CosFastest(a.Raw)); }
+        public static FP Tan(FP a) { return FromRaw(Fixed64.Tan(a.Raw)); }
+        public static FP TanFast(FP a) { return FromRaw(Fixed64.TanFast(a.Raw)); }
+        public static FP TanFastest(FP a) { return FromRaw(Fixed64.TanFastest(a.Raw)); }
+        public static FP Asin(FP a) { return FromRaw(Fixed64.AsinFastest(a.Raw)); }
+        public static FP AsinFast(FP a) { return FromRaw(Fixed64.AsinFastest(a.Raw)); }
+        public static FP AsinFastest(FP a) { return FromRaw(Fixed64.AsinFastest(a.Raw)); }
+        public static FP Acos(FP a) { return FromRaw(Fixed64.AcosFastest(a.Raw)); }
+        public static FP AcosFast(FP a) { return FromRaw(Fixed64.AcosFastest(a.Raw)); }
+        public static FP AcosFastest(FP a) { return FromRaw(Fixed64.AcosFastest(a.Raw)); }
+        public static FP Atan(FP a) { return FromRaw(Fixed64.Atan(a.Raw)); }
+        public static FP AtanFast(FP a) { return FromRaw(Fixed64.AtanFast(a.Raw)); }
+        public static FP AtanFastest(FP a) { return FromRaw(Fixed64.AtanFastest(a.Raw)); }
+        public static FP Atan2(FP y, FP x) { return FromRaw(Fixed64.Atan2(y.Raw, x.Raw)); }
+        public static FP Atan2Fast(FP y, FP x) { return FromRaw(Fixed64.Atan2Fast(y.Raw, x.Raw)); }
+        public static FP Atan2Fastest(FP y, FP x) { return FromRaw(Fixed64.Atan2Fastest(y.Raw, x.Raw)); }
+        public static FP Pow(FP a, FP b) { return FromRaw(Fixed64.PowFastest(a.Raw, b.Raw)); }
+        public static FP PowFast(FP a, FP b) { return FromRaw(Fixed64.PowFastest(a.Raw, b.Raw)); }
+        public static FP PowFastest(FP a, FP b) { return FromRaw(Fixed64.PowFastest(a.Raw, b.Raw)); }
 
-        public static F64 Sin(F64 a) { return FromRaw(Fixed64.SinFastest(a.Raw)); }
-        public static F64 SinFast(F64 a) { return FromRaw(Fixed64.SinFastest(a.Raw)); }
-        public static F64 SinFastest(F64 a) { return FromRaw(Fixed64.SinFastest(a.Raw)); }
-        public static F64 Cos(F64 a) { return FromRaw(Fixed64.CosFastest(a.Raw)); }
-        public static F64 CosFast(F64 a) { return FromRaw(Fixed64.CosFastest(a.Raw)); }
-        public static F64 CosFastest(F64 a) { return FromRaw(Fixed64.CosFastest(a.Raw)); }
-        public static F64 Tan(F64 a) { return FromRaw(Fixed64.Tan(a.Raw)); }
-        public static F64 TanFast(F64 a) { return FromRaw(Fixed64.TanFast(a.Raw)); }
-        public static F64 TanFastest(F64 a) { return FromRaw(Fixed64.TanFastest(a.Raw)); }
-        public static F64 Asin(F64 a) { return FromRaw(Fixed64.AsinFastest(a.Raw)); }
-        public static F64 AsinFast(F64 a) { return FromRaw(Fixed64.AsinFastest(a.Raw)); }
-        public static F64 AsinFastest(F64 a) { return FromRaw(Fixed64.AsinFastest(a.Raw)); }
-        public static F64 Acos(F64 a) { return FromRaw(Fixed64.AcosFastest(a.Raw)); }
-        public static F64 AcosFast(F64 a) { return FromRaw(Fixed64.AcosFastest(a.Raw)); }
-        public static F64 AcosFastest(F64 a) { return FromRaw(Fixed64.AcosFastest(a.Raw)); }
-        public static F64 Atan(F64 a) { return FromRaw(Fixed64.Atan(a.Raw)); }
-        public static F64 AtanFast(F64 a) { return FromRaw(Fixed64.AtanFast(a.Raw)); }
-        public static F64 AtanFastest(F64 a) { return FromRaw(Fixed64.AtanFastest(a.Raw)); }
-        public static F64 Atan2(F64 y, F64 x) { return FromRaw(Fixed64.Atan2(y.Raw, x.Raw)); }
-        public static F64 Atan2Fast(F64 y, F64 x) { return FromRaw(Fixed64.Atan2Fast(y.Raw, x.Raw)); }
-        public static F64 Atan2Fastest(F64 y, F64 x) { return FromRaw(Fixed64.Atan2Fastest(y.Raw, x.Raw)); }
-        public static F64 Pow(F64 a, F64 b) { return FromRaw(Fixed64.PowFastest(a.Raw, b.Raw)); }
-        public static F64 PowFast(F64 a, F64 b) { return FromRaw(Fixed64.PowFastest(a.Raw, b.Raw)); }
-        public static F64 PowFastest(F64 a, F64 b) { return FromRaw(Fixed64.PowFastest(a.Raw, b.Raw)); }
+        public static FP Min(FP a, FP b) { return FromRaw(Fixed64.Min(a.Raw, b.Raw)); }
+        public static FP Max(FP a, FP b) { return FromRaw(Fixed64.Max(a.Raw, b.Raw)); }
+        public static FP Clamp(FP a, FP min, FP max) { return FromRaw(Fixed64.Clamp(a.Raw, min.Raw, max.Raw)); }
 
-        public static F64 Min(F64 a, F64 b) { return FromRaw(Fixed64.Min(a.Raw, b.Raw)); }
-        public static F64 Max(F64 a, F64 b) { return FromRaw(Fixed64.Max(a.Raw, b.Raw)); }
-        public static F64 Clamp(F64 a, F64 min, F64 max) { return FromRaw(Fixed64.Clamp(a.Raw, min.Raw, max.Raw)); }
-
-        public static F64 Lerp(F64 a, F64 b, F64 t)
+        public static FP Lerp(FP a, FP b, FP t)
         {
             long tb = t.Raw;
             long ta = Fixed64.One - tb;
@@ -211,31 +210,31 @@ namespace FixMath
         }
 
         [MethodImpl(FixedUtil.AggressiveInlining)]
-        public static F64 FromRaw(long raw)
+        public static FP FromRaw(long raw)
         {
-            F64 r;
+            FP r;
             r.Raw = raw;
             return r;
         }
 
-        public static F64 FromInt(int v) { return new F64(v); }
-        public static F64 FromFloat(float v) { return new F64(v); }
-        public static F64 FromDouble(double v) { return new F64(v); }
-        public static F64 FromF32(F32 v) { return new F64(v); }
+        public static FP FromInt(int v) { return new FP(v); }
+        public static FP FromFloat(float v) { return new FP(v); }
+        public static FP FromDouble(double v) { return new FP(v); }
+        //public static FP FromF32(F32 v) { return new FP(v); }
 
-        public bool Equals(F64 other)
+        public bool Equals(FP other)
         {
             return (Raw == other.Raw);
         }
 
         public override bool Equals(object obj)
         {
-            if (!(obj is F64))
+            if (!(obj is FP))
                 return false;
-            return ((F64)obj).Raw == Raw;
+            return ((FP)obj).Raw == Raw;
         }
 
-        public int CompareTo(F64 other)
+        public int CompareTo(FP other)
         {
             if (Raw < other.Raw) return -1;
             if (Raw > other.Raw) return +1;
@@ -252,4 +251,5 @@ namespace FixMath
             return (int)Raw | (int)(Raw >> 32);
         }
     }
+#endif
 }

@@ -1,81 +1,64 @@
-﻿using GGPhys.Core;
-using GGPhys.Rigid.Collisions;
+﻿using System.Collections;
 using System.Collections.Generic;
-using TrueSync;
 using UnityEngine;
+using GGPhys.Rigid.Collisions;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 namespace GGPhysUnity
 {
 
     public class BConvexCollider : BCollider
     {
-        public List<TSVector3> vertices = new List<TSVector3>();
+        public Vector3[] vertices;
 
         public override void AddToEngine(BRigidBody bBody)
         {
-            CollisionConvex shape = new CollisionConvex(vertices.ToArray())
-            {
-                Body = bBody.Body,
-                Offset = Matrix4.IdentityOffset(CenterOffset/* - bBody.CenterOfMassOffset*/),
-                IsTrigger = IsTrigger,
-                CollisionLayer = (uint)bBody.collsionLayer,
-                CollisionMask = (uint)bBody.collsionMask
-            };
-            bBody.Body.Offset = CenterOffset;
+            base.AddToEngine(bBody);
+            var shape = new CollisionConvex(ToVector3dList(vertices));
+            shape.Body = bBody.Body;
+            shape.Offset = Matrix4.IdentityOffset(CenterOffset.ToVector3d() - bBody.CenterOfMassOffset);
+            shape.IsTrigger = IsTrigger;
+            shape.CollisionLayer = (uint)bBody.collsionLayer;
+            shape.CollisionMask = (uint)bBody.collsionMask;
             Primitive = shape;
             RigidPhysicsEngine.Instance.Collisions.AddPrimitive(shape);
         }
 
-        public override Matrix3 CalculateInertiaTensor(FP mass)
+        public override Matrix3 CalculateInertiaTensor(REAL mass)
         {
-            Matrix3 inertiaTensor = Matrix3.Identity;
+            var inertiaTensor = Matrix3.Identity;
             inertiaTensor.data0 *= mass;
             inertiaTensor.data4 *= mass;
             inertiaTensor.data8 *= mass;
             return inertiaTensor;
         }
 
+
+        Vector3d[] ToVector3dList(Vector3[] list)
+        {
+            Vector3d[] v3ds = new Vector3d[list.Length];
+            for (int i = 0; i < list.Length; i++)
+            {
+                v3ds[i] = list[i].ToVector3d();
+            }
+            return v3ds;
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.color = new Color(0, 128, 255);
-            if (vertices.Count <= 0) return;
-            foreach (TSVector3 p1 in vertices)
+            if (vertices == null || vertices.Length <= 0) return;
+            foreach (var p1 in vertices)
             {
-                foreach (TSVector3 p2 in vertices)
+                foreach (var p2 in vertices)
                 {
-                    if (p1 != p2)
+                    if(p1 != p2)
                     {
                         Gizmos.DrawLine(transform.TransformPoint(p1), transform.TransformPoint(p2));
                     }
                 }
             }
-        }
-
-        private void Reset()
-        {
-            vertices.Clear();
-            if (transform == null)
-                transform = GetComponent<TSTransform>();
-            TSVector3 size = transform.localScale;
-            transform.localScale = new TSVector3(TSMathf.Abs(size.x), TSMathf.Abs(size.y), TSMathf.Abs(size.z));
-            BoxCollider box = GetComponent<BoxCollider>();
-            if (box == null)
-            {
-                box = gameObject.AddComponent<BoxCollider>();
-                size = (size / 2).Multiply(box.size);
-                DestroyImmediate(box, true);
-            }
-            else size = (size / 2).Multiply(box.size);
-            //size /= 2;
-            vertices.Add(new TSVector3(size.x, -size.y, -size.z));
-            vertices.Add(new TSVector3(size.x, -size.y, size.z));
-            vertices.Add(new TSVector3(size.x, size.y, -size.z));
-            vertices.Add(new TSVector3(size.x, size.y, size.z));
-
-            vertices.Add(new TSVector3(-size.x, -size.y, -size.z));
-            vertices.Add(new TSVector3(-size.x, -size.y, size.z));
-            vertices.Add(new TSVector3(-size.x, size.y, -size.z));
-            vertices.Add(new TSVector3(-size.x, size.y, size.z));
         }
     }
 }

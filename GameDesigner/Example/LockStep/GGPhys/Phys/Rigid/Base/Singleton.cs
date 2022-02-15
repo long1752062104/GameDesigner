@@ -1,4 +1,7 @@
-﻿namespace GGPhys.Rigid
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace GGPhys.Rigid
 {
     public class Singleton<T> where T : class, new()
     {

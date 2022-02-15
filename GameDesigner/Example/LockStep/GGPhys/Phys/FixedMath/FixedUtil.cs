@@ -29,6 +29,7 @@ import java.lang.Double;
  */
 using System;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 #endif
 
 #if !TRANSPILE
@@ -133,13 +134,13 @@ namespace FixPointCS
         [MethodImpl(AggressiveInlining)]
         public static int Qmul29(int a, int b)
         {
-            return (int)(a * (long)b >> 29);
+            return (int)((long)a * (long)b >> 29);
         }
 
         [MethodImpl(AggressiveInlining)]
         public static int Qmul30(int a, int b)
         {
-            return (int)(a * (long)b >> 30);
+            return (int)((long)a * (long)b >> 30);
         }
 
         [MethodImpl(AggressiveInlining)]
@@ -166,7 +167,7 @@ namespace FixPointCS
 #if JAVA
             return v >>> shift;
 #else
-            return v >> shift;//(long)((ulong)v >> shift);
+            return (long)((ulong)v >> shift);
 #endif
         }
 

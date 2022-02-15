@@ -1,8 +1,10 @@
-﻿using GGPhys.Rigid.Collisions;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using TrueSync;
+using GGPhys.Core;
+using GGPhys.Rigid.Collisions;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Constraints
 {
@@ -16,11 +18,11 @@ namespace GGPhys.Rigid.Constraints
         private GridManager m_GridManager;
 
         public int MaxThread = 32;
-        public TSVector3 GridSize;
-        public TSVector3 GridCellSize;
+        public Vector3d GridSize;
+        public Vector3d GridCellSize;
         public int GridGroupScale = 4;
 
-        public CollisionConstraint(TSVector3 gridSize, TSVector3 gridCellSize, TSVector3 gridCenterOffset)
+        public CollisionConstraint(Vector3d gridSize, Vector3d gridCellSize, Vector3d gridCenterOffset)
         {
             GridCellSize = gridCellSize;
             CollisionData = new CollisionData();
@@ -35,7 +37,7 @@ namespace GGPhys.Rigid.Constraints
         /// <param name="primitive"></param>
         public void AddPrimitive(CollisionPrimitive primitive)
         {
-            primitive.CalculateInternals();//计算包围盒大小和世界顶点
+            primitive.CalculateInternals();
             if (primitive.Body.IsStatic)
             {
                 m_GridManager.AddStaticPrimitive(primitive);
@@ -62,30 +64,42 @@ namespace GGPhys.Rigid.Constraints
             }
         }
 
+        private Task[] tasks;
+
         /// <summary>
         /// 更新几何体信息
         /// </summary>
         public void UpdatePrimitives()
         {
-            for (int i = 0; i < m_Primatives.Count; i++)
+            if (tasks == null)
+                tasks = new Task[MaxThread];
+            int rowNum = m_Primatives.Count / MaxThread + 1;
+            for (int k = 0; k < MaxThread; k++)
             {
-                CollisionPrimitive primitive = m_Primatives[i];
-                if (!primitive.Body.GetAwake() || primitive.Body.IsStatic)
-                    continue;
-                primitive.CalculateInternals();
-                primitive.HashOrder = i;
-                m_GridManager.AddPrimitive(primitive);
+                int start = rowNum * k;
+                int end = rowNum * (k + 1);
+                tasks[k] = Task.Run(() =>
+                {
+                    for (int i = start; i < m_Primatives.Count && i < end; i++)
+                    {
+                        var primitive = m_Primatives[i];
+                        if (!primitive.Body.GetAwake() || primitive.Body.IsStatic) continue;
+                        primitive.CalculateInternals();
+                    }
+                });
             }
+            Task.WaitAll(tasks);
+            m_GridManager.AddPrimitives(m_Primatives);
         }
 
         /// <summary>
         /// 生成碰撞数据
         /// </summary>
-        public override void GenerateContacts()
+        public override void PrepareConstraintData()
         {
-            UpdatePrimitives();//更新几何体数据
+            UpdatePrimitives();
             BroadPhase(); //粗略检测
-            NarrowPhase(); //精确检测 GC
+            NarrowPhase(); //精确检测
         }
 
         /// <summary>
@@ -94,20 +108,20 @@ namespace GGPhys.Rigid.Constraints
         /// <param name="contactBody">第一个碰撞到的刚体</param>
         /// <param name="contactPoint">碰撞点</param>
         /// <returns></returns>
-        public bool RayCastStatic(TSVector3 start, TSVector3 direction, FP distance, uint layerMask, ref RigidBody contactBody, ref TSVector3 contactPoint)
+        public bool RayCastStatic(Vector3d start, Vector3d direction, REAL distance, uint layerMask, ref RigidBody contactBody, ref Vector3d contactPoint)
         {
             CollisionRay ray = new CollisionRay();
-            TSVector3 dirNormal = direction.Normalized;
+            Vector3d dirNormal = direction.Normalized;
             ray.Init(start, start + dirNormal * distance, dirNormal, layerMask);
 
             while (true)
             {
                 Grid grid = m_GridManager.NextRayGrid(ray);
-                if (grid == null)
+                if(grid == null)
                 {
                     return false;
                 }
-                if (DetectRayInGrid(ray, grid, ref contactBody, ref contactPoint))
+                if(DetectRayInGrid(ray, grid, ref contactBody, ref contactPoint))
                 {
                     return true;
                 }
@@ -127,23 +141,42 @@ namespace GGPhys.Rigid.Constraints
         /// </summary>
         void NarrowPhase()
         {
-            while (CollisionData.PotentialContacts.Count > 0)
+            var size = CollisionData.PotentialContacts.Count;
+            Task[] tasks = new Task[MaxThread];
+            int rowNum = size / MaxThread + 1;
+            for (int k = 0; k < MaxThread; k++)
             {
-                RigidContactPotential pContact = CollisionData.PotentialContacts[0];
-                DetectCollisions(pContact);
+                int start = rowNum * k;
+                int end = rowNum * (k + 1);
+                tasks[k] = Task.Factory.StartNew(() =>
+                {
+                    for (int i = start; (i < size && i < end); i++)
+                    {
+                        var potentialContact = CollisionData.PotentialContacts[i];
+                        DetectCollisions(potentialContact);
+                        if (potentialContact.type == 2)
+                            potentialContact.CalculateInternals();
+                    }
+                });
+            }
+
+            Task.WaitAll(tasks);
+
+            for (int i = CollisionData.PotentialContacts.Count - 1; i >= 0; i--)
+            {
+                var pContact = CollisionData.PotentialContacts[i];
                 if (pContact.type == 1)
                 {
                     CollisionData.BodiesTrigger(pContact.Primitive1.Body, pContact.Primitive2.Body);
                 }
                 if (pContact.type == 2)
                 {
-                    pContact.CalculateInternals();
-                    RigidContact contact = CollisionData.GetContact();
+                    var contact = CollisionData.GetContact();
                     contact.SetData(pContact);
                 }
                 CollisionData.PotentialContactsMap.Remove(pContact.Hash);
+                CollisionData.PotentialContacts.RemoveAt(i);
                 CollisionData.RecyclePotentialContact(pContact);
-                CollisionData.PotentialContacts.RemoveAt(0);
             }
         }
 
@@ -377,15 +410,15 @@ namespace GGPhys.Rigid.Constraints
         /// <param name="contactBody"></param>
         /// <param name="contactPoint"></param>
         /// <returns></returns>
-        private bool DetectRayInGrid(CollisionRay ray, Grid grid, ref RigidBody contactBody, ref TSVector3 contactPoint)
+        private bool DetectRayInGrid(CollisionRay ray, Grid grid, ref RigidBody contactBody, ref Vector3d contactPoint)
         {
-            FP minDist = FP.MaxValue;
+            REAL minDist = REAL.MaxValue;
             RigidBody body = null;
 
-            LinkedNode<CollisionPrimitive> node = grid.HeadPrimitive;
+            var node = grid.HeadPrimitive;
             while (node != null)
             {
-                FP distance = FP.MaxValue;
+                REAL distance = REAL.MaxValue;
                 switch (node.obj)
                 {
                     case CollisionSphere sphere:
@@ -406,7 +439,7 @@ namespace GGPhys.Rigid.Constraints
                     default:
                         break;
                 }
-                if (distance < minDist)
+                if(distance < minDist)
                 {
                     minDist = distance;
                     body = node.obj.Body;
@@ -414,7 +447,7 @@ namespace GGPhys.Rigid.Constraints
                 node = node.next;
             }
 
-            if (minDist != FP.MaxValue)
+            if(minDist != REAL.MaxValue)
             {
                 contactBody = body;
                 contactPoint = ray.start + ray.direction * minDist;

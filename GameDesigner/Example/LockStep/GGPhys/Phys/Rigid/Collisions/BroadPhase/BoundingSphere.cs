@@ -1,18 +1,21 @@
-﻿using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
     public class BoundingSphere : BoundingVolum
     {
-        private TSVector3 center;
-        private FP radius;
+        private Vector3d center;
+        private REAL radius;
 
         /// <summary>
         /// octree overlap
         /// </summary>
         /// <param name="center"></param>
         /// <returns></returns>
-        public override byte OverlapNodes(TSVector3 center)
+        public override byte OverlapNodes(Vector3d center)
         {
             byte nodeIndex = 0b11111111;
 

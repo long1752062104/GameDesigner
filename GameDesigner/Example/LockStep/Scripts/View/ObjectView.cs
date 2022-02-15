@@ -12,8 +12,9 @@ namespace LockStep.Client
         // Update is called once per frame
         void Update()
         {
-            transform.rotation = actor.transform.rotation;
-            transform.position = Vector3.Lerp(transform.position, actor.transform.position, lerpSpeed);
+            transform.rotation = actor.rigidBody.Rotation;
+            transform.position = Vector3.Lerp(transform.position, actor.rigidBody.Position, lerpSpeed);
+            transform.hasChanged = false;
         }
     }
 }

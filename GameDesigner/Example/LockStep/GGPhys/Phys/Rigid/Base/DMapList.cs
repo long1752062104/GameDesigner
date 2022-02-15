@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace GGPhys.Rigid
 {
@@ -193,7 +194,8 @@ namespace GGPhys.Rigid
         /// <param name="t"></param>
         public void Insert(T t)
         {
-            if (m_FindMap.TryGetValue(t, out DoubleLinkedListNode<T> node) && node != null)
+            DoubleLinkedListNode<T> node = null;
+            if (m_FindMap.TryGetValue(t, out node) && node != null)
             {
                 return;
             }
@@ -208,7 +210,7 @@ namespace GGPhys.Rigid
         {
             if (m_DLink.Tail != null)
             {
-                T t = m_DLink.Tail.t;
+                var t = m_DLink.Tail.t;
                 Remove(m_DLink.Tail.t);
                 return t;
             }
@@ -221,7 +223,8 @@ namespace GGPhys.Rigid
         /// <param name="t"></param>
         public void Remove(T t)
         {
-            if (!m_FindMap.TryGetValue(t, out DoubleLinkedListNode<T> node) || node == null)
+            DoubleLinkedListNode<T> node = null;
+            if (!m_FindMap.TryGetValue(t, out node) || node == null)
             {
                 return;
             }
@@ -254,7 +257,8 @@ namespace GGPhys.Rigid
         /// <returns></returns>
         public bool Find(T t)
         {
-            if (!m_FindMap.TryGetValue(t, out DoubleLinkedListNode<T> node) || node == null)
+            DoubleLinkedListNode<T> node = null;
+            if (!m_FindMap.TryGetValue(t, out node) || node == null)
                 return false;
 
             return true;
@@ -267,7 +271,8 @@ namespace GGPhys.Rigid
         /// <returns></returns>
         public bool Reflesh(T t)
         {
-            if (!m_FindMap.TryGetValue(t, out DoubleLinkedListNode<T> node) || node == null)
+            DoubleLinkedListNode<T> node = null;
+            if (!m_FindMap.TryGetValue(t, out node) || node == null)
                 return false;
 
             m_DLink.MoveToHead(node);

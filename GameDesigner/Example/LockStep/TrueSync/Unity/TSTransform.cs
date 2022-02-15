@@ -74,7 +74,7 @@ namespace TrueSync
             {
                 _localRotation = value;
                 if (hasBody)
-                    rb.SetOrientation(_localRotation);
+                    rb.SetOrientation((Quaternion)_localRotation);
                 UpdateChildRotation();
             }
         }
@@ -100,7 +100,7 @@ namespace TrueSync
             {
                 _rotation = value;
                 if (hasBody)
-                    rb.SetOrientation(_rotation);
+                    rb.SetOrientation((Quaternion)_rotation);
                 UpdateChildRotation();
             }
         }

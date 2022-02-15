@@ -95,13 +95,12 @@
             proRevd.Start();
             Thread send = new Thread(SendDataHandle) { IsBackground = true, Name = "SendDataHandle" };
             send.Start();
-            Thread hupdate = new Thread(CheckHeartHandle) { IsBackground = true, Name = "HeartUpdate" };
-            hupdate.Start();
             Thread suh = new Thread(SceneUpdateHandle) { IsBackground = true, Name = "SceneUpdateHandle" };
             suh.Start();
             ThreadManager.Invoke("DataTrafficThread", 1f, DataTrafficHandler);
             ThreadManager.Invoke("SingleHandler", SingleHandler);
             ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
+            ThreadManager.Invoke("CheckHeartHandler", HeartInterval / 1000f, CheckHeartHandler, true);
             for (int i = 0; i < MaxThread; i++)
             {
                 QueueSafe<RevdDataBuffer> revdQueue = new QueueSafe<RevdDataBuffer>();
@@ -117,7 +116,6 @@
             }
             threads.Add("ProcessReceive", proRevd);
             threads.Add("SendDataHandle", send);
-            threads.Add("HeartUpdate", hupdate);
             threads.Add("SceneUpdateHandle", suh);
             KeyValuePair<string, Scene> scene = OnAddDefaultScene();
             MainSceneName = scene.Key;

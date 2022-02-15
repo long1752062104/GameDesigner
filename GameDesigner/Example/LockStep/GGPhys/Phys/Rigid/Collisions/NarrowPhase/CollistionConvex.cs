@@ -1,4 +1,8 @@
-﻿using TrueSync;
+﻿using System;
+using System.Collections.Generic;
+using GGPhys.Core;
+using GGPhys.Rigid;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
@@ -7,13 +11,13 @@ namespace GGPhys.Rigid.Collisions
     ///</summary>
     public class CollisionConvex : CollisionPrimitive
     {
-        public TSVector3[] Vertices;
-        private TSVector3[] LocalVertices;
+        public Vector3d[] Vertices;
+        private Vector3d[] LocalVertices;
 
-        public CollisionConvex(TSVector3[] vertices)
+        public CollisionConvex(Vector3d[] vertices)
         {
             LocalVertices = vertices;
-            Vertices = new TSVector3[vertices.Length];
+            Vertices = new Vector3d[vertices.Length];
             BoundingVolum = new BoundingBox();
             BoundingVolum.Init(this);
         }

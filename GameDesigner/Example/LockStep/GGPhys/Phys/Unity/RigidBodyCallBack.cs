@@ -1,12 +1,13 @@
-﻿using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using GGPhys.Rigid;
 
 namespace GGPhysUnity
 {
     public class RigidBodyCallBack : MonoBehaviour
     {
-        internal BRigidBody bBody;
-
+        private BRigidBody bBody;
         void Awake()
         {
             bBody = gameObject.GetComponent<BRigidBody>();
@@ -16,7 +17,7 @@ namespace GGPhysUnity
             }
         }
 
-        public virtual void OnBCollisionEnter(BRigidBody otherBody, TSVector3 contactPoint) { }
+        public virtual void OnBCollisionEnter(BRigidBody otherBody, GGPhys.Core.Vector3d contactPoint) { }
 
         public virtual void OnBCollisionStay(BRigidBody otherBody) { }
 

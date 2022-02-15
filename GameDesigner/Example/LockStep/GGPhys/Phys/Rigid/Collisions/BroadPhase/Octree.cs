@@ -1,19 +1,21 @@
-﻿using System.Collections.Generic;
-using TrueSync;
+﻿using System.Collections;
+using System.Collections.Generic;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
     public class Octree
     {
-        public TSVector3 Center;
-        public TSVector3 Size;
+        public Vector3d Center;
+        public Vector3d Size;
         public int Level;
         public OctreeNode RootNode;
         public int[,] Mults;
         public DMapList<OctreeNode> ContactNodes;
 
 
-        public void Init(TSVector3 center, TSVector3 size, int level)
+        public void Init(Vector3d center, Vector3d size, int level)
         {
             Center = center;
             Size = size;
@@ -28,18 +30,18 @@ namespace GGPhys.Rigid.Collisions
         }
 
 
-        OctreeNode CreateNode(TSVector3 center, TSVector3 size, int level = 0)
+        OctreeNode CreateNode(Vector3d center, Vector3d size, int level = 0)
         {
-            bool isLeaf = level == Level;
-            OctreeNode node = new OctreeNode();
+            var isLeaf = level == Level;
+            var node = new OctreeNode();
             node.IsLeaf = isLeaf;
             node.Center = center;
             if (isLeaf) return node;
-            int nextLevel = level + 1;
+            var nextLevel = level + 1;
             for (int i = 0; i < 8; i++)
             {
-                TSVector3 multsVector = new TSVector3(Mults[i, 0], Mults[i, 1], Mults[i, 2]);
-                TSVector3 nextCenter = center + multsVector * TSVector3.one * size * 0.25;
+                var multsVector = new Vector3d(Mults[i, 0], Mults[i, 1], Mults[i, 2]);
+                var nextCenter = center + multsVector * Vector3d.One * size * 0.25;
                 node.ChildNodes[i] = CreateNode(nextCenter, size * 0.5, nextLevel);
             }
             return node;
@@ -49,12 +51,12 @@ namespace GGPhys.Rigid.Collisions
         {
             for (int i = 0; i < primitives.Count; i++)
             {
-                CollisionPrimitive primitive = primitives[i];
+                var primitive = primitives[i];
                 primitive.HashOrder = i;
                 AddPrimitive(primitive);
             }
 
-            int size = ContactNodes.Size();
+            var size = ContactNodes.Size();
             for (int i = 0; i < size; i++)
             {
                 AddPotentialContact(ContactNodes.Pop(), data);
@@ -70,9 +72,9 @@ namespace GGPhys.Rigid.Collisions
         {
             if (node.IsLeaf)
             {
-                if (!node.Primitives.Contains(primitive))
+                if(!node.Primitives.Contains(primitive))
                     node.Primitives.Add(primitive);
-                if (node.Primitives.Count > 1)
+                if(node.Primitives.Count > 1)
                     ContactNodes.Insert(node);
                 return;
             }
@@ -91,10 +93,10 @@ namespace GGPhys.Rigid.Collisions
         {
             for (int i = 0; i < node.Primitives.Count; i++)
             {
-                CollisionPrimitive primitive1 = node.Primitives[i];
+                var primitive1 = node.Primitives[i];
                 for (int j = i + 1; j < node.Primitives.Count; j++)
                 {
-                    CollisionPrimitive primitive2 = node.Primitives[j];
+                    var primitive2 = node.Primitives[j];
                     data.AddPotentialContact(primitive1, primitive2);
                 }
             }

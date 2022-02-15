@@ -247,7 +247,6 @@
     <None Include="GameDesigner\Editor\HelpEdit.cs.meta" />
     <None Include="GameDesigner\Editor\ObjectNameTools.cs.meta" />
     <None Include="GameDesigner\Editor\PluginSettings.cs.meta" />
-    <None Include="GameDesigner\Editor\ReadOnlyDrawer.cs.meta" />
     <None Include="GameDesigner\Editor\Resources.meta" />
     <None Include="GameDesigner\Editor\Resources\11000503.png.meta" />
     <None Include="GameDesigner\Editor\Resources\11000826.png.meta" />
@@ -704,6 +703,7 @@
     <None Include="GameDesigner\Network\core\Tools\FPExtend.cs.meta" />
     <None Include="GameDesigner\Network\core\Tools\Loop.cs.meta" />
     <None Include="GameDesigner\Network\core\Tools\OtherExtend.cs.meta" />
+    <None Include="GameDesigner\Network\core\Tools\RectExt.cs.meta" />
     <None Include="GameDesigner\Network\core\Unity.meta" />
     <None Include="GameDesigner\Network\core\Unity\Color.cs.meta" />
     <None Include="GameDesigner\Network\core\Unity\Color32.cs.meta" />
@@ -1333,7 +1333,6 @@
     <Compile Include="GameDesigner\Editor\HelpEdit.cs" />
     <Compile Include="GameDesigner\Editor\ObjectNameTools.cs" />
     <Compile Include="GameDesigner\Editor\PluginSettings.cs" />
-    <Compile Include="GameDesigner\Editor\ReadOnlyDrawer.cs" />
     <Compile Include="GameDesigner\Editor\ScriptTools.cs" />
     <Compile Include="GameDesigner\Editor\StateBehaviourInspector.cs" />
     <Compile Include="GameDesigner\Editor\StateMachineEditor.cs" />
@@ -1700,6 +1699,7 @@
     <Compile Include="GameDesigner\Network\core\Tools\FPExtend.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\Loop.cs" />
     <Compile Include="GameDesigner\Network\core\Tools\OtherExtend.cs" />
+    <Compile Include="GameDesigner\Network\core\Tools\RectExt.cs" />
     <Compile Include="GameDesigner\Network\core\Unity\Color.cs" />
     <Compile Include="GameDesigner\Network\core\Unity\Color32.cs" />
     <Compile Include="GameDesigner\Network\core\Unity\Mathf.cs" />

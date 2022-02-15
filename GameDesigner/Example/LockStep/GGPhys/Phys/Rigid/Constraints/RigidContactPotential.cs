@@ -1,5 +1,8 @@
-﻿using GGPhys.Core;
-using TrueSync;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
@@ -17,65 +20,70 @@ namespace GGPhys.Rigid.Collisions
         ///<summary>
         /// 摩擦系数
         ///</summary>
-        public FP Friction;
+        public REAL Friction;
 
         ///<summary>
         /// 回弹系数
         ///</summary>
-        public FP Restitution;
+        public REAL Restitution;
 
         ///<summary>
         /// 碰撞点
         ///</summary>
-        public TSVector3 ContactPoint;
+        public Vector3d ContactPoint;
 
         ///<summary>
         /// 碰撞法线
         ///</summary>
-        public TSVector3 ContactNormal;
+        public Vector3d ContactNormal;
 
         ///<summary>
         /// 相交深度
         ///</summary>
-        public FP Penetration;
+        public REAL Penetration;
 
         ///<summary>
         /// 闭合速度
         ///</summary>
-        public TSVector3 ContactVelocity;
+        public Vector3d ContactVelocity;
 
         ///<summary>
         /// 两刚体各自的中心到碰撞点的向量
         ///</summary>
-        public TSVector3[] RelativeContactPosition = new TSVector3[2];
+        public Vector3d[] RelativeContactPosition = new Vector3d[2];
 
         /// <summary>
         /// 碰撞切线
         /// </summary>
-        public TSVector3 ContactPerpendicular;
+        public Vector3d ContactPerpendicular;
 
-        public FP ContactVR; //在连续冲量求解约束中预先计算好的参数
+        public REAL ContactVR; //在连续冲量求解约束中预先计算好的参数
 
-        public TSVector3 CrossOne; //在连续冲量求解约束中预先计算好的参数
+        public Vector3d CrossOne; //在连续冲量求解约束中预先计算好的参数
 
-        public TSVector3 CrossTwo; //在连续冲量求解约束中预先计算好的参数
+        public Vector3d CrossTwo; //在连续冲量求解约束中预先计算好的参数
 
-        public TSVector3 FCrossOne; //在连续冲量求解约束中预先计算好的参数
+        public Vector3d FCrossOne; //在连续冲量求解约束中预先计算好的参数
 
-        public TSVector3 FCrossTwo; //在连续冲量求解约束中预先计算好的参数
+        public Vector3d FCrossTwo; //在连续冲量求解约束中预先计算好的参数
 
-        public FP JMJ; //在连续冲量求解约束中预先计算好的参数
+        public REAL JMJ; //在连续冲量求解约束中预先计算好的参数
 
-        public FP FJMJ; //在连续冲量求解约束中预先计算好的参数
+        public REAL FJMJ; //在连续冲量求解约束中预先计算好的参数
 
         ///<summary>
         /// 计算内部参数
         ///</summary>
         public void CalculateInternals()
         {
+            var body1 = Primitive1.Body;
+            var body2 = Primitive2.Body;
 
-            RigidBody body1 = Primitive1.Body;
-            RigidBody body2 = Primitive2.Body;
+            //初始化向量, 没有这个会反弹的离谱
+            body1.Velocity = Vector3d.Zero;
+            body2.Velocity = Vector3d.Zero;
+            body1.Rotation = Vector3d.Zero;
+            body2.Rotation = Vector3d.Zero;
 
             RelativeContactPosition[0] = ContactPoint - body1.Position;
             RelativeContactPosition[1] = ContactPoint - body2.Position;
@@ -83,39 +91,43 @@ namespace GGPhys.Rigid.Collisions
             ContactVelocity = CalculateLocalVelocity(0);
             if (!body2.IsStatic)
                 ContactVelocity -= CalculateLocalVelocity(1);
-            FP normalContactVelocity = TSVector3.Dot(ContactVelocity, -ContactNormal);
+            var normalContactVelocity = Vector3d.Dot(ContactVelocity, -ContactNormal);
+
             ContactPerpendicular = -(ContactVelocity + normalContactVelocity * ContactNormal).Normalized;
+
+            if (Vector3d.AbsDot(ContactPerpendicular, ContactNormal) > 0.99)
+                ContactPerpendicular = Vector3d.Zero;
 
             ContactVR = normalContactVelocity * Restitution;
 
-            CrossOne = TSVector3.Cross(-RelativeContactPosition[0], -ContactNormal);
-            CrossTwo = TSVector3.Cross(RelativeContactPosition[1], -ContactNormal);
+            CrossOne = Vector3d.Cross(-RelativeContactPosition[0], -ContactNormal);
+            CrossTwo = Vector3d.Cross(RelativeContactPosition[1], -ContactNormal);
 
-            FCrossOne = TSVector3.Cross(RelativeContactPosition[0], ContactPerpendicular);
-            FCrossTwo = TSVector3.Cross(RelativeContactPosition[1], -ContactPerpendicular);
+            FCrossOne = Vector3d.Cross(RelativeContactPosition[0], ContactPerpendicular);
+            FCrossTwo = Vector3d.Cross(RelativeContactPosition[1], -ContactPerpendicular);
 
-            FP oneMass = body1.IsStatic ? 0 : body1.InverseMass;
-            FP twoMass = body2.IsStatic ? 0 : body2.InverseMass;
-            Matrix3 oneTensor = body1.IsStatic ? Matrix3.Zero : body1.InverseInertiaTensorWorld;
-            Matrix3 twoTensor = body2.IsStatic ? Matrix3.Zero : body2.InverseInertiaTensorWorld;
+            var oneMass = body1.IsStatic ? 0 : body1.InverseMass;
+            var twoMass = body2.IsStatic ? 0 : body2.InverseMass;
+            var oneTensor = body1.IsStatic ? Matrix3.Zero : body1.InverseInertiaTensorWorld;
+            var twoTensor = body2.IsStatic ? Matrix3.Zero : body2.InverseInertiaTensorWorld;
 
-            FP linearPart = TSVector3.Dot(ContactNormal, ContactNormal) * (oneMass + twoMass);
-            FP angularPart = TSVector3.Dot(CrossOne, oneTensor * CrossOne) + TSVector3.Dot(CrossTwo, twoTensor * CrossTwo);
+            REAL linearPart = Vector3d.Dot(ContactNormal, ContactNormal) * (oneMass + twoMass);
+            REAL angularPart = Vector3d.Dot(CrossOne, oneTensor * CrossOne) + Vector3d.Dot(CrossTwo, twoTensor * CrossTwo);
             JMJ = linearPart + angularPart;
 
-            FP flinearPart = TSVector3.Dot(ContactPerpendicular, ContactPerpendicular) * (oneMass + twoMass);
-            FP fangularPart = TSVector3.Dot(FCrossOne, oneTensor * FCrossOne) + TSVector3.Dot(FCrossTwo, twoTensor * FCrossTwo);
+            REAL flinearPart = Vector3d.Dot(ContactPerpendicular, ContactPerpendicular) * (oneMass + twoMass);
+            REAL fangularPart = Vector3d.Dot(FCrossOne, oneTensor * FCrossOne) + Vector3d.Dot(FCrossTwo, twoTensor * FCrossTwo);
             FJMJ = flinearPart + fangularPart;
         }
 
         ///<summary>
         /// 计算碰撞点的线性速度，包含刚体线性移动产生的部分和刚体旋转产生的部分
         ///</summary>
-        public TSVector3 CalculateLocalVelocity(int bodyIndex)
+        public Vector3d CalculateLocalVelocity(int bodyIndex)
         {
             RigidBody thisBody = bodyIndex == 0 ? Primitive1.Body : Primitive2.Body;
 
-            TSVector3 velocity = TSVector3.Cross(thisBody.Rotation, RelativeContactPosition[bodyIndex]);
+            Vector3d velocity = Vector3d.Cross(thisBody.Rotation, RelativeContactPosition[bodyIndex]);
             velocity += thisBody.Velocity;
 
             return velocity;
@@ -126,7 +138,7 @@ namespace GGPhys.Rigid.Collisions
         /// </summary>
         public void Swap()
         {
-            CollisionPrimitive p = Primitive1;
+            var p = Primitive1;
             Primitive1 = Primitive2;
             Primitive2 = p;
         }

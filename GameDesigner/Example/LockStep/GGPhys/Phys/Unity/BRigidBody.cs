@@ -1,8 +1,9 @@
-﻿using GGPhys.Core;
-using GGPhys.Rigid;
+﻿using System.Collections;
 using System.Collections.Generic;
-using TrueSync;
 using UnityEngine;
+using GGPhys.Rigid;
+using GGPhys.Core;
+using REAL = FixMath.FP;
 
 namespace GGPhysUnity
 {
@@ -28,39 +29,41 @@ namespace GGPhysUnity
     {
         public bool isStatic = false;
         public bool autoSyncTransform = true;
-        public bool canSleep;
+        public bool canSleep = true;
         public bool sleepOnAwake = false;
         public bool useGravity = true;
-        public FP mass = 1;
-        [Header("当线性阻尼为0时, 将无法穿透模型")]
-        public FP linearDamping = 0.9f;
-        public FP angularDamping = 0.9f;
-        public FP friction = 0.1f;
-        public FP restitution = 0;
-        public FP sleepEpsilon = 0.12f;
-        public FP awakeVelocityLimit = 0.1f;
+        public float mass = 1;
+        public float linearDamping = 0.9f;
+        public float angularDamping = 0.9f;
+        public float friction = 0.1f;
+        public float restitution = 0;
+        public float sleepEpsilon = 0.12f;
+        public float awakeVelocityLimit = 0.1f;
         public CollsionLayer collsionLayer = CollsionLayer.Default;
         [EnumFlags]
-        public CollsionLayer collsionMask = (CollsionLayer)(-1);
+        public CollsionLayer collsionMask;
         [EnumFlags]
         public Freeze freezePos;
         [EnumFlags]
         public Freeze freezeRot;
 
         [HideInInspector]
-        public TSVector3 CenterOfMassOffset;
+        public Vector3d CenterOfMassOffset;
         [HideInInspector]
-        public TSVector3 CenterOfMassOffsetWorld;
-        private RigidBody m_body;
+        public Vector3d CenterOfMassOffsetWorld;
+        public RigidBody m_body;
         private List<BCollider> m_Colliders;
-        private TSVector3 m_Position;
-        private TSQuaternion m_Rotation;
+        private Vector3 m_Position;
+        private UnityEngine.Quaternion m_Rotation;
 
         private RigidBodyCallBack m_CallbackReceiver;
+        
 
         public RigidBody Body { get => m_body; } //物理引擎中的刚体对象
-        public TSVector3 Position { get => m_Position; } //该物体经过物理计算后的位置
-        public TSQuaternion Rotation { get => m_Rotation; } //该物体经过物理计算后的旋转
+        public Vector3 Position { get => m_Position; } //该物体经过物理计算后的位置
+        public UnityEngine.Quaternion Rotation { get => m_Rotation; } //该物体经过物理计算后的旋转
+
+
 
 #if UNITY_EDITOR
         [SerializeField]
@@ -68,42 +71,44 @@ namespace GGPhysUnity
         private Vector3 m_BodyPosition;
         [SerializeField]
         [DisplayOnly]
-        private Quaternion m_BodyRotation;
+        private UnityEngine.Quaternion m_BodyRotation;
         [SerializeField]
         [DisplayOnly]
         private Vector3 m_BodyLinearVelocity;
         [SerializeField]
         [DisplayOnly]
         private Vector3 m_BodyAngularVelocity;
-        public bool edit;
 #endif
 
-        private void Awake()
+        private void OnEnable()
         {
-            if (RigidPhysicsEngine.Instance == null)
+            if(RigidPhysicsEngine.Instance == null)
+            {
                 RigidPhysicsEngine.WaitAdd(this);
+            }
             else
+            {
                 AddToEngine();
+            }
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             RemoveFromEngine();
         }
 
+
         public void AddToEngine()
         {
-            FP finalMass = isStatic ? 0 : mass;
-            m_body = new RigidBody();
-            TSTransform transform1 = GetComponent<TSTransform>();
-            if (transform1 != null)
-                transform1.hasBody = true;
+            if (m_body != null) return;
+            REAL finalMass = isStatic ? 0 : mass;
+            m_body = RigidPhysicsEngine.Instance.SpawnBody();
             m_Colliders = new List<BCollider>(transform.GetComponents<BCollider>());
-            if (m_Colliders == null || m_Colliders.Count == 0)
+            if (m_Colliders == null || m_Colliders.Count == 0) 
                 Debug.LogError("missing collider!");
             CalculateCenterOfMassOffset();
-            m_body.Position = (TSVector3)transform.position + CenterOfMassOffsetWorld;
-            m_body.Orientation = transform.rotation;
+            m_body.Position = transform.position.ToVector3d() + CenterOfMassOffsetWorld;
+            m_body.Orientation = transform.rotation.ToQuaternion();
             m_body.IsStatic = isStatic;
             m_body.UseAreaForce = useGravity;
             m_body.LinearDamping = linearDamping;
@@ -119,7 +124,6 @@ namespace GGPhysUnity
             if (sleepOnAwake) m_body.SetAwake(false);
             m_body.SetCanSleep(canSleep);
             m_body.UnityBody = this;
-            m_body.name = name;
 
             Matrix3 fInertiaTensor = CalculateInertiaTensor();
             m_body.SetInertiaTensor(fInertiaTensor);
@@ -131,8 +135,8 @@ namespace GGPhysUnity
 
             AddCollidersToEngine();
 
-            m_Position = Body.Position - CenterOfMassOffsetWorld;
-            m_Rotation = Body.Orientation;
+            m_Position = (Body.Position - CenterOfMassOffsetWorld).ToVector3();
+            m_Rotation = Body.Orientation.ToQuaternion();
 
             if (m_CallbackReceiver != null)
             {
@@ -144,55 +148,40 @@ namespace GGPhysUnity
                 m_body.OnTriggerExitEvent += m_CallbackReceiver.OnBTriggerExit;
             }
         }
-
-        private void Start()
-        {
-            enabled = autoSyncTransform;
-        }
+        
 
         protected void Update()
         {
-            if (autoSyncTransform)
+            if (transform.hasChanged) 
+            {
+                Body.SetAwake();
+                Body.Position = transform.position.ToVector3d();
+                Body.Orientation = transform.rotation.ToQuaternion();
+                m_Position = transform.position;
+                m_Rotation = transform.rotation;
+            }
+            else if (autoSyncTransform)
             {
                 transform.position = Position;
                 transform.rotation = Rotation;
             }
-        }
-
-        private void OnDrawGizmosSelected()
-        {
+            transform.hasChanged = false;
 #if UNITY_EDITOR
-            if (m_body == null)
-                return;
-            m_BodyPosition = m_body.Position;
-            m_BodyRotation = m_body.Orientation;
-            m_BodyLinearVelocity = m_body.Velocity;
-            m_BodyAngularVelocity = m_body.Rotation;
+            m_BodyPosition = m_body.Position.ToVector3();
+            m_BodyRotation = m_body.Orientation.ToQuaternion();
+            m_BodyLinearVelocity = m_body.Velocity.ToVector3();
+            m_BodyAngularVelocity = m_body.Rotation.ToVector3();
 
             m_body.UseAreaForce = useGravity;
             m_body.LinearDamping = linearDamping;
             m_body.AngularDamping = angularDamping;
-            m_body.FreezePosition = (byte)freezePos;
             m_body.FreezeRotation = (byte)freezeRot;
             m_body.Friction = friction;
             m_body.Restitution = restitution;
             m_body.SleepEpsilon = sleepEpsilon;
             m_body.AwakeVelocityLimit = awakeVelocityLimit;
 
-            if (edit)
-            {
-                m_body.IsStatic = isStatic;
-                m_body.UseAreaForce = useGravity;
-                m_body.LinearDamping = linearDamping;
-                m_body.AngularDamping = angularDamping;
-                m_body.FreezePosition = (byte)freezePos;
-                m_body.FreezeRotation = (byte)freezeRot;
-                m_body.Friction = friction;
-                m_body.Restitution = restitution;
-                m_body.SleepEpsilon = sleepEpsilon;
-                m_body.AwakeVelocityLimit = awakeVelocityLimit;
-                SetPositionAndOrientation(transform.position, transform.rotation);
-            }
+            m_body.IsStatic = isStatic;
 #endif
         }
 
@@ -203,7 +192,7 @@ namespace GGPhysUnity
         public void SetCallBackReceiver(RigidBodyCallBack rigidBodyCallback)
         {
             m_CallbackReceiver = rigidBodyCallback;
-            if (m_body != null)
+            if(m_body != null)
             {
                 m_body.OnCollisionEnterEvent += m_CallbackReceiver.OnBCollisionEnter;
                 m_body.OnCollisionStayEvent += m_CallbackReceiver.OnBCollisionStay;
@@ -219,8 +208,9 @@ namespace GGPhysUnity
         /// </summary>
         public void CalculateInternals()
         {
-            m_Position = Body.Position;
-            m_Rotation = Body.Orientation;
+            CenterOfMassOffsetWorld = Body.Transform.TransformDirection(CenterOfMassOffset);
+            m_Position = (Body.Position - CenterOfMassOffsetWorld).ToVector3();
+            m_Rotation = Body.Orientation.ToQuaternion();
         }
 
         /// <summary>
@@ -229,25 +219,28 @@ namespace GGPhysUnity
         void CalculateCenterOfMassOffset()
         {
             if (m_Colliders == null || m_Colliders.Count == 0) return;
-            TSVector3 sumCenter = TSVector3.Zero;
-            foreach (BCollider collider in m_Colliders)
+            Vector3d sumCenter = Vector3d.Zero;
+            foreach (var collider in m_Colliders)
             {
-                sumCenter += collider.CenterOffset;
+                sumCenter += collider.CenterOffset.ToVector3d();
             }
             CenterOfMassOffset = sumCenter / m_Colliders.Count;
 
-            Matrix3 mt = new Matrix3();
-            mt.SetOrientation(transform.rotation);
+            var mt = new Matrix3();
+            mt.SetOrientation(transform.rotation.ToQuaternion());
             CenterOfMassOffsetWorld = mt.Transform(CenterOfMassOffset);
         }
+
+        
+
 
         /// <summary>
         /// 计算各刚体的惯性张量
         /// </summary>
         /// <returns></returns>
-        Matrix3 CalculateInertiaTensor()
-        {
-            if (m_Colliders == null) return Matrix3.Identity;
+        Matrix3 CalculateInertiaTensor() 
+        { 
+            if(m_Colliders == null) return Matrix3.Identity;
             if (m_Colliders.Count == 1)
             {
                 return m_Colliders[0].CalculateInertiaTensor(mass);
@@ -265,12 +258,12 @@ namespace GGPhysUnity
         /// <summary>
         /// 线性速度
         /// </summary>
-        public Vector3 Velocity { get => m_body.Velocity; }
+        public Vector3 Velocity { get => m_body.Velocity.ToVector3(); }
 
         /// <summary>
         /// 角速度
         /// </summary>
-        public Vector3 AngularVelocity { get => m_body.Rotation; }
+        public Vector3 AngularVelocity { get => m_body.Rotation.ToVector3(); }
 
         /// <summary>
         /// 设置静态或非静态
@@ -287,7 +280,7 @@ namespace GGPhysUnity
         /// 设置质量
         /// </summary>
         /// <param name="mass"></param>
-        public void SetMass(FP mass)
+        public void SetMass(float mass)
         {
             if (isStatic) return;
 
@@ -323,7 +316,7 @@ namespace GGPhysUnity
         /// 设置摩擦力
         /// </summary>
         /// <param name="friction"></param>
-        public void SetFriction(FP friction)
+        public void SetFriction(REAL friction)
         {
             this.friction = friction;
             m_body.Friction = friction;
@@ -333,7 +326,7 @@ namespace GGPhysUnity
         /// 设置回弹系数
         /// </summary>
         /// <param name="restitution"></param>
-        public void SetRestitution(FP restitution)
+        public void SetRestitution(REAL restitution)
         {
             this.restitution = restitution;
             m_body.Restitution = restitution;
@@ -353,9 +346,9 @@ namespace GGPhysUnity
         /// 设置线性阻尼系数
         /// </summary>
         /// <param name="damping"></param>
-        public void SetLinearDamping(FP damping)
+        public void SetLinearDamping(float damping)
         {
-            linearDamping = damping;
+            this.linearDamping = damping;
             m_body.LinearDamping = damping;
         }
 
@@ -363,9 +356,9 @@ namespace GGPhysUnity
         /// 设置角速度阻尼系数
         /// </summary>
         /// <param name="damping"></param>
-        public void SetAngularDamping(FP damping)
+        public void SetAngularDamping(float damping)
         {
-            angularDamping = damping;
+            this.angularDamping = damping;
             m_body.AngularDamping = damping;
         }
 
@@ -373,9 +366,9 @@ namespace GGPhysUnity
         /// 设置休眠系数
         /// </summary>
         /// <param name="epsilon"></param>
-        public void SetSleepEpsilon(FP epsilon)
+        public void SetSleepEpsilon(float epsilon)
         {
-            sleepEpsilon = epsilon;
+            this.sleepEpsilon = epsilon;
             m_body.SleepEpsilon = epsilon;
         }
 
@@ -383,9 +376,9 @@ namespace GGPhysUnity
         /// 设置苏醒最低速度
         /// </summary>
         /// <param name="limit"></param>
-        public void SetAwakeVelocityLimit(FP limit)
+        public void SetAwakeVelocityLimit(float limit)
         {
-            awakeVelocityLimit = limit;
+            this.awakeVelocityLimit = limit;
             m_body.AwakeVelocityLimit = limit;
         }
 
@@ -403,12 +396,12 @@ namespace GGPhysUnity
         /// </summary>
         /// <param name="force"></param>
         /// <param name="awakeBody"></param>
-        public void AddForce(Vector3 force, bool awakeBody = false)
+        public void AddForce(Vector3 force, bool awakeBody= false)
         {
-            m_body.AddForce(force, awakeBody);
+            m_body.AddForce(force.ToVector3d(), awakeBody);
         }
 
-        public void AddForce(TSVector3 force, bool awakeBody = false)
+        public void AddForce(Vector3d force, bool awakeBody = false)
         {
             m_body.AddForce(force, awakeBody);
         }
@@ -418,47 +411,77 @@ namespace GGPhysUnity
         /// </summary>
         public void AddForceAtPoint(Vector3 force, Vector3 point)
         {
-            m_body.AddForceAtPoint(force, point);
+            m_body.AddForceAtPoint(force.ToVector3d(), point.ToVector3d());
         }
 
-        public void AddForceAtPoint(TSVector3 force, Vector3 point)
+        public void AddForceAtPoint(Vector3d force, Vector3 point)
         {
-            m_body.AddForceAtPoint(force, point);
+            m_body.AddForceAtPoint(force, point.ToVector3d());
+        }
+
+        /// <summary>
+        /// 对刚体施加转矩
+        /// </summary>
+        /// <param name="torque"></param>
+        /// <param name="awakeBody"></param>
+        public void AddTorque(Vector3 torque, bool awakeBody = false)
+        {
+            m_body.AddTorque(torque.ToVector3d(), awakeBody);
+        }
+
+        public void AddTorque(Vector3d torque, bool awakeBody = false)
+        {
+            m_body.AddTorque(torque, awakeBody);
         }
 
         /// <summary>
         /// 运用线性冲量
         /// </summary>
         /// <param name="impulse"></param>
-        public void ApplyLinearImpulse(Vector3 impulse)
+        public void ApplyLinearImpulse(Vector3 impulse, bool awake = false)
         {
-            m_body.ApplyLinearImpulse(impulse);
+            m_body.ApplyLinearImpulse(impulse.ToVector3d(), awake);
         }
 
-        public void ApplyLinearImpulse(TSVector3 impulse)
+        public void ApplyLinearImpulse(Vector3d impulse, bool awake = false)
         {
-            m_body.ApplyLinearImpulse(impulse);
+            m_body.ApplyLinearImpulse(impulse, awake);
         }
 
         /// <summary>
         /// 运用角冲量
         /// </summary>
         /// <param name="impulse"></param>
-        public void ApplyAngularImpulse(Vector3 impulse)
+        public void ApplyAngularImpulse(Vector3 impulse, bool awake = false)
         {
-            m_body.ApplyAngularImpulse(impulse);
+            m_body.ApplyAngularImpulse(impulse.ToVector3d(), awake);
         }
 
-        public void ApplyAngularImpulse(TSVector3 impulse)
+        public void ApplyAngularImpulse(Vector3d impulse, bool awake = false)
         {
-            m_body.ApplyAngularImpulse(impulse);
+            m_body.ApplyAngularImpulse(impulse, awake);
         }
 
         /// <summary>
         /// 设置刚体位置
         /// </summary>
         /// <param name="velocity"></param>
-        public void SetPosition(TSVector3 position)
+        public void SetPosition(Vector3 position)
+        {
+            if (m_body.IsStatic)
+            {
+                RemoveCollidersFromEngine(false);
+                m_body.Position = position.ToVector3d() + CenterOfMassOffsetWorld;
+                m_body.CalculateDerivedData();
+                AddCollidersToEngine();
+                return;
+            }
+            m_Position = position;
+            m_body.Position = position.ToVector3d() + CenterOfMassOffsetWorld;
+            m_body.CalculateDerivedData();
+        }
+
+        public void SetPosition(Vector3d position)
         {
             if (m_body.IsStatic)
             {
@@ -468,6 +491,7 @@ namespace GGPhysUnity
                 AddCollidersToEngine();
                 return;
             }
+            m_Position = position.ToVector3();
             m_body.Position = position + CenterOfMassOffsetWorld;
             m_body.CalculateDerivedData();
         }
@@ -476,7 +500,22 @@ namespace GGPhysUnity
         /// 设置刚体旋转
         /// </summary>
         /// <param name="velocity"></param>
-        public void SetOrientation(TSQuaternion orientation)
+        public void SetOrientation(UnityEngine.Quaternion orientation)
+        {
+            if (m_body.IsStatic)
+            {
+                RemoveCollidersFromEngine(false);
+                m_body.Orientation = orientation.ToQuaternion();
+                m_body.CalculateDerivedData();
+                AddCollidersToEngine();
+                return;
+            }
+            m_Rotation = orientation;
+            m_body.Orientation = orientation.ToQuaternion();
+            m_body.CalculateDerivedData();
+        }
+
+        public void SetOrientation(GGPhys.Core.Quaternion orientation)
         {
             if (m_body.IsStatic)
             {
@@ -486,17 +525,40 @@ namespace GGPhysUnity
                 AddCollidersToEngine();
                 return;
             }
+            m_Rotation = orientation.ToQuaternion();
             m_body.Orientation = orientation;
-            //m_body.CalculateDerivedData();
+            m_body.CalculateDerivedData();
         }
 
         /// <summary>
         /// 设置刚体位置旋转
         /// </summary>
         /// <param name="velocity"></param>
-        public void SetPositionAndOrientation(TSVector3 position, TSQuaternion orientation)
+        public void SetPositionAndOrientation(Vector3 position, UnityEngine.Quaternion orientation)
         {
-            Matrix3 mt = new Matrix3();
+            var mt = new Matrix3();
+            mt.SetOrientation(orientation.ToQuaternion());
+            CenterOfMassOffsetWorld = mt.Transform(CenterOfMassOffset);
+
+            if (m_body.IsStatic)
+            {
+                RemoveCollidersFromEngine(false);
+                m_body.Position = position.ToVector3d() + CenterOfMassOffsetWorld;
+                m_body.Orientation = orientation.ToQuaternion();
+                m_body.CalculateDerivedData();
+                AddCollidersToEngine();
+                return;
+            }
+            m_Position = position;
+            m_Rotation = orientation;
+            m_body.Position = position.ToVector3d() + CenterOfMassOffsetWorld;
+            m_body.Orientation = orientation.ToQuaternion();
+            m_body.CalculateDerivedData();
+        }
+
+        public void SetPositionAndOrientation(Vector3d position, GGPhys.Core.Quaternion orientation)
+        {
+            var mt = new Matrix3();
             mt.SetOrientation(orientation);
             CenterOfMassOffsetWorld = mt.Transform(CenterOfMassOffset);
 
@@ -509,6 +571,8 @@ namespace GGPhysUnity
                 AddCollidersToEngine();
                 return;
             }
+            m_Position = position.ToVector3();
+            m_Rotation = orientation.ToQuaternion();
             m_body.Position = position + CenterOfMassOffsetWorld;
             m_body.Orientation = orientation;
             m_body.CalculateDerivedData();
@@ -518,10 +582,15 @@ namespace GGPhysUnity
         /// 移动
         /// </summary>
         /// <param name="delta"></param>
-        public void Move(TSVector3 delta)
+        public void Move(Vector3 delta)
         {
-            if (m_body.IsStatic)
-                return;
+            if (m_body.IsStatic) return;
+            m_body.Move(delta.ToVector3d());
+        }
+
+        public void Move(Vector3d delta)
+        {
+            if (m_body.IsStatic) return;
             m_body.Move(delta);
         }
 
@@ -532,10 +601,10 @@ namespace GGPhysUnity
         public void Rotate(Vector3 delta)
         {
             if (m_body.IsStatic) return;
-            m_body.Rotate(delta);
+            m_body.Rotate(delta.ToVector3d());
         }
 
-        public void Rotate(TSVector3 delta)
+        public void Rotate(Vector3d delta)
         {
             if (m_body.IsStatic) return;
             m_body.Rotate(delta);
@@ -545,7 +614,13 @@ namespace GGPhysUnity
         /// 设置刚体线性速度
         /// </summary>
         /// <param name="velocity"></param>
-        public void SetLinearVelocity(TSVector3 velocity)
+        public void SetLinearVelocity(Vector3 velocity)
+        {
+            if (m_body.IsStatic) return;
+            m_body.Velocity = velocity.ToVector3d();
+        }
+
+        public void SetLinearVelocity(Vector3d velocity)
         {
             if (m_body.IsStatic) return;
             m_body.Velocity = velocity;
@@ -555,7 +630,13 @@ namespace GGPhysUnity
         /// 设置刚体角速度
         /// </summary>
         /// <param name="velocity"></param>
-        public void SetAnguarVolocity(TSVector3 velocity)
+        public void SetAnguarVolocity(Vector3 velocity)
+        {
+            if (m_body.IsStatic) return;
+            m_body.Rotation = velocity.ToVector3d();
+        }
+
+        public void SetAnguarVolocity(Vector3d velocity)
         {
             if (m_body.IsStatic) return;
             m_body.Rotation = velocity;
@@ -564,7 +645,7 @@ namespace GGPhysUnity
         /// <summary>
         /// 从物理引擎中移除
         /// </summary>
-        public void RemoveFromEngine()
+        void RemoveFromEngine()
         {
             RemoveCollidersFromEngine();
             if (m_CallbackReceiver != null && m_body != null)
@@ -575,21 +656,19 @@ namespace GGPhysUnity
                 m_body.OnTriggerEnterEvent -= m_CallbackReceiver.OnBTriggerEnter;
                 m_body.OnTriggerStayEvent -= m_CallbackReceiver.OnBTriggerStay;
                 m_body.OnTriggerExitEvent -= m_CallbackReceiver.OnBTriggerExit;
-                m_CallbackReceiver = null;
             }
             if (RigidPhysicsEngine.Instance != null)
             {
                 RigidPhysicsEngine.Instance.Bodies.Remove(m_body);
-                //m_body.UnityBody = null;
+                RigidPhysicsEngine.Instance.RecycleBody(m_body);
                 m_body = null;
             }
-
         }
 
         void AddCollidersToEngine()
         {
             if (m_Colliders == null || m_Colliders.Count == 0) return;
-            foreach (BCollider collider in m_Colliders)
+            foreach (var collider in m_Colliders)
             {
                 collider.AddToEngine(this);
             }
@@ -598,12 +677,12 @@ namespace GGPhysUnity
         void RemoveCollidersFromEngine(bool clearColliders = true)
         {
             if (RigidPhysicsEngine.Instance == null || RigidPhysicsEngine.Instance.Collisions == null) return;
-            foreach (BCollider collider in m_Colliders)
+            foreach (var collider in m_Colliders)
             {
-                if (collider is BMeshCollider)
+                if(collider is BMeshCollider)
                 {
-                    BMeshCollider meshCollider = collider as BMeshCollider;
-                    foreach (GGPhys.Rigid.Collisions.CollisionPrimitive primitive in meshCollider.Primitives)
+                    var meshCollider = collider as BMeshCollider;
+                    foreach (var primitive in meshCollider.Primitives)
                     {
                         RigidPhysicsEngine.Instance.Collisions.RemovePrimitive(primitive);
                     }
@@ -616,7 +695,7 @@ namespace GGPhysUnity
                 }
             }
 
-            if (clearColliders) m_Colliders.Clear();
+            if(clearColliders) m_Colliders.Clear();
         }
         #endregion
     }

@@ -1,7 +1,15 @@
 using FixPointCS;
 using System;
-using TrueSync;
-using REAL = FixMath.F64;
+using System.Collections.Generic;
+using REAL = FixMath.FP;
+
+#if GGPHYS_FIXPOINT32
+using RawType = System.Int32;
+using FixedType = FixPointCS.Fixed32;
+#else
+using RawType = System.Int64;
+using FixedType = FixPointCS.Fixed64;
+#endif
 
 namespace GGPhys.Core
 {
@@ -11,9 +19,10 @@ namespace GGPhys.Core
     /// </summary>
     public struct Matrix4
     {
-        public long raw0, raw1, raw2, raw3;
-        public long raw4, raw5, raw6, raw7;
-        public long raw8, raw9, raw10, raw11;
+
+        public RawType raw0, raw1, raw2, raw3;
+        public RawType raw4, raw5, raw6, raw7;
+        public RawType raw8, raw9, raw10, raw11;
 
         public REAL data0 { get { return REAL.FromRaw(raw0); } set { raw0 = value.Raw; } }
         public REAL data1 { get { return REAL.FromRaw(raw1); } set { raw1 = value.Raw; } }
@@ -41,9 +50,9 @@ namespace GGPhys.Core
         /// </summary>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public static Matrix4 IdentityOffset(TSVector3 offset)
+        public static Matrix4 IdentityOffset(Vector3d offset)
         {
-            Matrix4 m = Identity;
+            var m = Identity;
             m.raw3 += offset.RawX;
             m.raw7 += offset.RawY;
             m.raw11 += offset.RawZ;
@@ -60,9 +69,9 @@ namespace GGPhys.Core
             raw8 = m8.Raw; raw9 = m9.Raw; raw10 = m10.Raw; raw11 = m11.Raw;
         }
 
-        private Matrix4(long m0, long m1, long m2, long m3,
-                       long m4, long m5, long m6, long m7,
-                       long m8, long m9, long m10, long m11)
+        private Matrix4(RawType m0, RawType m1, RawType m2, RawType m3,
+                       RawType m4, RawType m5, RawType m6, RawType m7,
+                       RawType m8, RawType m9, RawType m10, RawType m11)
         {
             raw0 = m0; raw1 = m1; raw2 = m2; raw3 = m3;
             raw4 = m4; raw5 = m5; raw6 = m6; raw7 = m7;
@@ -72,21 +81,21 @@ namespace GGPhys.Core
         /// <summary>
         /// 下标读写
         /// </summary>
-        unsafe public FP this[int i]
+        unsafe public REAL this[int i]
         {
             get
             {
                 if ((uint)i >= 12)
                     throw new IndexOutOfRangeException("Matrix4 index out of range.");
 
-                fixed (Matrix4* array = &this) { return new FP(((long*)array)[i]); }
+                fixed (Matrix4* array = &this) { return REAL.FromRaw(((RawType*)array)[i]); }
             }
             set
             {
                 if ((uint)i >= 12)
                     throw new IndexOutOfRangeException("Matrix4 index out of range.");
 
-                fixed (long* array = &raw0) { array[i] = value.Raw; }
+                fixed (RawType* array = &raw0) { array[i] = value.Raw; }
             }
         }
 
@@ -95,24 +104,22 @@ namespace GGPhys.Core
         /// </summary>
         public static Matrix4 operator *(Matrix4 m1, Matrix4 m2)
         {
-            Matrix4 result = new Matrix4
-            {
-                raw0 = Fixed64.Mul(m2.raw0, m1.raw0) + Fixed64.Mul(m2.raw4, m1.raw1) + Fixed64.Mul(m2.raw8, m1.raw2),
-                raw4 = Fixed64.Mul(m2.raw0, m1.raw4) + Fixed64.Mul(m2.raw4, m1.raw5) + Fixed64.Mul(m2.raw8, m1.raw6),
-                raw8 = Fixed64.Mul(m2.raw0, m1.raw8) + Fixed64.Mul(m2.raw4, m1.raw9) + Fixed64.Mul(m2.raw8, m1.raw10),
+            Matrix4 result = new Matrix4();
+            result.raw0 = FixedType.Mul(m2.raw0, m1.raw0) + FixedType.Mul(m2.raw4, m1.raw1) + FixedType.Mul(m2.raw8, m1.raw2);
+            result.raw4 = FixedType.Mul(m2.raw0, m1.raw4) + FixedType.Mul(m2.raw4, m1.raw5) + FixedType.Mul(m2.raw8, m1.raw6);
+            result.raw8 = FixedType.Mul(m2.raw0, m1.raw8) + FixedType.Mul(m2.raw4, m1.raw9) + FixedType.Mul(m2.raw8, m1.raw10);
 
-                raw1 = Fixed64.Mul(m2.raw1, m1.raw0) + Fixed64.Mul(m2.raw5, m1.raw1) + Fixed64.Mul(m2.raw9, m1.raw2),
-                raw5 = Fixed64.Mul(m2.raw1, m1.raw4) + Fixed64.Mul(m2.raw5, m1.raw5) + Fixed64.Mul(m2.raw9, m1.raw6),
-                raw9 = Fixed64.Mul(m2.raw1, m1.raw8) + Fixed64.Mul(m2.raw5, m1.raw9) + Fixed64.Mul(m2.raw9, m1.raw10),
+            result.raw1 = FixedType.Mul(m2.raw1, m1.raw0) + FixedType.Mul(m2.raw5, m1.raw1) + FixedType.Mul(m2.raw9, m1.raw2);
+            result.raw5 = FixedType.Mul(m2.raw1, m1.raw4) + FixedType.Mul(m2.raw5, m1.raw5) + FixedType.Mul(m2.raw9, m1.raw6);
+            result.raw9 = FixedType.Mul(m2.raw1, m1.raw8) + FixedType.Mul(m2.raw5, m1.raw9) + FixedType.Mul(m2.raw9, m1.raw10);
 
-                raw2 = Fixed64.Mul(m2.raw2, m1.raw0) + Fixed64.Mul(m2.raw6, m1.raw1) + Fixed64.Mul(m2.raw10, m1.raw2),
-                raw6 = Fixed64.Mul(m2.raw2, m1.raw4) + Fixed64.Mul(m2.raw6, m1.raw5) + Fixed64.Mul(m2.raw10, m1.raw6),
-                raw10 = Fixed64.Mul(m2.raw2, m1.raw8) + Fixed64.Mul(m2.raw6, m1.raw9) + Fixed64.Mul(m2.raw10, m1.raw10),
+            result.raw2 = FixedType.Mul(m2.raw2, m1.raw0) + FixedType.Mul(m2.raw6, m1.raw1) + FixedType.Mul(m2.raw10, m1.raw2);
+            result.raw6 = FixedType.Mul(m2.raw2, m1.raw4) + FixedType.Mul(m2.raw6, m1.raw5) + FixedType.Mul(m2.raw10, m1.raw6);
+            result.raw10 = FixedType.Mul(m2.raw2, m1.raw8) + FixedType.Mul(m2.raw6, m1.raw9) + FixedType.Mul(m2.raw10, m1.raw10);
 
-                raw3 = Fixed64.Mul(m2.raw3, m1.raw0) + Fixed64.Mul(m2.raw7, m1.raw1) + Fixed64.Mul(m2.raw11, m1.raw2) + m1.raw3,
-                raw7 = Fixed64.Mul(m2.raw3, m1.raw4) + Fixed64.Mul(m2.raw7, m1.raw5) + Fixed64.Mul(m2.raw11, m1.raw6) + m1.raw7,
-                raw11 = Fixed64.Mul(m2.raw3, m1.raw8) + Fixed64.Mul(m2.raw7, m1.raw9) + Fixed64.Mul(m2.raw11, m1.raw10) + m1.raw11
-            };
+            result.raw3 = FixedType.Mul(m2.raw3, m1.raw0) + FixedType.Mul(m2.raw7, m1.raw1) + FixedType.Mul(m2.raw11, m1.raw2) + m1.raw3;
+            result.raw7 = FixedType.Mul(m2.raw3, m1.raw4) + FixedType.Mul(m2.raw7, m1.raw5) + FixedType.Mul(m2.raw11, m1.raw6) + m1.raw7;
+            result.raw11 = FixedType.Mul(m2.raw3, m1.raw8) + FixedType.Mul(m2.raw7, m1.raw9) + FixedType.Mul(m2.raw11, m1.raw10) + m1.raw11;
 
             return result;
         }
@@ -120,11 +127,11 @@ namespace GGPhys.Core
         /// <summary>
         /// 矩阵乘向量
         /// </summary>
-        public static TSVector3 operator *(Matrix4 m, TSVector3 vector)
+        public static Vector3d operator *(Matrix4 m, Vector3d vector)
         {
-            return new TSVector3(Fixed64.Mul(vector.RawX, m.raw0) + Fixed64.Mul(vector.RawY, m.raw1) + Fixed64.Mul(vector.RawZ, m.raw2) + m.raw3,
-                                     Fixed64.Mul(vector.RawX, m.raw4) + Fixed64.Mul(vector.RawY, m.raw5) + Fixed64.Mul(vector.RawZ, m.raw6) + m.raw7,
-                                     Fixed64.Mul(vector.RawX, m.raw8) + Fixed64.Mul(vector.RawY, m.raw9) + Fixed64.Mul(vector.RawZ, m.raw10) + m.raw11);
+            return Vector3d.FromRaw(FixedType.Mul(vector.RawX, m.raw0) + FixedType.Mul(vector.RawY, m.raw1) + FixedType.Mul(vector.RawZ, m.raw2) + m.raw3,
+                                     FixedType.Mul(vector.RawX, m.raw4) + FixedType.Mul(vector.RawY, m.raw5) + FixedType.Mul(vector.RawZ, m.raw6) + m.raw7,
+                                     FixedType.Mul(vector.RawX, m.raw8) + FixedType.Mul(vector.RawY, m.raw9) + FixedType.Mul(vector.RawZ, m.raw10) + m.raw11);
         }
 
         /// <summary>
@@ -132,9 +139,9 @@ namespace GGPhys.Core
         /// </summary>
         public override string ToString()
         {
-            return "{" + data0 + "," + data1 + "," + data2 + "," + data3 + "},{" +
-                   data4 + "," + data5 + "," + data6 + "," + data7 + "},{" +
-                   data8 + "," + data9 + "," + data10 + "," + data11 + "}";
+            return data0 + "," + data1 + "," + data2 + "," + data3 + "\n" +
+                   data4 + "," + data5 + "," + data6 + "," + data7 + "\n" +
+                   data8 + "," + data9 + "," + data10 + "," + data11;
         }
 
         /// <summary>
@@ -150,7 +157,7 @@ namespace GGPhys.Core
         /// <summary>
         /// 变换给定点
         /// </summary>
-        public TSVector3 Transform(TSVector3 vector)
+        public Vector3d Transform(Vector3d vector)
         {
             return this * vector;
         }
@@ -158,14 +165,14 @@ namespace GGPhys.Core
         /// <summary>
         /// 获取行列式
         /// </summary>
-        public long GetDeterminant()
+        public RawType GetDeterminant()
         {
-            return -Fixed64.Mul(raw8, Fixed64.Mul(raw5, raw2))
-                   + Fixed64.Mul(raw4, Fixed64.Mul(raw9, raw2))
-                   + Fixed64.Mul(raw8, Fixed64.Mul(raw1, raw6))
-                   - Fixed64.Mul(raw0, Fixed64.Mul(raw9, raw6))
-                   - Fixed64.Mul(raw4, Fixed64.Mul(raw1, raw10))
-                   + Fixed64.Mul(raw0, Fixed64.Mul(raw5, raw10));
+            return - FixedType.Mul(raw8, FixedType.Mul(raw5, raw2))
+                   + FixedType.Mul(raw4, FixedType.Mul(raw9, raw2))
+                   + FixedType.Mul(raw8, FixedType.Mul(raw1, raw6))
+                   - FixedType.Mul(raw0, FixedType.Mul(raw9, raw6))
+                   - FixedType.Mul(raw4, FixedType.Mul(raw1, raw10))
+                   + FixedType.Mul(raw0, FixedType.Mul(raw5, raw10));
         }
 
         /// <summary>
@@ -174,45 +181,45 @@ namespace GGPhys.Core
         public void SetInverse(Matrix4 m)
         {
             // Make sure the determinant is non-zero.
-            long det = m.GetDeterminant();
+            RawType det = m.GetDeterminant();
             if (det == REAL.Zero.Raw) return;
-            det = Fixed64.DivPrecise(REAL.One.Raw, det);
+            det = FixedType.DivPrecise(REAL.One.Raw, det);
 
-            raw0 = Fixed64.Mul(-(Fixed64.Mul(raw9, raw6) + Fixed64.Mul(raw5, raw10)), det);
-            raw4 = Fixed64.Mul((Fixed64.Mul(raw8, raw6) - Fixed64.Mul(raw4, raw10)), det);
-            raw8 = Fixed64.Mul(-(Fixed64.Mul(raw8, raw5) + Fixed64.Mul(raw4, raw9)), det);
+            raw0 = FixedType.Mul(-(FixedType.Mul(raw9, raw6) + FixedType.Mul(raw5, raw10)), det);
+            raw4 = FixedType.Mul((FixedType.Mul(raw8, raw6) - FixedType.Mul(raw4, raw10)), det);
+            raw8 = FixedType.Mul(-(FixedType.Mul(raw8, raw5) + FixedType.Mul(raw4, raw9)), det);
 
-            raw1 = Fixed64.Mul((Fixed64.Mul(raw9, raw2) - Fixed64.Mul(raw1, raw10)), det);
-            raw5 = Fixed64.Mul(-(Fixed64.Mul(raw8, raw2) + Fixed64.Mul(raw0, raw10)), det);
-            raw9 = Fixed64.Mul((Fixed64.Mul(raw8, raw1) - Fixed64.Mul(raw0, raw9)), det);
+            raw1 = FixedType.Mul((FixedType.Mul(raw9, raw2) - FixedType.Mul(raw1, raw10)), det);
+            raw5 = FixedType.Mul(-(FixedType.Mul(raw8, raw2) + FixedType.Mul(raw0, raw10)), det);
+            raw9 = FixedType.Mul((FixedType.Mul(raw8, raw1) - FixedType.Mul(raw0, raw9)), det);
 
-            raw2 = Fixed64.Mul(-(Fixed64.Mul(raw5, raw2) + Fixed64.Mul(raw1, raw6)), det);
-            raw6 = Fixed64.Mul((Fixed64.Mul(raw4, raw2) - Fixed64.Mul(raw0, raw6)), det);
-            raw10 = Fixed64.Mul(-(Fixed64.Mul(raw4, raw1) + Fixed64.Mul(raw0, raw5)), det);
+            raw2 = FixedType.Mul(-(FixedType.Mul(raw5, raw2) + FixedType.Mul(raw1, raw6)), det);
+            raw6 = FixedType.Mul((FixedType.Mul(raw4, raw2) - FixedType.Mul(raw0, raw6)), det);
+            raw10 = FixedType.Mul(-(FixedType.Mul(raw4, raw1) + FixedType.Mul(raw0, raw5)), det);
 
-            raw3 = Fixed64.Mul(
-                     Fixed64.Mul(raw9, Fixed64.Mul(raw6, raw3))
-                   - Fixed64.Mul(raw5, Fixed64.Mul(raw10, raw3))
-                   - Fixed64.Mul(raw9, Fixed64.Mul(raw2, raw7))
-                   + Fixed64.Mul(raw1, Fixed64.Mul(raw10, raw7))
-                   + Fixed64.Mul(raw5, Fixed64.Mul(raw2, raw11))
-                   - Fixed64.Mul(raw1, Fixed64.Mul(raw6, raw11)), det);
+            raw3 = FixedType.Mul(
+                     FixedType.Mul(raw9, FixedType.Mul(raw6, raw3))
+                   - FixedType.Mul(raw5, FixedType.Mul(raw10, raw3))
+                   - FixedType.Mul(raw9, FixedType.Mul(raw2, raw7))
+                   + FixedType.Mul(raw1, FixedType.Mul(raw10, raw7))
+                   + FixedType.Mul(raw5, FixedType.Mul(raw2, raw11))
+                   - FixedType.Mul(raw1, FixedType.Mul(raw6, raw11)), det);
 
-            raw7 = Fixed64.Mul(
-                   -Fixed64.Mul(raw8, Fixed64.Mul(raw6, raw3))
-                   + Fixed64.Mul(raw4, Fixed64.Mul(raw10, raw3))
-                   + Fixed64.Mul(raw8, Fixed64.Mul(raw2, raw7))
-                   - Fixed64.Mul(raw0, Fixed64.Mul(raw10, raw7))
-                   - Fixed64.Mul(raw4, Fixed64.Mul(raw2, raw11))
-                   + Fixed64.Mul(raw0, Fixed64.Mul(raw6, raw11)), det);
+            raw7 = FixedType.Mul(
+                   - FixedType.Mul(raw8, FixedType.Mul(raw6, raw3))
+                   + FixedType.Mul(raw4, FixedType.Mul(raw10, raw3))
+                   + FixedType.Mul(raw8, FixedType.Mul(raw2, raw7))
+                   - FixedType.Mul(raw0, FixedType.Mul(raw10, raw7))
+                   - FixedType.Mul(raw4, FixedType.Mul(raw2, raw11))
+                   + FixedType.Mul(raw0, FixedType.Mul(raw6, raw11)), det);
 
-            raw11 = Fixed64.Mul(
-                     Fixed64.Mul(raw8, Fixed64.Mul(raw5, raw3))
-                   - Fixed64.Mul(raw4, Fixed64.Mul(raw9, raw3))
-                   - Fixed64.Mul(raw8, Fixed64.Mul(raw1, raw7))
-                   + Fixed64.Mul(raw0, Fixed64.Mul(raw9, raw7))
-                   + Fixed64.Mul(raw4, Fixed64.Mul(raw1, raw11))
-                   - Fixed64.Mul(raw0, Fixed64.Mul(raw5, raw11)), det);
+            raw11 = FixedType.Mul(
+                     FixedType.Mul(raw8, FixedType.Mul(raw5, raw3))
+                   - FixedType.Mul(raw4, FixedType.Mul(raw9, raw3))
+                   - FixedType.Mul(raw8, FixedType.Mul(raw1, raw7))
+                   + FixedType.Mul(raw0, FixedType.Mul(raw9, raw7))
+                   + FixedType.Mul(raw4, FixedType.Mul(raw1, raw11))
+                   - FixedType.Mul(raw0, FixedType.Mul(raw5, raw11)), det);
         }
 
         /// <summary>
@@ -220,7 +227,7 @@ namespace GGPhys.Core
         /// </summary>
         public Matrix4 Inverse()
         {
-            Matrix4 result = Identity;
+            Matrix4 result = Matrix4.Identity;
             result.SetInverse(this);
             return result;
         }
@@ -236,57 +243,59 @@ namespace GGPhys.Core
         /// <summary>
         /// 变换给定向量
         /// </summary>
-        public TSVector3 TransformDirection(TSVector3 vector)
+        public Vector3d TransformDirection(Vector3d vector)
         {
-            return new TSVector3(Fixed64.Mul(vector.RawX, raw0) + Fixed64.Mul(vector.RawY, raw1) + Fixed64.Mul(vector.RawZ, raw2),
-                                     Fixed64.Mul(vector.RawX, raw4) + Fixed64.Mul(vector.RawY, raw5) + Fixed64.Mul(vector.RawZ, raw6),
-                                     Fixed64.Mul(vector.RawX, raw8) + Fixed64.Mul(vector.RawY, raw9) + Fixed64.Mul(vector.RawZ, raw10));
+            return Vector3d.FromRaw(FixedType.Mul(vector.RawX, raw0) + FixedType.Mul(vector.RawY, raw1) + FixedType.Mul(vector.RawZ, raw2),
+                                     FixedType.Mul(vector.RawX, raw4) + FixedType.Mul(vector.RawY, raw5) + FixedType.Mul(vector.RawZ, raw6),
+                                     FixedType.Mul(vector.RawX, raw8) + FixedType.Mul(vector.RawY, raw9) + FixedType.Mul(vector.RawZ, raw10));
         }
 
         /// <summary>
         /// 逆变换给定向量
         /// </summary>
-        public TSVector3 TransformInverseDirection(TSVector3 vector)
+        public Vector3d TransformInverseDirection(Vector3d vector)
         {
-            return new TSVector3(Fixed64.Mul(vector.RawX, raw0) + Fixed64.Mul(vector.RawY, raw4) + Fixed64.Mul(vector.RawZ, raw8),
-                                     Fixed64.Mul(vector.RawX, raw1) + Fixed64.Mul(vector.RawY, raw5) + Fixed64.Mul(vector.RawZ, raw9),
-                                     Fixed64.Mul(vector.RawX, raw2) + Fixed64.Mul(vector.RawY, raw6) + Fixed64.Mul(vector.RawZ, raw10));
+            return Vector3d.FromRaw(FixedType.Mul(vector.RawX, raw0) + FixedType.Mul(vector.RawY, raw4) + FixedType.Mul(vector.RawZ, raw8),
+                                     FixedType.Mul(vector.RawX, raw1) + FixedType.Mul(vector.RawY, raw5) + FixedType.Mul(vector.RawZ, raw9),
+                                     FixedType.Mul(vector.RawX, raw2) + FixedType.Mul(vector.RawY, raw6) + FixedType.Mul(vector.RawZ, raw10));
         }
 
         /// <summary>
         /// 逆变换点
         /// </summary>
-        public TSVector3 TransformInverse(TSVector3 vector)
+        public Vector3d TransformInverse(Vector3d vector)
         {
-            TSVector3 tmp = vector;
+            Vector3d tmp = vector;
             tmp.RawX -= raw3;
             tmp.RawY -= raw7;
             tmp.RawZ -= raw11;
-            return new TSVector3(Fixed64.Mul(tmp.RawX, raw0) + Fixed64.Mul(tmp.RawY, raw4) + Fixed64.Mul(tmp.RawZ, raw8),
-                                 Fixed64.Mul(tmp.RawX, raw1) + Fixed64.Mul(tmp.RawY, raw5) + Fixed64.Mul(tmp.RawZ, raw9),
-                                 Fixed64.Mul(tmp.RawX, raw2) + Fixed64.Mul(tmp.RawY, raw6) + Fixed64.Mul(tmp.RawZ, raw10));
+            return Vector3d.FromRaw(FixedType.Mul(tmp.RawX, raw0) + FixedType.Mul(tmp.RawY, raw4) + FixedType.Mul(tmp.RawZ, raw8),
+                                     FixedType.Mul(tmp.RawX, raw1) + FixedType.Mul(tmp.RawY, raw5) + FixedType.Mul(tmp.RawZ, raw9),
+                                     FixedType.Mul(tmp.RawX, raw2) + FixedType.Mul(tmp.RawY, raw6) + FixedType.Mul(tmp.RawZ, raw10));
+        }
+
+        /// <summary>
+        /// 变换给定向量
+        /// </summary>
+        public Matrix3 TransformMatrix3(Matrix3 mt)
+        {
+            return Matrix3.FromRaw(FixedType.Mul(mt.raw0, raw0) + FixedType.Mul(mt.raw3, raw1) + FixedType.Mul(mt.raw6, raw2),
+                                    FixedType.Mul(mt.raw1, raw0) + FixedType.Mul(mt.raw4, raw1) + FixedType.Mul(mt.raw7, raw2),
+                                    FixedType.Mul(mt.raw2, raw0) + FixedType.Mul(mt.raw5, raw1) + FixedType.Mul(mt.raw8, raw2),
+                                    FixedType.Mul(mt.raw0, raw4) + FixedType.Mul(mt.raw3, raw5) + FixedType.Mul(mt.raw6, raw6),
+                                    FixedType.Mul(mt.raw1, raw4) + FixedType.Mul(mt.raw4, raw5) + FixedType.Mul(mt.raw7, raw6),
+                                    FixedType.Mul(mt.raw2, raw4) + FixedType.Mul(mt.raw5, raw5) + FixedType.Mul(mt.raw8, raw6),
+                                    FixedType.Mul(mt.raw0, raw8) + FixedType.Mul(mt.raw3, raw9) + FixedType.Mul(mt.raw6, raw10),
+                                    FixedType.Mul(mt.raw1, raw8) + FixedType.Mul(mt.raw4, raw9) + FixedType.Mul(mt.raw7, raw10),
+                                    FixedType.Mul(mt.raw2, raw8) + FixedType.Mul(mt.raw5, raw9) + FixedType.Mul(mt.raw8, raw10));
         }
 
         /// <summary>
         /// 获取一列
         /// <summary>
-        public TSVector3 GetAxisVector(int i)
+        public Vector3d GetAxisVector(int i)
         {
-#pragma warning disable IDE0066 // 将 switch 语句转换为表达式
-            switch (i)
-#pragma warning restore IDE0066 // 将 switch 语句转换为表达式
-            {
-                case 0:
-                    return new TSVector3(raw0, raw4, raw8);
-                case 1:
-                    return new TSVector3(raw1, raw5, raw9);
-                case 2:
-                    return new TSVector3(raw2, raw6, raw10);
-                case 3:
-                    return new TSVector3(raw3, raw7, raw11);
-                default:
-                    return new TSVector3(this[i], this[i + 4], this[i + 8]);
-            }
+            return new Vector3d(this[i], this[i + 4], this[i + 8]);
         }
 
         /// <summary>
@@ -294,24 +303,24 @@ namespace GGPhys.Core
         /// </summary>
         /// <param name="q"></param>
         /// <param name="pos"></param>
-        public void SetOrientationAndPos(TSQuaternion q, TSVector3 pos)
+        public void SetOrientationAndPos(Quaternion q, Vector3d pos)
         {
-            long one = REAL.One.Raw;
-            long two = REAL.Two.Raw;
+            RawType one = REAL.One.Raw;
+            RawType two = REAL.Two.Raw;
 
-            raw0 = one - (Fixed64.Mul(two, Fixed64.Mul(q.RawY, q.RawY)) + Fixed64.Mul(two, Fixed64.Mul(q.RawZ, q.RawZ)));
-            raw1 = Fixed64.Mul(two, Fixed64.Mul(q.RawX, q.RawY)) - Fixed64.Mul(two, Fixed64.Mul(q.RawZ, q.RawW));
-            raw2 = Fixed64.Mul(two, Fixed64.Mul(q.RawX, q.RawZ)) + Fixed64.Mul(two, Fixed64.Mul(q.RawY, q.RawW));
+            raw0 = one - (FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawY)) + FixedType.Mul(two, FixedType.Mul(q.RawZ, q.RawZ)));
+            raw1 = FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawY)) - FixedType.Mul(two, FixedType.Mul(q.RawZ, q.RawW));
+            raw2 = FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawZ)) + FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawW));
             raw3 = pos.RawX;
 
-            raw4 = Fixed64.Mul(two, Fixed64.Mul(q.RawX, q.RawY)) + Fixed64.Mul(two, Fixed64.Mul(q.RawZ, q.RawW));
-            raw5 = one - (Fixed64.Mul(two, Fixed64.Mul(q.RawX, q.RawX)) + Fixed64.Mul(two, Fixed64.Mul(q.RawZ, q.RawZ)));
-            raw6 = Fixed64.Mul(two, Fixed64.Mul(q.RawY, q.RawZ)) - Fixed64.Mul(two, Fixed64.Mul(q.RawX, q.RawW));
+            raw4 = FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawY)) + FixedType.Mul(two, FixedType.Mul(q.RawZ, q.RawW));
+            raw5 = one - (FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawX)) + FixedType.Mul(two, FixedType.Mul(q.RawZ, q.RawZ)));
+            raw6 = FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawZ)) - FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawW));
             raw7 = pos.RawY;
 
-            raw8 = Fixed64.Mul(two, Fixed64.Mul(q.RawX, q.RawZ)) - Fixed64.Mul(two, Fixed64.Mul(q.RawY, q.RawW));
-            raw9 = Fixed64.Mul(two, Fixed64.Mul(q.RawY, q.RawZ)) + Fixed64.Mul(two, Fixed64.Mul(q.RawX, q.RawW));
-            raw10 = one - (Fixed64.Mul(two, Fixed64.Mul(q.RawX, q.RawX)) + Fixed64.Mul(two, Fixed64.Mul(q.RawY, q.RawY)));
+            raw8 = FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawZ)) - FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawW));
+            raw9 = FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawZ)) + FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawW));
+            raw10 = one - (FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawX)) + FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawY)));
             raw11 = pos.RawZ;
         }
     }

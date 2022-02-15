@@ -1,4 +1,8 @@
-using TrueSync;
+using System;
+using System.Collections.Generic;
+using GGPhys.Core;
+using GGPhys.Rigid;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Collisions
 {
@@ -7,9 +11,9 @@ namespace GGPhys.Rigid.Collisions
     /// </summary>
     public class CollisionSphere : CollisionPrimitive
     {
-        public FP Radius;
+        public REAL Radius;
 
-        public CollisionSphere(FP radius)
+        public CollisionSphere(REAL radius)
         {
             Radius = radius;
             BoundingVolum = new BoundingSphere();

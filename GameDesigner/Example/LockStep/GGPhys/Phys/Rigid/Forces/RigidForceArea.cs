@@ -1,4 +1,7 @@
-﻿using TrueSync;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using REAL = FixMath.FP;
 
 namespace GGPhys.Rigid.Forces
 {
@@ -11,7 +14,7 @@ namespace GGPhys.Rigid.Forces
         /// Overload this in implementations of the interface to calculate
         /// and update the force applied to the body.
         /// </summary>
-        public abstract void UpdateForce(RigidBody body, FP dt);
+        public abstract void UpdateForce(RigidBody body, REAL dt);
 
     }
 }

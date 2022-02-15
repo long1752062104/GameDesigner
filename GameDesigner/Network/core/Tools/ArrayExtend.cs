@@ -137,4 +137,30 @@ public static class ArrayExtend
         item = default;
         return false;
     }
+
+    public static T Find<T>(this T[] self, Func<T, bool> func)
+    {
+        for (int i = 0; i < self.Length; i++)
+        {
+            if (func(self[i]))
+            {
+                return self[i];
+            }
+        }
+        return default;
+    }
+
+    public static bool Find<T>(this T[] self, Func<T, bool> func, out T item)
+    {
+        for (int i = 0; i < self.Length; i++)
+        {
+            if (func(self[i]))
+            {
+                item = self[i];
+                return true;
+            }
+        }
+        item = default;
+        return false;
+    }
 }
