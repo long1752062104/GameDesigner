@@ -52,18 +52,6 @@ namespace FixMath
         // Creates the fixed point number that's a divided by 1000.
         public static FP Ratio1000(int a) { return FP.FromRaw(((long)a << 32) / 1000); }
 
-        public void test()
-        {
-            int x = 123;
-            test2(ref x, out x);
-        }
-        public void test2(ref int a, out int b)
-        {
-            b = a;
-        }
-
-
-
         // Operators
         //public static explicit operator FP(int i) { return new FP(i); }
         //public static explicit operator FP(float f) { return new FP(f); }

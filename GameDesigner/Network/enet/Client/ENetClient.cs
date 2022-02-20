@@ -168,7 +168,7 @@
                             receiveCount += count;
                             receiveAmount++;
                             netEvent.Packet.Dispose();
-                            ResolveBuffer(buffer, 0, count, false);
+                            ResolveBuffer(buffer, false);
                             BufferPool.Push(buffer);
                             break;
                         case EventType.Timeout:

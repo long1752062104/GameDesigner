@@ -119,6 +119,8 @@ namespace GGPhys.Rigid
         ///</summary>
         public Vector3d Position;
 
+        public Vector3d MovePosition;
+
         ///<summary>
         /// 旋转
         ///</summary>
@@ -128,6 +130,11 @@ namespace GGPhys.Rigid
         /// 线性速度
         ///</summary>
         public Vector3d Velocity;
+
+        /// <summary>
+        /// 线性速度限制
+        /// </summary>
+        public Vector3d VelocityLimit;
 
         ///<summary>
         /// 角速度
@@ -164,9 +171,9 @@ namespace GGPhys.Rigid
         ///</summary>
         private Vector3d m_forceAccum;
 
-        ///<summary>
+        /// <summary>
         /// 合转矩
-        ///</summary>
+        /// </summary>
         private Vector3d m_torqueAccum;
 
         ///<summary>
@@ -415,6 +422,12 @@ namespace GGPhys.Rigid
 
             Position += Velocity * dt;
 
+            //if (Velocity.Magnitude < 1f)
+            //{
+            //    Position += MovePosition;
+            //    MovePosition = Vector3d.Zero;
+            //}
+
             Orientation.AddScaledVector(Rotation, dt);
 
             if (m_canSleep)
@@ -630,6 +643,9 @@ namespace GGPhys.Rigid
             Position += delta;
             CalculateDerivedData();
             SetAwake(true);
+
+            //MovePosition = delta;
+            //SetAwake(true);
         }
 
         /// <summary>

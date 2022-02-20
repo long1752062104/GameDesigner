@@ -112,7 +112,7 @@ namespace Net.Client
             receiveAmount++;
             heart = 0;
             var buffer2 = new Segment(buffer.Array, buffer.ArrayOffset, buffer.ArrayOffset + buffer.ReadableBytes, false);
-            ResolveBuffer(buffer2, buffer2.Index, buffer2.Count, false);
+            ResolveBuffer(buffer2, false);
         }
 
         protected override void SendRTDataHandle()

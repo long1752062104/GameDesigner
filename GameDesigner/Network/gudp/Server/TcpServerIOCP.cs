@@ -3,13 +3,12 @@
     using Net.Share;
     using global::System;
     using global::System.Collections.Generic;
-    using global::System.IO;
     using global::System.Net;
     using global::System.Net.Sockets;
-    using global::System.Text;
     using global::System.Threading;
     using Debug = Event.NDebug;
     using Net.System;
+    using global::System.Security.Cryptography;
 
     /// <summary>
     /// tcp 输入输出完成端口服务器
@@ -18,6 +17,11 @@
     /// </summary>
     public class TcpServerIOCP<Player, Scene> : ServerBase<Player, Scene> where Player : NetPlayer, new() where Scene : NetScene<Player>, new()
     {
+        /// <summary>
+        /// tcp数据长度(4) + 2CRC协议 = 6
+        /// </summary>
+        protected new readonly int frame = 6;
+
         public override void Start(ushort port = 6666)
         {
             if (Server != null)//如果服务器套接字已创建
@@ -131,24 +135,24 @@
                         unClient.TcpRemoteEndPoint = client.RemoteEndPoint;
                         UserIDStack.TryPop(out int uid);
                         unClient.UserID = uid;
+                        unClient.MID = GetMID((IPEndPoint)client.RemoteEndPoint);
                         unClient.PlayerID = uid.ToString();
                         unClient.stackStream = BufferStreamShare.Take();
                         unClient.isDispose = false;
                         unClient.CloseSend = false;
                         unClient.SocketAsync = args1;
                         Interlocked.Increment(ref ignoranceNumber);
-                        AllClients.TryAdd(client.RemoteEndPoint, unClient);
-                        OnHasConnectHandle(unClient);
-                        byte[] uidbytes = BitConverter.GetBytes(uid);
-                        byte[] identify = Encoding.Unicode.GetBytes(unClient.PlayerID);
-                        byte[] buffer = new byte[identify.Length + 4];
-                        Array.Copy(uidbytes, 0, buffer, 0, 4);
-                        Array.Copy(identify, 0, buffer, 4, identify.Length);
-                        SendRT(unClient, NetCmd.Identify, buffer);
+                        var buffer = BufferPool.Take(50);
+                        buffer.WriteValue(uid);
+                        buffer.WriteValue(unClient.MID);
+                        buffer.WriteValue(unClient.PlayerID);
+                        SendRT(unClient, NetCmd.Identify, buffer.ToArray(true));
                         unClient.revdQueue = RevdQueues[threadNum];
                         unClient.sendQueue = SendQueues[threadNum];
                         if (++threadNum >= RevdQueues.Count)
                             threadNum = 0;
+                        AllClients.TryAdd(client.RemoteEndPoint, unClient);//之前放在上面, 由于接收线程并行, 还没赋值revdQueue就已经接收到数据, 导致提示内存池泄露
+                        OnHasConnectHandle(unClient);
                         bool willRaiseEvent = client.ReceiveAsync(args1);
                         if (!willRaiseEvent)
                         {
@@ -171,12 +175,13 @@
                     if (count > 0 & args.SocketError == SocketError.Success)
                     {
                         var buffer = BufferPool.Take();
+                        buffer.Count = count;
                         Buffer.BlockCopy(args.Buffer, args.Offset, buffer, 0, count);
                         receiveCount += count;
                         receiveAmount++;
                         EndPoint remotePoint = client.RemoteEndPoint;
                         if (AllClients.TryGetValue(remotePoint, out Player client1))//在线客户端  得到client对象
-                            client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = buffer, count = count, tcp_udp = true });
+                            client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = buffer, tcp_udp = true });
                         if (!client.ReceiveAsync(args))
                             goto RevdData;
                     }
@@ -211,7 +216,7 @@
                     {
                         if (revdQueue.TryDequeue(out RevdDataBuffer revdData))
                         {
-                            BufferHandle(revdData.client as Player, ref revdData.buffer, revdData.index, revdData.count);
+                            BufferHandle(revdData.client as Player, ref revdData.buffer);
                             BufferPool.Push(revdData.buffer);
                         }
                     }
@@ -223,72 +228,57 @@
             }
         }
 
-        private void BufferHandle(Player client, ref Segment buffer, int index, int count)
-        {
-            client.heart = 0;
-            if (client.stack > StackNumberMax)//不能一直叠包
-            {
-                client.stack = 0;
-                Debug.LogError($"请设置StackNumberMax属性, 叠包次数过高, 叠包数量达到{StackNumberMax}次以上...");
-                SendRT(client, NetCmd.ReliableCallbackClear, new byte[0]);
-                return;
-            }
-            if (client.stack > 0)
-            {
-                client.stack++;
-                client.stackStream.Seek(client.stackIndex, SeekOrigin.Begin);
-                int size = count - index;
-                client.stackIndex += size;
-                client.stackStream.Write(buffer, index, size);
-                if (client.stackIndex < client.stackCount)
-                {
-                    InvokeRevdRTProgress(client, client.stackIndex, client.stackCount);
-                    return;
-                }
-                index = 0;
-                count = (int)client.stackStream.Position;//.Length; //错误问题,不能用length, 这是文件总长度, 之前可能已经有很大一波数据
-                BufferPool.Push(buffer);//要回收掉, 否则会提示内存泄露
-                buffer = BufferPool.Take(count);//ref 才不会导致提示内存泄露
-                client.stackStream.Seek(0, SeekOrigin.Begin);
-                client.stackStream.Read(buffer, 0, count);
-            }
-            while (index < count)
-            {
-                int size = BitConverter.ToInt32(buffer, index);
-                int crcIndex = buffer[index + 4];//CRC检验索引, 使用者自己改变CRCCode属性
-                byte crcCode = buffer[index + 5];//CRC校验码, 使用者自己改变CRCCode属性
-                if (size < 0 | size > StackBufferSize)//如果出现解析的数据包大小有问题，则不处理
-                {
-                    client.stack = 0;
-                    Debug.LogError($"数据错乱: size:{size}");
-                    return;
-                }
-                if (index + frame + size <= count)
-                {
-                    index += frame;
-                    client.stack = 0;
-                    if (!OnCRC(crcIndex, crcCode))
-                        return;
-                    DataHandle(client, buffer, index, size, index + size); //叠包问题
-                    index += size;
-                }
-                else
-                {
-                    client.stackIndex = count - index;
-                    client.stackCount = size;
-                    client.stackStream.Seek(0, SeekOrigin.Begin);
-                    client.stackStream.Write(buffer, index, count - index);
-                    client.stack++;
-                    break;
-                }
-            }
-        }
-
         protected override bool IsInternalCommand(Player client, RPCModel model)
         {
             if (model.cmd == NetCmd.Connect | model.cmd == NetCmd.Broadcast)
                 return true;
             return false;
+        }
+
+        protected override void WriteDataHead(Segment stream)
+        {
+            if (MD5CRC)
+            {
+                stream.Position = 20;//留20个字节记录size+md5哈希值
+            }
+            else
+            {
+                int crcIndex = RandomHelper.Range(0, 256);
+                byte crcCode = CRCCode[crcIndex];
+                stream.Position = 4;//数据大小
+                stream.WriteByte((byte)crcIndex);
+                stream.WriteByte(crcCode);
+            }
+        }
+
+        protected override void ResetDataHead(Segment stream)
+        {
+            if (MD5CRC)
+                stream.SetPositionLength(20);//size+md5
+            else
+                stream.SetPositionLength(frame);
+        }
+
+        protected override byte[] PackData(Segment stream)
+        {
+            if (MD5CRC)
+            {
+                MD5 md5 = new MD5CryptoServiceProvider();
+                byte[] retVal = md5.ComputeHash(stream, 20, stream.Count - 20);
+                int len = stream.Count - 20;
+                stream.Position = 0;
+                stream.Write(BitConverter.GetBytes(len), 0, 4);
+                stream.Write(retVal, 0, retVal.Length);
+                stream.Position = len + 20;
+            }
+            else
+            {
+                int len = stream.Count - frame;
+                stream.Position = 0;
+                stream.Write(BitConverter.GetBytes(len), 0, 4);
+                stream.Position = len + frame;
+            }
+            return stream.ToArray();
         }
 
         protected override void SendRTDataHandle(Player client, QueueSafe<RPCModel> rtRPCModels)

@@ -11,7 +11,7 @@ public class EngineStart : RigidPhysicsEngine
 
     private void Update()
     {
-        if (autoStep) 
+        if (autoStep)
         {
             Step();
         }
@@ -19,6 +19,7 @@ public class EngineStart : RigidPhysicsEngine
 
     public void Step()
     {
-        Instance.RunPhysics(timeStep);
+        for (int i = 0; i < stepCount; i++)
+            Instance.RunPhysics(timeStep);
     }
 }

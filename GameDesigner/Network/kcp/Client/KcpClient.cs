@@ -77,11 +77,12 @@
                     while ((len = ikcp_peeksize(kcp)) > 0)
                     {
                         var buffer1 = BufferPool.Take(len);
+                        buffer1.Count = len;
                         fixed (byte* p1 = &buffer1.Buffer[0])
                         {
                             int kcnt = ikcp_recv(kcp, p1, buffer1.Length);
                             if (kcnt > 0) 
-                                ResolveBuffer(buffer1, 0, len, false);
+                                ResolveBuffer(buffer1, false);
                         }
                         BufferPool.Push(buffer1);
                     }

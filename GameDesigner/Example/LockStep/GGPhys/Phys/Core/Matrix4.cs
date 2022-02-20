@@ -53,9 +53,9 @@ namespace GGPhys.Core
         public static Matrix4 IdentityOffset(Vector3d offset)
         {
             var m = Identity;
-            m.raw3 += offset.RawX;
-            m.raw7 += offset.RawY;
-            m.raw11 += offset.RawZ;
+            m.raw3 += offset.x.Raw;
+            m.raw7 += offset.y.Raw;
+            m.raw11 += offset.z.Raw;
             return m;
         }
 
@@ -129,9 +129,9 @@ namespace GGPhys.Core
         /// </summary>
         public static Vector3d operator *(Matrix4 m, Vector3d vector)
         {
-            return Vector3d.FromRaw(FixedType.Mul(vector.RawX, m.raw0) + FixedType.Mul(vector.RawY, m.raw1) + FixedType.Mul(vector.RawZ, m.raw2) + m.raw3,
-                                     FixedType.Mul(vector.RawX, m.raw4) + FixedType.Mul(vector.RawY, m.raw5) + FixedType.Mul(vector.RawZ, m.raw6) + m.raw7,
-                                     FixedType.Mul(vector.RawX, m.raw8) + FixedType.Mul(vector.RawY, m.raw9) + FixedType.Mul(vector.RawZ, m.raw10) + m.raw11);
+            return Vector3d.FromRaw(FixedType.Mul(vector.x.Raw, m.raw0) + FixedType.Mul(vector.y.Raw, m.raw1) + FixedType.Mul(vector.z.Raw, m.raw2) + m.raw3,
+                                     FixedType.Mul(vector.x.Raw, m.raw4) + FixedType.Mul(vector.y.Raw, m.raw5) + FixedType.Mul(vector.z.Raw, m.raw6) + m.raw7,
+                                     FixedType.Mul(vector.x.Raw, m.raw8) + FixedType.Mul(vector.y.Raw, m.raw9) + FixedType.Mul(vector.z.Raw, m.raw10) + m.raw11);
         }
 
         /// <summary>
@@ -245,9 +245,9 @@ namespace GGPhys.Core
         /// </summary>
         public Vector3d TransformDirection(Vector3d vector)
         {
-            return Vector3d.FromRaw(FixedType.Mul(vector.RawX, raw0) + FixedType.Mul(vector.RawY, raw1) + FixedType.Mul(vector.RawZ, raw2),
-                                     FixedType.Mul(vector.RawX, raw4) + FixedType.Mul(vector.RawY, raw5) + FixedType.Mul(vector.RawZ, raw6),
-                                     FixedType.Mul(vector.RawX, raw8) + FixedType.Mul(vector.RawY, raw9) + FixedType.Mul(vector.RawZ, raw10));
+            return Vector3d.FromRaw(FixedType.Mul(vector.x.Raw, raw0) + FixedType.Mul(vector.y.Raw, raw1) + FixedType.Mul(vector.z.Raw, raw2),
+                                     FixedType.Mul(vector.x.Raw, raw4) + FixedType.Mul(vector.y.Raw, raw5) + FixedType.Mul(vector.z.Raw, raw6),
+                                     FixedType.Mul(vector.x.Raw, raw8) + FixedType.Mul(vector.y.Raw, raw9) + FixedType.Mul(vector.z.Raw, raw10));
         }
 
         /// <summary>
@@ -255,9 +255,9 @@ namespace GGPhys.Core
         /// </summary>
         public Vector3d TransformInverseDirection(Vector3d vector)
         {
-            return Vector3d.FromRaw(FixedType.Mul(vector.RawX, raw0) + FixedType.Mul(vector.RawY, raw4) + FixedType.Mul(vector.RawZ, raw8),
-                                     FixedType.Mul(vector.RawX, raw1) + FixedType.Mul(vector.RawY, raw5) + FixedType.Mul(vector.RawZ, raw9),
-                                     FixedType.Mul(vector.RawX, raw2) + FixedType.Mul(vector.RawY, raw6) + FixedType.Mul(vector.RawZ, raw10));
+            return Vector3d.FromRaw(FixedType.Mul(vector.x.Raw, raw0) + FixedType.Mul(vector.y.Raw, raw4) + FixedType.Mul(vector.z.Raw, raw8),
+                                     FixedType.Mul(vector.x.Raw, raw1) + FixedType.Mul(vector.y.Raw, raw5) + FixedType.Mul(vector.z.Raw, raw9),
+                                     FixedType.Mul(vector.x.Raw, raw2) + FixedType.Mul(vector.y.Raw, raw6) + FixedType.Mul(vector.z.Raw, raw10));
         }
 
         /// <summary>
@@ -266,12 +266,12 @@ namespace GGPhys.Core
         public Vector3d TransformInverse(Vector3d vector)
         {
             Vector3d tmp = vector;
-            tmp.RawX -= raw3;
-            tmp.RawY -= raw7;
-            tmp.RawZ -= raw11;
-            return Vector3d.FromRaw(FixedType.Mul(tmp.RawX, raw0) + FixedType.Mul(tmp.RawY, raw4) + FixedType.Mul(tmp.RawZ, raw8),
-                                     FixedType.Mul(tmp.RawX, raw1) + FixedType.Mul(tmp.RawY, raw5) + FixedType.Mul(tmp.RawZ, raw9),
-                                     FixedType.Mul(tmp.RawX, raw2) + FixedType.Mul(tmp.RawY, raw6) + FixedType.Mul(tmp.RawZ, raw10));
+            tmp.x.Raw -= raw3;
+            tmp.y.Raw -= raw7;
+            tmp.z.Raw -= raw11;
+            return Vector3d.FromRaw(FixedType.Mul(tmp.x.Raw, raw0) + FixedType.Mul(tmp.y.Raw, raw4) + FixedType.Mul(tmp.z.Raw, raw8),
+                                     FixedType.Mul(tmp.x.Raw, raw1) + FixedType.Mul(tmp.y.Raw, raw5) + FixedType.Mul(tmp.z.Raw, raw9),
+                                     FixedType.Mul(tmp.x.Raw, raw2) + FixedType.Mul(tmp.y.Raw, raw6) + FixedType.Mul(tmp.z.Raw, raw10));
         }
 
         /// <summary>
@@ -308,20 +308,20 @@ namespace GGPhys.Core
             RawType one = REAL.One.Raw;
             RawType two = REAL.Two.Raw;
 
-            raw0 = one - (FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawY)) + FixedType.Mul(two, FixedType.Mul(q.RawZ, q.RawZ)));
-            raw1 = FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawY)) - FixedType.Mul(two, FixedType.Mul(q.RawZ, q.RawW));
-            raw2 = FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawZ)) + FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawW));
-            raw3 = pos.RawX;
+            raw0 = one - (FixedType.Mul(two, FixedType.Mul(q.y.Raw, q.y.Raw)) + FixedType.Mul(two, FixedType.Mul(q.z.Raw, q.z.Raw)));
+            raw1 = FixedType.Mul(two, FixedType.Mul(q.x.Raw, q.y.Raw)) - FixedType.Mul(two, FixedType.Mul(q.z.Raw, q.w.Raw));
+            raw2 = FixedType.Mul(two, FixedType.Mul(q.x.Raw, q.z.Raw)) + FixedType.Mul(two, FixedType.Mul(q.y.Raw, q.w.Raw));
+            raw3 = pos.x.Raw;
 
-            raw4 = FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawY)) + FixedType.Mul(two, FixedType.Mul(q.RawZ, q.RawW));
-            raw5 = one - (FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawX)) + FixedType.Mul(two, FixedType.Mul(q.RawZ, q.RawZ)));
-            raw6 = FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawZ)) - FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawW));
-            raw7 = pos.RawY;
+            raw4 = FixedType.Mul(two, FixedType.Mul(q.x.Raw, q.y.Raw)) + FixedType.Mul(two, FixedType.Mul(q.z.Raw, q.w.Raw));
+            raw5 = one - (FixedType.Mul(two, FixedType.Mul(q.x.Raw, q.x.Raw)) + FixedType.Mul(two, FixedType.Mul(q.z.Raw, q.z.Raw)));
+            raw6 = FixedType.Mul(two, FixedType.Mul(q.y.Raw, q.z.Raw)) - FixedType.Mul(two, FixedType.Mul(q.x.Raw, q.w.Raw));
+            raw7 = pos.y.Raw;
 
-            raw8 = FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawZ)) - FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawW));
-            raw9 = FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawZ)) + FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawW));
-            raw10 = one - (FixedType.Mul(two, FixedType.Mul(q.RawX, q.RawX)) + FixedType.Mul(two, FixedType.Mul(q.RawY, q.RawY)));
-            raw11 = pos.RawZ;
+            raw8 = FixedType.Mul(two, FixedType.Mul(q.x.Raw, q.z.Raw)) - FixedType.Mul(two, FixedType.Mul(q.y.Raw, q.w.Raw));
+            raw9 = FixedType.Mul(two, FixedType.Mul(q.y.Raw, q.z.Raw)) + FixedType.Mul(two, FixedType.Mul(q.x.Raw, q.w.Raw));
+            raw10 = one - (FixedType.Mul(two, FixedType.Mul(q.x.Raw, q.x.Raw)) + FixedType.Mul(two, FixedType.Mul(q.y.Raw, q.y.Raw)));
+            raw11 = pos.z.Raw;
         }
     }
 

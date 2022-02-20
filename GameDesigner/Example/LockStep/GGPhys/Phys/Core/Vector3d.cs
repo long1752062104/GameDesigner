@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using REAL = FixMath.FP;
+using UnityEngine;
 
 #if GGPHYS_FIXPOINT32
 using RawType = System.Int32;
@@ -18,13 +19,13 @@ namespace GGPhys.Core
     public struct Vector3d : IEquatable<Vector3d>, IComparable<Vector3d>
     {
 
-        public RawType RawX;
-        public RawType RawY;
-        public RawType RawZ;
+        //public RawType x.Raw;
+        //public RawType y.Raw;
+        //public RawType z.Raw;
 
-        public REAL x { get { return REAL.FromRaw(RawX); } set { RawX = value.Raw; } }
-        public REAL y { get { return REAL.FromRaw(RawY); } set { RawY = value.Raw; } }
-        public REAL z { get { return REAL.FromRaw(RawZ); } set { RawZ = value.Raw; } }
+        public REAL x;//{ get { return REAL.FromRaw(x.Raw); } set { x.Raw = value.Raw; } }
+        public REAL y;//{ get { return REAL.FromRaw(y.Raw); } set { y.Raw = value.Raw; } }
+        public REAL z;//{ get { return REAL.FromRaw(z.Raw); } set { z.Raw = value.Raw; } }
 
         /// <summary>
         /// x轴单位向量
@@ -72,9 +73,9 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3d(REAL v)
         {
-            this.RawX = v.Raw;
-            this.RawY = v.Raw;
-            this.RawZ = v.Raw;
+            this.x.Raw = v.Raw;
+            this.y.Raw = v.Raw;
+            this.z.Raw = v.Raw;
         }
 
         /// <summary>
@@ -83,9 +84,9 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3d(REAL x, REAL y, REAL z)
         {
-            this.RawX = x.Raw;
-            this.RawY = y.Raw;
-            this.RawZ = z.Raw;
+            this.x.Raw = x.Raw;
+            this.y.Raw = y.Raw;
+            this.z.Raw = z.Raw;
         }
 
         /// <summary>
@@ -97,17 +98,17 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Vector3d(RawType x, RawType y, RawType z)
         {
-            RawX = x;
-            RawY = y;
-            RawZ = z;
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3d(REAL x, REAL y)
         {
-            this.RawX = x.Raw;
-            this.RawY = y.Raw;
-            this.RawZ = REAL.Zero.Raw;
+            this.x.Raw = x.Raw;
+            this.y.Raw = y.Raw;
+            this.z.Raw = REAL.Zero.Raw;
         }
 
         /// <summary>
@@ -129,7 +130,7 @@ namespace GGPhys.Core
                 if ((uint)i >= 3)
                     throw new IndexOutOfRangeException("Vector3d index out of range.");
 
-                fixed (RawType* array = &RawX) { array[i] = value.Raw; }
+                fixed (RawType* array = &x.Raw) { array[i] = value.Raw; }
             }
         }
 
@@ -141,7 +142,7 @@ namespace GGPhys.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return REAL.FromRaw(FixedType.SqrtFastest(FixedType.Mul(RawX, RawX) + FixedType.Mul(RawY, RawY) + FixedType.Mul(RawZ, RawZ)));
+                return REAL.FromRaw(FixedType.SqrtFastest(FixedType.Mul(x.Raw, x.Raw) + FixedType.Mul(y.Raw, y.Raw) + FixedType.Mul(z.Raw, z.Raw)));
             }
         }
 
@@ -153,7 +154,7 @@ namespace GGPhys.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return REAL.FromRaw(FixedType.Mul(RawX, RawX) + FixedType.Mul(RawY, RawY) + FixedType.Mul(RawZ, RawZ));
+                return REAL.FromRaw(FixedType.Mul(x.Raw, x.Raw) + FixedType.Mul(y.Raw, y.Raw) + FixedType.Mul(z.Raw, z.Raw));
             }
         }
 
@@ -165,8 +166,8 @@ namespace GGPhys.Core
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                RawType invLength = FixedType.RSqrtFastest(FixedType.Mul(RawX, RawX) + FixedType.Mul(RawY, RawY) + FixedType.Mul(RawZ, RawZ));
-                return new Vector3d(FixedType.Mul(RawX, invLength), FixedType.Mul(RawY, invLength), FixedType.Mul(RawZ, invLength));
+                RawType invLength = FixedType.RSqrtFastest(FixedType.Mul(x.Raw, x.Raw) + FixedType.Mul(y.Raw, y.Raw) + FixedType.Mul(z.Raw, z.Raw));
+                return new Vector3d(FixedType.Mul(x.Raw, invLength), FixedType.Mul(y.Raw, invLength), FixedType.Mul(z.Raw, invLength));
             }
         }
 
@@ -188,7 +189,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator +(Vector3d v1, Vector3d v2)
         {
-            return new Vector3d(v1.RawX + v2.RawX, v1.RawY + v2.RawY, v1.RawZ + v2.RawZ);
+            return new Vector3d(v1.x.Raw + v2.x.Raw, v1.y.Raw + v2.y.Raw, v1.z.Raw + v2.z.Raw);
         }
 
         /// <summary>
@@ -197,7 +198,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator +(Vector3d v1, REAL s)
         {
-            return new Vector3d(v1.RawX + s.Raw, v1.RawY + s.Raw, v1.RawZ + s.Raw);
+            return new Vector3d(v1.x.Raw + s.Raw, v1.y.Raw + s.Raw, v1.z.Raw + s.Raw);
         }
 
         /// <summary>
@@ -206,7 +207,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator +(REAL s, Vector3d v1)
         {
-            return new Vector3d(v1.RawX + s.Raw, v1.RawY + s.Raw, v1.RawZ + s.Raw);
+            return new Vector3d(v1.x.Raw + s.Raw, v1.y.Raw + s.Raw, v1.z.Raw + s.Raw);
         }
 
         /// <summary>
@@ -215,7 +216,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator -(Vector3d v)
         {
-            return new Vector3d(-v.RawX, -v.RawY, -v.RawZ);
+            return new Vector3d(-v.x.Raw, -v.y.Raw, -v.z.Raw);
         }
 
         /// <summary>
@@ -224,7 +225,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator -(Vector3d v1, Vector3d v2)
         {
-            return new Vector3d(v1.RawX - v2.RawX, v1.RawY - v2.RawY, v1.RawZ - v2.RawZ);
+            return new Vector3d(v1.x.Raw - v2.x.Raw, v1.y.Raw - v2.y.Raw, v1.z.Raw - v2.z.Raw);
         }
 
         /// <summary>
@@ -233,7 +234,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator -(Vector3d v1, REAL s)
         {
-            return new Vector3d(v1.RawX - s.Raw, v1.RawY - s.Raw, v1.RawZ - s.Raw);
+            return new Vector3d(v1.x.Raw - s.Raw, v1.y.Raw - s.Raw, v1.z.Raw - s.Raw);
         }
 
         /// <summary>
@@ -242,7 +243,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator -(REAL s, Vector3d v1)
         {
-            return new Vector3d(s.Raw - v1.RawX, s.Raw - v1.RawY, s.Raw - v1.RawZ);
+            return new Vector3d(s.Raw - v1.x.Raw, s.Raw - v1.y.Raw, s.Raw - v1.z.Raw);
         }
 
         /// <summary>
@@ -251,7 +252,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator *(Vector3d v1, Vector3d v2)
         {
-            return new Vector3d(FixedType.Mul(v1.RawX, v2.RawX), FixedType.Mul(v1.RawY, v2.RawY), FixedType.Mul(v1.RawZ, v2.RawZ));
+            return new Vector3d(FixedType.Mul(v1.x.Raw, v2.x.Raw), FixedType.Mul(v1.y.Raw, v2.y.Raw), FixedType.Mul(v1.z.Raw, v2.z.Raw));
         }
 
         /// <summary>
@@ -260,7 +261,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator *(Vector3d v, REAL s)
         {
-            return new Vector3d(FixedType.Mul(v.RawX, s.Raw), FixedType.Mul(v.RawY, s.Raw), FixedType.Mul(v.RawZ, s.Raw));
+            return new Vector3d(FixedType.Mul(v.x.Raw, s.Raw), FixedType.Mul(v.y.Raw, s.Raw), FixedType.Mul(v.z.Raw, s.Raw));
         }
 
         /// <summary>
@@ -269,7 +270,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator *(REAL s, Vector3d v)
         {
-            return new Vector3d(FixedType.Mul(v.RawX, s.Raw), FixedType.Mul(v.RawY, s.Raw), FixedType.Mul(v.RawZ, s.Raw));
+            return new Vector3d(FixedType.Mul(v.x.Raw, s.Raw), FixedType.Mul(v.y.Raw, s.Raw), FixedType.Mul(v.z.Raw, s.Raw));
         }
 
         /// <summary>
@@ -278,7 +279,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator /(Vector3d v1, Vector3d v2)
         {
-            return new Vector3d(FixedType.DivPrecise(v1.RawX, v2.RawX), FixedType.DivPrecise(v1.RawY, v2.RawY), FixedType.DivPrecise(v1.RawZ, v2.RawZ));
+            return new Vector3d(FixedType.DivPrecise(v1.x.Raw, v2.x.Raw), FixedType.DivPrecise(v1.y.Raw, v2.y.Raw), FixedType.DivPrecise(v1.z.Raw, v2.z.Raw));
         }
 
         /// <summary>
@@ -287,7 +288,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d operator /(Vector3d v, REAL s)
         {
-            return new Vector3d(FixedType.DivPrecise(v.RawX, s.Raw), FixedType.DivPrecise(v.RawY, s.Raw), FixedType.DivPrecise(v.RawZ, s.Raw));
+            return new Vector3d(FixedType.DivPrecise(v.x.Raw, s.Raw), FixedType.DivPrecise(v.y.Raw, s.Raw), FixedType.DivPrecise(v.z.Raw, s.Raw));
         }
 
         /// <summary>
@@ -296,7 +297,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Vector3d v1, Vector3d v2)
         {
-            return (v1.RawX == v2.RawX && v1.RawY == v2.RawY && v1.RawZ == v2.RawZ);
+            return (v1.x.Raw == v2.x.Raw && v1.y.Raw == v2.y.Raw && v1.z.Raw == v2.z.Raw);
         }
 
         /// <summary>
@@ -305,7 +306,12 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(Vector3d v1, Vector3d v2)
         {
-            return (v1.RawX != v2.RawX || v1.RawY != v2.RawY || v1.RawZ != v2.RawZ);
+            return (v1.x.Raw != v2.x.Raw || v1.y.Raw != v2.y.Raw || v1.z.Raw != v2.z.Raw);
+        }
+
+        public static implicit operator Vector3d(Vector3 v)
+        {
+            return new Vector3d(v.x, v.y, v.z);
         }
 
         /// <summary>
@@ -338,9 +344,9 @@ namespace GGPhys.Core
             unchecked
             {
                 int hash = (int)2166136261;
-                hash = (hash * 16777619) ^ RawX.GetHashCode();
-                hash = (hash * 16777619) ^ RawY.GetHashCode();
-                hash = (hash * 16777619) ^ RawZ.GetHashCode();
+                hash = (hash * 16777619) ^ x.Raw.GetHashCode();
+                hash = (hash * 16777619) ^ y.Raw.GetHashCode();
+                hash = (hash * 16777619) ^ z.Raw.GetHashCode();
                 return hash;
             }
         }
@@ -405,7 +411,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static REAL Dot(Vector3d v0, Vector3d v1)
         {
-            return REAL.FromRaw(FixedType.Mul(v0.RawX, v1.RawX) + FixedType.Mul(v0.RawY, v1.RawY) + FixedType.Mul(v0.RawZ, v1.RawZ));
+            return REAL.FromRaw(FixedType.Mul(v0.x.Raw, v1.x.Raw) + FixedType.Mul(v0.y.Raw, v1.y.Raw) + FixedType.Mul(v0.z.Raw, v1.z.Raw));
         }
 
         /// <summary>
@@ -423,10 +429,10 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Normalize()
         {
-            RawType invLength = FixedType.RSqrtFastest(FixedType.Mul(RawX, RawX) + FixedType.Mul(RawY, RawY) + FixedType.Mul(RawZ, RawZ));
-            RawX = FixedType.Mul(RawX, invLength);
-            RawY = FixedType.Mul(RawY, invLength);
-            RawZ = FixedType.Mul(RawZ, invLength);
+            RawType invLength = FixedType.RSqrtFastest(FixedType.Mul(x.Raw, x.Raw) + FixedType.Mul(y.Raw, y.Raw) + FixedType.Mul(z.Raw, z.Raw));
+            x.Raw = FixedType.Mul(x.Raw, invLength);
+            y.Raw = FixedType.Mul(y.Raw, invLength);
+            z.Raw = FixedType.Mul(z.Raw, invLength);
         }
 
         /// <summary>
@@ -446,9 +452,9 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d Cross(Vector3d v0, Vector3d v1)
         {
-            return new Vector3d(FixedType.Mul(v0.RawY, v1.RawZ) - FixedType.Mul(v0.RawZ, v1.RawY),
-                                FixedType.Mul(v0.RawZ, v1.RawX) - FixedType.Mul(v0.RawX, v1.RawZ),
-                                FixedType.Mul(v0.RawX, v1.RawY) - FixedType.Mul(v0.RawY, v1.RawX));
+            return new Vector3d(FixedType.Mul(v0.y.Raw, v1.z.Raw) - FixedType.Mul(v0.z.Raw, v1.y.Raw),
+                                FixedType.Mul(v0.z.Raw, v1.x.Raw) - FixedType.Mul(v0.x.Raw, v1.z.Raw),
+                                FixedType.Mul(v0.x.Raw, v1.y.Raw) - FixedType.Mul(v0.y.Raw, v1.x.Raw));
         }
 
         /// <summary>
@@ -467,7 +473,7 @@ namespace GGPhys.Core
         public static REAL SqrDistance(Vector3d v0, Vector3d v1)
         {
             Vector3d v = v0 - v1;
-            return REAL.FromRaw(FixedType.Mul(v.RawX, v.RawX) + FixedType.Mul(v.RawY, v.RawY) + FixedType.Mul(v.RawZ, v.RawZ));
+            return REAL.FromRaw(FixedType.Mul(v.x.Raw, v.x.Raw) + FixedType.Mul(v.y.Raw, v.y.Raw) + FixedType.Mul(v.z.Raw, v.z.Raw));
         }
 
         /// <summary>
@@ -522,7 +528,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d Min(Vector3d v, REAL s)
         {
-            return new Vector3d(FixedType.Min(v.RawX, s.Raw), FixedType.Min(v.RawY, s.Raw), FixedType.Min(v.RawZ, s.Raw));
+            return new Vector3d(FixedType.Min(v.x.Raw, s.Raw), FixedType.Min(v.y.Raw, s.Raw), FixedType.Min(v.z.Raw, s.Raw));
         }
 
         /// <summary>
@@ -531,7 +537,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d Min(Vector3d v0, Vector3d v1)
         {
-            return new Vector3d(FixedType.Min(v0.RawX, v1.RawX), FixedType.Min(v0.RawY, v1.RawY), FixedType.Min(v0.RawZ, v1.RawZ));
+            return new Vector3d(FixedType.Min(v0.x.Raw, v1.x.Raw), FixedType.Min(v0.y.Raw, v1.y.Raw), FixedType.Min(v0.z.Raw, v1.z.Raw));
         }
 
         /// <summary>
@@ -540,7 +546,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d Max(Vector3d v, REAL s)
         {
-            return new Vector3d(FixedType.Max(v.RawX, s.Raw), FixedType.Max(v.RawY, s.Raw), FixedType.Max(v.RawZ, s.Raw));
+            return new Vector3d(FixedType.Max(v.x.Raw, s.Raw), FixedType.Max(v.y.Raw, s.Raw), FixedType.Max(v.z.Raw, s.Raw));
         }
 
         /// <summary>
@@ -549,7 +555,7 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3d Max(Vector3d v0, Vector3d v1)
         {
-            return new Vector3d(FixedType.Max(v0.RawX, v1.RawX), FixedType.Max(v0.RawY, v1.RawY), FixedType.Max(v0.RawZ, v1.RawZ));
+            return new Vector3d(FixedType.Max(v0.x.Raw, v1.x.Raw), FixedType.Max(v0.y.Raw, v1.y.Raw), FixedType.Max(v0.z.Raw, v1.z.Raw));
         }
 
         /// <summary>
@@ -558,9 +564,9 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Abs()
         {
-            RawX = FixedType.Abs(RawX);
-            RawY = FixedType.Abs(RawY);
-            RawZ = FixedType.Abs(RawZ);
+            x.Raw = FixedType.Abs(x.Raw);
+            y.Raw = FixedType.Abs(y.Raw);
+            z.Raw = FixedType.Abs(z.Raw);
         }
 
         /// <summary>
@@ -569,9 +575,9 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clamp(REAL min, REAL max)
         {
-            RawX = FixedType.Clamp(RawX, min.Raw, max.Raw);
-            RawY = FixedType.Clamp(RawY, min.Raw, max.Raw);
-            RawZ = FixedType.Clamp(RawZ, min.Raw, max.Raw);
+            x.Raw = FixedType.Clamp(x.Raw, min.Raw, max.Raw);
+            y.Raw = FixedType.Clamp(y.Raw, min.Raw, max.Raw);
+            z.Raw = FixedType.Clamp(z.Raw, min.Raw, max.Raw);
         }
 
         /// <summary>
@@ -580,9 +586,9 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clamp(Vector3d min, Vector3d max)
         {
-            new Vector3d(FixedType.Clamp(RawX, min.RawX, max.RawX),
-                         FixedType.Clamp(RawY, min.RawY, max.RawY),
-                         FixedType.Clamp(RawZ, min.RawZ, max.RawZ));
+            new Vector3d(FixedType.Clamp(x.Raw, min.x.Raw, max.x.Raw),
+                         FixedType.Clamp(y.Raw, min.y.Raw, max.y.Raw),
+                         FixedType.Clamp(z.Raw, min.z.Raw, max.z.Raw));
         }
 
         /// <summary>
@@ -599,9 +605,9 @@ namespace GGPhys.Core
 
             RawType tr = t.Raw;
             return new Vector3d(
-                FixedType.Lerp(from.RawX, to.RawX, tr),
-                FixedType.Lerp(from.RawY, to.RawY, tr),
-                FixedType.Lerp(from.RawZ, to.RawZ, tr));
+                FixedType.Lerp(from.x.Raw, to.x.Raw, tr),
+                FixedType.Lerp(from.y.Raw, to.y.Raw, tr),
+                FixedType.Lerp(from.z.Raw, to.z.Raw, tr));
         }
 
         /// <summary>
@@ -627,9 +633,9 @@ namespace GGPhys.Core
             REAL st1 = REAL.Sin((1.0 - t) * theta) / sRawTypeheta;
             REAL st = REAL.Sin(t * theta) / sRawTypeheta;
 
-            Vector3d v = new Vector3d(FixedType.Mul(from.RawX, st1.Raw) + FixedType.Mul(to.RawX, st.Raw),
-                                      FixedType.Mul(from.RawY, st1.Raw) + FixedType.Mul(to.RawY, st.Raw),
-                                      FixedType.Mul(from.RawZ, st1.Raw) + FixedType.Mul(to.RawZ, st.Raw));
+            Vector3d v = new Vector3d(FixedType.Mul(from.x.Raw, st1.Raw) + FixedType.Mul(to.x.Raw, st.Raw),
+                                      FixedType.Mul(from.y.Raw, st1.Raw) + FixedType.Mul(to.y.Raw, st.Raw),
+                                      FixedType.Mul(from.z.Raw, st1.Raw) + FixedType.Mul(to.z.Raw, st.Raw));
             return v;
         }
 
@@ -639,9 +645,9 @@ namespace GGPhys.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Round()
         {
-            RawX = FixedType.Round(RawX);
-            RawY = FixedType.Round(RawY);
-            RawZ = FixedType.Round(RawZ);
+            x.Raw = FixedType.Round(x.Raw);
+            y.Raw = FixedType.Round(y.Raw);
+            z.Raw = FixedType.Round(z.Raw);
         }
 
     }

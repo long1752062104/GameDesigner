@@ -137,25 +137,26 @@
                 J: switch (netEvent.Type)
                     {
                         case EventType.Connect:
+                            IPEndPoint remotePoint = new IPEndPoint(IPAddress.Parse(netEvent.Peer.IP), netEvent.Peer.Port);
                             UserIDStack.TryPop(out int uid);
                             Player unClient = new Player();
                             unClient.UserID = uid;
+                            unClient.MID = GetMID(remotePoint);
                             unClient.PlayerID = uid.ToString();
                             unClient.EClient = netEvent.Peer;
                             unClient.ChannelID = netEvent.ChannelID;
-                            IPEndPoint remotePoint = new IPEndPoint(IPAddress.Parse(netEvent.Peer.IP), netEvent.Peer.Port);
                             unClient.RemotePoint = remotePoint;
                             unClient.LastTime = DateTime.Now.AddMinutes(5);
                             unClient.isDispose = false;
                             unClient.CloseSend = false;
                             peers.TryAdd(netEvent.Peer, unClient);
                             Interlocked.Increment(ref ignoranceNumber);
-                            AllClients.TryAdd(remotePoint, unClient);
-                            OnHasConnectHandle(unClient);
                             unClient.revdQueue = RevdQueues[threadNum];
                             unClient.sendQueue = SendQueues[threadNum];
                             if (++threadNum >= RevdQueues.Count)
                                 threadNum = 0;
+                            AllClients.TryAdd(remotePoint, unClient);//之前放在上面, 由于接收线程并行, 还没赋值revdQueue就已经接收到数据, 导致提示内存池泄露
+                            OnHasConnectHandle(unClient);
                             break;
                         case EventType.Disconnect:
                             if (peers.TryRemove(netEvent.Peer, out Player client))
@@ -170,7 +171,7 @@
                                 netEvent.Packet.CopyTo(buffer);
                                 receiveCount += count;
                                 receiveAmount++;
-                                client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = buffer, count = count, tcp_udp = false });
+                                client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = buffer, tcp_udp = false });
                             }
                             else
                             {

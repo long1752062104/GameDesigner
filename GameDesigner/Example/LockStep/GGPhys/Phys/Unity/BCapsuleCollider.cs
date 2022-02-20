@@ -47,6 +47,15 @@ namespace GGPhysUnity
             var centerOneWorld = transform.position + transform.TransformDirection(offsetOne.ToVector3());
             var centerTwoWorld = transform.position + transform.TransformDirection(offsetTwo.ToVector3());
             DebugExtension.DrawCapsule(centerOneWorld, centerTwoWorld, new Color(0, 128, 255), radius);
+            if (Primitive == null)
+                return;
+            var bounds = Primitive.BoundingVolum;
+            if (bounds == null)
+                return;
+            DebugExtension.DrawBounds(new Bounds() { 
+                min = new Vector3(bounds.minX, bounds.minY, bounds.minZ),
+                max = new Vector3(bounds.maxX, bounds.maxY, bounds.maxZ),
+            });
         }
 
 

@@ -144,8 +144,30 @@
         /// </summary>
         public const byte SingleCall = 32;
         /// <summary>
-        /// 注册网络物体唯一标识
+        /// 网关转发
         /// </summary>
-        public const byte RegisterNetworkIdentity = 33;
+        public const byte GatewayRelay = 34;
+        /// <summary>
+        /// 网关与服务器通信的mid, mid是socket的ip和端口组成, 占用8字节(long类型)
+        /// <code>使用此命令需要前面两个参数是NetPlayer和long类型</code>
+        /// <code>服务器使用: </code>
+        /// <code>[Rpc(cmd = NetCmd.MIDCall)]</code>
+        /// <code>void test(Player client, long mid, xxx)</code>
+        /// <code>客户端使用: </code>
+        /// <code>[Rpc(cmd = NetCmd.MIDCall)]</code>
+        /// <code>void test(long mid, xxx)</code>
+        /// </summary>
+        public const byte MIDCall = 35;
+        /// <summary>
+        /// (主线程调用)网关与服务器通信的mid, mid是socket的ip和端口组成, 占用8字节(long类型)
+        /// <code>使用此命令需要前面两个参数是NetPlayer和long类型</code>
+        /// <code>服务器使用: </code>
+        /// <code>[Rpc(cmd = NetCmd.MIDSingleCall)]</code>
+        /// <code>void test(Player client, long mid, xxx)</code>
+        /// <code>客户端使用: </code>
+        /// <code>[Rpc(cmd = NetCmd.MIDSingleCall)]</code>
+        /// <code>void test(long mid, xxx)</code>
+        /// </summary>
+        public const byte MIDSingleCall = 36;
     }
 }

@@ -70,6 +70,19 @@ namespace GGPhysUnity
             Gizmos.DrawLine(vertexPosArray[4], vertexPosArray[6]);
             Gizmos.DrawLine(vertexPosArray[5], vertexPosArray[7]);
             Gizmos.DrawLine(vertexPosArray[6], vertexPosArray[7]);
+            if (Primitive == null)
+                return;
+            var bounds = Primitive.BoundingVolum;
+            if (bounds == null)
+                return;
+            var rigidBody = GetComponent<BRigidBody>();
+            var isAwake = rigidBody ? rigidBody.Body.GetAwake() : false;
+            var color = isAwake ? Color.green : Color.white;
+            DebugExtension.DrawBounds(new Bounds()
+            {
+                min = new Vector3(bounds.minX, bounds.minY, bounds.minZ),
+                max = new Vector3(bounds.maxX, bounds.maxY, bounds.maxZ),
+            }, color);
         }
     }
 

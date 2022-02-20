@@ -26,6 +26,7 @@ namespace Net.Component
         public int frameRate = 60;
         public bool authorize;
         public bool startConnect = true;
+        public bool md5CRC;
         public List<RPCMethod> rpcs = new List<RPCMethod>();
 
         public ClientBase client
@@ -64,6 +65,7 @@ namespace Net.Component
                     _client.port = port;
                     _client.ThrowException = throwException;
                     _client.LogRpc = debugRpc;
+                    _client.MD5CRC = md5CRC;
                 }
                 return _client;
             }

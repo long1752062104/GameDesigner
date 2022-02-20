@@ -75,7 +75,7 @@ namespace Net.Client
                     receiveAmount++;
                     MessageModel model = JsonConvert.DeserializeObject<MessageModel>(e.Message);
                     RPCModel model1 = new RPCModel(model.cmd, model.func, model.GetPars());
-                    RPCDataHandle(model1);
+                    RPCDataHandle(model1, null);
                 };
                 WSClient.DataReceived += (o, e) =>
                 {
@@ -83,7 +83,8 @@ namespace Net.Client
                     receiveAmount++;
                     var buffer = BufferPool.Take(e.Data.Length);
                     Buffer.BlockCopy(e.Data, 0, buffer, 0, e.Data.Length);
-                    ResolveBuffer(buffer, 0, e.Data.Length, false);
+                    buffer.Count = e.Data.Length;
+                    ResolveBuffer(buffer, false);
                     BufferPool.Push(buffer);
                 };
                 WSClient.Open();

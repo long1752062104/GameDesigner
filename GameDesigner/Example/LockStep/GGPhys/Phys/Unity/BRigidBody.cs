@@ -47,6 +47,8 @@ namespace GGPhysUnity
         [EnumFlags]
         public Freeze freezeRot;
 
+        public Vector3d velocityLimit = new Vector3d(10f, 10f, 10f);
+
         [HideInInspector]
         public Vector3d CenterOfMassOffset;
         [HideInInspector]
@@ -78,6 +80,9 @@ namespace GGPhysUnity
         [SerializeField]
         [DisplayOnly]
         private Vector3 m_BodyAngularVelocity;
+        [SerializeField]
+        [DisplayOnly]
+        private float m_BodyLinearVelocityMagnitude;
 #endif
 
         private void OnEnable()
@@ -119,6 +124,7 @@ namespace GGPhysUnity
             m_body.Restitution = restitution;
             m_body.SleepEpsilon = sleepEpsilon;
             m_body.AwakeVelocityLimit = awakeVelocityLimit;
+            m_body.VelocityLimit = velocityLimit;
             m_body.SetMass(finalMass);
             m_body.SetAwake(!isStatic);
             if (sleepOnAwake) m_body.SetAwake(false);
@@ -171,6 +177,7 @@ namespace GGPhysUnity
             m_BodyRotation = m_body.Orientation.ToQuaternion();
             m_BodyLinearVelocity = m_body.Velocity.ToVector3();
             m_BodyAngularVelocity = m_body.Rotation.ToVector3();
+            m_BodyLinearVelocityMagnitude = m_body.Velocity.Magnitude;
 
             m_body.UseAreaForce = useGravity;
             m_body.LinearDamping = linearDamping;
@@ -180,6 +187,7 @@ namespace GGPhysUnity
             m_body.Restitution = restitution;
             m_body.SleepEpsilon = sleepEpsilon;
             m_body.AwakeVelocityLimit = awakeVelocityLimit;
+            m_body.VelocityLimit = velocityLimit;
 
             m_body.IsStatic = isStatic;
 #endif

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -44,7 +45,7 @@ namespace Net.Server
                 {
                     var segment = new Segment(buffer.Array, buffer.ArrayOffset, buffer.ArrayOffset + buffer.ReadableBytes, false);
                     Instance.SetRAC(segment.Count - segment.Index);
-                    client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = segment, index = segment.Index, count = segment.Count, tcp_udp = true });
+                    client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = segment, tcp_udp = true });
                 }
             }
 
@@ -117,24 +118,23 @@ namespace Net.Server
                             pipeline.AddLast("echo", new EchoServerHandler(unClient));
                             UserIDStack.TryPop(out int uid);
                             unClient.UserID = uid;
+                            unClient.MID = GetMID((IPEndPoint)client.RemoteAddress);
                             unClient.PlayerID = uid.ToString();
-                            //unClient.stackStreamName = rootPath + $"/reliable/{Name}-" + uid + ".stream";
-                            unClient.stackStream = BufferStreamShare.Take();//new FileStream(unClient.stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                            unClient.stackStream = BufferStreamShare.Take();
                             unClient.isDispose = false;
                             unClient.CloseSend = false;
-                            OnHasConnectHandle(unClient);
-                            AllClients.TryAdd(client.RemoteAddress, unClient);
                             Interlocked.Increment(ref ignoranceNumber);
-                            byte[] uidbytes = BitConverter.GetBytes(uid);
-                            byte[] identify = Encoding.Unicode.GetBytes(unClient.PlayerID);
-                            byte[] buffer = new byte[identify.Length + 4];
-                            Array.Copy(uidbytes, 0, buffer, 0, 4);
-                            Array.Copy(identify, 0, buffer, 4, identify.Length);
-                            SendRT(unClient, NetCmd.Identify, buffer);
+                            var buffer = BufferPool.Take(50);
+                            buffer.WriteValue(unClient.UserID);
+                            buffer.WriteValue(unClient.MID);
+                            buffer.WriteValue(unClient.PlayerID);
+                            SendRT(unClient, NetCmd.Identify, buffer.ToArray(true));
                             unClient.revdQueue = RevdQueues[threadNum];
                             unClient.sendQueue = SendQueues[threadNum];
                             if (++threadNum >= RevdQueues.Count)
                                 threadNum = 0;
+                            AllClients.TryAdd(client.RemoteAddress, unClient);//之前放在上面, 由于接收线程并行, 还没赋值revdQueue就已经接收到数据, 导致提示内存池泄露
+                            OnHasConnectHandle(unClient);
                         }
                     }));
                 bootstrap.BindAsync(port);

@@ -156,16 +156,17 @@
                 unClient.RemotePoint = client.RemoteEndPoint;
                 unClient.LastTime = DateTime.Now.AddMinutes(5);
                 unClient.UserID = uid;
+                unClient.MID = GetMID((IPEndPoint)remotePoint);
                 unClient.PlayerID = uid.ToString();
                 unClient.isDispose = false;
                 unClient.CloseSend = false;
-                AllClients.TryAdd(client.RemoteEndPoint, unClient);
                 Interlocked.Increment(ref ignoranceNumber);
-                OnHasConnectHandle(unClient);
                 unClient.revdQueue = RevdQueues[threadNum];
                 unClient.sendQueue = SendQueues[threadNum];
                 if (++threadNum >= RevdQueues.Count)
                     threadNum = 0;
+                AllClients.TryAdd(client.RemoteEndPoint, unClient);//之前放在上面, 由于接收线程并行, 还没赋值revdQueue就已经接收到数据, 导致提示内存池泄露
+                OnHasConnectHandle(unClient);
             };
             wsClient1.OnMessage = (buffer, message) => //utf-8解析
             {
@@ -178,10 +179,11 @@
             {
                 var segment = BufferPool.Take(buffer.Length);
                 Buffer.BlockCopy(buffer, 0, segment, 0, buffer.Length);
+                segment.Count = buffer.Length;
                 receiveCount += buffer.Length;
                 receiveAmount++;
                 if (AllClients.TryGetValue(remotePoint, out Player client1))//在线客户端  得到client对象
-                    client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = segment, count = buffer.Length, tcp_udp = true });
+                    client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = segment, tcp_udp = true });
             };
             wsClient1.OnClose = () =>
             {
@@ -207,7 +209,7 @@
                 RPCModel model1 = new RPCModel(model.cmd, model.func, model.GetPars()) {
                     buffer = buffer, count = buffer.Length
                 };
-                DataHandle(client, model1);
+                DataHandle(client, model1, null);
             }
             catch (Exception ex)
             {

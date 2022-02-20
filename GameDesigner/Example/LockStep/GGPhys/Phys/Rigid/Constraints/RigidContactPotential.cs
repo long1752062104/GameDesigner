@@ -80,10 +80,33 @@ namespace GGPhys.Rigid.Collisions
             var body2 = Primitive2.Body;
 
             //初始化向量, 没有这个会反弹的离谱
-            body1.Velocity = Vector3d.Zero;
-            body2.Velocity = Vector3d.Zero;
-            body1.Rotation = Vector3d.Zero;
-            body2.Rotation = Vector3d.Zero;
+            if (body1.Velocity.x > body1.VelocityLimit.x)
+                body1.Velocity.x = body1.VelocityLimit.x;
+            if (body1.Velocity.y > body1.VelocityLimit.y)
+                body1.Velocity.y = body1.VelocityLimit.y;
+            if (body1.Velocity.z > body1.VelocityLimit.z)
+                body1.Velocity.z = body1.VelocityLimit.z;
+
+            if (body1.Velocity.x < -body1.VelocityLimit.x)
+                body1.Velocity.x = -body1.VelocityLimit.x;
+            if (body1.Velocity.y < -body1.VelocityLimit.y)
+                body1.Velocity.y = -body1.VelocityLimit.y;
+            if (body1.Velocity.z < -body1.VelocityLimit.z)
+                body1.Velocity.z = -body1.VelocityLimit.z;
+
+            if (body2.Velocity.x > body2.VelocityLimit.x)
+                body2.Velocity.x = body2.VelocityLimit.x;
+            if (body2.Velocity.y > body2.VelocityLimit.y)
+                body2.Velocity.y = body2.VelocityLimit.y;
+            if (body2.Velocity.z > body2.VelocityLimit.z)
+                body2.Velocity.z = body2.VelocityLimit.z;
+
+            if (body2.Velocity.x < -body2.VelocityLimit.x)
+                body2.Velocity.x = -body2.VelocityLimit.x;
+            if (body2.Velocity.y < -body2.VelocityLimit.y)
+                body2.Velocity.y = -body2.VelocityLimit.y;
+            if (body2.Velocity.z < -body2.VelocityLimit.z)
+                body2.Velocity.z = -body2.VelocityLimit.z;
 
             RelativeContactPosition[0] = ContactPoint - body1.Position;
             RelativeContactPosition[1] = ContactPoint - body2.Position;

@@ -33,6 +33,7 @@ namespace Net.Client
     using Net.System;
     using Net.Serialize;
     using Net.Helper;
+    using global::System.Security.Cryptography;
 
     /// <summary>
     /// 网络客户端核心基类 2019.3.3
@@ -56,11 +57,11 @@ namespace Net.Client
         /// </summary>
         protected QueueSafe<RPCModel> rPCModels = new QueueSafe<RPCModel>();
         /// <summary>
-        /// 可靠传输缓冲器
+        /// 可靠传输缓冲队列
         /// </summary>
         protected QueueSafe<RPCModel> rtRPCModels = new QueueSafe<RPCModel>();
         /// <summary>
-        /// 接收缓存器
+        /// 接收缓存队列
         /// </summary>
         protected QueueSafe<RevdBuffer> revdBuffers = new QueueSafe<RevdBuffer>();
 
@@ -308,9 +309,9 @@ namespace Net.Client
         /// </summary>
         protected BufferStream revdRTStream;
         /// <summary>
-        /// 帧尾或叫数据长度(4) + 2CRC协议 = 6
+        /// 2CRC协议
         /// </summary>
-        protected readonly int frame = 6;
+        protected readonly int frame = 2;
         /// <summary>
         /// 心跳时间间隔, 默认每1秒检查一次玩家是否离线, 玩家心跳确认为5次, 如果超出5次 则移除玩家客户端. 确认玩家离线总用时5秒, 
         /// 如果设置的值越小, 确认的速度也会越快. 值太小有可能出现直接中断问题, 设置的最小值在100以上
@@ -329,6 +330,10 @@ namespace Net.Client
         /// 用户唯一标识, 对应服务器的<see cref="Server.NetPlayer.UserID"/>
         /// </summary>
         public int UID { get; protected set; }
+        /// <summary>
+        /// socket的IP和端口组合得到的标识, 0-4byte为IP值, 4-6为Port值 (Machine identification)
+        /// </summary>
+        public long MID { get; internal set; }
         /// <summary>
         /// 网络数据发送频率, 大概每秒发送1000个数据
         /// </summary>
@@ -408,6 +413,7 @@ namespace Net.Client
         /// <summary>
         /// 使用字节压缩吗? 如果使用, 每次发送字节大于1000个后进行压缩处理
         /// </summary>
+        [Obsolete("请自行压缩!", true)]
         public bool ByteCompression { get; set; }
         /// <summary>
         /// 可靠传输是排队模式? 排队模式下, 可靠包是一个一个处理. 不排队模式: 可靠传输数据组成多列并发 ---> 默认是无排队模式
@@ -421,6 +427,10 @@ namespace Net.Client
         /// 组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
         /// </summary>
         public int PackageLength { get; set; } = 1000;
+        /// <summary>
+        /// 采用md5校验
+        /// </summary>
+        public bool MD5CRC { get; set; }
         private readonly MyDictionary<uint, FrameList> revdFrames = new MyDictionary<uint, FrameList>();
         private long fileStreamCurrPos;
         private readonly MyDictionary<ushort, SyncVarInfo> syncVarDic = new MyDictionary<ushort, SyncVarInfo>();
@@ -696,8 +706,19 @@ namespace Net.Client
                     rpc.Invoke(model.pars);
                     continue;
                 }
-                RevdBuffer buffer = new RevdBuffer(rpc.target, rpc.method, model.pars);
-                revdBuffers.Enqueue(buffer);
+                if (rpc.cmd == NetCmd.MIDCall)
+                {
+                    object[] pars = new object[model.pars.Length + 1];
+                    pars[0] = model.mid;
+                    Array.Copy(model.pars, 0, pars, 1, model.pars.Length);
+                    RevdBuffer buffer = new RevdBuffer(rpc.target, rpc.method, pars);
+                    revdBuffers.Enqueue(buffer);
+                }
+                else 
+                {
+                    RevdBuffer buffer = new RevdBuffer(rpc.target, rpc.method, model.pars);
+                    revdBuffers.Enqueue(buffer);
+                }
             }
         }
 
@@ -973,7 +994,25 @@ namespace Net.Client
                     while (!isDone)
                     {
                         if (Client != null)
-                            SendByteData(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.Connect, 0, 0, 0, 0 }, false);
+                        {
+                            Segment segment = BufferPool.Take(20);
+                            if (MD5CRC)
+                            {
+                                segment.Position = 16;
+                            }
+                            else 
+                            {
+                                segment.WriteByte(0);
+                                segment.WriteByte(0x2d);
+                            }
+                            segment.WriteByte(74);
+                            segment.WriteByte(NetCmd.Connect);
+                            segment.WriteValue(0l);
+                            segment.WriteValue(0);
+                            var buffer = PackData(segment);
+                            SendByteData(buffer, false);
+                            segment.Dispose();
+                        }
                         Thread.Sleep(200);
                     }
                 });
@@ -981,12 +1020,12 @@ namespace Net.Client
                 {
                     try
                     {
-                        byte[] buffer = new byte[1024];
+                        var buffer = BufferPool.Take(1024);
                         Client.ReceiveTimeout = 5000;
                         int count = Client.Receive(buffer);
                         Client.ReceiveTimeout = 0;
                         isDone = true;
-                        if (buffer[7] == NetCmd.BlockConnection)
+                        if (buffer[3] == NetCmd.BlockConnection)
                         {
                             InvokeContext((arg) => {
                                 networkState = NetworkState.BlockConnection;
@@ -994,7 +1033,7 @@ namespace Net.Client
                             });
                             throw new Exception();
                         }
-                        if (buffer[7] == NetCmd.ExceededNumber)
+                        if (buffer[3] == NetCmd.ExceededNumber)
                         {
                             InvokeContext((arg) => {
                                 networkState = NetworkState.ExceededNumber;
@@ -1002,6 +1041,7 @@ namespace Net.Client
                             });
                             throw new Exception();
                         }
+                        buffer.Dispose();
                         Connected = true;
                         StartupThread();
                         InvokeContext((arg) => {
@@ -1363,11 +1403,17 @@ namespace Net.Client
 
         protected virtual void WriteDataHead(Segment stream)
         {
-            int crcIndex = RandomHelper.Range(0, 256);
-            byte crcCode = CRCCode[crcIndex];
-            stream.Position += 4;//size
-            stream.WriteByte((byte)crcIndex);
-            stream.WriteByte(crcCode);
+            if (MD5CRC)
+            {
+                stream.Position = 16;//留16个字节记录md5哈希值
+            }
+            else
+            {
+                int crcIndex = RandomHelper.Range(0, 256);
+                byte crcCode = CRCCode[crcIndex];
+                stream.WriteByte((byte)crcIndex);
+                stream.WriteByte(crcCode);
+            }
         }
 
         protected virtual void WriteDataBody(ref Segment stream, QueueSafe<RPCModel> rPCModels, int count, bool reliable)
@@ -1393,18 +1439,31 @@ namespace Net.Client
                 }
                 if ((len >= (IsEthernet ? MTU : 50000) | ++index >= PackageLength) & !reliable)//这里的判断是第二次for以上生效
                 {
-                    byte[] buffer = SendData(stream);
+                    byte[] buffer = PackData(stream);
                     SendByteData(buffer, reliable);
                     index = 0;
-                    stream.SetPositionLength(frame);
+                    ResetDataHead(stream);
                 }
                 stream.WriteByte((byte)(rPCModel.kernel ? 68 : 74));
                 stream.WriteByte(rPCModel.cmd);
-                stream.Write(BitConverter.GetBytes(rPCModel.buffer.Length), 0, 4);
+                stream.WriteValue(rPCModel.mid);
+                stream.WriteValue(rPCModel.buffer.Length);
                 stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
                 if (rPCModel.bigData)
                     break;
             }
+        }
+
+        /// <summary>
+        /// 重置头部数据大小, 在小数据达到<see cref="PackageLength"/>以上时会将这部分的数据先发送, 发送后还有连带的数据, 需要重置头部数据,装入大货车
+        /// </summary>
+        /// <param name="stream"></param>
+        protected virtual void ResetDataHead(Segment stream)
+        {
+            if (MD5CRC)
+                stream.SetPositionLength(16);
+            else
+                stream.SetPositionLength(frame);
         }
 
         /// <summary>
@@ -1418,36 +1477,23 @@ namespace Net.Client
             var stream = BufferPool.Take();
             WriteDataHead(stream);
             WriteDataBody(ref stream, rPCModels, count, reliable);
-            byte[] buffer = SendData(stream);
+            byte[] buffer = PackData(stream);
             SendByteData(buffer, reliable);
             BufferPool.Push(stream);
         }
 
-        protected virtual byte[] SendData(Segment stream)
+        protected virtual byte[] PackData(Segment stream)
         {
-            if (ByteCompression & stream.Count > 1000)
+            if (MD5CRC)
             {
-                int oldlen = stream.Count;
-                byte[] array = new byte[oldlen - frame];
-                Buffer.BlockCopy(stream.Buffer, frame, array, 0, array.Length);
-                byte[] buffer = UnZipHelper.Compress(array);
+                MD5 md5 = new MD5CryptoServiceProvider();
+                byte[] retVal = md5.ComputeHash(stream, 16, stream.Count - 16);
+                int len = stream.Count;
                 stream.Position = 0;
-                int len = buffer.Length;
-                stream.Write(BitConverter.GetBytes(len), 0, 4);
-                stream.SetPositionLength(frame);
-                stream.Position = frame;
-                stream.Write(buffer, 0, len);
-                buffer = stream.ToArray();
-                return buffer;
+                stream.Write(retVal, 0, retVal.Length);
+                stream.Position = len;
             }
-            else
-            {
-                stream.Position = 0;
-                int len = stream.Count - frame;
-                stream.Write(BitConverter.GetBytes(len), 0, 4);
-                stream.Position = len + frame;
-                return stream.ToArray();
-            }
+            return stream.ToArray();
         }
 
         protected virtual void SendRTDataHandle()
@@ -1476,26 +1522,31 @@ namespace Net.Client
             WriteDataHead(stream1);
             stream1.WriteByte(74);
             stream1.WriteByte(NetCmd.ReliableTransport);
+            stream1.WriteValue(0l);
+            var stream2 = BufferPool.Take();
             while (index < len)
             {
                 int count1 = MTU;
                 if (index + count1 >= len)
                     count1 = len - index;
-                stream1.Position = 8;
-                stream1.Write(BitConverter.GetBytes(count1 + 16), 0, 4);
-                stream1.Write(BitConverter.GetBytes(dataIndex), 0, 2);
-                stream1.Write(BitConverter.GetBytes((ushort)Math.Ceiling(dataCount)), 0, 2);
-                stream1.Write(BitConverter.GetBytes(count1), 0, 4);
-                stream1.Write(BitConverter.GetBytes(len), 0, 4);
-                stream1.Write(BitConverter.GetBytes(sendReliableFrame), 0, 4);
-                stream1.Write(stream, index, count1);
-                byte[] buffer = SendData(stream1);
+                stream1.SetPositionLength(MD5CRC ? 19 : 5);//这5个是头部数据
+                stream2.SetPositionLength(0);
+                stream2.WriteValue(dataIndex);
+                stream2.WriteValue((ushort)Math.Ceiling(dataCount));
+                stream2.WriteValue(count1);
+                stream2.WriteValue(len);
+                stream2.WriteValue(sendReliableFrame);
+                stream2.Write(stream, index, count1);
+                stream1.WriteValue(stream2.Count);
+                stream1.Write(stream2, 0, stream2.Count);
+                byte[] buffer = PackData(stream1);
                 rtDic.Add(dataIndex, new RTBuffer(buffer));
                 index += MTU;
                 dataIndex++;
             }
             BufferPool.Push(stream);
             BufferPool.Push(stream1);
+            BufferPool.Push(stream2);
             sendRTListCount = rtDic.Count;
             sendReliableFrame++;
         JUMP:
@@ -1599,36 +1650,31 @@ namespace Net.Client
         /// </summary>
         protected virtual void ReceiveHandle()
         {
-            var segment = BufferPool.Take(65507);
+            Segment segment = null;
             while (Connected)
             {
                 try
                 {
-                    ReceiveUpdate(segment);
+                    if (Client.Poll(1, SelectMode.SelectRead))
+                    {
+                        segment = BufferPool.Take(65507);
+                        segment.Count = Client.Receive(segment);
+                        receiveCount += segment.Count;
+                        receiveAmount++;
+                        heart = 0;
+                        ResolveBuffer(segment, false);
+                        revdLoopNum++;
+                    }
                 }
                 catch (Exception ex)
                 {
+                    if (segment != null)
+                        segment.Dispose();
                     NetworkException(ex);
                 }
             }
-            BufferPool.Push(segment);
-        }
-
-        /// <summary>
-        /// 接收数据和更新处理
-        /// </summary>
-        /// <param name="segment"></param>
-        public void ReceiveUpdate(Segment segment)
-        {
-            if (Client.Poll(1, SelectMode.SelectRead))
-            {
-                int count = Client.Receive(segment);
-                receiveCount += count;
-                receiveAmount++;
-                heart = 0;
-                ResolveBuffer(segment, 0, count, false);
-                revdLoopNum++;
-            }
+            if (segment != null)
+                segment.Dispose();
         }
 
         /// <summary>
@@ -1663,66 +1709,69 @@ namespace Net.Client
         }
 
 #if TEST
-        public void TestResolveBuffer(Segment buffer, int index, int count) => ResolveBuffer(buffer, index, count, false);
+        public void TestResolveBuffer(Segment buffer) => ResolveBuffer(buffer, false);
 #endif
         /// <summary>
         /// 解析网络数据包
         /// </summary>
-        protected virtual void ResolveBuffer(Segment buffer, int index, int count, bool isTcp)
+        protected virtual void ResolveBuffer(Segment buffer, bool isTcp)
         {
-            int size = BitConverter.ToInt32(buffer, index);
-            int crcIndex = buffer[index + 4];//CRC检验索引, 使用者自己改变CRCCode属性
-            byte crcCode = buffer[index + 5];//CRC校验码, 使用者自己改变CRCCode属性
-            index += frame;
-            if (index + size == count)
+            if (MD5CRC)
             {
+                var md5Hash = buffer.Read(16);
+                MD5 md5 = new MD5CryptoServiceProvider();
+                byte[] retVal = md5.ComputeHash(buffer, buffer.Position, buffer.Count - buffer.Position);
+                for (int i = 0; i < md5Hash.Length; i++)
+                {
+                    if (retVal[i] != md5Hash[i])
+                    {
+                        NDebug.LogError("MD5CRC校验失败:");
+                        return;
+                    }
+                }
+            }
+            else 
+            {
+                int crcIndex = buffer.ReadByte();//CRC检验索引
+                byte crcCode = buffer.ReadByte();//CRC校验码
                 if (!OnCRC(crcIndex, crcCode))
                     return;
-                DataHandle(buffer, index, size, count);
             }
+            DataHandle(buffer);
         }
 
-        protected void DataHandle(Segment buffer, int index, int size, int count)
+        protected void DataHandle(Segment buffer)
         {
-            if (index + 3 > count)
-                return;
-            if (buffer[index + 0] == 31 & buffer[index + 1] == 139 & buffer[index + 2] == 8)
+            while (buffer.Position < buffer.Count)
             {
-                buffer = UnZipHelper.Decompress(buffer, index, size);
-                index = 0;
-                count = buffer.Length;
-            }
-            while (index < count)
-            {
-                bool kernel = buffer[index] == 68;
-                if (!kernel & buffer[index] != 74)
+                int kernelV = buffer.ReadByte();
+                bool kernel = kernelV == 68;
+                if (!kernel & kernelV != 74)
                 {
                     NDebug.LogError("[忽略]协议出错!");
                     break;
                 }
-                index++;
-                byte cmd1 = buffer[index];
-                index++;
-                int dataCount = BitConverter.ToInt32(buffer, index);
-                index += 4;
-                if (index + dataCount > count)
+                byte cmd1 = buffer.ReadByte();
+                long mid = buffer.ReadValue<long>();
+                int dataCount = buffer.ReadValue<int>();
+                if (buffer.Position + dataCount > buffer.Count)
                     break;
-                RPCModel rpc = new RPCModel(cmd1, kernel, buffer, index, dataCount);
+                RPCModel rpc = new RPCModel(cmd1, kernel, buffer, buffer.Position, dataCount, mid);
                 if (kernel)
                 {
-                    FuncData func = OnDeserializeRPC(buffer, index, dataCount);
+                    FuncData func = OnDeserializeRPC(buffer, buffer.Position, dataCount);
                     if (func.error)
                         break;
                     rpc.func = func.name;
                     rpc.pars = func.pars;
                     rpc.methodMask = func.mask;
                 }
-                index += dataCount;
-                RPCDataHandle(rpc);
+                RPCDataHandle(rpc, buffer);//解析协议完成
+                buffer.Position += dataCount;
             }
         }
 
-        protected virtual void RPCDataHandle(RPCModel model)
+        protected virtual void RPCDataHandle(RPCModel model, Segment segment)
         {
             resolveAmount++;
             switch (model.cmd)
@@ -1788,17 +1837,19 @@ namespace Net.Client
                     networkState = NetworkState.BlockConnection;
                     break;
                 case NetCmd.ReliableTransport:
-                    ushort index = BitConverter.ToUInt16(model.buffer, model.index + 0);
-                    ushort entry = BitConverter.ToUInt16(model.buffer, model.index + 2);
-                    int count = BitConverter.ToInt32(model.buffer, model.index + 4);
-                    int dataCount = BitConverter.ToInt32(model.buffer, model.index + 8);
-                    uint frame = BitConverter.ToUInt32(model.buffer, model.index + 12);
+                    var pos1 = segment.Position;
+                    ushort index = segment.ReadValue<ushort>();
+                    ushort entry = segment.ReadValue<ushort>();
+                    int count = segment.ReadValue<int>();
+                    int dataCount = segment.ReadValue<int>();
+                    uint frame = segment.ReadValue<uint>();
                     byte[] rtbuffer = new byte[6];
                     if (revdReliableFrame > frame)
                     {
                         Buffer.BlockCopy(BitConverter.GetBytes(frame), 0, rtbuffer, 0, 4);
                         Buffer.BlockCopy(BitConverter.GetBytes(index), 0, rtbuffer, 4, 2);
                         Send(NetCmd.ReliableCallback, rtbuffer);//ack发送过程中丢失了, 需要补发
+                        segment.Position = pos1;
                         return;
                     }
                     if (revdRTStream == null)
@@ -1819,9 +1870,10 @@ namespace Net.Client
                     if (revdFrame.Add(index))
                     {
                         revdRTStream.Seek(revdFrame.streamPos + (index * MTU), SeekOrigin.Begin);
-                        revdRTStream.Write(model.buffer, model.index + 16, count);
+                        revdRTStream.Write(model.buffer, segment.Position, count);
                         InvokeRevdRTProgress(revdFrame.Count, entry);
                     }
+                    segment.Position = pos1;
                     Buffer.BlockCopy(BitConverter.GetBytes(frame), 0, rtbuffer, 0, 4);
                     Buffer.BlockCopy(BitConverter.GetBytes(index), 0, rtbuffer, 4, 2);
                     Send(NetCmd.ReliableCallback, rtbuffer);
@@ -1839,7 +1891,8 @@ namespace Net.Client
                         var buffer = BufferPool.Take(revdFrame.dataCount);
                         revdRTStream.Seek(revdFrame.streamPos, SeekOrigin.Begin);
                         revdRTStream.Read(buffer, 0, revdFrame.dataCount);
-                        DataHandle(buffer, 0, revdFrame.dataCount, revdFrame.dataCount);
+                        buffer.Count = revdFrame.dataCount;
+                        DataHandle(buffer);
                         BufferPool.Push(buffer);
                         if (revdFrames.ContainsKey(revdReliableFrame))
                             revdFrame = revdFrames[revdReliableFrame];
@@ -1895,6 +1948,9 @@ namespace Net.Client
                 case NetCmd.ReliableCallbackClear:
                     NDebug.LogError("可靠传输被清洗, 有可能是你的StackBufferSize和StackNumberMax属性设置的太小, 而数据过大导致!");
                     break;
+                case NetCmd.Connect:
+                    Connected = true;
+                    break;
                 case NetCmd.SwitchPort:
                     Task.Run(() => {
                         InvokeContext((arg) => {
@@ -1906,12 +1962,14 @@ namespace Net.Client
                     });
                     break;
                 case NetCmd.Identify:
-                    UID = BitConverter.ToInt32(model.buffer, model.index);
-                    Identify = Encoding.Unicode.GetString(model.buffer, model.index + 4, model.count - 4);
+                    var pos = segment.Position;
+                    UID = segment.ReadValue<int>();
+                    MID = segment.ReadValue<long>();
+                    Identify = segment.ReadValue<string>();
+                    segment.Position = pos;
                     break;
                 case NetCmd.OperationSync:
                     OperationList list = OnDeserializeOPT(model.buffer, model.index, model.count);
-                    //InvokeOnOperationSync(list);
                     if (OnOperationSync == null)
                         return;
                     InvokeContext((arg)=> { OnOperationSync(list); });
@@ -1929,9 +1987,9 @@ namespace Net.Client
                     break;
                 case NetCmd.P2P:
                     {
-                        Segment segment = new Segment(model.buffer, model.index, 10, false);
-                        var address = segment.ReadValue<long>();
-                        var port = segment.ReadValue<int>();
+                        Segment segment1 = new Segment(model.buffer, model.index, 10, false);
+                        var address = segment1.ReadValue<long>();
+                        var port = segment1.ReadValue<int>();
                         IPEndPoint iPEndPoint = new IPEndPoint(address, port);
                         if (OnP2PCallback == null)
                             return;
@@ -1943,11 +2001,11 @@ namespace Net.Client
                     break;
                 case NetCmd.SendFile:
                     {
-                        Segment segment = new Segment(model.Buffer, false);
-                        var key = segment.ReadValue<int>();
-                        var length = segment.ReadValue<long>();
-                        var fileName = segment.ReadValue<string>();
-                        var buffer = segment.ReadArray<byte>();
+                        Segment segment1 = new Segment(model.Buffer, false);
+                        var key = segment1.ReadValue<int>();
+                        var length = segment1.ReadValue<long>();
+                        var fileName = segment1.ReadValue<string>();
+                        var buffer = segment1.ReadArray<byte>();
                         if (!ftpDic.TryGetValue(key, out FileData fileData))
                         {
                             fileData = new FileData();
@@ -1990,9 +2048,9 @@ namespace Net.Client
                         }
                         else
                         {
-                            segment.Position = 0;
-                            segment.WriteValue(key);
-                            SendRT(NetCmd.Download, segment.ToArray());
+                            segment1.Position = 0;
+                            segment1.WriteValue(key);
+                            SendRT(NetCmd.Download, segment1.ToArray());
                             if (OnRevdFileProgress != null)
                                 InvokeContext((arg) => { OnRevdFileProgress(new RTProgress(fileName, fileData.Length / (float)length * 100f, RTState.Download)); });
                         }
@@ -2000,19 +2058,10 @@ namespace Net.Client
                     break;
                 case NetCmd.Download:
                     {
-                        Segment segment = new Segment(model.Buffer, false);
-                        var key = segment.ReadValue<int>();
+                        Segment segment1 = new Segment(model.Buffer, false);
+                        var key = segment1.ReadValue<int>();
                         if (ftpDic.TryGetValue(key, out FileData fileData))
                             SendFile(key, fileData);
-                    }
-                    break;
-                case NetCmd.RegisterNetworkIdentity:
-                    {
-                        var id = BitConverter.ToInt32(model.buffer, model.index);
-                        var newid = BitConverter.ToInt32(model.buffer, model.index + 4);
-                        if (OnRegisterNetworkIdentity == null)
-                            return;
-                        InvokeContext((arg) => { OnRegisterNetworkIdentity(id, newid); });
                     }
                     break;
                 default:
@@ -2298,6 +2347,11 @@ namespace Net.Client
 
         public virtual void Send(byte cmd, ushort methodMask, params object[] pars)
         {
+            Send(new RPCModel(cmd, methodMask, pars));
+        }
+
+        public void Send(RPCModel model) 
+        {
             if (!Connected)
                 return;
             if (rPCModels.Count >= ushort.MaxValue)
@@ -2305,7 +2359,7 @@ namespace Net.Client
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
             }
-            rPCModels.Enqueue(new RPCModel(cmd, methodMask, pars));
+            rPCModels.Enqueue(model);
         }
 
         /// <summary>
@@ -2485,14 +2539,7 @@ namespace Net.Client
         /// <param name="pars">参数</param>
         public virtual void SendRT(byte cmd, string func, params object[] pars)
         {
-            if (!Connected)
-                return;
-            if (rtRPCModels.Count >= ushort.MaxValue)
-            {
-                NDebug.LogError("数据缓存列表超出限制!");
-                return;
-            }
-            rtRPCModels.Enqueue(new RPCModel(cmd, func, pars, true, true));
+            SendRT(new RPCModel(cmd, func, pars, true, true));
         }
 
         public virtual void SendRT(ushort methodMask, params object[] pars)
@@ -2502,6 +2549,57 @@ namespace Net.Client
 
         public virtual void SendRT(byte cmd, ushort methodMask, params object[] pars)
         {
+            SendRT(new RPCModel(cmd, methodMask, pars));
+        }
+
+        /// <summary>
+        /// 网关发往游戏服务器方法
+        /// </summary>
+        /// <param name="mid">机器id, 详情请看<see cref="Server.NetPlayer.MID"/></param>
+        /// <param name="func"></param>
+        /// <param name="pars"></param>
+        public virtual void SendGateway(long mid, string func, params object[] pars)
+        {
+            SendGateway(NetCmd.CallRpc, mid, func, pars);
+        }
+
+        /// <summary>
+        /// 网关发往游戏服务器方法
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="mid">机器id, 详情请看<see cref="Server.NetPlayer.MID"/></param>
+        /// <param name="func"></param>
+        /// <param name="pars"></param>
+        public virtual void SendGateway(byte cmd, long mid, string func, params object[] pars)
+        {
+            SendRT(new RPCModel(cmd, func, pars, true, true, mid));
+        }
+
+        /// <summary>
+        /// 网关发往游戏服务器方法
+        /// </summary>
+        /// <param name="mid">机器id, 详情请看<see cref="Server.NetPlayer.MID"/></param>
+        /// <param name="methodMask"></param>
+        /// <param name="pars"></param>
+        public virtual void SendGateway(long mid, ushort methodMask, params object[] pars)
+        {
+            SendGateway(NetCmd.CallRpc, mid, methodMask, pars);
+        }
+
+        /// <summary>
+        /// 网关发往游戏服务器方法
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="mid">机器id, 详情请看<see cref="Server.NetPlayer.MID"/></param>
+        /// <param name="methodMask"></param>
+        /// <param name="pars"></param>
+        public virtual void SendGateway(byte cmd, long mid, ushort methodMask, params object[] pars)
+        {
+            SendRT(new RPCModel(cmd, methodMask, pars, true, true, mid));
+        }
+
+        public virtual void SendRT(RPCModel model)
+        {
             if (!Connected)
                 return;
             if (rtRPCModels.Count >= ushort.MaxValue)
@@ -2509,7 +2607,7 @@ namespace Net.Client
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
             }
-            rtRPCModels.Enqueue(new RPCModel(cmd, methodMask, pars));
+            rtRPCModels.Enqueue(model);
         }
 
         /// <summary>
@@ -2959,12 +3057,26 @@ namespace Net.Client
         }
 
         /// <summary>
-        /// 注册网络物体唯一标识
+        /// 检查send方法的发送队列是否已到达极限, 到达极限则不允许新的数据放入发送队列, 需要等待队列消耗后才能放入新的发送数据
         /// </summary>
-        /// <param name="identity">你本机的一个唯一id, 当服务器注册回调给OnRegisterNetworkIdentity事件后, 可以用这个id判断是不是这个identity</param>
-        public void RegisterNetworkIdentity(int identity)
+        /// <returns>是否可发送数据</returns>
+        public bool CheckSend()
         {
-            SendRT(NetCmd.RegisterNetworkIdentity, BitConverter.GetBytes(identity));
+            return rtRPCModels.Count < ushort.MaxValue;
+        }
+
+        /// <summary>
+        /// 检查send方法的发送队列是否已到达极限, 到达极限则不允许新的数据放入发送队列, 需要等待队列消耗后才能放入新的发送数据
+        /// </summary>
+        /// <returns>是否可发送数据</returns>
+        public bool CheckSendRT()
+        {
+            return rtRPCModels.Count < ushort.MaxValue;
+        }
+
+        public void TestRPCQueue(RPCModel model)
+        {
+            rPCModels.Enqueue(model);
         }
     }
 }

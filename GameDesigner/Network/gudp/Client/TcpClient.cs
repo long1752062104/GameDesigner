@@ -10,6 +10,7 @@
     using global::System.Threading;
     using global::System.Threading.Tasks;
     using Net.System;
+    using global::System.Security.Cryptography;
 
     /// <summary>
     /// TCP客户端类型 
@@ -18,6 +19,11 @@
     [Serializable]
     public class TcpClient : ClientBase
     {
+        /// <summary>
+        /// tcp数据长度(4) + 2CRC协议 = 6
+        /// </summary>
+        protected new readonly int frame = 6;
+
         /// <summary>
         /// 构造不可靠传输客户端
         /// </summary>
@@ -115,6 +121,52 @@
             SendDataHandle(rtRPCModels, true);
         }
 
+        protected override void WriteDataHead(Segment stream)
+        {
+            if (MD5CRC)
+            {
+                stream.Position = 20;//留20个字节记录size+md5哈希值
+            }
+            else
+            {
+                int crcIndex = RandomHelper.Range(0, 256);
+                byte crcCode = CRCCode[crcIndex];
+                stream.Position = 4;//size
+                stream.WriteByte((byte)crcIndex);
+                stream.WriteByte(crcCode);
+            }
+        }
+
+        protected override void ResetDataHead(Segment stream)
+        {
+            if (MD5CRC)
+                stream.SetPositionLength(20);//size+md5
+            else
+                stream.SetPositionLength(frame);
+        }
+
+        protected override byte[] PackData(Segment stream)
+        {
+            if (MD5CRC)
+            {
+                MD5 md5 = new MD5CryptoServiceProvider();
+                byte[] retVal = md5.ComputeHash(stream, 20, stream.Count - 20);
+                int len = stream.Count - 20;
+                stream.Position = 0;
+                stream.Write(BitConverter.GetBytes(len), 0, 4);
+                stream.Write(retVal, 0, retVal.Length);
+                stream.Position = len + 20;
+            }
+            else 
+            {
+                int len = stream.Count - frame;
+                stream.Position = 0;
+                stream.Write(BitConverter.GetBytes(len), 0, 4);
+                stream.Position = len + frame;
+            }
+            return stream.ToArray();
+        }
+
         protected override void SendByteData(byte[] buffer, bool reliable)
         {
             sendCount += buffer.Length;
@@ -124,59 +176,60 @@
                 OnSendErrorHandle?.Invoke(buffer, reliable);
         }
 
-        protected override void ResolveBuffer(Segment buffer, int index, int count, bool isTcp)
+        protected override void ResolveBuffer(Segment buffer, bool isTcp)
         {
-            heart = 0;//如果传输大文件时, 一直不能解析状态下, 导致掉线问题
+            heart = 0;
             if (stack > StackNumberMax)//不能一直叠包
             {
                 stack = 0;
                 NDebug.LogError($"请设置StackNumberMax属性, 叠包次数过高, 叠包数量达到{StackNumberMax}次以上...");
+                SendRT(NetCmd.ReliableCallbackClear, new byte[0]);
                 return;
             }
             if (stack > 0)
             {
                 stack++;
                 StackStream.Seek(stackIndex, SeekOrigin.Begin);
-                int size = count - index;
+                int size = buffer.Count - buffer.Position;
                 stackIndex += size;
-                StackStream.Write(buffer, index, size);
+                StackStream.Write(buffer, buffer.Position, size);
                 if (stackIndex < stackCount)
                 {
                     InvokeRevdRTProgress(stackIndex, stackCount);
                     return;
                 }
-                index = 0;
-                count = (int)StackStream.Position;//Length; //错误问题,不能用length, 这是文件总长度, 之前可能已经有很大一波数据
-                buffer = BufferPool.Take(count);
+                var count = (int)StackStream.Position;//.Length; //错误问题,不能用length, 这是文件总长度, 之前可能已经有很大一波数据
+                BufferPool.Push(buffer);//要回收掉, 否则会提示内存泄露
+                buffer = BufferPool.Take(count);//ref 才不会导致提示内存泄露
                 StackStream.Seek(0, SeekOrigin.Begin);
                 StackStream.Read(buffer, 0, count);
+                buffer.Count = count;
             }
-            while (index < count)
+            while (buffer.Position < buffer.Count)
             {
-                int size = BitConverter.ToInt32(buffer, index);
-                int crcIndex = buffer[4];//CRC检验索引, 使用者自己改变CRCCode属性
-                byte crcCode = buffer[5];//CRC校验码, 使用者自己改变CRCCode属性
+                int size = BitConverter.ToInt32(buffer.Read(4), 0);
                 if (size < 0 | size > StackBufferSize)//如果出现解析的数据包大小有问题，则不处理
                 {
                     stack = 0;
                     NDebug.LogError($"数据错乱或数据量太大: size:{size}， 如果想传输大数据，请设置StackBufferSize属性");
                     return;
                 }
-                if (index + frame + size <= count)
+                if (buffer.Position + size <= buffer.Count)
                 {
-                    index += frame;
                     stack = 0;
-                    if (!OnCRC(crcIndex, crcCode))
-                        return;
-                    DataHandle(buffer, index, size, index + size); //叠包问题 count);
-                    index += size;
+                    var count = buffer.Count;//此长度可能会有连续的数据(粘包)
+                    buffer.Count = buffer.Position + (MD5CRC ? 16 : 2) + size;//需要指定一个完整的数据长度给内部解析
+                    base.ResolveBuffer(buffer, true);
+                    buffer.Count = count;//解析完成后再赋值原来的总长
                 }
                 else
                 {
-                    stackIndex = count - index;
+                    var position = buffer.Position - 4;//4个字节的大小
+                    var count = buffer.Count - position;
+                    stackIndex = count;
                     stackCount = size;
                     StackStream.Seek(0, SeekOrigin.Begin);
-                    StackStream.Write(buffer, index, count - index);
+                    StackStream.Write(buffer, position, count);
                     stack++;
                     break;
                 }
@@ -270,8 +323,8 @@
                                     if (client.Client.Poll(0, SelectMode.SelectRead))
                                     {
                                         var buffer1 = BufferPool.Take(65536);
-                                        int count = client.Client.Receive(buffer1);
-                                        client.ResolveBuffer(buffer1, 0, count, false);
+                                        buffer1.Count = client.Client.Receive(buffer1);
+                                        client.ResolveBuffer(buffer1, false);
                                         BufferPool.Push(buffer1);
                                     }
                                     //client.Send(NetCmd.Local, buffer);
@@ -315,10 +368,10 @@
                 Client.Connect(host, port);
                 Client.Blocking = false;
                 Client.NoDelay = true;
-                SendByteData(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.Connect, 0, 0, 0, 0 }, false);
+                rPCModels.Enqueue(new RPCModel(NetCmd.Connect, new byte[0]));
+                SendDirect();
                 Connected = true;
-                //stackStreamName = Path.GetTempFileName();
-                StackStream = BufferStreamShare.Take();//new FileStream(stackStreamName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                StackStream = BufferStreamShare.Take();
                 return null;
             }
             protected override void StartupThread() { }
@@ -333,11 +386,11 @@
                     return true;
                 return false;
             }
-            protected override void ResolveBuffer(Segment buffer, int index, int count, bool isTcp)
+            protected override void ResolveBuffer(Segment buffer, bool isTcp)
             {
-                receiveCount += count;
+                receiveCount += buffer.Count;
                 receiveAmount++;
-                base.ResolveBuffer(buffer, index, count, isTcp);
+                base.ResolveBuffer(buffer, isTcp);
             }
             protected unsafe override void SendByteData(byte[] buffer, bool reliable)
             {

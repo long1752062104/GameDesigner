@@ -48,7 +48,7 @@
             Marshal.FreeHGlobal(ptr);
         }
 
-        protected unsafe override void ReceiveProcessed(EndPoint remotePoint, Segment buffer, int count, bool tcp_udp)
+        protected unsafe override void ReceiveProcessed(EndPoint remotePoint, Segment buffer, bool tcp_udp)
         {
             if (!AllClients.TryGetValue(remotePoint, out Player client))//在线客户端  得到client对象
             {
@@ -69,6 +69,7 @@
                 UserIDStack.TryPop(out int uid);
                 client = new Player();
                 client.UserID = uid;
+                client.MID = GetMID((IPEndPoint)remotePoint);
                 client.PlayerID = uid.ToString();
                 client.RemotePoint = remotePoint;
                 client.LastTime = DateTime.Now.AddMinutes(5);
@@ -80,17 +81,17 @@
                 ikcp_wndsize(kcp, 1024, 1024);
                 ikcp_nodelay(kcp, 1, 10, 2, 1);
                 client.Kcp = kcp;
-                OnHasConnectHandle(client);
-                AllClients.TryAdd(remotePoint, client);
                 Interlocked.Increment(ref ignoranceNumber);
                 client.revdQueue = RevdQueues[threadNum];
                 client.sendQueue = SendQueues[threadNum];
                 if (++threadNum >= RevdQueues.Count)
                     threadNum = 0;
+                AllClients.TryAdd(remotePoint, client);//之前放在上面, 由于接收线程并行, 还没赋值revdQueue就已经接收到数据, 导致提示内存池泄露
+                OnHasConnectHandle(client);
             }
             fixed (byte* p = &buffer.Buffer[0])
             {
-                ikcp_input(client.Kcp, p, count);
+                ikcp_input(client.Kcp, p, buffer.Count);
             }
             ikcp_update(client.Kcp, (uint)Environment.TickCount);
             int len;
@@ -99,8 +100,8 @@
                 var buffer1 = BufferPool.Take();//注意下面没有Push, 是因为还有处理线程在使用这个buffer, Push在Handle线程处理
                 fixed (byte* p1 = &buffer1.Buffer[0])
                 {
-                    ikcp_recv(client.Kcp, p1, len);
-                    client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer1, count = len, tcp_udp = false });
+                    buffer1.Count = ikcp_recv(client.Kcp, p1, len);
+                    client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer1, tcp_udp = false });
                 }
             }
             client.heart = 0;

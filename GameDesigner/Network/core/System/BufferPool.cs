@@ -133,7 +133,7 @@ namespace Net.System
         public void WriteByte(byte value) 
         {
             Buffer[Position++] = value;
-            Count = Position;
+            if (Position > Count) Count = Position;
         }
 
         public byte ReadByte()
@@ -145,7 +145,7 @@ namespace Net.System
         {
             global::System.Buffer.BlockCopy(buffer, index, Buffer, Position, count);
             Position += count;
-            Count = Position;
+            if (Position > Count) Count = Position;
         }
 
         public unsafe void Write(byte* buffer, int index, int count)
@@ -155,7 +155,7 @@ namespace Net.System
                 void* ptr1 = buffer + index;
                 global::System.Buffer.MemoryCopy(ptr1, ptr, count, count);
                 Position += count;
-                Count = Position;
+                if (Position > Count) Count = Position;
             }
         }
         public unsafe void Write(void* ptr, int count)
@@ -164,7 +164,7 @@ namespace Net.System
             {
                 global::System.Buffer.MemoryCopy(ptr, ptr1, count, count);
                 Position += count;
-                Count = Position;
+                if (Position > Count) Count = Position;
             }
         }
         public int WriteValue<T>(T value)
@@ -215,6 +215,7 @@ namespace Net.System
             if (value == 0)
             {
                 Buffer[Position++] = 0;
+                if (Position > Count) Count = Position;
                 return 0;
             }
             byte num = value < byte.MaxValue ? BYTE : value < ushort.MaxValue ? SHORT : value < Int24 ? INT24 : 
@@ -222,6 +223,7 @@ namespace Net.System
             void* ptr = &value;
             Buffer[Position++] = num;
             Write(ptr, num);
+            if (Position > Count) Count = Position;
             return num;
         }
 
@@ -378,6 +380,7 @@ namespace Net.System
                 }
             }
             Buffer[pos] = record;
+            if (Position > Count) Count = Position;
             return 4;
         }
 
@@ -413,6 +416,7 @@ namespace Net.System
                 }
             }
             Buffer[pos] = record;
+            if (Position > Count) Count = Position;
             return 8;
         }
 
@@ -457,7 +461,7 @@ namespace Net.System
             void* ptr = &count;
             Write(ptr, num);
             Position += count;
-            Count = Position;
+            if (Position > Count) Count = Position;
             return num;
         }
 
@@ -482,6 +486,7 @@ namespace Net.System
             void* ptr = &value;
             Buffer[Position++] = num;
             Write(ptr, num);
+            //if (Position > Count) Count = Position;
             return num;
         }
 
@@ -511,6 +516,7 @@ namespace Net.System
             void* ptr = &value;
             Buffer[Position++] = num;
             Write(ptr, num);
+            //if (Position > Count) Count = Position;
             return num;
         }
 
@@ -610,7 +616,7 @@ namespace Net.System
                     throw new Exception($"错误!写入的数组大于总内存段!");
                 global::System.Buffer.MemoryCopy(ptr, ptr2, count1, count1);
                 Position += count1;
-                Count = Position;
+                if (Position > Count) Count = Position;
             }
         }
         public unsafe List<T> ReadList<T>()

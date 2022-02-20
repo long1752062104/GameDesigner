@@ -141,7 +141,7 @@
                         continue;
                     }
                     var buffer = BufferPool.Take();
-                    int count = Server.Receive(buffer, 0, buffer.Length, SocketFlags.None);
+                    buffer.Count = Server.Receive(buffer, 0, buffer.Length, SocketFlags.None);
                     IPHeader* head;
                     fixed (byte* fixed_buf = &buffer.Buffer[0])
                         head = (IPHeader*)fixed_buf;
@@ -153,9 +153,9 @@
                     if (desPort != Port)
                         continue;
                     IPEndPoint remotePoint = new IPEndPoint(srcAddress, srcPort);
-                    receiveCount += count;
+                    receiveCount += buffer.Count;
                     receiveAmount++;
-                    ReceiveProcessed(remotePoint, buffer, count, false);
+                    ReceiveProcessed(remotePoint, buffer, false);
                 }
                 catch (Exception ex)
                 {
@@ -164,7 +164,7 @@
             }
         }
 
-        protected override void ReceiveProcessed(EndPoint remotePoint, Segment buffer, int count, bool tcp_udp)
+        protected override void ReceiveProcessed(EndPoint remotePoint, Segment buffer, bool tcp_udp)
         {
             if (!AllClients.TryGetValue(remotePoint, out Player client))//在线客户端  得到client对象
             {
@@ -185,6 +185,7 @@
                 UserIDStack.TryPop(out int uid);
                 client = new Player();
                 client.UserID = uid;
+                client.MID = GetMID((IPEndPoint)remotePoint);
                 client.PlayerID = uid.ToString();
                 client.RemotePoint = remotePoint;
                 client.LastTime = DateTime.Now.AddMinutes(5);
@@ -212,15 +213,16 @@
                 client.IPHeader[17] = b2;
                 client.IPHeader[18] = b3;
                 client.IPHeader[19] = b4;
-                OnHasConnectHandle(client);
-                AllClients.TryAdd(remotePoint, client);
                 Interlocked.Increment(ref ignoranceNumber);
                 client.revdQueue = RevdQueues[threadNum];
                 client.sendQueue = SendQueues[threadNum];
                 if (++threadNum >= RevdQueues.Count)
                     threadNum = 0;
+                AllClients.TryAdd(remotePoint, client);//之前放在上面, 由于接收线程并行, 还没赋值revdQueue就已经接收到数据, 导致提示内存池泄露
+                OnHasConnectHandle(client);
             }
-            client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, index = 28, count = count, tcp_udp = tcp_udp });
+            buffer.Position = 28;
+            client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer, tcp_udp = tcp_udp });
         }
 
         protected override bool IsInternalCommand(Player client, RPCModel model)
@@ -295,7 +297,7 @@
                 stream1.Write(BitConverter.GetBytes(len), 0, 4);
                 stream1.Write(BitConverter.GetBytes(client.sendReliableFrame), 0, 4);
                 stream1.Write(stream, index, count1);
-                byte[] buffer = SendData(stream1);
+                byte[] buffer = PackData(stream1);
                 rtDic.Add(dataIndex, new RTBuffer(buffer));
                 index += MTU;
                 dataIndex++;
@@ -353,12 +355,12 @@
             stream.Write(client.IPHeader, 0, 28);
             WriteDataHead(stream);
             WriteDataBody(client, ref stream, rPCModels, count, reliable);
-            byte[] buffer = SendData(stream);
+            byte[] buffer = PackData(stream);
             SendByteData(client, buffer, reliable);
             BufferPool.Push(stream);
         }
 
-        protected override byte[] SendData(Segment stream)
+        protected override byte[] PackData(Segment stream)
         {
             if (ByteCompression & stream.Count > 1000)
             {

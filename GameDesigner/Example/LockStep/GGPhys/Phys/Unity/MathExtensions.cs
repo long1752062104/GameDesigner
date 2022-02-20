@@ -18,7 +18,7 @@ namespace UnityEngine
 
         public static Quaternion ToQuaternion(this QUATERNION q)
         {
-            return new Quaternion((float)q.i, (float)q.j, (float)q.k, (float)q.r);
+            return new Quaternion((float)q.x, (float)q.y, (float)q.z, (float)q.w);
         }
 
         public static Vector3 ToVector3(this Vector3d v)

@@ -70,19 +70,19 @@ namespace TrueSync
 
             EditorGUIUtility.labelWidth = indentOffsetLevel + LABEL_WIDTH;
 
-            SerializedProperty xSerProperty = property.FindPropertyRelative("RawX");
+            SerializedProperty xSerProperty = property.FindPropertyRelative("x");
             position.x -= indentOffsetLevel;
             EditorGUI.PropertyField(position, xSerProperty, xLabel);
 
             position.x += position.width;
 
-            SerializedProperty ySerProperty = property.FindPropertyRelative("RawY");
+            SerializedProperty ySerProperty = property.FindPropertyRelative("y");
             position.x -= indentOffsetLevel;
             EditorGUI.PropertyField(position, ySerProperty, yLabel);
 
             position.x += position.width;
 
-            SerializedProperty zSerProperty = property.FindPropertyRelative("RawZ");
+            SerializedProperty zSerProperty = property.FindPropertyRelative("z");
             position.x -= indentOffsetLevel;
             EditorGUI.PropertyField(position, zSerProperty, zLabel);
 

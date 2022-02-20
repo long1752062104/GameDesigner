@@ -20,38 +20,38 @@ namespace GGPhys.Core
     {
         public static Quaternion Identity { get { return new Quaternion(FixedType.Zero, FixedType.Zero, FixedType.Zero, FixedType.One); } }
 
-        public RawType RawX;
-        public RawType RawY;
-        public RawType RawZ;
-        public RawType RawW;
+        //public RawType RawX;
+        //public RawType RawY;
+        //public RawType RawZ;
+        //public RawType RawW;
 
-        public REAL i { get { return REAL.FromRaw(RawX); } set { RawX = value.Raw; } }
-        public REAL j { get { return REAL.FromRaw(RawY); } set { RawY = value.Raw; } }
-        public REAL k { get { return REAL.FromRaw(RawZ); } set { RawZ = value.Raw; } }
-        public REAL r { get { return REAL.FromRaw(RawW); } set { RawW = value.Raw; } }
+        public REAL x;// { get { return REAL.FromRaw(RawX); } set { RawX = value.Raw; } }
+        public REAL y;// { get { return REAL.FromRaw(RawY); } set { RawY = value.Raw; } }
+        public REAL z;// { get { return REAL.FromRaw(RawZ); } set { RawZ = value.Raw; } }
+        public REAL w;// { get { return REAL.FromRaw(RawW); } set { RawW = value.Raw; } }
 
         public Quaternion(REAL x, REAL y, REAL z, REAL w)
         {
-            RawX = x.Raw;
-            RawY = y.Raw;
-            RawZ = z.Raw;
-            RawW = w.Raw;
+            this.x.Raw = x.Raw;
+            this.y.Raw = y.Raw;
+            this.z.Raw = z.Raw;
+            this.w.Raw = w.Raw;
         }
 
         public Quaternion(Vector3d v, REAL w)
         {
-            RawX = v.RawX;
-            RawY = v.RawY;
-            RawZ = v.RawZ;
-            RawW = w.Raw;
+            x.Raw = v.x.Raw;
+            y.Raw = v.y.Raw;
+            z.Raw = v.z.Raw;
+            this.w.Raw = w.Raw;
         }
 
         private Quaternion(RawType x, RawType y, RawType z, RawType w)
         {
-            RawX = x;
-            RawY = y;
-            RawZ = z;
-            RawW = w;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
         }
 
         public static Quaternion FromAxisAngle(Vector3d axis, REAL angle)
@@ -128,34 +128,34 @@ namespace GGPhys.Core
 
         public static Quaternion operator *(Quaternion a, Quaternion b) { return Multiply(a, b); }
 
-        public static bool operator ==(Quaternion a, Quaternion b) { return a.RawX == b.RawX && a.RawY == b.RawY && a.RawZ == b.RawZ && a.RawW == b.RawW; }
-        public static bool operator !=(Quaternion a, Quaternion b) { return a.RawX != b.RawX || a.RawY != b.RawY || a.RawZ != b.RawZ || a.RawW != b.RawW; }
+        public static bool operator ==(Quaternion a, Quaternion b) { return a.x.Raw == b.x.Raw && a.y.Raw == b.y.Raw && a.z.Raw == b.z.Raw && a.w.Raw == b.w.Raw; }
+        public static bool operator !=(Quaternion a, Quaternion b) { return a.x.Raw != b.x.Raw || a.y.Raw != b.y.Raw || a.z.Raw != b.z.Raw || a.w.Raw != b.w.Raw; }
 
-        public static Quaternion Negate(Quaternion a) { return new Quaternion(-a.RawX, -a.RawY, -a.RawZ, -a.RawW); }
-        public static Quaternion Conjugate(Quaternion a) { return new Quaternion(-a.RawX, -a.RawY, -a.RawZ, a.RawW); }
+        public static Quaternion Negate(Quaternion a) { return new Quaternion(-a.x.Raw, -a.y.Raw, -a.z.Raw, -a.w.Raw); }
+        public static Quaternion Conjugate(Quaternion a) { return new Quaternion(-a.x.Raw, -a.y.Raw, -a.z.Raw, a.w.Raw); }
         public static Quaternion Inverse(Quaternion a)
         {
             RawType inv_norm = REAL.Rcp(LengthSqr(a)).Raw;
             return new Quaternion(
-                -FixedType.Mul(a.RawX, inv_norm),
-                -FixedType.Mul(a.RawY, inv_norm),
-                -FixedType.Mul(a.RawZ, inv_norm),
-                FixedType.Mul(a.RawW, inv_norm));
+                -FixedType.Mul(a.x.Raw, inv_norm),
+                -FixedType.Mul(a.y.Raw, inv_norm),
+                -FixedType.Mul(a.z.Raw, inv_norm),
+                FixedType.Mul(a.w.Raw, inv_norm));
         }
 
-        public static Quaternion InverseUnit(Quaternion a) { return new Quaternion(-a.RawX, -a.RawY, -a.RawZ, a.RawW); }
+        public static Quaternion InverseUnit(Quaternion a) { return new Quaternion(-a.x.Raw, -a.y.Raw, -a.z.Raw, a.w.Raw); }
 
         public static Quaternion Multiply(Quaternion value1, Quaternion value2)
         {
-            RawType q1x = value1.RawX;
-            RawType q1y = value1.RawY;
-            RawType q1z = value1.RawZ;
-            RawType q1w = value1.RawW;
+            RawType q1x = value1.x.Raw;
+            RawType q1y = value1.y.Raw;
+            RawType q1z = value1.z.Raw;
+            RawType q1w = value1.w.Raw;
 
-            RawType q2x = value2.RawX;
-            RawType q2y = value2.RawY;
-            RawType q2z = value2.RawZ;
-            RawType q2w = value2.RawW;
+            RawType q2x = value2.x.Raw;
+            RawType q2y = value2.y.Raw;
+            RawType q2z = value2.z.Raw;
+            RawType q2w = value2.w.Raw;
 
             RawType cx = FixedType.Mul(q1y, q2z) - FixedType.Mul(q1z, q2y);
             RawType cy = FixedType.Mul(q1z, q2x) - FixedType.Mul(q1x, q2z);
@@ -172,39 +172,39 @@ namespace GGPhys.Core
         public static REAL Length(Quaternion a) { return REAL.Sqrt(LengthSqr(a)); }
         public static REAL LengthFast(Quaternion a) { return REAL.SqrtFast(LengthSqr(a)); }
         public static REAL LengthFastest(Quaternion a) { return REAL.SqrtFastest(LengthSqr(a)); }
-        public static REAL LengthSqr(Quaternion a) { return REAL.FromRaw(FixedType.Mul(a.RawX, a.RawX) + FixedType.Mul(a.RawY, a.RawY) + FixedType.Mul(a.RawZ, a.RawZ) + FixedType.Mul(a.RawW, a.RawW)); }
+        public static REAL LengthSqr(Quaternion a) { return REAL.FromRaw(FixedType.Mul(a.x.Raw, a.x.Raw) + FixedType.Mul(a.y.Raw, a.y.Raw) + FixedType.Mul(a.z.Raw, a.z.Raw) + FixedType.Mul(a.w.Raw, a.w.Raw)); }
         public static Quaternion Normalize(Quaternion a)
         {
             RawType inv_norm = REAL.Rcp(Length(a)).Raw;
             return new Quaternion(
-                FixedType.Mul(a.RawX, inv_norm),
-                FixedType.Mul(a.RawY, inv_norm),
-                FixedType.Mul(a.RawZ, inv_norm),
-                FixedType.Mul(a.RawW, inv_norm));
+                FixedType.Mul(a.x.Raw, inv_norm),
+                FixedType.Mul(a.y.Raw, inv_norm),
+                FixedType.Mul(a.z.Raw, inv_norm),
+                FixedType.Mul(a.w.Raw, inv_norm));
         }
         public static Quaternion NormalizeFast(Quaternion a)
         {
             RawType inv_norm = REAL.RcpFast(LengthFast(a)).Raw;
             return new Quaternion(
-                FixedType.Mul(a.RawX, inv_norm),
-                FixedType.Mul(a.RawY, inv_norm),
-                FixedType.Mul(a.RawZ, inv_norm),
-                FixedType.Mul(a.RawW, inv_norm));
+                FixedType.Mul(a.x.Raw, inv_norm),
+                FixedType.Mul(a.y.Raw, inv_norm),
+                FixedType.Mul(a.z.Raw, inv_norm),
+                FixedType.Mul(a.w.Raw, inv_norm));
         }
         public static Quaternion NormalizeFastest(Quaternion a)
         {
             RawType inv_norm = REAL.RcpFastest(LengthFastest(a)).Raw;
             return new Quaternion(
-                FixedType.Mul(a.RawX, inv_norm),
-                FixedType.Mul(a.RawY, inv_norm),
-                FixedType.Mul(a.RawZ, inv_norm),
-                FixedType.Mul(a.RawW, inv_norm));
+                FixedType.Mul(a.x.Raw, inv_norm),
+                FixedType.Mul(a.y.Raw, inv_norm),
+                FixedType.Mul(a.z.Raw, inv_norm),
+                FixedType.Mul(a.w.Raw, inv_norm));
         }
 
         public static Quaternion Slerp(Quaternion q1, Quaternion q2, REAL t)
         {
             REAL epsilon = REAL.Ratio(1, 1000000);
-            REAL cos_omega = q1.i * q2.i + q1.j * q2.j + q1.k * q2.k + q1.r * q2.r;
+            REAL cos_omega = q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;
 
             bool flip = false;
 
@@ -232,30 +232,30 @@ namespace GGPhys.Core
             }
 
             return new Quaternion(
-                s1 * q1.i + s2 * q2.i,
-                s1 * q1.j + s2 * q2.j,
-                s1 * q1.k + s2 * q2.k,
-                s1 * q1.r + s2 * q2.r);
+                s1 * q1.x + s2 * q2.x,
+                s1 * q1.y + s2 * q2.y,
+                s1 * q1.z + s2 * q2.z,
+                s1 * q1.w + s2 * q2.w);
         }
 
         public static Quaternion Lerp(Quaternion q1, Quaternion q2, REAL t)
         {
             REAL t1 = REAL.One - t;
-            REAL dot = q1.i * q2.i + q1.j * q2.j + q1.k * q2.k + q1.r * q2.r;
+            REAL dot = q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;
 
             Quaternion r;
             if (dot >= 0)
                 r = new Quaternion(
-                    t1 * q1.i + t * q2.i,
-                    t1 * q1.j + t * q2.j,
-                    t1 * q1.k + t * q2.k,
-                    t1 * q1.r + t * q2.r);
+                    t1 * q1.x + t * q2.x,
+                    t1 * q1.y + t * q2.y,
+                    t1 * q1.z + t * q2.z,
+                    t1 * q1.w + t * q2.w);
             else
                 r = new Quaternion(
-                    t1 * q1.i - t * q2.i,
-                    t1 * q1.j - t * q2.j,
-                    t1 * q1.k - t * q2.k,
-                    t1 * q1.r - t * q2.r);
+                    t1 * q1.x - t * q2.x,
+                    t1 * q1.y - t * q2.y,
+                    t1 * q1.z - t * q2.z,
+                    t1 * q1.w - t * q2.w);
 
             return NormalizeFastest(r);
         }
@@ -267,8 +267,8 @@ namespace GGPhys.Core
 
         public static Vector3d RotateVector(Quaternion rot, Vector3d v)
         {
-            Vector3d u = new Vector3d(rot.i, rot.j, rot.k);
-            REAL s = rot.r;
+            Vector3d u = new Vector3d(rot.x, rot.y, rot.z);
+            REAL s = rot.w;
 
             return
                 (REAL.Two * Vector3d.Dot(u, v)) * u +
@@ -290,21 +290,21 @@ namespace GGPhys.Core
 
         public override string ToString()
         {
-            return "(" + FixedType.ToString(RawX) + ", " + FixedType.ToString(RawY) + ", " + FixedType.ToString(RawZ) + ", " + FixedType.ToString(RawW) + ")";
+            return "(" + FixedType.ToString(x.Raw) + ", " + FixedType.ToString(y.Raw) + ", " + FixedType.ToString(z.Raw) + ", " + FixedType.ToString(w.Raw) + ")";
         }
 
         public override int GetHashCode()
         {
-            return RawX.GetHashCode() ^ (RawY.GetHashCode() * 7919) ^ (RawZ.GetHashCode() * 4513) ^ (RawW.GetHashCode() * 8923);
+            return x.Raw.GetHashCode() ^ (y.Raw.GetHashCode() * 7919) ^ (z.Raw.GetHashCode() * 4513) ^ (w.Raw.GetHashCode() * 8923);
         }
 
         public void Normalise()
         {
             RawType inv_norm = REAL.RcpFastest(LengthFastest(this)).Raw;
-            RawX = FixedType.Mul(RawX, inv_norm);
-            RawY = FixedType.Mul(RawY, inv_norm);
-            RawZ = FixedType.Mul(RawZ, inv_norm);
-            RawW = FixedType.Mul(RawW, inv_norm);
+            x.Raw = FixedType.Mul(x.Raw, inv_norm);
+            y.Raw = FixedType.Mul(y.Raw, inv_norm);
+            z.Raw = FixedType.Mul(z.Raw, inv_norm);
+            w.Raw = FixedType.Mul(w.Raw, inv_norm);
         }
 
         /// <summary>
@@ -314,15 +314,15 @@ namespace GGPhys.Core
         /// <param name="scale">Ëõ·Å</param>
         public void AddScaledVector(Vector3d vector, REAL scale)
         {
-            Quaternion q = new Quaternion(FixedType.Mul(vector.RawX, scale.Raw),
-                                          FixedType.Mul(vector.RawY, scale.Raw),
-                                          FixedType.Mul(vector.RawZ, scale.Raw),
+            Quaternion q = new Quaternion(FixedType.Mul(vector.x.Raw, scale.Raw),
+                                          FixedType.Mul(vector.y.Raw, scale.Raw),
+                                          FixedType.Mul(vector.z.Raw, scale.Raw),
                                           0);
             q = q * this;
-            RawW += FixedType.Mul(q.RawW, REAL.Half.Raw);
-            RawX += FixedType.Mul(q.RawX, REAL.Half.Raw);
-            RawY += FixedType.Mul(q.RawY, REAL.Half.Raw);
-            RawZ += FixedType.Mul(q.RawZ, REAL.Half.Raw);
+            w.Raw += FixedType.Mul(q.w.Raw, REAL.Half.Raw);
+            x.Raw += FixedType.Mul(q.x.Raw, REAL.Half.Raw);
+            y.Raw += FixedType.Mul(q.y.Raw, REAL.Half.Raw);
+            z.Raw += FixedType.Mul(q.z.Raw, REAL.Half.Raw);
         }
     }
 }

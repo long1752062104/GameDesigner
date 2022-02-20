@@ -211,9 +211,9 @@ namespace GGPhys.Rigid.Constraints
             if (body0awake ^ body1awake)
             {
                 if (body0static || body1static) return;
-                if (body0awake && ContactVelocity.SqrMagnitude > body1.AwakeVelocityLimit)
+                if (body0awake && ContactVelocity.SqrMagnitude >= body1.AwakeVelocityLimit)
                     body1.SetAwake();
-                if (body1awake && ContactVelocity.SqrMagnitude > body0.AwakeVelocityLimit)
+                if (body1awake && ContactVelocity.SqrMagnitude >= body0.AwakeVelocityLimit)
                     body0.SetAwake();
             }
 

@@ -18,11 +18,11 @@ namespace Net.Share
         /// <summary>
         /// 数据索引
         /// </summary>
-        public int index;
+        //public int index;
         /// <summary>
         /// 数据长度
         /// </summary>
-        public int count;
+        //public int count;
         /// <summary>
         /// 数据协议
         /// </summary>
@@ -32,8 +32,8 @@ namespace Net.Share
         {
             this.client = client;
             this.buffer = buffer;
-            this.index = index;
-            this.count = count;
+            //this.index = index;
+            //this.count = count;
             this.tcp_udp = tcp_udp;
         }
 

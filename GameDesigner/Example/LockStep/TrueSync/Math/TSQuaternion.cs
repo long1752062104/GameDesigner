@@ -568,7 +568,7 @@ namespace TrueSync
 
         public static implicit operator TSQuaternion(GGPhys.Core.Quaternion q)
         {
-            return new TSQuaternion(q.RawX, q.RawY, q.RawZ, q.RawW);
+            return new TSQuaternion(q.x.Raw, q.y.Raw, q.z.Raw, q.w.Raw);
         }
 
         public override string ToString()

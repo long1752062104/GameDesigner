@@ -115,11 +115,6 @@
                 switch (eventtype)
                 {
                     case UDXEVENT_TYPE.E_CONNECT:
-                        UserIDStack.TryPop(out int uid);
-                        Player unClient = new Player();
-                        unClient.Udx = cli;
-                        unClient.UserID = uid;
-                        unClient.PlayerID = uid.ToString();
                         byte[] ipbytes = new byte[128];
                         int port = 0;
                         int ntype = 0;
@@ -129,18 +124,24 @@
                         string ip = Encoding.ASCII.GetString(ipbytes, 0, 128);
                         ip = ip.Replace("\0", "");
                         IPEndPoint remotePoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                        UserIDStack.TryPop(out int uid);
+                        Player unClient = new Player();
+                        unClient.Udx = cli;
+                        unClient.UserID = uid;
+                        unClient.MID = GetMID(remotePoint);
+                        unClient.PlayerID = uid.ToString();
                         unClient.RemotePoint = remotePoint;
                         unClient.LastTime = DateTime.Now.AddMinutes(5);
                         unClient.isDispose = false;
                         unClient.CloseSend = false;
                         peers.TryAdd(cli, unClient);
                         Interlocked.Increment(ref ignoranceNumber);
-                        AllClients.TryAdd(remotePoint, unClient);
-                        OnHasConnectHandle(unClient);
                         unClient.revdQueue = RevdQueues[threadNum];
                         unClient.sendQueue = SendQueues[threadNum];
                         if (++threadNum >= RevdQueues.Count)
                             threadNum = 0;
+                        AllClients.TryAdd(remotePoint, unClient);//之前放在上面, 由于接收线程并行, 还没赋值revdQueue就已经接收到数据, 导致提示内存池泄露
+                        OnHasConnectHandle(unClient);
                         break;
                     case UDXEVENT_TYPE.E_LINKBROKEN:
                         if (peers.TryRemove(cli, out Player client2))
@@ -151,10 +152,11 @@
                         {
                             client1.heart = 0;
                             var buffer = BufferPool.Take(len);
+                            buffer.Count = len;
                             Marshal.Copy(pData, buffer, 0, len);
                             receiveCount += len;
                             receiveAmount++;
-                            client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = buffer, count = len });
+                            client1.revdQueue.Enqueue(new RevdDataBuffer() { client = client1, buffer = buffer });
                         }
                         else
                         {

@@ -108,10 +108,10 @@
                         continue;
                     }
                     var buffer = BufferPool.Take();
-                    int count = Server.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref remotePoint);
-                    receiveCount += count;
+                    buffer.Count = Server.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref remotePoint);
+                    receiveCount += buffer.Count;
                     receiveAmount++;
-                    ReceiveProcessed(remotePoint, buffer, count, false);
+                    ReceiveProcessed(remotePoint, buffer, false);
                 }
                 catch (Exception ex)
                 {

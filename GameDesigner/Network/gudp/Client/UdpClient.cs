@@ -157,11 +157,11 @@
                 return true;
             return false;
         }
-        protected override void ResolveBuffer(Segment buffer, int index, int count, bool isTcp)
+        protected override void ResolveBuffer(Segment buffer, bool isTcp)
         {
-            receiveCount += count;
+            receiveCount += buffer.Count;
             receiveAmount++;
-            base.ResolveBuffer(buffer, index, count, isTcp);
+            base.ResolveBuffer(buffer, isTcp);
         }
         protected unsafe override void SendByteData(byte[] buffer, bool reliable)
         {
@@ -192,8 +192,8 @@
             if (Client.Poll(0, SelectMode.SelectRead))
             {
                 var buffer1 = BufferPool.Take(65536);
-                int count = Client.Receive(buffer1);
-                ResolveBuffer(buffer1, 0, count, false);
+                buffer1.Count = Client.Receive(buffer1);
+                ResolveBuffer(buffer1, false);
                 BufferPool.Push(buffer1);
             }
             SendDirect();

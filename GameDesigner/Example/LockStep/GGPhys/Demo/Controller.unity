@@ -200,18 +200,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &29358221
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -333,23 +347,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &35186056
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -490,18 +518,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &48843723
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -734,18 +776,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &68865422
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -867,23 +923,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &83405713
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1024,18 +1094,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &100421661
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1176,18 +1260,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &102868442
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1328,18 +1426,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &120534029
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1480,18 +1592,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &122656504
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1632,18 +1758,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &149494670
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1784,18 +1924,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &158175659
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1936,18 +2090,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &165633878
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2088,18 +2256,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &174929831
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2221,23 +2403,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &175951354
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2378,18 +2574,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &195408706
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2511,23 +2721,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &272522064
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2649,23 +2873,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &309960587
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2806,18 +3044,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &311699351
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2958,18 +3210,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &326434525
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3091,23 +3357,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &356672258
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3248,18 +3528,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &372865419
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3400,18 +3694,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &383364770
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3552,18 +3860,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &403088285
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3704,18 +4026,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &446347032
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3856,18 +4192,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &469297887
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3989,23 +4339,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &498781835
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4146,18 +4510,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &541611476
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4298,18 +4676,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &569691182
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4431,23 +4823,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &589591607
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4569,23 +4975,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &599787461
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4726,18 +5146,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &617192490
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4878,18 +5312,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &650856894
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5011,23 +5459,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &672385552
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5149,23 +5611,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &683687335
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5306,18 +5782,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &746153710
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5458,18 +5948,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &780031889
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5610,18 +6114,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &786537418
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5743,23 +6261,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &820742360
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5900,18 +6432,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &853035020
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6033,23 +6579,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &865209725
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6190,18 +6750,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &873826180
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6342,18 +6916,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &936373829
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6475,23 +7063,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1005085949
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6589,7 +7191,11 @@ MonoBehaviour:
   gridCellSize: {x: 4, y: 4, z: 4}
   gridCenterOffset: {x: 0, y: 0, z: 0}
   belta: 0.22
+  slop: 0.001
   tolerence: 0.0008
+  timeStep: 0.01
+  stepCount: 1
+  autoStep: 1
 --- !u!4 &1012984926
 Transform:
   m_ObjectHideFlags: 0
@@ -6683,18 +7289,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1017370954
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6816,23 +7436,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1061853017
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6960,18 +7594,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1085238127
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7112,18 +7760,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1119235205
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7264,18 +7926,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1131686129
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7416,18 +8092,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1146239829
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7568,18 +8258,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1155059483
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7701,23 +8405,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1178548299
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7858,18 +8576,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1239463007
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8010,18 +8742,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1246779450
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8162,18 +8908,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1268025842
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8314,18 +9074,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1301220782
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8466,18 +9240,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1301747003
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8599,23 +9387,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1367144058
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8756,18 +9558,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1376643709
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8908,18 +9724,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1385893794
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9041,23 +9871,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1393291499
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9198,18 +10042,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1400775940
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9350,18 +10208,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1456321791
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9483,23 +10355,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1458439466
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9640,18 +10526,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1464003815
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9792,18 +10692,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1514840345
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9925,23 +10839,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1526139968
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10082,18 +11010,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1536871896
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10307,18 +11249,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1543076760
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10414,10 +11370,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1543076757}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cdab95d402e65e4d8cbb109a753b53d, type: 3}
+  m_Script: {fileID: 11500000, guid: 03350f617b0f7914d8d789ccb203e0da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isLocalPlayer: 0
   moveSpeed: 6
 --- !u!1 &1623060699
 GameObject:
@@ -10498,18 +11453,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1623060704
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10650,18 +11619,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1659098112
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10802,18 +11785,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1693069083
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10935,23 +11932,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1713103810
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11092,18 +12103,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1717819012
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11244,18 +12269,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1747127918
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11396,18 +12435,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1749765849
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11548,18 +12601,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1768417017
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11681,23 +12748,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1771748464
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11838,18 +12919,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1779059306
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11971,23 +13066,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1789840295
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12128,18 +13237,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1828740356
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12280,18 +13403,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1874379154
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12432,18 +13569,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &1926638752
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12584,18 +13735,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &2047585128
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12736,18 +13901,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &2051468173
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12888,18 +14067,32 @@ MonoBehaviour:
   collsionMask: -1
   freezePos: 0
   freezeRot: -1
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &2096685897
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13021,23 +14214,37 @@ MonoBehaviour:
   friction: 1
   restitution: 0
   sleepEpsilon: 0.12
-  awakeVelocityLimit: 0.1
+  awakeVelocityLimit: 0
   collsionLayer: 1
   collsionMask: -1
   freezePos: 0
   freezeRot: 0
+  velocityLimit:
+    x:
+      Raw: 42949672960
+    y:
+      Raw: 42949672960
+    z:
+      Raw: 42949672960
   CenterOfMassOffset:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   CenterOfMassOffsetWorld:
-    RawX: 0
-    RawY: 0
-    RawZ: 0
+    x:
+      Raw: 0
+    y:
+      Raw: 0
+    z:
+      Raw: 0
   m_BodyPosition: {x: 0, y: 0, z: 0}
   m_BodyRotation: {x: 0, y: 0, z: 0, w: 0}
   m_BodyLinearVelocity: {x: 0, y: 0, z: 0}
   m_BodyAngularVelocity: {x: 0, y: 0, z: 0}
+  m_BodyLinearVelocityMagnitude: 0
 --- !u!23 &2113624741
 MeshRenderer:
   m_ObjectHideFlags: 0

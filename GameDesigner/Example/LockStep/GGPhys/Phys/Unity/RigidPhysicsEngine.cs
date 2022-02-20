@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using GGPhys.Rigid;
-using GGPhys.Core;
-using REAL = FixMath.FP;
 
 namespace GGPhysUnity
 {
@@ -22,6 +19,8 @@ namespace GGPhysUnity
         public float tolerence = 0.0008f;
 
         public float timeStep = 0.01f;
+
+        public int stepCount = 1;
 
         public bool autoStep = true;
 
