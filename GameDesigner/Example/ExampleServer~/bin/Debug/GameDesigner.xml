@@ -2535,12 +2535,12 @@
         </member>
         <member name="F:Net.Client.ClientBase.rtRPCModels">
             <summary>
-            可靠传输缓冲器
+            可靠传输缓冲队列
             </summary>
         </member>
         <member name="F:Net.Client.ClientBase.revdBuffers">
             <summary>
-            接收缓存器
+            接收缓存队列
             </summary>
         </member>
         <member name="F:Net.Client.ClientBase.Rpcs">
@@ -2838,7 +2838,7 @@
         </member>
         <member name="F:Net.Client.ClientBase.frame">
             <summary>
-            帧尾或叫数据长度(4) + 2CRC协议 = 6
+            2CRC协议
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.HeartInterval">
@@ -2861,6 +2861,11 @@
         <member name="P:Net.Client.ClientBase.UID">
             <summary>
             用户唯一标识, 对应服务器的<see cref="P:Net.Server.NetPlayer.UserID"/>
+            </summary>
+        </member>
+        <member name="P:Net.Client.ClientBase.MID">
+            <summary>
+            socket的IP和端口组合得到的标识, 0-4byte为IP值, 4-6为Port值 (Machine identification)
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.SyncFrequency">
@@ -2967,6 +2972,11 @@
         <member name="P:Net.Client.ClientBase.PackageLength">
             <summary>
             组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
+            </summary>
+        </member>
+        <member name="P:Net.Client.ClientBase.MD5CRC">
+            <summary>
+            采用md5校验
             </summary>
         </member>
         <member name="M:Net.Client.ClientBase.#ctor">
@@ -3180,6 +3190,12 @@
             打包操作同步马上要发送了
             </summary>
         </member>
+        <member name="M:Net.Client.ClientBase.ResetDataHead(Net.System.Segment)">
+            <summary>
+            重置头部数据大小, 在小数据达到<see cref="P:Net.Client.ClientBase.PackageLength"/>以上时会将这部分的数据先发送, 发送后还有连带的数据, 需要重置头部数据,装入大货车
+            </summary>
+            <param name="stream"></param>
+        </member>
         <member name="M:Net.Client.ClientBase.SendDataHandle(Net.System.QueueSafe{Net.Share.RPCModel},System.Boolean)">
             <summary>
             发送处理
@@ -3215,19 +3231,13 @@
             后台线程接收数据
             </summary>
         </member>
-        <member name="M:Net.Client.ClientBase.ReceiveUpdate(Net.System.Segment)">
-            <summary>
-            接收数据和更新处理
-            </summary>
-            <param name="segment"></param>
-        </member>
         <member name="M:Net.Client.ClientBase.NetworkException(System.Exception)">
             <summary>
             网络异常处理
             </summary>
             <param name="ex"></param>
         </member>
-        <member name="M:Net.Client.ClientBase.ResolveBuffer(Net.System.Segment,System.Int32,System.Int32,System.Boolean)">
+        <member name="M:Net.Client.ClientBase.ResolveBuffer(Net.System.Segment,System.Boolean)">
             <summary>
             解析网络数据包
             </summary>
@@ -3417,6 +3427,40 @@
             <param name="cmd">网络命令</param>
             <param name="func">函数名</param>
             <param name="pars">参数</param>
+        </member>
+        <member name="M:Net.Client.ClientBase.SendGateway(System.Int64,System.String,System.Object[])">
+            <summary>
+            网关发往游戏服务器方法
+            </summary>
+            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
+            <param name="func"></param>
+            <param name="pars"></param>
+        </member>
+        <member name="M:Net.Client.ClientBase.SendGateway(System.Byte,System.Int64,System.String,System.Object[])">
+            <summary>
+            网关发往游戏服务器方法
+            </summary>
+            <param name="cmd"></param>
+            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
+            <param name="func"></param>
+            <param name="pars"></param>
+        </member>
+        <member name="M:Net.Client.ClientBase.SendGateway(System.Int64,System.UInt16,System.Object[])">
+            <summary>
+            网关发往游戏服务器方法
+            </summary>
+            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
+            <param name="methodMask"></param>
+            <param name="pars"></param>
+        </member>
+        <member name="M:Net.Client.ClientBase.SendGateway(System.Byte,System.Int64,System.UInt16,System.Object[])">
+            <summary>
+            网关发往游戏服务器方法
+            </summary>
+            <param name="cmd"></param>
+            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
+            <param name="methodMask"></param>
+            <param name="pars"></param>
         </member>
         <member name="M:Net.Client.ClientBase.SendRT(System.String,System.String,System.Delegate,System.Object[])">
             <summary>
@@ -3617,11 +3661,17 @@
             <param name="bufferSize">每次发送数据大小</param>
             <returns></returns>
         </member>
-        <member name="M:Net.Client.ClientBase.RegisterNetworkIdentity(System.Int32)">
+        <member name="M:Net.Client.ClientBase.CheckSend">
             <summary>
-            注册网络物体唯一标识
+            检查send方法的发送队列是否已到达极限, 到达极限则不允许新的数据放入发送队列, 需要等待队列消耗后才能放入新的发送数据
             </summary>
-            <param name="identity">你本机的一个唯一id, 当服务器注册回调给OnRegisterNetworkIdentity事件后, 可以用这个id判断是不是这个identity</param>
+            <returns>是否可发送数据</returns>
+        </member>
+        <member name="M:Net.Client.ClientBase.CheckSendRT">
+            <summary>
+            检查send方法的发送队列是否已到达极限, 到达极限则不允许新的数据放入发送队列, 需要等待队列消耗后才能放入新的发送数据
+            </summary>
+            <returns>是否可发送数据</returns>
         </member>
         <member name="T:Net.Client.NetBehaviour">
             <summary>
@@ -3803,41 +3853,15 @@
             <param name="clientLen">测试客户端数量</param>
             <param name="dataLen">每个客户端数据大小</param>
         </member>
-        <member name="T:Net.Client.NetworkClient">
-            <summary>
-            双通讯(tcp, udp)客户端 当使用Send发送数据时, 使用udp协议发送. 当使用SendRT发送数据时, 使用tcp协议发送
-            当Send发送数据大于50000字节后内部自动转换为tcp协议发送
-            </summary>
-        </member>
-        <member name="F:Net.Client.NetworkClient.frame">
-            <summary>
-            帧尾或叫数据长度(4) + CRC检验索引(1) + CRC校验码(1) + 玩家id(4) = 10
-            </summary>
-        </member>
-        <member name="M:Net.Client.NetworkClient.#ctor">
-            <summary>
-            构造双协议(tcp,udp)客户端
-            </summary>
-        </member>
-        <member name="M:Net.Client.NetworkClient.#ctor(System.Boolean)">
-            <summary>
-            构造双协议(tcp,udp)客户端
-            </summary>
-            <param name="useUnityThread">使用unity多线程?</param>
-        </member>
-        <member name="M:Net.Client.NetworkClient.Testing(System.String,System.Int32,System.Int32,System.Int32)">
-            <summary>
-            udp压力测试
-            </summary>
-            <param name="ip">服务器ip</param>
-            <param name="port">服务器端口</param>
-            <param name="clientLen">测试客户端数量</param>
-            <param name="dataLen">每个客户端数据大小</param>
-        </member>
         <member name="T:Net.Client.TcpClient">
             <summary>
             TCP客户端类型 
             第三版本 2020.9.14
+            </summary>
+        </member>
+        <member name="F:Net.Client.TcpClient.frame">
+            <summary>
+            tcp数据长度(4) + 2CRC协议 = 6
             </summary>
         </member>
         <member name="M:Net.Client.TcpClient.#ctor">
@@ -4262,6 +4286,11 @@
         <member name="P:Net.Server.NetPlayer.TcpRemoteEndPoint">
             <summary>
             tcp远程端口, 由于socket被关闭后无法访问RemoteEndPoint的问题
+            </summary>
+        </member>
+        <member name="P:Net.Server.NetPlayer.MID">
+            <summary>
+            socket的IP和端口组合得到的标识, 0-4byte为IP值, 4-6为Port值 (Machine identification)
             </summary>
         </member>
         <member name="M:Net.Server.NetPlayer.#ctor">
@@ -4806,7 +4835,7 @@
         </member>
         <member name="F:Net.Server.ServerBase`2.frame">
             <summary>
-            帧尾或叫数据长度(4) + CRC检验索引(1) + CRC校验码(1) = 6
+            2CRC协议
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.StackBufferSize">
@@ -4898,6 +4927,11 @@
         <member name="P:Net.Server.ServerBase`2.PackageLength">
             <summary>
             组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.MD5CRC">
+            <summary>
+            采用md5校验
             </summary>
         </member>
         <member name="F:Net.Server.ServerBase`2.rootPath">
@@ -5264,6 +5298,12 @@
             </summary>
             <param name="client"></param>
         </member>
+        <member name="M:Net.Server.ServerBase`2.ResetDataHead(Net.System.Segment)">
+            <summary>
+            重置头部数据大小, 在小数据达到<see cref="P:Net.Server.ServerBase`2.PackageLength"/>以上时会将这部分的数据先发送, 发送后还有连带的数据, 需要重置头部数据,装入大货车
+            </summary>
+            <param name="stream"></param>
+        </member>
         <member name="F:Net.Server.ServerBase`2.CRCCode">
             <summary>
             CRC校验代码表, 使用者可自行改变CRC校验码, 直接改源代码，重要提示：客户端的CRC表必须和这里的CRC表保持一致
@@ -5282,7 +5322,7 @@
             <param name="client">客户端</param>
             <param name="model">数据模型</param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.CheckHeartHandle">
+        <member name="M:Net.Server.ServerBase`2.CheckHeartHandler">
             <summary>
             心跳检测处理线程
             </summary>
@@ -5510,6 +5550,40 @@
             <param name="func">函数名</param>
             <param name="pars">参数</param>
         </member>
+        <member name="M:Net.Server.ServerBase`2.SendGateway(`0,System.Int64,System.String,System.Object[])">
+            <summary>
+            网关发往游戏服务器方法
+            </summary>
+            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
+            <param name="func"></param>
+            <param name="pars"></param>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.SendGateway(`0,System.Byte,System.Int64,System.String,System.Object[])">
+            <summary>
+            网关发往游戏服务器方法
+            </summary>
+            <param name="cmd"></param>
+            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
+            <param name="func"></param>
+            <param name="pars"></param>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.SendGateway(`0,System.Int64,System.UInt16,System.Object[])">
+            <summary>
+            网关发往游戏服务器方法
+            </summary>
+            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
+            <param name="methodMask"></param>
+            <param name="pars"></param>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.SendGateway(`0,System.Byte,System.Int64,System.UInt16,System.Object[])">
+            <summary>
+            网关发往游戏服务器方法
+            </summary>
+            <param name="cmd"></param>
+            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
+            <param name="methodMask"></param>
+            <param name="pars"></param>
+        </member>
         <member name="M:Net.Server.ServerBase`2.SendRT(`0,System.Byte[])">
             <summary>
             发送可靠网络传输, 可发送大数据流
@@ -5714,6 +5788,18 @@
             <param name="bufferSize">每次发送数据大小</param>
             <returns></returns>
         </member>
+        <member name="M:Net.Server.ServerBase`2.CheckSend(`0)">
+            <summary>
+            检查send方法的发送队列是否已到达极限, 到达极限则不允许新的数据放入发送队列, 需要等待队列消耗后才能放入新的发送数据
+            </summary>
+            <returns>是否可发送数据</returns>
+        </member>
+        <member name="M:Net.Server.ServerBase`2.CheckSendRT(`0)">
+            <summary>
+            检查send方法的发送队列是否已到达极限, 到达极限则不允许新的数据放入发送队列, 需要等待队列消耗后才能放入新的发送数据
+            </summary>
+            <returns>是否可发送数据</returns>
+        </member>
         <member name="T:Net.Server.DNPlayer">
             <summary>
             dotNetty客户端玩家对象
@@ -5759,31 +5845,6 @@
             ENet网络通道ID
             </summary>
         </member>
-        <member name="T:Net.Server.NetworkServer`2">
-            <summary>
-            双通讯(tcp, udp)服务器 当使用Send发送数据时, 使用udp协议发送. 当使用SendRT发送数据时, 使用tcp协议发送
-            当Send发送数据大于50000字节后内部自动转换为tcp协议发送
-            <para>Player:当有客户端连接服务器就会创建一个Player对象出来, Player对象和XXXClient是对等端, 每当有数据处理都会通知Player对象. </para>
-            <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
-            </summary>
-            <typeparam name="Player"></typeparam>
-            <typeparam name="Scene"></typeparam>
-        </member>
-        <member name="P:Net.Server.NetworkServer`2.UdpSocketAsync">
-            <summary>
-            UDP的IOCP套接字
-            </summary>
-        </member>
-        <member name="F:Net.Server.NetworkServer`2.frame">
-            <summary>
-            帧尾或叫数据长度(4) + CRC检验索引(1) + CRC校验码(1) + 玩家id(4) = 10
-            </summary>
-        </member>
-        <member name="P:Net.Server.NetworkServer`2.TcpServer">
-            <summary>
-            tcp服务器套接字
-            </summary>
-        </member>
         <member name="T:Net.Server.RawServer`2">
             <summary>
             原始Udp服务器, 内部处理了IP头部
@@ -5805,11 +5866,21 @@
             <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
             </summary>
         </member>
+        <member name="F:Net.Server.TcpServer`2.frame">
+            <summary>
+            tcp数据长度(4) + 2CRC协议 = 6
+            </summary>
+        </member>
         <member name="T:Net.Server.TcpServerIOCP`2">
             <summary>
             tcp 输入输出完成端口服务器
             <para>Player:当有客户端连接服务器就会创建一个Player对象出来, Player对象和XXXClient是对等端, 每当有数据处理都会通知Player对象. </para>
             <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
+            </summary>
+        </member>
+        <member name="F:Net.Server.TcpServerIOCP`2.frame">
+            <summary>
+            tcp数据长度(4) + 2CRC协议 = 6
             </summary>
         </member>
         <member name="T:Net.Server.UdpServer`2">
@@ -7056,9 +7127,33 @@
             使用此命令时,函数第一个参数将会嵌入NetPlayer参数
             </summary>
         </member>
-        <member name="F:Net.Share.NetCmd.RegisterNetworkIdentity">
+        <member name="F:Net.Share.NetCmd.GatewayRelay">
             <summary>
-            注册网络物体唯一标识
+            网关转发
+            </summary>
+        </member>
+        <member name="F:Net.Share.NetCmd.MIDCall">
+            <summary>
+            网关与服务器通信的mid, mid是socket的ip和端口组成, 占用8字节(long类型)
+            <code>使用此命令需要前面两个参数是NetPlayer和long类型</code>
+            <code>服务器使用: </code>
+            <code>[Rpc(cmd = NetCmd.MIDCall)]</code>
+            <code>void test(Player client, long mid, xxx)</code>
+            <code>客户端使用: </code>
+            <code>[Rpc(cmd = NetCmd.MIDCall)]</code>
+            <code>void test(long mid, xxx)</code>
+            </summary>
+        </member>
+        <member name="F:Net.Share.NetCmd.MIDSingleCall">
+            <summary>
+            (主线程调用)网关与服务器通信的mid, mid是socket的ip和端口组成, 占用8字节(long类型)
+            <code>使用此命令需要前面两个参数是NetPlayer和long类型</code>
+            <code>服务器使用: </code>
+            <code>[Rpc(cmd = NetCmd.MIDSingleCall)]</code>
+            <code>void test(Player client, long mid, xxx)</code>
+            <code>客户端使用: </code>
+            <code>[Rpc(cmd = NetCmd.MIDSingleCall)]</code>
+            <code>void test(long mid, xxx)</code>
             </summary>
         </member>
         <member name="T:Net.Share.RPCMethod">
@@ -7565,16 +7660,6 @@
             缓存区
             </summary>
         </member>
-        <member name="F:Net.Share.RevdDataBuffer.index">
-            <summary>
-            数据索引
-            </summary>
-        </member>
-        <member name="F:Net.Share.RevdDataBuffer.count">
-            <summary>
-            数据长度
-            </summary>
-        </member>
         <member name="F:Net.Share.RevdDataBuffer.tcp_udp">
             <summary>
             数据协议
@@ -7766,6 +7851,16 @@
         <member name="F:Net.Share.RPCModel.serialize">
             <summary>
             数据是否经过内部序列化?
+            </summary>
+        </member>
+        <member name="F:Net.Share.RPCModel.bigData">
+            <summary>
+            标记此数据为大数据
+            </summary>
+        </member>
+        <member name="F:Net.Share.RPCModel.mid">
+            <summary>
+            标记机器id
             </summary>
         </member>
         <member name="M:Net.Share.RPCModel.#ctor(System.Byte,System.Byte[])">

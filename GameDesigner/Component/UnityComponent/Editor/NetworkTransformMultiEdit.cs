@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using Net.UnityComponent;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,20 +18,27 @@ public class NetworkTransformMultiEdit : Editor
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        if (nt.getChilds)
+        if (GUILayout.Button("更新子物体"))
         {
-            nt.getChilds = false;
             var childs1 = nt.transform.GetComponentsInChildren<Transform>();
-            nt.childs = new ChildTransform[childs1.Length - 1];
-            for (int i = 1; i < childs1.Length; i++)
+            var list = new List<ChildTransform>();
+            foreach (var child in childs1)
             {
-                nt.childs[i - 1] = new ChildTransform()
+                if (child == nt.transform)
+                    continue;
+                if (!child.gameObject.activeInHierarchy)
+                    continue;
+                list.Add(new ChildTransform()
                 {
-                    name = childs1[i].name,
-                    transform = childs1[i]
-                };
-                nt.childs[i - 1].mode = nt.syncMode;
+                    name = child.name,
+                    transform = child,
+                    mode = nt.syncMode,
+                    syncPosition = nt.syncPosition,
+                    syncRotation = nt.syncRotation,
+                    syncScale = nt.syncScale,
+                });
             }
+            nt.childs = list.ToArray();
             EditorUtility.SetDirty(nt);
         }
     }

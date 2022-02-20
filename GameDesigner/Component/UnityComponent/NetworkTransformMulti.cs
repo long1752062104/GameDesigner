@@ -11,7 +11,6 @@ namespace Net.UnityComponent
     /// </summary>
     public class NetworkTransformMulti : NetworkTransformBase
     {
-        public bool getChilds;
         public ChildTransform[] childs;
 
         public void Start()

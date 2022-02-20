@@ -11,7 +11,7 @@ namespace Net.Component
 
     public enum TransportProtocol
     {
-        Gudp, Tcp, Network, Udx, Kcp, Web, Enet
+        Gudp, Tcp, Udx, Kcp, Web, Enet
     }
 
     public class ClientManager : SingleCase<ClientManager>, ISendHandle
@@ -42,9 +42,6 @@ namespace Net.Component
                             break;
                         case TransportProtocol.Tcp:
                             _client = new TcpClient(true);
-                            break;
-                        case TransportProtocol.Network:
-                            _client = new NetworkClient(true);
                             break;
                         case TransportProtocol.Enet:
                             _client = new ENetClient(true);
