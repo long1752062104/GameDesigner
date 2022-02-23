@@ -3,20 +3,19 @@ namespace AOIExample
 {
     using Net.Component;
     using Net.Share;
+    using Net.UnityComponent;
     using UnityEngine;
 
-    public class SceneManager : Net.Component.SceneManager
+    public class SceneManager : NetworkSceneManager
     {
         public GameObject player;
 
-        public override void Start()
+        public void Start()
         {
             FindObjectOfType<ClientManager>().client.AddStateHandler(NetworkState.Connected, Connected);
-            base.Start();
         }
         void Connected() 
         {
-            NetworkTransformBase.Identity = ClientManager.UID;
             var player1 = Instantiate(player, new Vector3(Random.Range(-20, 20), 1, Random.Range(-20, 20)), Quaternion.identity);
             player1.AddComponent<PlayerControl>();
             player1.name = ClientManager.Identify;
@@ -24,9 +23,9 @@ namespace AOIExample
             player1.GetComponent<PlayerControl>().moveSpeed = 20f;
             FindObjectOfType<ARPGcamera>().target = player1.transform;
         }
-        public override void OnCrateTransform(Operation opt, NetworkTransformBase t)
+        public override void OnNetworkObjectCreate(Operation opt, NetworkObject identity)
         {
-            var rigidbody = t.GetComponent<Rigidbody>();
+            var rigidbody = identity.GetComponent<Rigidbody>();
             Destroy(rigidbody);
         }
     }

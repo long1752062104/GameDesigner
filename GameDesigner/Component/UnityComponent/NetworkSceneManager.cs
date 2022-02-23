@@ -60,9 +60,10 @@ namespace Net.UnityComponent
                         if (!identitys.TryGetValue(opt.identity, out NetworkObject identity))
                         {
                             identity = Instantiate(registerObjects[opt.index]);
-                            identity.identity = opt.identity;
+                            identity.m_identity = opt.identity;
                             identity.isOtherCreate = true;
                             identitys.Add(opt.identity, identity);
+                            OnNetworkObjectCreate(opt, identity);
                             foreach (var item in identity.networkBehaviours)
                                 item.OnNetworkObjectCreate(opt);
                         }
@@ -75,7 +76,7 @@ namespace Net.UnityComponent
                         if (!identitys.TryGetValue(opt.identity, out NetworkObject identity))
                         {
                             identity = Instantiate(registerObjects[opt.index]);
-                            identity.identity = opt.identity;
+                            identity.m_identity = opt.identity;
                             identity.isOtherCreate = true;
                             identitys.Add(opt.identity, identity);
                             foreach (var item in identity.networkBehaviours)
@@ -122,7 +123,7 @@ namespace Net.UnityComponent
                         if (!identitys.TryGetValue(opt.identity, out NetworkObject identity))
                         {
                             identity = Instantiate(registerObjects[opt.index]);
-                            identity.identity = opt.identity;
+                            identity.m_identity = opt.identity;
                             identity.isOtherCreate = true;
                             identitys.Add(opt.identity, identity);
                             foreach (var item in identity.networkBehaviours)
@@ -135,6 +136,10 @@ namespace Net.UnityComponent
                     OnOtherOperator(opt);
                     break;
             }
+        }
+
+        public virtual void OnNetworkObjectCreate(Operation opt, NetworkObject identity)
+        {
         }
 
         public virtual void OnOtherDestroy(NetworkObject identity)

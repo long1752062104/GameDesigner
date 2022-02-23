@@ -9,11 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4721778826451652466}
-  - component: {fileID: 4264965691883839755}
   - component: {fileID: -7067785888288551227}
   - component: {fileID: 4023168297965278670}
   - component: {fileID: 2995772339888953573}
   - component: {fileID: -628428045413517342}
+  - component: {fileID: 4158057758906294884}
+  - component: {fileID: 8746321865733914007}
   m_Layer: 9
   m_Name: player
   m_TagString: Player
@@ -37,30 +38,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4264965691883839755
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5914734400881481601}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04d4bfd96a0d2af47909d28f56850b81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  property: 4
-  mode: 2
-  identity: -1
-  interval: 0.5
-  index: 0
-  setID: 0
-  m_identity: 0
-  rate: 30
-  lerpSpeed: 0.3
-  fixedSync: 1
-  fixedSendTime: 1
 --- !u!114 &-7067785888288551227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,6 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51e6ac1cc872d514fbeb65e52bff6fe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
   health: 100
   healthMax: 100
   moveSpeed: 6
@@ -126,8 +104,44 @@ MonoBehaviour:
   sm: {fileID: 0}
   bullet: {fileID: 7918907263500288135, guid: e96fc3f65b0401c4b8e71a0c71e4d6df, type: 3}
   firePoint: {fileID: 310055410538059874}
-  uid: 0
   IsLocal: 0
+--- !u!114 &4158057758906294884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5914734400881481601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6645ea1fd90e6214b879d297083f266a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_identity: -1
+  identity: 0
+  registerObjectIndex: 0
+--- !u!114 &8746321865733914007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5914734400881481601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0e2700785d520a4b835e70c87f3a81e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  mode: 3
+  interval: 0.5
+  rate: 30
+  lerpSpeed: 0.3
+  fixedSync: 1
+  fixedSendTime: 1
 --- !u!1 &7129681259272014773
 GameObject:
   m_ObjectHideFlags: 0

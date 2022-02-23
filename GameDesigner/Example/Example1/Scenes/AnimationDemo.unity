@@ -291,6 +291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 3
+  isEncrypt: 0
 --- !u!114 &643538766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311,6 +312,7 @@ MonoBehaviour:
   frameRate: 60
   authorize: 0
   startConnect: 1
+  md5CRC: 0
   rpcs: []
 --- !u!4 &643538767
 Transform:
@@ -335,6 +337,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1902338650}
+  - component: {fileID: 1902338651}
   - component: {fileID: 1902338649}
   m_Layer: 0
   m_Name: SceneManager
@@ -352,12 +355,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1902338648}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24f2175213d7944439663b08c7ea2095, type: 3}
+  m_Script: {fileID: 11500000, guid: 7fdd81174778b9d4a9f91d852f1448bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  setIndex: 0
-  prefabs:
-  - {fileID: 3051849639346283580, guid: 5df03698b0c2d9542ba5eb2b8e40b878, type: 3}
+  registerObjects:
+  - {fileID: 322575868513617537, guid: 5df03698b0c2d9542ba5eb2b8e40b878, type: 3}
+  onExitDelectAll: 1
 --- !u!4 &1902338650
 Transform:
   m_ObjectHideFlags: 0
@@ -372,6 +375,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1902338651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902338648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 389734cdb206f1348a427f53081667eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CanSentTime: 0.033333335
 --- !u!1 &1945691126
 GameObject:
   m_ObjectHideFlags: 0

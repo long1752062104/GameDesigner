@@ -719,9 +719,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6aa283633cb4b74e986f812fa94d864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  setIndex: 0
-  prefabs:
-  - {fileID: 4264965691883839755, guid: 0d947c8429c27c54f8e0579b919a56c6, type: 3}
+  registerObjects:
+  - {fileID: 4158057758906294884, guid: 0d947c8429c27c54f8e0579b919a56c6, type: 3}
+  onExitDelectAll: 1
   monsters:
   - {fileID: 4615171339904707042, guid: ef023427b690fef4ebc83ad8cce6db54, type: 3}
   - {fileID: 4615171339904707042, guid: a74923fd483f4f24596bdcbd1593d057, type: 3}

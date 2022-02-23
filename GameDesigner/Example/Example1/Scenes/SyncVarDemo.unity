@@ -165,8 +165,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6645ea1fd90e6214b879d297083f266a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  identity: -1
   m_identity: 126
+  identity: 126
   registerObjectIndex: 0
 --- !u!108 &76004473
 Light:
@@ -361,6 +361,7 @@ MonoBehaviour:
   frameRate: 60
   authorize: 0
   startConnect: 1
+  md5CRC: 0
   rpcs: []
 --- !u!4 &643538767
 Transform:
@@ -539,8 +540,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6645ea1fd90e6214b879d297083f266a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  identity: -1
   m_identity: 233
+  identity: 233
   registerObjectIndex: 0
 --- !u!114 &1166747461
 MonoBehaviour:
@@ -800,8 +801,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6645ea1fd90e6214b879d297083f266a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  identity: -1
   m_identity: 123
+  identity: 123
   registerObjectIndex: 0
 --- !u!1 &1902338648
 GameObject:
@@ -833,8 +834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fdd81174778b9d4a9f91d852f1448bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registerObjects:
-  - {fileID: 6582916904807957167, guid: b35ce87b536db7748a5603d889295e5b, type: 3}
+  registerObjects: []
   onExitDelectAll: 1
 --- !u!4 &1902338650
 Transform:
@@ -973,6 +973,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6645ea1fd90e6214b879d297083f266a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  identity: -1
   m_identity: 125
+  identity: 125
   registerObjectIndex: 0

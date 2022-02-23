@@ -1,5 +1,6 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
 using Net.Component;
+using Net.UnityComponent;
 using UnityEngine;
 namespace Example1
 {
@@ -22,7 +23,7 @@ namespace Example1
         {
             var offset = new Vector3(Random.Range(offsetX.x, offsetX.y), 0, Random.Range(offsetZ.x, offsetZ.y));
             var player1 = Instantiate(playerPrefab, transform.position + offset, transform.rotation);
-            player1.GetComponent<NetworkTransformBase>().m_identity = ClientManager.UID;
+            player1.GetComponent<NetworkObject>().m_identity = ClientManager.UID;
             player1.GetComponent<PlayerController>().isLocalPlayer = true;
             Camera.main.GetComponent<ARPGcamera>().target = player1.transform;
         }

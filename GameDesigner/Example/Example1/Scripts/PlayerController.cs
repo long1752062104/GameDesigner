@@ -1,4 +1,5 @@
 ﻿#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA
+using BuildComponent;
 using UnityEngine;
 namespace Example1 
 {
@@ -6,12 +7,12 @@ namespace Example1
     {
         public bool isLocalPlayer;
         public float moveSpeed = 6f;
-        private Animation anim;
+        private NetworkAnimation anim;
 
         // Start is called before the first frame update
         void Start()
         {
-            anim = GetComponent<Animation>();
+            anim = GetComponent<NetworkAnimation>();
         }
 
         // Update is called once per frame

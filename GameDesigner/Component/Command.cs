@@ -42,25 +42,13 @@
         /// </summary>
         public const byte EnemySwitchState = 108;
         /// <summary>
-        /// TransformComponent组件测试指令
+        /// Transform同步指令
         /// </summary>
         public const byte Transform = 109;
         /// <summary>
         /// NetworkIdentity组件被销毁指令
         /// </summary>
         public const byte Destroy = 110;
-        /// <summary>
-        /// 新版动画同步命令
-        /// </summary>
-        public const byte Animator = 111;
-        /// <summary>
-        /// 新版动画参数同步命令
-        /// </summary>
-        public const byte AnimatorParameter = 112;
-        /// <summary>
-        /// 旧版动画同步命令
-        /// </summary>
-        public const byte Animation = 113;
         /// <summary>
         /// 当客户端退出游戏, 通知其他客户端删除此客户端所生成的NetworkIdentity物体
         /// </summary>

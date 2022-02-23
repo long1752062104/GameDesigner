@@ -4,15 +4,16 @@ namespace Example2
     using Net.Component;
     using Net.Share;
     using Net.System;
+    using Net.UnityComponent;
 
-    public class SceneManager : Net.Component.SceneManager
+    public class SceneManager : NetworkSceneManager
     {
         public AIMonster[] monsters;
         internal MyDictionary<int, AIMonster> monsterDics = new MyDictionary<int, AIMonster>();
 
-        public override void OnCrateTransform(Operation opt, NetworkTransformBase t)
+        public override void OnNetworkObjectCreate(Operation opt, NetworkObject identity)
         {
-            var p = t.GetComponent<Player>();
+            var p = identity.GetComponent<Player>();
             if (p != null)
             {
                 p.id = opt.identity;
@@ -20,9 +21,9 @@ namespace Example2
             }
         }
 
-        public override void OnDestroyTransform(NetworkTransformBase t)
+        public override void OnOtherDestroy(NetworkObject identity)
         {
-            var p = t.GetComponent<Player>();
+            var p = identity.GetComponent<Player>();
             if (p != null) 
             {
                 Destroy(p.headBloodBar.gameObject);
@@ -44,13 +45,13 @@ namespace Example2
             return monster;
         }
 
-        public override void OnOperationOther(Operation opt)
+        public override void OnOtherOperator(Operation opt)
         {
             switch (opt.cmd)
             {
                 case Command.Fire:
                     {
-                        if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
+                        if (identitys.TryGetValue(opt.identity, out var t))
                         {
                             var p = t.GetComponent<Player>();
                             p.Fire();
@@ -96,7 +97,7 @@ namespace Example2
                     break;
                 case Command.PlayerState:
                     {
-                        if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
+                        if (identitys.TryGetValue(opt.identity, out var t))
                         {
                             var p = t.GetComponent<Player>();
                             p.health = opt.index1;
@@ -111,7 +112,7 @@ namespace Example2
                     break;
                 case Command.Resurrection:
                     {
-                        if (transforms.TryGetValue(opt.identity, out NetworkTransformBase t))
+                        if (identitys.TryGetValue(opt.identity, out var t))
                         {
                             var p = t.GetComponent<Player>();
                             p.Resurrection();

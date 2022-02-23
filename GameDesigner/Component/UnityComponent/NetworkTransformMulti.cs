@@ -23,7 +23,7 @@ namespace Net.UnityComponent
 
         public override void Update()
         {
-            if (networkIdentity.identity == -1)
+            if (netObj.m_identity == -1)
                 return;
             if (mode == SyncMode.Synchronized)
             {
@@ -38,7 +38,7 @@ namespace Net.UnityComponent
                 Check();
                 for (int i = 0; i < childs.Length; i++)
                 {
-                    childs[i].Check(networkIdentity.identity, networkIdentity.registerObjectIndex);
+                    childs[i].Check(netObj.m_identity, netObj.registerObjectIndex);
                 }
                 sendTime = Time.time + (1f / rate);
             }
@@ -46,10 +46,10 @@ namespace Net.UnityComponent
 
         public override void StartSyncTransformState()
         {
-            ClientManager.AddOperation(new Operation(Command.Transform, networkIdentity.identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
+            ClientManager.AddOperation(new Operation(Command.Transform, netObj.m_identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
             {
                 cmd1 = (byte)mode,
-                index = networkIdentity.registerObjectIndex,
+                index = netObj.registerObjectIndex,
                 uid = ClientManager.UID
             });
         }

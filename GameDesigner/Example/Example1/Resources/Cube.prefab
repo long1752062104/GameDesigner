@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 1680961511639270296}
   - component: {fileID: 1680961511639270303}
   - component: {fileID: 1680961511639270302}
-  - component: {fileID: 1680961511639270301}
+  - component: {fileID: 5532333360495517184}
+  - component: {fileID: 8433683347890267273}
   - component: {fileID: -1378744482142756692}
   m_Layer: 0
   m_Name: Cube
@@ -81,7 +82,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &1680961511639270301
+--- !u!114 &5532333360495517184
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -90,18 +91,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 1680961511639270300}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04d4bfd96a0d2af47909d28f56850b81, type: 3}
+  m_Script: {fileID: 11500000, guid: 6645ea1fd90e6214b879d297083f266a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_identity: -1
+  identity: 0
+  registerObjectIndex: 0
+--- !u!114 &8433683347890267273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680961511639270300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0e2700785d520a4b835e70c87f3a81e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
-  mode: 2
-  identity: -1
+  mode: 3
   interval: 0.5
-  index: 0
-  m_identity: 0
   rate: 30
   lerpSpeed: 0.3
   fixedSync: 1

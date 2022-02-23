@@ -1298,8 +1298,9 @@ GameObject:
   - component: {fileID: 3051849639353100504}
   - component: {fileID: 9112014501151050937}
   - component: {fileID: 1714533957756275487}
-  - component: {fileID: 3051849639346283581}
-  - component: {fileID: 3051849639346283580}
+  - component: {fileID: 322575868513617537}
+  - component: {fileID: 9016261834219716367}
+  - component: {fileID: 7103855066349051478}
   - component: {fileID: 3051849639346283583}
   m_Layer: 0
   m_Name: Soldier
@@ -1373,7 +1374,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &3051849639346283581
+--- !u!114 &322575868513617537
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1382,12 +1383,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3051849639346283582}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03fe0b0dc8101954fb49f291218fa0b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 6645ea1fd90e6214b879d297083f266a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nt: {fileID: 3051849639346283580}
-  rate: 30
---- !u!114 &3051849639346283580
+  m_identity: -1
+  identity: 0
+  registerObjectIndex: 0
+--- !u!114 &9016261834219716367
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1396,7 +1398,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3051849639346283582}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04d4bfd96a0d2af47909d28f56850b81, type: 3}
+  m_Script: {fileID: 11500000, guid: b0e2700785d520a4b835e70c87f3a81e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
@@ -1404,14 +1406,24 @@ MonoBehaviour:
   syncRotation: 1
   syncScale: 0
   mode: 3
-  identity: -1
   interval: 0.5
-  index: 0
-  m_identity: 0
   rate: 30
   lerpSpeed: 0.3
   fixedSync: 1
   fixedSendTime: 1
+--- !u!114 &7103855066349051478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3051849639346283582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1436eaaf5eb8b6a4cbf2ab8a1e437583, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  autoCheck: 1
 --- !u!114 &3051849639346283583
 MonoBehaviour:
   m_ObjectHideFlags: 0

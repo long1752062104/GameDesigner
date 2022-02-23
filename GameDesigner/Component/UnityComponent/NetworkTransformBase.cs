@@ -5,6 +5,32 @@ namespace Net.UnityComponent
     using Net.Share;
     using UnityEngine;
 
+    public enum SyncMode
+    {
+        /// <summary>
+        /// 自身同步, 只有自身才能控制, 同步给其他客户端, 其他客户端无法控制这个物体的移动
+        /// </summary>
+        Local,
+        /// <summary>
+        /// 完全控制, 所有客户端都可以移动这个物体, 并且其他客户端都会被同步
+        /// 同步条件是哪个先移动这个物体会有<see cref="NetworkTransformBase.interval"/>秒完全控制,
+        /// 其他客户端无法控制,如果先移动的客户端一直移动这个物体,则其他客户端无法移动,只有先移动的客户端停止操作,下个客户端才能同步这个物体
+        /// </summary>
+        Control,
+        /// <summary>
+        /// 无效
+        /// </summary>
+        Authorize,
+        /// <summary>
+        /// 自身同步在其他客户端显示的状态
+        /// </summary>
+        Synchronized,
+        /// <summary>
+        /// 完全控制在其他客户端显示的状态
+        /// </summary>
+        SynchronizedAll
+    }
+
     /// <summary>
     /// 网络Transform同步组件基类
     /// </summary>
@@ -13,7 +39,7 @@ namespace Net.UnityComponent
         protected Net.Vector3 position;
         protected Net.Quaternion rotation;
         protected Net.Vector3 localScale;
-        public SyncMode syncMode = SyncMode.Control;
+        public SyncMode syncMode = SyncMode.Local;
         public bool syncPosition = true;
         public bool syncRotation = true;
         public bool syncScale = false;
@@ -33,7 +59,7 @@ namespace Net.UnityComponent
         // Update is called once per frame
         public virtual void Update()
         {
-            if (networkIdentity.identity == -1)
+            if (netObj.m_identity == -1)
                 return;
             if (mode == SyncMode.Synchronized)
             {
@@ -60,10 +86,10 @@ namespace Net.UnityComponent
 
         public virtual void StartSyncTransformState()
         {
-            ClientManager.AddOperation(new Operation(Command.Transform, networkIdentity.identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
+            ClientManager.AddOperation(new Operation(Command.Transform, netObj.m_identity, syncScale ? localScale : Net.Vector3.zero, syncPosition ? position : Net.Vector3.zero, syncRotation ? rotation : Net.Quaternion.zero)
             {
                 cmd1 = (byte)mode,
-                index = networkIdentity.registerObjectIndex,
+                index = netObj.registerObjectIndex,
                 uid = ClientManager.UID
             });
         }
@@ -110,6 +136,10 @@ namespace Net.UnityComponent
                 mode = SyncMode.SynchronizedAll;
             else
                 mode = SyncMode.Synchronized;
+            netPosition = opt.position;
+            netRotation = opt.rotation;
+            netLocalScale = opt.direction;
+            SyncControlTransform();
         }
 
         public override void OnNetworkOperationHandler(Operation opt)

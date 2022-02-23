@@ -10,18 +10,18 @@ namespace Net.UnityComponent
     [RequireComponent(typeof(NetworkObject))]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
-        internal NetworkObject networkIdentity;
+        internal NetworkObject netObj;
         /// <summary>
         /// 这个物体是本机生成的?
         /// true:这个物体是从你本机实例化后, 同步给其他客户端的, 其他客户端的IsLocal为false
         /// false:这个物体是其他客户端实例化后,同步到本机客户端上, IsLocal为false
         /// </summary>
-        public bool IsLocal => !networkIdentity.isOtherCreate;
+        public bool IsLocal => !netObj.isOtherCreate;
         public virtual void Awake()
         {
-            networkIdentity = GetComponent<NetworkObject>();
-            networkIdentity.networkBehaviours.Add(this); 
-            networkIdentity.InitSyncVar(this);
+            netObj = GetComponent<NetworkObject>();
+            netObj.networkBehaviours.Add(this); 
+            netObj.InitSyncVar(this);
         }
         /// <summary>
         /// 当网络物体被初始化, 只有本机实例化的物体才会被调用
@@ -44,8 +44,8 @@ namespace Net.UnityComponent
         public virtual void OnPropertyAutoCheck() { }
         public virtual void OnDestroy()
         {
-            networkIdentity.RemoveSyncVar(this);
-            networkIdentity.networkBehaviours.Remove(this);
+            netObj.RemoveSyncVar(this);
+            netObj.networkBehaviours.Remove(this);
         }
     }
 }

@@ -16,9 +16,9 @@ namespace Net.UnityComponent
         internal static int Identity;
         internal static Queue<int> IDENTITY_POOL = new Queue<int>();
         public static int Capacity { get; private set; }
-        [DisplayOnly] public int identity = -1;
+        [DisplayOnly] public int m_identity = -1;
         [Tooltip("自定义唯一标识, 当值不为0后,可以不通过NetworkSceneManager的registerObjects去设置, 直接放在设计的场景里面, 不需要做成预制体")]
-        public int m_identity;//可以设置的id
+        public int identity;//可以设置的id
         [Tooltip("注册的网络物体索引, registerObjectIndex要对应NetworkSceneManager的registerObjects数组索引, 如果设置了自定义唯一标识, 则此字段无效!")]
         public int registerObjectIndex;
         internal bool isOtherCreate;
@@ -35,18 +35,19 @@ namespace Net.UnityComponent
                 Destroy(gameObject);
                 return;
             }
-            if (m_identity != 0)
+            if (m_identity > 0)
             {
-                if (m_identity > 10000)
-                {
-                    Debug.Log("自定义唯一标识不能大于10000!");
-                    Destroy(gameObject);
-                    return;
-                }
-                identity = m_identity;
                 sm.identitys.Add(m_identity, this);
                 foreach (var item in networkBehaviours)
-                    item.OnNetworkObjectInit(identity);
+                    item.OnNetworkObjectInit(m_identity);
+                return;
+            }
+            if (identity > 0)
+            {
+                m_identity = identity;
+                sm.identitys.Add(m_identity, this);
+                foreach (var item in networkBehaviours)
+                    item.OnNetworkObjectInit(m_identity);
                 return;
             }
             if (IDENTITY_POOL.Count <= 0)
@@ -55,10 +56,10 @@ namespace Net.UnityComponent
                 Destroy(gameObject);
                 return;
             }
-            identity = IDENTITY_POOL.Dequeue();
-            sm.identitys.Add(identity, this);
+            m_identity = IDENTITY_POOL.Dequeue();
+            sm.identitys.Add(m_identity, this);
             foreach (var item in networkBehaviours)
-                item.OnNetworkObjectInit(identity);
+                item.OnNetworkObjectInit(m_identity);
         }
 
         internal void InitSyncVar(object target)
@@ -74,7 +75,7 @@ namespace Net.UnityComponent
         {
             SyncVarHelper.CheckSyncVar(isOtherCreate, syncVarInfos, (buffer)=> 
             {
-                ClientManager.AddOperation(new Operation(NetCmd.SyncVar, identity)
+                ClientManager.AddOperation(new Operation(NetCmd.SyncVar, m_identity)
                 {
                     uid = ClientManager.UID,
                     index = registerObjectIndex,
@@ -107,17 +108,17 @@ namespace Net.UnityComponent
 
         public virtual void OnDestroy()
         {
-            if (identity == -1)
+            if (m_identity == -1)
                 return;
             var nsm = NetworkSceneManager.I;
             if(nsm != null)
-                nsm.identitys.Remove(identity);
-            if (isOtherCreate | identity < 10000)//identity < 10000则是自定义唯一标识
+                nsm.identitys.Remove(m_identity);
+            if (isOtherCreate | m_identity < 10000)//identity < 10000则是自定义唯一标识
                 return;
-            IDENTITY_POOL.Enqueue(identity);
+            IDENTITY_POOL.Enqueue(m_identity);
             if (ClientManager.I == null)
                 return;
-            ClientManager.AddOperation(new Operation(Command.Destroy, identity));
+            ClientManager.AddOperation(new Operation(Command.Destroy, m_identity));
         }
 
         /// <summary>
