@@ -344,7 +344,7 @@ namespace Net.Client
         /// </summary>
         public QueueSafe<SendOrPostCallback> workerQueue = new QueueSafe<SendOrPostCallback>();
         /// <summary>
-        /// 允许叠包缓冲器最大值 默认可发送5242880(5M)的数据包
+        /// 允许叠包缓存最大值 默认可发送5242880(5M)的数据包
         /// </summary>
         public int StackBufferSize { get; set; } = 5242880;
         /// <summary>
@@ -428,9 +428,17 @@ namespace Net.Client
         /// </summary>
         public int PackageLength { get; set; } = 1000;
         /// <summary>
-        /// 采用md5校验
+        /// 采用md5 + 随机种子校验
         /// </summary>
         public bool MD5CRC { get; set; }
+        /// <summary>
+        /// 随机种子密码
+        /// </summary>
+        public int Password { get; set; } = 123456789;
+        /// <summary>
+        /// 限制发送队列长度
+        /// </summary>
+        public int LimitQueueCount { get; set; } = ushort.MaxValue;
         private readonly MyDictionary<uint, FrameList> revdFrames = new MyDictionary<uint, FrameList>();
         private long fileStreamCurrPos;
         private readonly MyDictionary<ushort, SyncVarInfo> syncVarDic = new MyDictionary<ushort, SyncVarInfo>();
@@ -468,7 +476,7 @@ namespace Net.Client
 
         public List<RPCMethod> RPCs { get { return Rpcs; } set { Rpcs = value; } }
         public MyDictionary<string, List<RPCMethod>> RPCsDic { get { return RpcsDic; } set { RpcsDic = value; } }
-
+        
         /// <summary>
         /// 添加网络Rpc
         /// </summary>
@@ -1049,7 +1057,7 @@ namespace Net.Client
                             result(true);
                         });
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         isDone = true;
                         Connected = false;
@@ -1429,8 +1437,8 @@ namespace Net.Client
                     if (rPCModel.buffer.Length == 0)
                         continue;
                 }
-                int len = stream.Count + rPCModel.buffer.Length + frame;
-                if (len > BufferPool.Size)
+                int len = stream.Position + rPCModel.buffer.Length + frame + 15;
+                if (len >= stream.Length)
                 {
                     var stream2 = BufferPool.Take(len);
                     stream2.Write(stream, 0, stream.Count);
@@ -1488,6 +1496,7 @@ namespace Net.Client
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(stream, 16, stream.Count - 16);
+                EncryptHelper.ToEncrypt(Password, retVal);
                 int len = stream.Count;
                 stream.Position = 0;
                 stream.Write(retVal, 0, retVal.Length);
@@ -1721,6 +1730,7 @@ namespace Net.Client
                 var md5Hash = buffer.Read(16);
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(buffer, buffer.Position, buffer.Count - buffer.Position);
+                EncryptHelper.ToDecrypt(Password, md5Hash);
                 for (int i = 0; i < md5Hash.Length; i++)
                 {
                     if (retVal[i] != md5Hash[i])
@@ -2287,7 +2297,7 @@ namespace Net.Client
         {
             if (!Connected)
                 return;
-            if (rPCModels.Count >= ushort.MaxValue)
+            if (rPCModels.Count >= LimitQueueCount)
             {
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
@@ -2332,7 +2342,7 @@ namespace Net.Client
         {
             if (!Connected)
                 return;
-            if (rPCModels.Count >= ushort.MaxValue)
+            if (rPCModels.Count >= LimitQueueCount)
             {
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
@@ -2354,7 +2364,7 @@ namespace Net.Client
         {
             if (!Connected)
                 return;
-            if (rPCModels.Count >= ushort.MaxValue)
+            if (rPCModels.Count >= LimitQueueCount)
             {
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
@@ -2431,7 +2441,7 @@ namespace Net.Client
         {
             if (!Connected)
                 return;
-            if (rtRPCModels.Count >= ushort.MaxValue)
+            if (rtRPCModels.Count >= LimitQueueCount)
             {
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
@@ -2602,7 +2612,7 @@ namespace Net.Client
         {
             if (!Connected)
                 return;
-            if (rtRPCModels.Count >= ushort.MaxValue)
+            if (rtRPCModels.Count >= LimitQueueCount)
             {
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
@@ -2748,7 +2758,7 @@ namespace Net.Client
         {
             if (!Connected)
                 return;
-            if (rtRPCModels.Count >= ushort.MaxValue)
+            if (rtRPCModels.Count >= LimitQueueCount)
             {
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
@@ -2809,12 +2819,12 @@ namespace Net.Client
         {
             if (!Connected)
                 return;
-            if (rtRPCModels.Count >= ushort.MaxValue)
+            if (rtRPCModels.Count >= LimitQueueCount)
             {
                 NDebug.LogError("数据缓存列表超出限制!");
                 return;
             }
-            if (buffer.Length / MTU > ushort.MaxValue)
+            if (buffer.Length / MTU > LimitQueueCount)
             {
                 NDebug.LogError("数据太大，请分段发送!");
                 return;
@@ -3062,7 +3072,7 @@ namespace Net.Client
         /// <returns>是否可发送数据</returns>
         public bool CheckSend()
         {
-            return rtRPCModels.Count < ushort.MaxValue;
+            return rtRPCModels.Count < LimitQueueCount;
         }
 
         /// <summary>
@@ -3071,7 +3081,7 @@ namespace Net.Client
         /// <returns>是否可发送数据</returns>
         public bool CheckSendRT()
         {
-            return rtRPCModels.Count < ushort.MaxValue;
+            return rtRPCModels.Count < LimitQueueCount;
         }
 
         public void TestRPCQueue(RPCModel model)

@@ -82,7 +82,7 @@
             byte[] IN = new byte[4] { 1, 0, 0, 0 };
             byte[] OUT = new byte[4];
             int SIO_R = unchecked((int)0x98000001);//监听所有的数据包
-            int ret_code = Server.IOControl(SIO_R, IN, OUT);//接收所有IP数据包, bing的ip不能是127.0.0.1
+            int ret_code = Server.IOControl(SIO_R, IN, OUT);//接收所有IP数据包, bind的ip不能是127.0.0.1
             ret_code = OUT[0] + OUT[1] + OUT[2] + OUT[3];//把4个8位字节合成一个32位整数
             if (ret_code != 0)
                 throw new Exception("设置低级别操作失败!");

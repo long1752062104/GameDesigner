@@ -2340,27 +2340,12 @@
         </member>
         <member name="F:Net.Component.Command.Transform">
             <summary>
-            TransformComponent组件测试指令
+            Transform同步指令
             </summary>
         </member>
         <member name="F:Net.Component.Command.Destroy">
             <summary>
             NetworkIdentity组件被销毁指令
-            </summary>
-        </member>
-        <member name="F:Net.Component.Command.Animator">
-            <summary>
-            新版动画同步命令
-            </summary>
-        </member>
-        <member name="F:Net.Component.Command.AnimatorParameter">
-            <summary>
-            新版动画参数同步命令
-            </summary>
-        </member>
-        <member name="F:Net.Component.Command.Animation">
-            <summary>
-            旧版动画同步命令
             </summary>
         </member>
         <member name="F:Net.Component.Command.OnPlayerExit">

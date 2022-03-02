@@ -191,7 +191,7 @@ namespace Net.Server
         /// </summary>
         protected readonly byte frame = 2;
         /// <summary>
-        /// 允许叠包缓冲器最大值 默认可发送5242880(5M)的数据包
+        /// 允许叠包缓存最大值 默认可发送5242880(5M)的数据包
         /// </summary>
         public int StackBufferSize { get; set; } = 5242880;
         /// <summary>
@@ -267,9 +267,17 @@ namespace Net.Server
         /// </summary>
         public int PackageLength { get; set; } = 1000;
         /// <summary>
-        /// 采用md5校验
+        /// 采用md5 + 随机种子校验
         /// </summary>
         public bool MD5CRC { get; set; }
+        /// <summary>
+        /// 随机种子密码
+        /// </summary>
+        public int Password { get; set; } = 123456789;
+        /// <summary>
+        /// 限制发送队列长度
+        /// </summary>
+        public int LimitQueueCount { get; set; } = ushort.MaxValue;
         /// <summary>
         /// 程序根路径, 网络数据缓存读写路径
         /// </summary>
@@ -911,6 +919,7 @@ namespace Net.Server
                 var md5Hash = buffer.Read(16);
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(buffer, buffer.Position, buffer.Count - buffer.Position);
+                EncryptHelper.ToDecrypt(Password, md5Hash);
                 for (int i = 0; i < md5Hash.Length; i++)
                 {
                     if (retVal[i] != md5Hash[i])
@@ -1603,8 +1612,8 @@ namespace Net.Server
                     if (rPCModel.buffer.Length == 0)
                         continue;
                 }
-                int len = stream.Count + rPCModel.buffer.Length + frame;
-                if (len > BufferPool.Size)
+                int len = stream.Position + rPCModel.buffer.Length + frame + 15;
+                if (len >= stream.Length)
                 {
                     var stream2 = BufferPool.Take(len);
                     stream2.Write(stream, 0, stream.Count);
@@ -1659,6 +1668,7 @@ namespace Net.Server
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(stream, 16, stream.Count - 16);
+                EncryptHelper.ToEncrypt(Password, retVal);
                 int len = stream.Count;
                 stream.Position = 0;
                 stream.Write(retVal, 0, retVal.Length);
@@ -2192,7 +2202,7 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.udpRPCModels.Count >= ushort.MaxValue)
+            if (client.udpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
@@ -2254,7 +2264,7 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.udpRPCModels.Count >= ushort.MaxValue)
+            if (client.udpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
@@ -2271,7 +2281,7 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.udpRPCModels.Count >= ushort.MaxValue)
+            if (client.udpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
@@ -2332,7 +2342,7 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.udpRPCModels.Count >= ushort.MaxValue)
+            if (client.udpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
@@ -2349,7 +2359,7 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.udpRPCModels.Count >= ushort.MaxValue)
+            if (client.udpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
@@ -2381,7 +2391,7 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.tcpRPCModels.Count >= ushort.MaxValue)
+            if (client.tcpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
@@ -2444,7 +2454,7 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.tcpRPCModels.Count >= ushort.MaxValue)
+            if (client.tcpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
@@ -2474,12 +2484,12 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.tcpRPCModels.Count >= ushort.MaxValue)
+            if (client.tcpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
             }
-            if (buffer.Length / MTU > ushort.MaxValue)
+            if (buffer.Length / MTU > LimitQueueCount)
             {
                 Debug.LogError("数据太大，请分块发送!");
                 return;
@@ -2510,12 +2520,12 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.tcpRPCModels.Count >= ushort.MaxValue)
+            if (client.tcpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
             }
-            if (buffer.Length / MTU > ushort.MaxValue)
+            if (buffer.Length / MTU > LimitQueueCount)
             {
                 Debug.LogError("数据太大，请分块发送!");
                 return;
@@ -2527,7 +2537,7 @@ namespace Net.Server
         {
             if (client.CloseSend)
                 return;
-            if (client.tcpRPCModels.Count >= ushort.MaxValue)
+            if (client.tcpRPCModels.Count >= LimitQueueCount)
             {
                 Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                 return;
@@ -2587,7 +2597,7 @@ namespace Net.Server
         /// <param name="buffer">自定义字节数组</param>
         public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, byte[] buffer)
         {
-            if (buffer.Length / MTU > ushort.MaxValue)
+            if (buffer.Length / MTU > LimitQueueCount)
             {
                 Debug.LogError("数据太大，请分块发送!");
                 return;
@@ -2601,7 +2611,7 @@ namespace Net.Server
                     continue;
                 if (!reliable)
                 {
-                    if (client.udpRPCModels.Count >= ushort.MaxValue)
+                    if (client.udpRPCModels.Count >= LimitQueueCount)
                     {
                         Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                         return;
@@ -2610,7 +2620,7 @@ namespace Net.Server
                 }
                 else
                 {
-                    if (client.tcpRPCModels.Count >= ushort.MaxValue)
+                    if (client.tcpRPCModels.Count >= LimitQueueCount)
                     {
                         Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                         return;
@@ -2631,7 +2641,7 @@ namespace Net.Server
         /// <param name="serialize">序列化? 你包装的数据是否在服务器即将发送时NetConvert序列化?</param>
         public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, byte[] buffer, bool kernel, bool serialize)
         {
-            if (buffer.Length / MTU > ushort.MaxValue)
+            if (buffer.Length / MTU > LimitQueueCount)
             {
                 Debug.LogError("数据太大，请分块发送!");
                 return;
@@ -2645,7 +2655,7 @@ namespace Net.Server
                     continue;
                 if (!reliable)
                 {
-                    if (client.udpRPCModels.Count >= ushort.MaxValue)
+                    if (client.udpRPCModels.Count >= LimitQueueCount)
                     {
                         Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                         return;
@@ -2654,7 +2664,7 @@ namespace Net.Server
                 }
                 else
                 {
-                    if (client.tcpRPCModels.Count >= ushort.MaxValue)
+                    if (client.tcpRPCModels.Count >= LimitQueueCount)
                     {
                         Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                         return;
@@ -2675,7 +2685,7 @@ namespace Net.Server
                     continue;
                 if (!reliable)
                 {
-                    if (client.udpRPCModels.Count >= ushort.MaxValue)
+                    if (client.udpRPCModels.Count >= LimitQueueCount)
                     {
                         Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                         return;
@@ -2684,7 +2694,7 @@ namespace Net.Server
                 }
                 else
                 {
-                    if (client.tcpRPCModels.Count >= ushort.MaxValue)
+                    if (client.tcpRPCModels.Count >= LimitQueueCount)
                     {
                         Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                         return;
@@ -2740,7 +2750,7 @@ namespace Net.Server
         public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, string func, params object[] pars)
         {
             byte[] buffer = OnSerializeRpc(new RPCModel(1, func, pars));
-            if (buffer.Length / MTU > ushort.MaxValue)
+            if (buffer.Length / MTU > LimitQueueCount)
             {
                 Debug.LogError("数据太大，请分块发送!");
                 return;
@@ -2754,7 +2764,7 @@ namespace Net.Server
                     continue;
                 if (!reliable)
                 {
-                    if (client.udpRPCModels.Count >= ushort.MaxValue)
+                    if (client.udpRPCModels.Count >= LimitQueueCount)
                     {
                         Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                         return;
@@ -2763,7 +2773,7 @@ namespace Net.Server
                 }
                 else
                 {
-                    if (client.tcpRPCModels.Count >= ushort.MaxValue)
+                    if (client.tcpRPCModels.Count >= LimitQueueCount)
                     {
                         Debug.LogError($"[{client.UserID}]数据缓存列表超出限制!");
                         return;
@@ -3091,7 +3101,7 @@ namespace Net.Server
         /// <returns>是否可发送数据</returns>
         public bool CheckSend(Player client)
         {
-            return client.udpRPCModels.Count < ushort.MaxValue;
+            return client.udpRPCModels.Count < LimitQueueCount;
         }
 
         /// <summary>
@@ -3100,7 +3110,7 @@ namespace Net.Server
         /// <returns>是否可发送数据</returns>
         public bool CheckSendRT(Player client)
         {
-            return client.udpRPCModels.Count < ushort.MaxValue;
+            return client.udpRPCModels.Count < LimitQueueCount;
         }
     }
 }

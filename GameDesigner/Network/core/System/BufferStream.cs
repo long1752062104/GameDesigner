@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Net.Event;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,6 +21,10 @@ namespace Net.System
 
         public void Write(byte[] buffer, int index, int count)
         {
+            if (position > Length)
+            {
+                NDebug.LogError($"数据缓存超出总长:{position}/{Length}, 如果是大数据请设置BufferStreamShare.Size");
+            }
             BufferStreamShare.Write(offset + position, buffer, index, count);
             position += count;
         }

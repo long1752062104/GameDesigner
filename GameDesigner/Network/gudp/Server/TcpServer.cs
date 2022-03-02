@@ -9,6 +9,7 @@
     using Debug = Event.NDebug;
     using Net.System;
     using global::System.Security.Cryptography;
+    using Net.Helper;
 
     /// <summary>
     /// TCP服务器类型
@@ -242,6 +243,7 @@
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(stream, 20, stream.Count - 20);
+                EncryptHelper.ToEncrypt(Password, retVal);
                 int len = stream.Count - 20;
                 stream.Position = 0;
                 stream.Write(BitConverter.GetBytes(len), 0, 4);

@@ -144,6 +144,10 @@
         /// </summary>
         public const byte SingleCall = 32;
         /// <summary>
+        /// 既有响应的rpc请求
+        /// </summary>
+        public const byte Response = 33;
+        /// <summary>
         /// 网关转发
         /// </summary>
         public const byte GatewayRelay = 34;

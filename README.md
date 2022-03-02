@@ -183,6 +183,67 @@ mvc模块:模型,控制,视图分离, mvc模块适应于帧同步游戏, model�
 [SyncVar(authorize = false)]//这是你实例化的网络物体, 其他玩家不能改变你的对象变量, 即使改变了也不会发生同步给其他玩家, 只能由自己控制变量变化后才会同步给其他玩家
 [SyncVar(id = 1)]//这是p2p 客户端只与服务器的netplayer之间变量同步, 开发者要保证id必须是唯一的 详情请看案例1的Example1.Client类定义
 
+## 百万级别RPC小数据测试
+这里我们测试了100万次从客户端到服务器的请求并响应, 所需要的时间是4.67秒
+
+
+```
+class Program
+{
+    static Stopwatch stopwatch;
+
+    static void Main(string[] args)
+    {
+        NDebug.BindLogAll(Console.WriteLine);
+
+        BufferStreamShare.Size = 1024 * 1024 * 100;//服务器每个客户端可以缓存的数据大小
+
+        //此处是服务器部分, 可以复制到另外一个控制台项目
+        var server = new TcpServer<NetPlayer,NetScene<NetPlayer>>();
+        server.LimitQueueCount = 10000000;//测试小数据的快速性能, 可以设置这里, 默认限制在65536
+        server.PackageLength = 1000000;//小数据包封包合包大小, 一次性能运送的小数据包数量
+        server.StackBufferSize = 1024 * 1024 * 50;//接收缓存数据包的最大值, 如果超出则被丢弃
+        server.StackNumberMax = 1000000;//允许叠包数据次数, 超出则被丢弃
+        server.AddAdapter(new Net.Adapter.SerializeAdapter3());//采用极速序列化进行序列化rpc数据模型
+        server.AddAdapter(new Net.Adapter.CallSiteRpcAdapter<NetPlayer>());//采用极速调用rpc方法适配器
+        server.Run();
+
+        //此处是客户端部分, 可以复制到另外一个控制台项目
+        var client = new TcpClient();
+        client.LimitQueueCount = 10000000;
+        client.PackageLength = 1000000;
+        client.StackBufferSize = 1024 * 1024 * 50;
+        client.StackNumberMax = 1000000;
+        client.AddAdapter(new Net.Adapter.SerializeAdapter3());
+        client.AddAdapter(new Net.Adapter.CallSiteRpcAdapter());
+        client.AddRpcHandle(new Program());
+        client.Connect().Wait();
+
+        stopwatch = Stopwatch.StartNew();
+
+        for (int i = 0; i < 1000000; i++)
+        {
+            client.SendRT(NetCmd.Local, 1, i);
+        }
+
+        Console.ReadLine();
+    }
+
+    [Rpc(mask = 1)]
+    void test(int i)
+    {
+        if (i % 10000 == 0)
+            Console.WriteLine(i);
+        if (i >= 999999)
+        {
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.Elapsed);
+        }
+    }
+}
+```
+
+
 ## 常见问题总汇
 这里是开发者遇到的问题, 我都会在这里详细写出来, 这样大家遇到的问题都可以先在这里查看
 
