@@ -46,7 +46,7 @@ namespace Net.Client
 #endif
         }
 
-        protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
             try
             {
@@ -95,13 +95,14 @@ namespace Net.Client
                     if (Connected)
                         StartupThread();
                     InvokeContext((arg) => { result(Connected); });
+                    return Connected;
                 });
             }
             catch (Exception ex)
             {
                 NDebug.Log("连接错误: " + ex.ToString());
                 result(false);
-                return null;
+                return Task.FromResult(false);
             }
         }
 

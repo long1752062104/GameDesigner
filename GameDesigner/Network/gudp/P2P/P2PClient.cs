@@ -19,7 +19,7 @@ namespace Net.Client
             return Connect(ip, port);
         }
 
-        protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
             Client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);//创建套接字
             this.localPort = localPort;
@@ -29,10 +29,10 @@ namespace Net.Client
             Connected = true;
             StartupThread();
             InvokeContext((arg) => {
-                networkState = Share.NetworkState.ConnectFailed;
+                networkState = Share.NetworkState.Connected;
                 result(true);
             });
-            return Task.Delay(1);
+            return Task.FromResult(Connected);
         }
     }
 }

@@ -48,7 +48,7 @@
 #endif
         }
 
-        protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
             return Task.Run(() =>
             {
@@ -70,6 +70,7 @@
                         networkState = NetworkState.Connected;
                         result(true);
                     });
+                    return true;
                 }
                 catch(Exception ex)
                 {
@@ -80,6 +81,7 @@
                         networkState = NetworkState.ConnectFailed;
                         result(false);
                     });
+                    return false;
                 }
             });
         }
@@ -363,7 +365,7 @@
             {
                 OnRevdBufferHandle += (model) => { fps++; };
             }
-            protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+            protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
             {
                 Client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 this.localPort = localPort;
@@ -374,7 +376,7 @@
                 SendDirect();
                 Connected = true;
                 StackStream = BufferStreamShare.Take();
-                return null;
+                return Task.FromResult(Connected);
             }
             protected override void StartupThread() { }
 

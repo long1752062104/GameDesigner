@@ -56,7 +56,7 @@ namespace Net.Client
             }
         }
 
-        protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
 #if !UNITY_EDITOR && !UNITY_STANDALONE && !UNITY_ANDROID && !UNITY_IOS
             string path = AppDomain.CurrentDomain.BaseDirectory;
@@ -83,6 +83,7 @@ namespace Net.Client
                     bootstrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(host), port)).Wait(10000);
                     StartupThread();
                     InvokeContext((arg) => { result(true); });
+                    return true;
                 }
                 catch (Exception)
                 {
@@ -90,6 +91,7 @@ namespace Net.Client
                     group.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
                     Connected = false;
                     InvokeContext((arg) => { result(false); });
+                    return false;
                 }
             });
         }

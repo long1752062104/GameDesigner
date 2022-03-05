@@ -887,7 +887,7 @@ namespace Net.Client
         /// <summary>
         /// 连接服务器
         /// </summary>
-        public Task Connect()
+        public Task<bool> Connect()
         {
             return Connect(connected => { });
         }
@@ -897,7 +897,7 @@ namespace Net.Client
         /// </summary>
         /// <param name="result">连接结果</param>
         /// <returns></returns>
-        public Task Connect(Action<bool> result)
+        public Task<bool> Connect(Action<bool> result)
         {
             return Connect(host, port, result);
         }
@@ -907,7 +907,7 @@ namespace Net.Client
         /// </summary>
         /// <param name="host">IP地址</param>
         /// <param name="port">端口号</param>
-        public virtual Task Connect(string host, int port)
+        public virtual Task<bool> Connect(string host, int port)
         {
             return Connect(host, port, result => { });
         }
@@ -918,7 +918,7 @@ namespace Net.Client
         /// <param name="host">IP地址</param>
         /// <param name="port">端口号</param>
         /// <param name="result">连接结果</param>
-        public virtual Task Connect(string host, int port, Action<bool> result)
+        public virtual Task<bool> Connect(string host, int port, Action<bool> result)
         {
             return Connect(host, port, -1, result);
         }
@@ -930,12 +930,12 @@ namespace Net.Client
         /// <param name="port">端口号</param>
         /// <param name="localPort">设置自身端口号,如果不设置自身端口则值为-1</param>
         /// <param name="result">连接结果</param>
-        public virtual Task Connect(string host, int port, int localPort, Action<bool> result)
+        public virtual Task<bool> Connect(string host, int port, int localPort, Action<bool> result)
         {
             if (networkState == NetworkState.Connection)
             {
                 NDebug.Log("连接服务器中,请稍等...");
-                return null;
+                Task.FromResult(false);
             }
             if (openClient)
             {
@@ -977,7 +977,7 @@ namespace Net.Client
             {
                 result(true);
             }
-            return null;
+            return Task.FromResult(Connected);
         }
 
         /// <summary>
@@ -987,7 +987,7 @@ namespace Net.Client
         /// <param name="port">连接的服务器主机端口号</param>
         /// <param name="localPort">设置自身端口号,如果不设置自身端口则值为-1</param>
         /// <param name="result">连接结果</param>
-        protected virtual Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected virtual Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
             try
             {
@@ -1056,8 +1056,9 @@ namespace Net.Client
                             networkState = NetworkState.Connected;
                             result(true);
                         });
+                        return true;
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         isDone = true;
                         Connected = false;
@@ -1067,6 +1068,7 @@ namespace Net.Client
                             networkState = NetworkState.ConnectFailed;
                             result(false);
                         });
+                        return false;
                     }
                 });
             }
@@ -1075,7 +1077,7 @@ namespace Net.Client
                 NDebug.LogError("连接错误:" + ex.ToString());
                 networkState = NetworkState.ConnectFailed;
                 result(false);
-                return null;
+                return Task.FromResult(false);
             }
         }
 

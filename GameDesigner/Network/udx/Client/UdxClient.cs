@@ -47,7 +47,7 @@
 #endif
         }
 
-        public override Task Connect(string host, int port, int localPort, Action<bool> result)
+        public override Task<bool> Connect(string host, int port, int localPort, Action<bool> result)
         {
             if (!UdxLib.INIT)
             {
@@ -63,7 +63,7 @@
             return base.Connect(host, port, localPort, result);
         }
 
-        protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
             try
             {
@@ -86,6 +86,7 @@
                         networkState = Connected ? NetworkState.Connected : NetworkState.ConnectFailed;
                         result(Connected); 
                     });
+                    return Connected;
                 });
             }
             catch (Exception ex)
@@ -93,7 +94,7 @@
                 NDebug.Log("连接错误: " + ex.ToString());
                 networkState = NetworkState.ConnectFailed;
                 result(false);
-                return null;
+                return Task.FromResult(false);
             }
         }
 

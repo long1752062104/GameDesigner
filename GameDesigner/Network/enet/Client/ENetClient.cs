@@ -45,7 +45,7 @@
 #endif
         }
 
-        public override Task Connect(string host, int port, int localPort, Action<bool> result)
+        public override Task<bool> Connect(string host, int port, int localPort, Action<bool> result)
         {
             if (!Library.INIT)
             {
@@ -65,7 +65,7 @@
             return base.Connect(host, port, localPort, result);
         }
 
-        protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
             try
             {
@@ -88,7 +88,8 @@
                                 networkState = NetworkState.ConnectFailed;
                                 result(false); 
                             });
-                            return;
+                            Connected = false;
+                            break;
                         }
                         if (ClientHost.CheckEvents(out Event netEvent) <= 0)
                             if (ClientHost.Service(15, out netEvent) <= 0)
@@ -101,6 +102,7 @@
                                 networkState = NetworkState.ConnectFailed;
                                 result(false);
                             });
+                            Connected = true;
                         }
                         else if (netEvent.Type == EventType.Connect)
                         {
@@ -111,9 +113,11 @@
                                 networkState = NetworkState.Connected;
                                 result(true); 
                             });
+                            Connected = true;
                         }
                         break;
                     }
+                    return Connected;
                 });
             }
             catch (Exception ex)
@@ -121,7 +125,7 @@
                 NDebug.Log("连接错误: 如果提示视图加载错误则为平台设置不对! " + ex.ToString());
                 networkState = NetworkState.ConnectFailed;
                 result(false);
-                return null;
+                return Task.FromResult(false);
             }
         }
 

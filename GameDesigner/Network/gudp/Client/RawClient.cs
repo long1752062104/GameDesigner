@@ -12,7 +12,7 @@ namespace Net.Client
     [Obsolete("弃用")]
     public class RawClient : ClientBase
     {
-        protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
             try
             {
@@ -62,6 +62,7 @@ namespace Net.Client
                             networkState = NetworkState.Connected;
                             result(true);
                         });
+                        return true;
                     }
                     catch (Exception)
                     {
@@ -72,6 +73,7 @@ namespace Net.Client
                             networkState = NetworkState.ConnectFailed;
                             result(false);
                         });
+                        return false;
                     }
                 });
             }
@@ -80,14 +82,12 @@ namespace Net.Client
                 NDebug.LogError("连接错误:" + ex.ToString());
                 networkState = NetworkState.ConnectFailed;
                 result(false);
-                return null;
+                return Task.FromResult(false);
             }
         }
 
         protected override void SendByteData(byte[] buffer, bool reliable)
         {
-
-
             sendCount += buffer.Length;
             sendAmount++;
             if (buffer.Length <= 65507)

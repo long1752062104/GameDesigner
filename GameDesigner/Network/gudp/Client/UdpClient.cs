@@ -132,7 +132,7 @@
         {
             OnRevdBufferHandle += (model) => { fps++; };
         }
-        protected override Task ConnectResult(string host, int port, int localPort, Action<bool> result)
+        protected override Task<bool> ConnectResult(string host, int port, int localPort, Action<bool> result)
         {
             Client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             this.localPort = localPort;
@@ -142,8 +142,7 @@
             addressBuffer = (byte[])socketAddress.GetType().GetField("m_Buffer", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(socketAddress);
             SendByteData(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.Connect, 0, 0, 0, 0 }, false);
             Connected = true;
-            //fileStreamName = Path.GetTempFileName();
-            return null;
+            return Task.FromResult(Connected);
         }
         protected override void StartupThread() { }
 
