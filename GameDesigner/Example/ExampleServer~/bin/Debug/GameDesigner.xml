@@ -2865,7 +2865,7 @@
         </member>
         <member name="P:Net.Client.ClientBase.StackBufferSize">
             <summary>
-            允许叠包缓冲器最大值 默认可发送5242880(5M)的数据包
+            允许叠包缓存最大值 默认可发送5242880(5M)的数据包
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.StackNumberMax">
@@ -2961,7 +2961,17 @@
         </member>
         <member name="P:Net.Client.ClientBase.MD5CRC">
             <summary>
-            采用md5校验
+            采用md5 + 随机种子校验
+            </summary>
+        </member>
+        <member name="P:Net.Client.ClientBase.Password">
+            <summary>
+            随机种子密码
+            </summary>
+        </member>
+        <member name="P:Net.Client.ClientBase.LimitQueueCount">
+            <summary>
+            限制发送队列长度
             </summary>
         </member>
         <member name="M:Net.Client.ClientBase.#ctor">
@@ -4825,7 +4835,7 @@
         </member>
         <member name="P:Net.Server.ServerBase`2.StackBufferSize">
             <summary>
-            允许叠包缓冲器最大值 默认可发送5242880(5M)的数据包
+            允许叠包缓存最大值 默认可发送5242880(5M)的数据包
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.StackNumberMax">
@@ -4916,7 +4926,17 @@
         </member>
         <member name="P:Net.Server.ServerBase`2.MD5CRC">
             <summary>
-            采用md5校验
+            采用md5 + 随机种子校验
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.Password">
+            <summary>
+            随机种子密码
+            </summary>
+        </member>
+        <member name="P:Net.Server.ServerBase`2.LimitQueueCount">
+            <summary>
+            限制发送队列长度
             </summary>
         </member>
         <member name="F:Net.Server.ServerBase`2.rootPath">
@@ -7110,6 +7130,11 @@
             单线程安全调用服务器函数,当多线程同时访问一个方法时, 感觉这个方法不安全时, 需要使用单线程处理时, 可使用此命令
             否则可以使用SafeCall或CallRpc命令，
             使用此命令时,函数第一个参数将会嵌入NetPlayer参数
+            </summary>
+        </member>
+        <member name="F:Net.Share.NetCmd.Response">
+            <summary>
+            既有响应的rpc请求
             </summary>
         </member>
         <member name="F:Net.Share.NetCmd.GatewayRelay">
