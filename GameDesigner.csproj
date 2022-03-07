@@ -1268,7 +1268,7 @@
     <Compile Include="GameDesigner\Component\Client\UnityThread.cs" />
     <Compile Include="GameDesigner\Component\Clone.cs" />
     <Compile Include="GameDesigner\Component\Command.cs" />
-    <Compile Include="GameDesigner\Component\DBEntity.cs" />
+    <Compile Include="GameDesigner\Component\DataTableExt.cs" />
     <Compile Include="GameDesigner\Network\core\Helper\EncryptHelper.cs" />
     <Compile Include="GameDesigner\Component\InspectorAttribute.cs" />
     <Compile Include="GameDesigner\Component\MySqlHelper.cs" />

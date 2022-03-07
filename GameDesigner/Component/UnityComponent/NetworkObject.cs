@@ -100,7 +100,7 @@ namespace Net.UnityComponent
         {
             foreach (var networkBehaviour in networkBehaviours)
             {
-                if (!networkBehaviour.enabled)
+                if (!networkBehaviour.CheckEnabled())
                     continue;
                 networkBehaviour.OnPropertyAutoCheck();
             }

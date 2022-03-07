@@ -102,12 +102,13 @@
         {
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
-            ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
-            ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
-            ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
-            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
+            checkRpcHandleID = ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
+            networkFlowHandlerID = ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
+            heartHandlerID = ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
+            syncVarHandlerID = ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
-                ThreadManager.Invoke("UpdateHandle", UpdateHandler);
+                updateHandlerID = ThreadManager.Invoke("UpdateHandle", UpdateHandler);
+            ThreadManager.PingRun();
         }
 
         protected void ProcessReceive(UDXEVENT_TYPE type, int erro, IntPtr cli, IntPtr pData, int len)//cb回调

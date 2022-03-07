@@ -10,10 +10,15 @@ namespace Net.System
     /// </summary>
     public static class ThreadManager
     {
-        private static readonly Thread MainThread;
+        private static Thread MainThread;
         public static TimerEvent Event { get; private set; } = new TimerEvent();
 
         static ThreadManager()
+        {
+            Run();
+        }
+
+        private static void Run()
         {
             GlobalConfig.ThreadPoolRun = true;
             MainThread = new Thread(() =>
@@ -30,9 +35,19 @@ namespace Net.System
                         NDebug.LogError("主线程异常:" + ex);
                     }
                 }
-            }) { IsBackground = true };
+            });
+            MainThread.IsBackground = true;
             MainThread.Priority = ThreadPriority.Highest;
             MainThread.Start();
+        }
+
+        public static void PingRun()
+        {
+            string str = MainThread.ThreadState.ToString();
+            if (str.Contains("Abort") | str.Contains("Stop") | str.Contains("WaitSleepJoin"))
+            {
+                Run();
+            }
         }
 
         public static int Invoke(Func<bool> ptr, bool isAsync = false) 

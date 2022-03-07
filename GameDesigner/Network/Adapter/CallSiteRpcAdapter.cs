@@ -131,16 +131,23 @@ namespace Net.Adapter
                 if (!RpcMask.TryGetValue(model.methodMask, out model.func)) model.func = $"[mask:{model.methodMask}]";
             if (string.IsNullOrEmpty(model.func))
                 return;
-            if (RPCS.TryGetValue(model.func, out RPCPTR model1))
+            if (rpcTasks.TryGetValue(model.func, out RPCModelTask model1))
             {
-                if (model1.cmd == NetCmd.SafeCall)
+                model1.model = model;
+                model1.IsCompleted = true;
+                rpcTasks.Remove(model.func);
+                return;
+            }
+            if (RPCS.TryGetValue(model.func, out RPCPTR model2))
+            {
+                if (model2.cmd == NetCmd.SafeCall)
                 {
                     object[] pars = new object[model.pars.Length + 1];
                     pars[0] = client;
                     Array.Copy(model.pars, 0, pars, 1, model.pars.Length);
-                    model1.Invoke(pars);
+                    model2.Invoke(pars);
                 }
-                else model1.Invoke(model.pars);
+                else model2.Invoke(model.pars);
             }
         }
     }
@@ -332,6 +339,16 @@ namespace Net.Adapter
                     RPCS.Remove(entries[i].key);
                 }
             }
+        }
+
+        public RPCModelTask OnRpcTaskRegister(ushort methodMask, string callbackFunc)
+        {
+            if (!rpcTasks.TryGetValue(callbackFunc, out var model))
+                rpcTasks.Add(callbackFunc, model = new RPCModelTask());
+            if(methodMask != 0)
+                if (!RpcMask.ContainsKey(methodMask))
+                    RpcMask.Add(methodMask, callbackFunc);
+            return model;
         }
     }
 }

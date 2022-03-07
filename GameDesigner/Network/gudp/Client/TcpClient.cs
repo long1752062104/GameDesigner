@@ -111,12 +111,13 @@
             Connected = true;
             StartThread("SendDataHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
-            ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
-            ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
-            ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
-            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
+            checkRpcHandleID = ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
+            networkFlowHandlerID = ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
+            heartHandlerID = ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
+            syncVarHandlerID = ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
-                ThreadManager.Invoke("UpdateHandle", UpdateHandler);
+                updateHandlerID = ThreadManager.Invoke("UpdateHandle", UpdateHandler);
+            ThreadManager.PingRun();
         }
 
         protected override void SendRTDataHandle()

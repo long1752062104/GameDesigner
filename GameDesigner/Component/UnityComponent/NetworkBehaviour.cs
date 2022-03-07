@@ -42,6 +42,11 @@ namespace Net.UnityComponent
         /// 当属性自动同步检查
         /// </summary>
         public virtual void OnPropertyAutoCheck() { }
+        /// <summary>
+        /// 检查组件是否启用
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool CheckEnabled() { return enabled; }
         public virtual void OnDestroy()
         {
             netObj.RemoveSyncVar(this);

@@ -81,11 +81,11 @@
         Jmp: Net.Event.EventSystem.AddEvent(20, (state) =>
         {
             if (ClientBase.Instance == null)
-                return false;
+                return true;
             if (!ClientBase.Instance.Connected)
-                return false;
+                return true;
             InitRpc();
-            return true;
+            return false;
         }, null);
         }
 

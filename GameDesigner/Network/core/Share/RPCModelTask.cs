@@ -2,7 +2,7 @@
 {
     public class RPCModelTask
     {
-        public bool IsCompleted;
+        public bool IsCompleted { get; internal set; }
         public RPCModel model;
     }
 }

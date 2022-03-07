@@ -30,7 +30,7 @@ namespace Net.Event
         }
 
         public ListSafe<Event> events = new ListSafe<Event>();
-        private int eventId;
+        private int eventId = 1000;
         private long time;
 
         /// <summary>

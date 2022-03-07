@@ -250,6 +250,10 @@ namespace Net.Client
         /// </summary>
         public Func<byte[], int, int, OperationList> OnDeserializeOPT;
         /// <summary>
+        /// 当可等待的rpc方法被注册, 用于Rpc适配器上
+        /// </summary>
+        public Func<ushort, string, RPCModelTask> OnRpcTaskRegister;
+        /// <summary>
         /// ping服务器回调 参数double为延迟毫秒单位 当RTOMode属性为可变重传时, 内核将会每秒自动ping一次
         /// </summary>
         public event Action<double> OnPingCallback;
@@ -444,6 +448,7 @@ namespace Net.Client
         private readonly MyDictionary<ushort, SyncVarInfo> syncVarDic = new MyDictionary<ushort, SyncVarInfo>();
         private readonly List<SyncVarInfo> syncVarList = new List<SyncVarInfo>();
         private readonly MyDictionary<int, FileData> ftpDic = new MyDictionary<int, FileData>();
+        protected int checkRpcHandleID, networkFlowHandlerID, heartHandlerID, syncVarHandlerID, updateHandlerID;//事件id
 
         /// <summary>
         /// 构造函数
@@ -757,25 +762,18 @@ namespace Net.Client
         }
 
         /// <summary>
-        /// 结束指定的线程
-        /// </summary>
-        /// <param name="threadKey">线程名称键值</param>
-        public void AbortedThread(string threadKey)
-        {
-            if (threadDic.ContainsKey(threadKey))
-                threadDic[threadKey].Abort();
-        }
-
-        /// <summary>
         /// 结束所有线程
         /// </summary>
         public void AbortedThread()
         {
             foreach (Thread thread in threadDic.Values)
-            {
                 thread?.Abort();
-            }
             threadDic.Clear();
+            ThreadManager.Event.RemoveEvent(checkRpcHandleID);
+            ThreadManager.Event.RemoveEvent(networkFlowHandlerID);
+            ThreadManager.Event.RemoveEvent(heartHandlerID);
+            ThreadManager.Event.RemoveEvent(syncVarHandlerID);
+            ThreadManager.Event.RemoveEvent(updateHandlerID);
         }
 
         /// <summary>
@@ -935,7 +933,7 @@ namespace Net.Client
             if (networkState == NetworkState.Connection)
             {
                 NDebug.Log("连接服务器中,请稍等...");
-                Task.FromResult(false);
+                return Task.FromResult(false);
             }
             if (openClient)
             {
@@ -1151,12 +1149,13 @@ namespace Net.Client
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
-            ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
-            ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
-            ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
-            ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
+            checkRpcHandleID = ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
+            networkFlowHandlerID = ThreadManager.Invoke("NetworkFlowHandler", 1f, NetworkFlowHandler);
+            heartHandlerID = ThreadManager.Invoke("HeartHandler", HeartInterval * 0.001f, HeartHandler);
+            syncVarHandlerID = ThreadManager.Invoke("SyncVarHandler", SyncVarHandler);
             if (!UseUnityThread)
-                ThreadManager.Invoke("UpdateHandle", UpdateHandler);
+                updateHandlerID = ThreadManager.Invoke("UpdateHandle", UpdateHandler);
+            ThreadManager.PingRun();
         }
 
         /// <summary>
@@ -2482,7 +2481,7 @@ namespace Net.Client
         /// <param name="callbackFunc">服务器返回后调用的函数名</param>
         /// <param name="pars"></param>
         /// <returns></returns>
-        public async Task<RPCModel> Call(string func, string callbackFunc, params object[] pars)
+        public async Task<RPCModelTask> Call(string func, string callbackFunc, params object[] pars)
         {
             return await Call(NetCmd.CallRpc, func, callbackFunc, 60000, pars);
         }
@@ -2495,7 +2494,7 @@ namespace Net.Client
         /// <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
         /// <param name="pars"></param>
         /// <returns></returns>
-        public async Task<RPCModel> Call(string func, string callbackFunc, int millisecondsDelay, params object[] pars)
+        public async Task<RPCModelTask> Call(string func, string callbackFunc, int millisecondsDelay, params object[] pars)
         {
             return await Call(NetCmd.CallRpc, func, callbackFunc, millisecondsDelay, pars);
         }
@@ -2509,26 +2508,100 @@ namespace Net.Client
         /// <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
         /// <param name="pars"></param>
         /// <returns></returns>
-        public async Task<RPCModel> Call(byte cmd, string func, string callbackFunc, int millisecondsDelay, params object[] pars)
+        public async Task<RPCModelTask> Call(byte cmd, string func, string callbackFunc, int millisecondsDelay, params object[] pars)
         {
             SendRT(cmd, func, pars);
-            if (!rpcTasks.TryGetValue(callbackFunc, out RPCModelTask model))
-                rpcTasks.Add(callbackFunc, model = new RPCModelTask());
-            CancellationTokenSource cts = new CancellationTokenSource();
-            Task<RPCModel> task = Task.Run(() =>
+            RPCModelTask model;
+            var callStr = callbackFunc;
+            if (OnRpcTaskRegister == null)
             {
-                while (!cts.IsCancellationRequested)
-                {
-                    Thread.Sleep(1);
-                    if (model.IsCompleted)
-                    {
-                        return model.model;
-                    }
-                }
-                return default;
-            }, cts.Token);
-            task.Wait(millisecondsDelay, cts.Token);
-            return await task;
+                if (!rpcTasks.TryGetValue(callStr, out model))
+                    rpcTasks.Add(callStr, model = new RPCModelTask());
+            }
+            else model = OnRpcTaskRegister(0, callStr);
+            if (millisecondsDelay == -1)
+                millisecondsDelay = int.MaxValue;
+            else if (millisecondsDelay == 0)
+                millisecondsDelay = 5000;
+            var outtime = DateTime.Now.AddMilliseconds(millisecondsDelay);
+            while (DateTime.Now < outtime)
+            {
+                await Task.Yield();
+                if (model.IsCompleted)
+                    return model;
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 远程同步调用
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="callbackFunc">服务器返回后调用的函数名</param>
+        /// <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
+        public async Task<RPCModelTask> Call(ushort func, ushort callbackFunc, int millisecondsDelay, params object[] pars)
+        {
+            SendRT(NetCmd.CallRpc, func, pars);
+            RPCModelTask model;
+            var callStr = callbackFunc.ToString();
+            if (OnRpcTaskRegister == null)
+            {
+                if (!rpcTasks.TryGetValue(callStr, out model))
+                    rpcTasks.Add(callStr, model = new RPCModelTask());
+                if (!RpcMaskDic.ContainsKey(callbackFunc))
+                    RpcMaskDic.Add(callbackFunc, callStr);
+            }
+            else model = OnRpcTaskRegister(callbackFunc, callStr);
+            if (millisecondsDelay == -1)
+                millisecondsDelay = int.MaxValue;
+            else if (millisecondsDelay == 0)
+                millisecondsDelay = 5000;
+            var outtime = DateTime.Now.AddMilliseconds(millisecondsDelay);
+            while (DateTime.Now < outtime)
+            {
+                await Task.Yield();
+                if (model.IsCompleted)
+                    return model;
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 远程同步调用
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="func"></param>
+        /// <param name="callbackFunc">服务器返回后调用的函数名</param>
+        /// <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
+        public async Task<RPCModelTask> Call(byte cmd, ushort func, ushort callbackFunc, int millisecondsDelay, params object[] pars)
+        {
+            SendRT(cmd, func, pars);
+            RPCModelTask model;
+            var callStr = callbackFunc.ToString();
+            if (OnRpcTaskRegister == null)
+            {
+                if (!rpcTasks.TryGetValue(callStr, out model))
+                    rpcTasks.Add(callStr, model = new RPCModelTask());
+                if (!RpcMaskDic.ContainsKey(callbackFunc))
+                    RpcMaskDic.Add(callbackFunc, callStr);
+            }
+            else model = OnRpcTaskRegister(callbackFunc, callStr);
+            if (millisecondsDelay == -1)
+                millisecondsDelay = int.MaxValue;
+            else if (millisecondsDelay == 0)
+                millisecondsDelay = 5000;
+            var outtime = DateTime.Now.AddMilliseconds(millisecondsDelay);
+            while (DateTime.Now < outtime)
+            {
+                await Task.Yield();
+                if (model.IsCompleted)
+                    return model;
+            }
+            return model;
         }
 
         /// <summary>
@@ -2945,6 +3018,7 @@ namespace Net.Client
                     OnRPCExecute = rpc.OnRpcExecute;
                     OnRemoveRpc = rpc.RemoveRpc;
                     OnCheckRpcUpdate = rpc.CheckRpcUpdate;
+                    OnRpcTaskRegister = rpc.OnRpcTaskRegister;
                     break;
                 case AdapterType.NetworkEvt:
                     BindNetworkHandle((INetworkHandle)adapter);
