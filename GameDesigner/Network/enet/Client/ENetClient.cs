@@ -218,9 +218,10 @@
             sendRTList.Clear();
             revdRTList.Clear();
             StackStream?.Close();
-            stack = 0;
-            if (Instance == this)
-                Instance = null;
+            stack = 0; 
+            UID = 0;
+            MID = 0;
+            if (Instance == this) Instance = null;
             if (ClientHost != null)
             {
                 ClientHost.Flush();

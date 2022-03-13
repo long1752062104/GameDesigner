@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class ExternalReferenceTool : EditorWindow
 {
-    private string csprojPath;
     private List<string> paths = new List<string>();
-    private Vector2 scrollPosition1;
+    private List<string> csprojPaths = new List<string>();
+    private Vector2 scrollPosition, scrollPosition1;
 
     [MenuItem("GameDesigner/Network/ExternalReference")]
     static void ShowWindow()
@@ -26,13 +26,29 @@ public class ExternalReferenceTool : EditorWindow
     {
         EditorGUI.BeginChangeCheck();
         GUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("项目文件:", csprojPath);
+        EditorGUILayout.LabelField("项目文件列表:");
         if (GUILayout.Button("选择文件", GUILayout.Width(100)))
         {
-            csprojPath = EditorUtility.OpenFilePanel("选择文件", "", "csproj");
+            var csprojPath = EditorUtility.OpenFilePanel("选择文件", "", "csproj");
+            if (!string.IsNullOrEmpty(csprojPath))
+                csprojPaths.Add(csprojPath);
             SaveData();
         }
         GUILayout.EndHorizontal();
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.MaxHeight(position.height / 2));
+        foreach (var path in csprojPaths)
+        {
+            var rect = EditorGUILayout.GetControlRect();
+            EditorGUI.LabelField(new Rect(rect.position, rect.size - new Vector2(50, 0)), path);
+            if (GUI.Button(new Rect(rect.position + new Vector2(position.width - 50, 0), new Vector2(20, rect.height)), "x"))
+            {
+                csprojPaths.Remove(path);
+                SaveData();
+                return;
+            }
+        }
+        GUILayout.EndScrollView();
+        EditorGUILayout.LabelField("引用文件夹列表:");
         scrollPosition1 = GUILayout.BeginScrollView(scrollPosition1, false, true, GUILayout.MaxHeight(position.height / 2));
         foreach (var path in paths)
         {
@@ -58,49 +74,53 @@ public class ExternalReferenceTool : EditorWindow
         }
         if (GUILayout.Button("执行", GUILayout.Height(30)))
         {
-            var rows = new List<string>(File.ReadAllLines(csprojPath));
-            int removeStart = 0, removeEnd = 0;
-            for (int i = rows.Count - 1; i > 0; i++)
+            foreach (var csprojPath in csprojPaths)
             {
-                if (string.IsNullOrEmpty(rows[i]))
-                    continue;
-                if (rows[i].Contains("</Project>")) 
+                var rows = new List<string>(File.ReadAllLines(csprojPath));
+                int removeStart = 0, removeEnd = 0;
+                for (int i = rows.Count - 1; i > 0; i++)
                 {
-                    removeEnd = i + 1;
-                    if (rows[i - 1].Contains("</ItemGroup>"))
+                    if (string.IsNullOrEmpty(rows[i]))
+                        continue;
+                    if (rows[i].Contains("</Project>"))
                     {
-                        i--;
-                        while (!rows[i].Contains("<ItemGroup>") & i > 0)
+                        removeEnd = i + 1;
+                        if (rows[i - 1].Contains("</ItemGroup>"))
                         {
                             i--;
+                            while (!rows[i].Contains("<ItemGroup>") & i > 0)
+                            {
+                                i--;
+                            }
+                            removeStart = i;
                         }
-                        removeStart = i;
+                        else
+                        {
+                            removeStart = i;
+                        }
+                        break;
                     }
-                    else 
-                    {
-                        removeStart = i;
-                    }
-                    break;
                 }
-            }
-            rows.RemoveRange(removeStart, removeEnd - removeStart);
-            rows.Add("  <ItemGroup>");
-            foreach (var path in paths)
-            {
-                var path1 = path.Replace("/", "\\");
-                var dir = new DirectoryInfo(path);
-                var dirName = dir.Parent.FullName + "\\";
-                var files = Directory.GetFiles(path1, "*.cs", SearchOption.AllDirectories);
-                foreach (var file in files)
+                rows.RemoveRange(removeStart, removeEnd - removeStart);
+                rows.Add("  <ItemGroup>");
+                foreach (var path in paths)
                 {
-                    rows.Add($"	<Compile Include=\"{file}\">");
-                    rows.Add($"      <Link>{file.Replace(dirName, "")}</Link>");
-                    rows.Add("	</Compile>");
+                    var path1 = path.Replace("/", "\\");
+                    var dir = new DirectoryInfo(path);
+                    var dirName = dir.Parent.FullName + "\\";
+                    var files = Directory.GetFiles(path1, "*.cs", SearchOption.AllDirectories);
+                    foreach (var file in files)
+                    {
+                        rows.Add($"	<Compile Include=\"{file}\">");
+                        rows.Add($"      <Link>{file.Replace(dirName, "")}</Link>");
+                        rows.Add("	</Compile>");
+                    }
                 }
+                rows.Add("  </ItemGroup>");
+                rows.Add("</Project>");
+                File.WriteAllLines(csprojPath, rows);
             }
-            rows.Add("  </ItemGroup>");
-            rows.Add("</Project>");
-            File.WriteAllLines(csprojPath, rows);
+            Debug.Log("更新完成!");
         }
         if (EditorGUI.EndChangeCheck())
             SaveData();
@@ -113,14 +133,14 @@ public class ExternalReferenceTool : EditorWindow
         {
             var jsonStr = File.ReadAllText(path);
             var data = Newtonsoft_X.Json.JsonConvert.DeserializeObject<Data>(jsonStr);
-            csprojPath = data.csprojPath;
             paths = data.paths;
+            csprojPaths = data.csprojPaths;
         }
     }
 
     void SaveData()
     {
-        Data data = new Data() { csprojPath = csprojPath, paths = paths };
+        Data data = new Data() { paths = paths, csprojPaths = csprojPaths };
         var jsonstr = Newtonsoft_X.Json.JsonConvert.SerializeObject(data);
         var path = Application.dataPath.Replace("Assets", "") + "data4.txt";
         File.WriteAllText(path, jsonstr);
@@ -128,7 +148,7 @@ public class ExternalReferenceTool : EditorWindow
 
     internal class Data
     {
-        public string csprojPath;
+        public List<string> csprojPaths = new List<string>();
         public List<string> paths = new List<string>();
     }
 }

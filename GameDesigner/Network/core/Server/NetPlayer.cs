@@ -219,13 +219,13 @@
                         if (!RpcMaskDic.TryGetValue(rpc.mask, out string func))
                             RpcMaskDic.Add(rpc.mask, info.Name);
                         else if (func != info.Name)
-                            NDebug.LogError($"错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
+                            NDebug.LogError($"[{RemotePoint}][{UserID}]错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
                     if (!Rpcs.ContainsKey(info.Name))
                         Rpcs.Add(info.Name, new RPCMethod(target, info as MethodInfo, rpc.cmd));
                     else if (replace)
                         Rpcs[info.Name] = new RPCMethod(target, info as MethodInfo, rpc.cmd);
                     else
-                        NDebug.LogError($"添加客户端私有Rpc错误！Rpc方法{info.Name}使用同一函数名，这是不允许的，字典键值无法添加相同的函数名！");
+                        NDebug.LogError($"[{RemotePoint}][{UserID}]添加客户端私有Rpc错误！Rpc方法{info.Name}使用同一函数名，这是不允许的，字典键值无法添加相同的函数名！");
                 }
                 else 
                 {
@@ -233,7 +233,7 @@
                     {
                         if (syncVar.id == 0)
                         {
-                            NDebug.LogError($"错误! 请赋值ID字段 :{target.GetType().Name}类的{info.Name}字段");
+                            NDebug.LogError($"[{RemotePoint}][{UserID}]错误! 请赋值ID字段 :{target.GetType().Name}类的{info.Name}字段");
                             return;
                         }
                         syncVarDic.Add(syncVar.id, syncVar);

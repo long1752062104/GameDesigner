@@ -100,6 +100,7 @@
 
         protected override void StartupThread()
         {
+            AbortedThread();//断线重连处理
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
             checkRpcHandleID = ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
@@ -199,8 +200,9 @@
             StackStream?.Close();
             StackStream = null;
             stack = 0;
-            if (Instance == this)
-                Instance = null;
+            UID = 0;
+            MID = 0;
+            if (Instance == this) Instance = null;
             if (ClientPtr != IntPtr.Zero)
             {
                 UdxLib.UClose(ClientPtr);

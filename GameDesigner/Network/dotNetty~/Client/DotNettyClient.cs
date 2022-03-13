@@ -98,6 +98,7 @@ namespace Net.Client
 
         protected override void StartupThread()
         {
+            AbortedThread();//断线重连处理
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
             ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);

@@ -8,6 +8,8 @@ namespace Net.Component
     using global::System.Collections.Generic;
     using global::System.Threading;
     using UnityEngine;
+    using global::System.Net;
+    using global::System.Threading.Tasks;
 
     public enum TransportProtocol
     {
@@ -49,12 +51,12 @@ namespace Net.Component
                         case TransportProtocol.Kcp:
                             _client = new KcpClient(true);
                             break;
-                        case TransportProtocol.Udx:
+                        case TransportProtocol.Udx:   
                             _client = new UdxClient(true);
                             break;
-#if !UNITY_ANDROID && !UNITY_IOS
+#if UNITY_STANDALONE_WIN || UNITY_WSA
                         case TransportProtocol.Web:
-                            _client = new WebClient(true);
+                            _client = new Client.WebClient(true);
                             break;
 #endif
                     }
@@ -100,13 +102,17 @@ namespace Net.Component
                 Connect();
         }
 
-        public void Connect()
+        public Task<bool> Connect()
         {
             _client = client;
-            _client.host = ip;
+            var ips = Dns.GetHostAddresses(ip);
+            if (ips.Length > 0)
+                _client.host = ips[UnityEngine.Random.Range(0, ips.Length)].ToString();
+            else
+                _client.host = ip;
             _client.port = port;
             _client.AddRpcHandle(this);
-            _client.Connect(result =>
+            return _client.Connect(result =>
             {
                 if (result)
                 {

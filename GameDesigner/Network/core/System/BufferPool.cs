@@ -3,6 +3,7 @@ using Net.Event;
 using Net.Serialize;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Net.System
@@ -141,6 +142,8 @@ namespace Net.System
             return Buffer[Position++];
         }
 
+        public bool ReadBoolean() { return Buffer[Position++] == 1; }
+
         public void Write(byte[] buffer, int index, int count)
         {
             global::System.Buffer.BlockCopy(buffer, index, Buffer, Position, count);
@@ -210,6 +213,8 @@ namespace Net.System
                     throw new Exception($"错误!基类不能序列化这个类:{value}");
             }
         }
+        public int WriteValue(int value) => WriteValue((ulong)value);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe int WriteValue(ulong value)
         {
             if (value == 0)
@@ -285,83 +290,17 @@ namespace Net.System
             }
             return value;
         }
-        public unsafe ulong ReadUInt64()
-        {
-            int num = Buffer[Position++];
-            if (num == 0)
-                return 0;
-            ulong value = 0;
-            switch (num)
-            {
-                case BYTE:
-                    value = Buffer[Position];
-                    break;
-                case SHORT:
-                    value = BitConverter.ToUInt16(Buffer, Position);
-                    break;
-                case INT24:
-                    if (BitConverter.IsLittleEndian)
-                        value = (ulong)(Buffer[Position] | (Buffer[Position + 1] << 8) | (Buffer[Position + 2] << 16));
-                    else
-                        value = (ulong)((Buffer[Position] << 24) | (Buffer[Position + 1] << 16) | (Buffer[Position + 2] << 8));
-                    break;
-                case INT32:
-                    value = BitConverter.ToUInt32(Buffer, Position);
-                    break;
-                case INT40:
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        int num1 = Buffer[Position + 0] | (Buffer[Position + 1] << 8) | (Buffer[Position + 2] << 16) | (Buffer[Position + 3] << 24);
-                        int num2 = Buffer[Position + 4];
-                        value = (ulong)((uint)num1 | ((long)num2 << 32));
-                    }
-                    else
-                    {
-                        int num3 = (Buffer[Position + 0] << 24) | (Buffer[Position + 1] << 16) | (Buffer[Position + 2] << 8) | Buffer[Position + 3];
-                        int num4 = Buffer[Position + 4] << 24;
-                        value = (ulong)((uint)num4 | ((long)num3 << 32));
-                    }
-                    break;
-                case INT48:
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        int num1 = Buffer[Position + 0] | (Buffer[Position + 1] << 8) | (Buffer[Position + 2] << 16) | (Buffer[Position + 3] << 24);
-                        int num2 = Buffer[Position + 4] | (Buffer[Position + 5] << 8);
-                        value = (ulong)((uint)num1 | ((long)num2 << 32));
-                    }
-                    else
-                    {
-                        int num3 = (Buffer[Position + 0] << 24) | (Buffer[Position + 1] << 16) | (Buffer[Position + 2] << 8) | Buffer[Position + 3];
-                        int num4 = (Buffer[Position + 4] << 24) | (Buffer[Position + 5] << 16);
-                        value = (ulong)((uint)num4 | ((long)num3 << 32));
-                    }
-                    break;
-                case INT56:
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        int num1 = Buffer[Position + 0] | (Buffer[Position + 1] << 8) | (Buffer[Position + 2] << 16) | (Buffer[Position + 3] << 24);
-                        int num2 = Buffer[Position + 4] | (Buffer[Position + 5] << 8) | (Buffer[Position + 6] << 16);
-                        value = (ulong)((uint)num1 | ((long)num2 << 32));
-                    }
-                    else
-                    {
-                        int num3 = (Buffer[Position + 0] << 24) | (Buffer[Position + 1] << 16) | (Buffer[Position + 2] << 8) | Buffer[Position + 3];
-                        int num4 = (Buffer[Position + 4] << 24) | (Buffer[Position + 5] << 16) | (Buffer[Position + 6] << 8);
-                        value = (ulong)((uint)num4 | ((long)num3 << 32));
-                    }
-                    break;
-                case LONG:
-                    value = BitConverter.ToUInt64(Buffer, Position);
-                    break;
-            }
-            Position += num;
-            return value;
-        }
 
-        public byte[] Read(int count)
+        public unsafe byte[] Read(int count)
         {
             byte[] buffer = new byte[count];
-            global::System.Buffer.BlockCopy(Buffer, Position, buffer, 0, count);
+            fixed (byte* ptr = &Buffer[Position])
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    buffer[i] = ptr[i];
+                }
+            }
             Position += count;
             return buffer;
         }
@@ -450,29 +389,44 @@ namespace Net.System
         {
             if (string.IsNullOrEmpty(value))
             {
-                WriteValue(0);
+                WriteValue(0ul);
                 return 0;
             }
-            int strLen = value.Length * 3;
-            int num = WriteValue(strLen);
-            int oldPos = Position - num;
-            int count = Encoding.UTF8.GetBytes(value, 0, value.Length, Buffer, Position);
-            Position = oldPos;
-            void* ptr = &count;
-            Write(ptr, num);
-            Position += count;
-            if (Position > Count) Count = Position;
-            return num;
+            fixed (char* ptr = value)
+            {
+                var charCount = value.Length * 3;
+                byte num = charCount < byte.MaxValue ? BYTE : charCount < ushort.MaxValue ? SHORT : charCount < Int24 ? INT24 : INT32;
+                Buffer[Position++] = num;
+                fixed (byte* ptr2 = &Buffer[Position])
+                {
+                    Position += num;
+                    fixed (byte* ptr1 = &Buffer[Position])
+                    {
+                        int count = Encoding.UTF8.GetBytes(ptr, value.Length, ptr1, charCount);
+                        byte* ptr3 = (byte*)&count;
+                        for (int i = 0; i < num; i++)
+                        {
+                            ptr2[i] = ptr3[i];
+                        }
+                        Position += count;
+                        if (Position > Count) Count = Position;
+                        return num;
+                    }
+                }
+            }
         }
 
-        public string ReadString() 
+        public unsafe string ReadString() 
         {
-            int count = ReadValue<int>();
+            int count = (int)ReadUInt64();
             if (count == 0)
                 return string.Empty;
-            var value = Encoding.UTF8.GetString(Buffer, Position, count);
-            Position += count;
-            return value;
+            fixed (byte* ptr = &Buffer[Position]) 
+            {
+                var value = Encoding.UTF8.GetString(ptr, count);
+                Position += count;
+                return value;
+            }
         }
 
         public unsafe int WriteValue(decimal value) 
@@ -706,6 +660,61 @@ namespace Net.System
         {
             Position = length;
             Count = length;
+        }
+        public void WriteInt32(int value)
+        {
+            WriteUInt64((ulong)value);
+        }
+        public void WriteUInt32(uint value)
+        {
+            WriteUInt64(value);
+        }
+        public void WriteUInt64(ulong value)
+        {
+            if (value == 0)
+            {
+                WriteByte(0);
+                return;
+            }
+            byte num = default;
+            Position++;
+            while (value > 0)
+            {
+                Buffer[Position++] = (byte)(value >> 0);
+                value >>= 8;
+                num++;
+            }
+            Buffer[Position - (num + 1)] = num;
+        }
+        public unsafe int ReadInt32()
+        {
+            return (int)ReadUInt64();
+        }
+        public unsafe uint ReadUInt32()
+        {
+            return (uint)ReadUInt64();
+        }
+        public unsafe ulong ReadUInt64()
+        {
+            byte num = Buffer[Position++];
+            fixed (byte* ptr = &Buffer[Position])
+            {
+                Position += num;
+                //if (Position > Count) Count = Position;
+                ulong value = 0ul;
+                if (BitConverter.IsLittleEndian)
+                {
+                    for (byte i = 0; i < num; i++)
+                        value |= (ulong)ptr[i] << (i * 8);
+                    return value;
+                }
+                else 
+                {
+                    for (byte i = num; i > 0; i++)
+                        value |= (ulong)ptr[i] << (i * 8);
+                    return value;
+                }
+            }
         }
     }
 

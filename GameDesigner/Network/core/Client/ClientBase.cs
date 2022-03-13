@@ -1146,6 +1146,7 @@ namespace Net.Client
         /// </summary>
         protected virtual void StartupThread()
         {
+            AbortedThread();//断线重连处理
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
             StartThread("ReceiveHandle", ReceiveHandle);
@@ -2219,7 +2220,9 @@ namespace Net.Client
             NetworkState = NetworkState.Connection;
             if (Client != null)
                 Client.Close();
-            ConnectResult(host, port, localPort, result =>
+            UID = 0;
+            MID = 0;
+            var task = ConnectResult(host, port, localPort, result =>
             {
                 currFrequency++;
                 if (result)
@@ -2246,6 +2249,7 @@ namespace Net.Client
                     NDebug.Log($"尝试重连:{currFrequency}...");
                 }
             });
+            task.Wait();
         }
 
         /// <summary>
@@ -2272,8 +2276,9 @@ namespace Net.Client
             StackStream = null;
             revdRTStream?.Close();
             revdRTStream = null;
-            if (Instance == this)
-                Instance = null;
+            UID = 0;
+            MID = 0;
+            if (Instance == this) Instance = null;
             sendReliableFrame = 0;
             revdReliableFrame = 0;
             Config.GlobalConfig.ThreadPoolRun = false;

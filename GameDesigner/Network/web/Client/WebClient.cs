@@ -108,6 +108,7 @@ namespace Net.Client
 
         protected override void StartupThread()
         {
+            AbortedThread();//断线重连处理
             Connected = true;
             StartThread("SendHandle", SendDataHandle);
             ThreadManager.Invoke("CheckRpcHandle", CheckRpcHandle);
@@ -190,8 +191,9 @@ namespace Net.Client
             stack = 0;
             revdRTStream?.Close();
             revdRTStream = null;
-            if (Instance == this)
-                Instance = null;
+            UID = 0;
+            MID = 0;
+            if (Instance == this) Instance = null;
             Config.GlobalConfig.ThreadPoolRun = false;
             NDebug.Log("客户端已关闭！");
         }

@@ -217,7 +217,7 @@
             }
             catch (Exception ex)
             {
-                Debug.LogError("发送错误:" + ex.Message);
+                Debug.LogError($"[{client.RemotePoint}][{client.UserID}]发送错误:" + ex.Message);
             }
         }
 

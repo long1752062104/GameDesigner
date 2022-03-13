@@ -213,7 +213,7 @@
             }
             catch (Exception ex)
             {
-                Debug.LogError("json解析出错:" + ex);
+                Debug.LogError($"[{client.RemotePoint}][{client.UserID}]json解析出错:" + ex);
                 MessageModel model = new MessageModel(0, "error", new object[] { ex.Message });
                 string jsonStr = JsonConvert.SerializeObject(model);
                 client.WSClient.Send(jsonStr);
@@ -303,7 +303,7 @@
         {
             if (client.sendQueue.Count >= 268435456)//最大只能处理每秒256m数据
             {
-                Debug.LogError("发送缓冲列表已经超出限制!");
+                Debug.LogError($"[{client.RemotePoint}][{client.UserID}]发送缓冲列表已经超出限制!");
                 return;
             }
             if (buffer.Length == frame)//解决长度==6的问题(没有数据)
