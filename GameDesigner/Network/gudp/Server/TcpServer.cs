@@ -115,13 +115,11 @@
                     client.CloseSend = false;
                     UserIDStack.TryPop(out int uid);
                     client.UserID = uid;
-                    client.MID = GetMID((IPEndPoint)socket.RemoteEndPoint);
                     client.PlayerID = uid.ToString();
                     client.stackStream = BufferStreamShare.Take();
                     Interlocked.Increment(ref ignoranceNumber);
                     var buffer = BufferPool.Take(50);
                     buffer.WriteValue(client.UserID);
-                    buffer.WriteValue(client.MID);
                     buffer.WriteValue(client.PlayerID);
                     SendRT(client, NetCmd.Identify, buffer.ToArray(true));
                     client.revdQueue = RevdQueues[threadNum];

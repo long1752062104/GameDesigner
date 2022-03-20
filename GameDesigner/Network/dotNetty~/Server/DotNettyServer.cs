@@ -118,7 +118,6 @@ namespace Net.Server
                             pipeline.AddLast("echo", new EchoServerHandler(unClient));
                             UserIDStack.TryPop(out int uid);
                             unClient.UserID = uid;
-                            unClient.MID = GetMID((IPEndPoint)client.RemoteAddress);
                             unClient.PlayerID = uid.ToString();
                             unClient.stackStream = BufferStreamShare.Take();
                             unClient.isDispose = false;
@@ -126,7 +125,6 @@ namespace Net.Server
                             Interlocked.Increment(ref ignoranceNumber);
                             var buffer = BufferPool.Take(50);
                             buffer.WriteValue(unClient.UserID);
-                            buffer.WriteValue(unClient.MID);
                             buffer.WriteValue(unClient.PlayerID);
                             SendRT(unClient, NetCmd.Identify, buffer.ToArray(true));
                             unClient.revdQueue = RevdQueues[threadNum];

@@ -128,7 +128,6 @@
                         Player unClient = new Player();
                         unClient.Udx = cli;
                         unClient.UserID = uid;
-                        unClient.MID = GetMID(remotePoint);
                         unClient.PlayerID = uid.ToString();
                         unClient.RemotePoint = remotePoint;
                         unClient.LastTime = DateTime.Now.AddMinutes(5);

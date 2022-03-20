@@ -57,10 +57,6 @@
         /// 标记此数据为大数据
         /// </summary>
         public bool bigData;
-        /// <summary>
-        /// 标记机器id
-        /// </summary>
-        public long mid;
 
         /// <summary>
         /// 构造
@@ -79,7 +75,6 @@
             count = buffer.Length;
             methodMask = 0;
             bigData = false;
-            mid = 0;
         }
 
         /// <summary>
@@ -100,7 +95,6 @@
             count = 0; 
             methodMask = 0;
             bigData = false;
-            mid = 0;
         }
 
         public RPCModel(byte cmd, ushort methodMask, object[] pars)
@@ -115,7 +109,6 @@
             index = 0;
             count = 0; 
             bigData = false;
-            mid = 0;
         }
 
         /// <summary>
@@ -136,7 +129,6 @@
             count = buffer.Length;
             methodMask = 0; 
             bigData = false;
-            mid = 0;
         }
 
         public RPCModel(byte cmd, bool kernel, byte[] buffer, int index, int size)
@@ -151,22 +143,6 @@
             serialize = false;
             methodMask = 0;
             bigData = false;
-            mid = 0;
-        }
-
-        public RPCModel(byte cmd, bool kernel, byte[] buffer, int index, int size, long mid)
-        {
-            this.cmd = cmd;
-            this.buffer = buffer;
-            this.index = index;
-            this.count = size;
-            this.kernel = kernel;
-            func = null;
-            pars = null;
-            serialize = false;
-            methodMask = 0;
-            bigData = false;
-            this.mid = mid;
         }
 
         /// <summary>
@@ -188,7 +164,6 @@
             count = buffer.Length;
             methodMask = 0;
             bigData = false;
-            mid = 0;
         }
 
         public RPCModel(byte cmd, byte[] buffer, bool kernel, bool serialize, ushort methodMask)
@@ -203,7 +178,6 @@
             count = buffer.Length;
             this.methodMask = methodMask; 
             bigData = false;
-            mid = 0;
         }
 
         /// <summary>
@@ -226,37 +200,6 @@
             count = 0;
             methodMask = 0;
             bigData = false;
-            mid = 0;
-        }
-
-        public RPCModel(byte cmd, string func, object[] pars, bool kernel, bool serialize, long mid)
-        {
-            this.cmd = cmd;
-            this.func = func;
-            this.pars = pars;
-            this.kernel = kernel;
-            this.serialize = serialize;
-            buffer = null;
-            index = 0;
-            count = 0;
-            methodMask = 0;
-            bigData = false;
-            this.mid = mid;
-        }
-
-        public RPCModel(byte cmd, ushort methodMask, object[] pars, bool kernel, bool serialize, long mid)
-        {
-            this.cmd = cmd;
-            func = null;
-            this.pars = pars;
-            this.kernel = kernel;
-            this.serialize = serialize;
-            buffer = null;
-            index = 0;
-            count = 0;
-            this.methodMask = methodMask;
-            bigData = false;
-            this.mid = mid;
         }
 
         public RPCModel(byte cmd, string func, object[] pars, bool kernel, bool serialize, ushort methodMask)
@@ -271,7 +214,16 @@
             count = 0;
             this.methodMask = methodMask; 
             bigData = false;
-            mid = 0;
+        }
+
+        public T To<T>(int index)
+        {
+            return (T)pars[index];
+        }
+
+        public T As<T>(int index) where T : class
+        {
+            return pars[index] as T;
         }
 
         /// <summary>
@@ -284,7 +236,7 @@
             string cmdStr = "";
             if (cmd < fields.Length)
                 cmdStr = fields[cmd].Name;
-            return $"指令:{cmdStr} 内核:{kernel} 方法:{func} 数据:{(buffer != null ? buffer.Length : 0)}";
+            return $"指令:{cmdStr} 内核:{kernel} 方法:{func} Mask:{methodMask} 数据:{(buffer != null ? buffer.Length : 0)}";
         }
     }
 }

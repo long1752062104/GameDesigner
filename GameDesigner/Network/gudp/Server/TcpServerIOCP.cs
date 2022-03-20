@@ -136,7 +136,6 @@
                         unClient.TcpRemoteEndPoint = client.RemoteEndPoint;
                         UserIDStack.TryPop(out int uid);
                         unClient.UserID = uid;
-                        unClient.MID = GetMID((IPEndPoint)client.RemoteEndPoint);
                         unClient.PlayerID = uid.ToString();
                         unClient.stackStream = BufferStreamShare.Take();
                         unClient.isDispose = false;
@@ -145,7 +144,6 @@
                         Interlocked.Increment(ref ignoranceNumber);
                         var buffer = BufferPool.Take(50);
                         buffer.WriteValue(uid);
-                        buffer.WriteValue(unClient.MID);
                         buffer.WriteValue(unClient.PlayerID);
                         SendRT(unClient, NetCmd.Identify, buffer.ToArray(true));
                         unClient.revdQueue = RevdQueues[threadNum];

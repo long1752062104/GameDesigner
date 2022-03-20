@@ -201,7 +201,6 @@
             StackStream = null;
             stack = 0;
             UID = 0;
-            MID = 0;
             if (Instance == this) Instance = null;
             if (ClientPtr != IntPtr.Zero)
             {

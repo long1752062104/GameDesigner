@@ -189,7 +189,7 @@ namespace Net.Server
         /// <summary>
         /// 2CRC协议
         /// </summary>
-        protected readonly byte frame = 2;
+        protected virtual byte frame { get; set; } = 2;
         /// <summary>
         /// 允许叠包缓存最大值 默认可发送5242880(5M)的数据包
         /// </summary>
@@ -844,7 +844,6 @@ namespace Net.Server
                 }
                 client = new Player();
                 client.UserID = uid;
-                client.MID = GetMID((IPEndPoint)remotePoint);
                 client.PlayerID = uid.ToString();
                 client.RemotePoint = remotePoint;
                 client.LastTime = DateTime.Now.AddMinutes(5);
@@ -859,27 +858,6 @@ namespace Net.Server
                 OnHasConnectHandle(client);
             }
             client.revdQueue.Enqueue(new RevdDataBuffer() { client = client, buffer = buffer,  tcp_udp = tcp_udp });
-        }
-
-        protected unsafe long GetMID(IPEndPoint remotePoint) 
-        {
-            var m_Address = remotePoint.Address.GetHashCode();
-            ushort port = (ushort)remotePoint.Port;
-            var array = new byte[]
-            {
-                (byte) m_Address,
-                (byte)(m_Address >> 8),
-                (byte)(m_Address >> 16),
-                (byte)(m_Address >> 24),
-                (byte) port,
-                (byte)(port >> 8),
-                0,
-                0
-            };
-            fixed (byte* ptr = &array[0])
-            {
-                return *(long*)ptr;
-            }
         }
 
         protected virtual void RevdDataHandle(object state)//处理线程
@@ -951,11 +929,10 @@ namespace Net.Server
                     break;
                 }
                 byte cmd1 = buffer.ReadByte();
-                long mid = buffer.ReadValue<long>();
                 int dataCount = buffer.ReadValue<int>();
                 if (buffer.Position + dataCount > buffer.Count)
                     break;
-                RPCModel rpc = new RPCModel(cmd1, kernel, buffer, buffer.Position, dataCount, mid);
+                RPCModel rpc = new RPCModel(cmd1, kernel, buffer, buffer.Position, dataCount);
                 if (kernel & cmd1 != NetCmd.Scene & cmd1 != NetCmd.SceneRT & cmd1 != NetCmd.Notice & cmd1 != NetCmd.NoticeRT & cmd1 != NetCmd.Local & cmd1 != NetCmd.LocalRT)
                 {
                     FuncData func = OnDeserializeRpc(buffer, buffer.Position, dataCount);
@@ -1138,7 +1115,6 @@ namespace Net.Server
             OnAddClientHandle?.Invoke(client);
             var buffer = BufferPool.Take(50);
             buffer.WriteValue(client.UserID);
-            buffer.WriteValue(client.MID);
             buffer.WriteValue(client.PlayerID);
             SendRT(client, NetCmd.Identify, buffer.ToArray(true));
         }
@@ -1517,14 +1493,13 @@ namespace Net.Server
             WriteDataHead(stream1);
             stream1.WriteByte(74);
             stream1.WriteByte(NetCmd.ReliableTransport);
-            stream1.WriteValue(0l);
             var stream2 = BufferPool.Take();
             while (index < len)
             {
                 int count1 = MTU;
                 if (index + count1 >= len)
                     count1 = len - index;
-                stream1.SetPositionLength(MD5CRC ? 19 : 5);//这5个是头部数据
+                stream1.SetPositionLength(MD5CRC ? 19 : frame + 2);//这4个是头部数据
                 stream2.SetPositionLength(0);
                 stream2.WriteValue(dataIndex);
                 stream2.WriteValue((ushort)Math.Ceiling(dataCount));
@@ -1629,7 +1604,6 @@ namespace Net.Server
                 }
                 stream.WriteByte((byte)(rPCModel.kernel ? 68 : 74));
                 stream.WriteByte(rPCModel.cmd);
-                stream.WriteValue(rPCModel.mid);
                 stream.WriteValue(rPCModel.buffer.Length);
                 stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
                 if (rPCModel.bigData)
@@ -1807,25 +1781,6 @@ namespace Net.Server
                             object[] pars = new object[model.pars.Length + 1];
                             pars[0] = client;
                             Array.Copy(model.pars, 0, pars, 1, model.pars.Length);
-                            rpc.Invoke(pars);
-                        });
-                    }
-                    else if (rpc.cmd == NetCmd.MIDCall)
-                    {
-                        object[] pars = new object[model.pars.Length + 2];
-                        pars[0] = client;
-                        pars[1] = model.mid;
-                        Array.Copy(model.pars, 0, pars, 2, model.pars.Length);
-                        rpc.Invoke(pars);
-                    }
-                    else if (rpc.cmd == NetCmd.MIDSingleCall)
-                    {
-                        SingleCallQueue.Enqueue(() =>
-                        {
-                            object[] pars = new object[model.pars.Length + 2];
-                            pars[0] = client;
-                            pars[1] = model.mid;
-                            Array.Copy(model.pars, 0, pars, 2, model.pars.Length);
                             rpc.Invoke(pars);
                         });
                     }
@@ -2397,52 +2352,6 @@ namespace Net.Server
                 return;
             }
             client.tcpRPCModels.Enqueue(new RPCModel(cmd, func, pars, true, true));
-        }
-
-        /// <summary>
-        /// 网关发往游戏服务器方法
-        /// </summary>
-        /// <param name="mid">机器id, 详情请看<see cref="NetPlayer.MID"/></param>
-        /// <param name="func"></param>
-        /// <param name="pars"></param>
-        public virtual void SendGateway(Player client, long mid, string func, params object[] pars)
-        {
-            SendGateway(client, NetCmd.CallRpc, mid, func, pars);
-        }
-
-        /// <summary>
-        /// 网关发往游戏服务器方法
-        /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="mid">机器id, 详情请看<see cref="NetPlayer.MID"/></param>
-        /// <param name="func"></param>
-        /// <param name="pars"></param>
-        public virtual void SendGateway(Player client, byte cmd, long mid, string func, params object[] pars)
-        {
-            SendRT(client, new RPCModel(cmd, func, pars, true, true, mid));
-        }
-
-        /// <summary>
-        /// 网关发往游戏服务器方法
-        /// </summary>
-        /// <param name="mid">机器id, 详情请看<see cref="NetPlayer.MID"/></param>
-        /// <param name="methodMask"></param>
-        /// <param name="pars"></param>
-        public virtual void SendGateway(Player client, long mid, ushort methodMask, params object[] pars)
-        {
-            SendGateway(client, NetCmd.CallRpc, mid, methodMask, pars);
-        }
-
-        /// <summary>
-        /// 网关发往游戏服务器方法
-        /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="mid">机器id, 详情请看<see cref="NetPlayer.MID"/></param>
-        /// <param name="methodMask"></param>
-        /// <param name="pars"></param>
-        public virtual void SendGateway(Player client, byte cmd, long mid, ushort methodMask, params object[] pars)
-        {
-            SendRT(client, new RPCModel(cmd, methodMask, pars, true, true, mid));
         }
 
         public virtual void SendRT(Player client, ushort methodMask, params object[] pars)

@@ -111,10 +111,6 @@
         internal MyDictionary<ushort, SyncVarInfo> syncVarDic = new MyDictionary<ushort, SyncVarInfo>();
         internal List<SyncVarInfo> syncVarList = new List<SyncVarInfo>();
         internal MyDictionary<int, FileData> ftpDic = new MyDictionary<int, FileData>();
-        /// <summary>
-        /// socket的IP和端口组合得到的标识, 0-4byte为IP值, 4-6为Port值 (Machine identification)
-        /// </summary>
-        public long MID { get; internal set; }
 
         #region 创建网络客户端(玩家)
         /// <summary>
@@ -346,7 +342,7 @@
                 RpcMaskDic.TryGetValue(model.methodMask, out model.func);
             if (!Rpcs.TryGetValue(model.func, out RPCMethod rpc))
             {
-                NDebug.LogWarning($"没有找到:{model.func}的Rpc方法,请使用netPlayer.AddRpcHandle方法注册!");
+                NDebug.LogWarning($"没有找到:{model}的Rpc方法,请使用netPlayer.AddRpcHandle方法注册!");
                 return;
             }
             rpc.Invoke(model.pars);

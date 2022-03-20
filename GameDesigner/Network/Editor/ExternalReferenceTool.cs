@@ -78,30 +78,60 @@ public class ExternalReferenceTool : EditorWindow
             {
                 var rows = new List<string>(File.ReadAllLines(csprojPath));
                 int removeStart = 0, removeEnd = 0;
-                for (int i = rows.Count - 1; i > 0; i++)
+                int contIndex = -1;
+                for (int i = 0; i < rows.Count; i++)
+                {
+                    foreach (var path in paths)
+                    {
+                        var path1 = path.Replace("/", "\\");
+                        var dir = new DirectoryInfo(path);
+                        var dirName = dir.Parent.FullName + "\\";
+                        var files = Directory.GetFiles(path1, "*.cs", SearchOption.AllDirectories);
+                        foreach (var file in files)
+                        {
+                            if (rows[i].Contains($"<Link>{file.Replace(dirName, "")}</Link>"))
+                            {
+                                contIndex = i;
+                                goto J;
+                            }
+                        }
+                    }
+                }
+            J:;
+                if (contIndex != -1)
+                {
+                    for (int i = contIndex; i > 0; i--)
+                    {
+                        if (string.IsNullOrEmpty(rows[i]))
+                            continue;
+                        if (rows[i].Contains("<ItemGroup>"))
+                        {
+                            removeStart = i;
+                            break;
+                        }
+                    }
+                    for (int i = removeStart; i < rows.Count; i++)
+                    {
+                        if (string.IsNullOrEmpty(rows[i]))
+                            continue;
+                        if (rows[i].Contains("</ItemGroup>"))
+                        {
+                            removeEnd = i + 1;
+                            break;
+                        }
+                    }
+                    rows.RemoveRange(removeStart, removeEnd - removeStart);
+                }
+                for (int i = rows.Count - 1; i > 0; i--)
                 {
                     if (string.IsNullOrEmpty(rows[i]))
                         continue;
                     if (rows[i].Contains("</Project>"))
                     {
-                        removeEnd = i + 1;
-                        if (rows[i - 1].Contains("</ItemGroup>"))
-                        {
-                            i--;
-                            while (!rows[i].Contains("<ItemGroup>") & i > 0)
-                            {
-                                i--;
-                            }
-                            removeStart = i;
-                        }
-                        else
-                        {
-                            removeStart = i;
-                        }
+                        rows.RemoveAt(i);
                         break;
                     }
                 }
-                rows.RemoveRange(removeStart, removeEnd - removeStart);
                 rows.Add("  <ItemGroup>");
                 foreach (var path in paths)
                 {

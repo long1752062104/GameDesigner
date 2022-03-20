@@ -279,8 +279,11 @@ namespace Net.Adapter
             {
                 model1.model = model;
                 model1.IsCompleted = true;
-                rpcTasks.Remove(model.func);
-                return;
+                model1.referenceCount--;
+                if(model1.referenceCount <= 0)
+                    rpcTasks.Remove(model.func);
+                if(model1.intercept)
+                    return;
             }
             if (RPCS.TryGetValue(model.func, out RPCPTR model2))
             {
@@ -343,12 +346,20 @@ namespace Net.Adapter
 
         public RPCModelTask OnRpcTaskRegister(ushort methodMask, string callbackFunc)
         {
-            if (!rpcTasks.TryGetValue(callbackFunc, out var model))
-                rpcTasks.Add(callbackFunc, model = new RPCModelTask());
-            if(methodMask != 0)
-                if (!RpcMask.ContainsKey(methodMask))
-                    RpcMask.Add(methodMask, callbackFunc);
-            return model;
+            if (methodMask != 0)
+            {
+                if (!RpcMask.TryGetValue(methodMask, out var func))
+                    RpcMask.Add(methodMask, func = callbackFunc);
+                if (!rpcTasks.TryGetValue(func, out var model))
+                    rpcTasks.Add(func, model = new RPCModelTask());
+                return model;
+            }
+            else 
+            {
+                if (!rpcTasks.TryGetValue(callbackFunc, out var model))
+                    rpcTasks.Add(callbackFunc, model = new RPCModelTask());
+                return model;
+            }
         }
     }
 }

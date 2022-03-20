@@ -169,7 +169,7 @@
                 }
                 catch (Exception ex)
                 {
-                    NDebug.LogError("序列化:" + model.func + "方法出错 详细信息:" + ex);
+                    NDebug.LogError("序列化:" + model.ToString() + "方法出错 详细信息:" + ex);
                     return new byte[0];
                 }
                 finally

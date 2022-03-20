@@ -353,7 +353,7 @@ namespace Net.System
             int num = key.GetHashCode() & int.MaxValue;
             for (int i = buckets[num % buckets.Length]; i >= 0; i = entries[i].next)
             {
-                if (entries[i].hashCode == num)
+                if (entries[i].hashCode == num && comparer.Equals(entries[i].key, key))
                 {
                     return i;
                 }

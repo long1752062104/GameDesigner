@@ -156,7 +156,6 @@
                 unClient.RemotePoint = client.RemoteEndPoint;
                 unClient.LastTime = DateTime.Now.AddMinutes(5);
                 unClient.UserID = uid;
-                unClient.MID = GetMID((IPEndPoint)remotePoint);
                 unClient.PlayerID = uid.ToString();
                 unClient.isDispose = false;
                 unClient.CloseSend = false;

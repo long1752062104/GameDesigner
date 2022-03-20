@@ -192,7 +192,6 @@ namespace Net.Client
             revdRTStream?.Close();
             revdRTStream = null;
             UID = 0;
-            MID = 0;
             if (Instance == this) Instance = null;
             Config.GlobalConfig.ThreadPoolRun = false;
             NDebug.Log("客户端已关闭！");

@@ -103,7 +103,7 @@ public static class Fast2BuildMethod
         str.AppendLine("using Net.Serialize;");
         str.AppendLine("using Net.System;");
         str.AppendLine("");
-        str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
+        str.AppendLine(hasns ? $"namespace Binding\r\n" + "{" : "");
         var className = type.FullName.Replace(".", "").Replace("+", "");
         str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}Bind : ISerialize<{type.FullName.Replace("+", ".")}>, ISerialize");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
@@ -412,7 +412,7 @@ public static class Fast2BuildMethod
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace) | addNs;
         str.AppendLine("");
-        str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
+        str.AppendLine(hasns ? $"namespace Binding\r\n" + "{" : "");
         var className = type.FullName.Replace(".", "").Replace("+", "");
         str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}ArrayBind : ISerialize<{type.FullName.Replace("+", ".")}[]>, ISerialize");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");
@@ -469,7 +469,7 @@ public static class Fast2BuildMethod
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace) | addNs;
         str.AppendLine("");
-        str.AppendLine(hasns ? $"namespace Binding\n" + "{" : "");
+        str.AppendLine(hasns ? $"namespace Binding\r\n" + "{" : "");
         var className = type.FullName.Replace(".", "").Replace("+", "");
         str.AppendLine($"{(hasns ? "\t" : "")}public struct {className}GenericBind : ISerialize<List<{type.FullName.Replace("+", ".")}>>, ISerialize");
         str.AppendLine($"{(hasns ? "\t{" : "{")}");

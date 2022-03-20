@@ -9,6 +9,7 @@
     using global::System.Threading;
     using global::System.Threading.Tasks;
     using Net.System;
+    using Net.Helper;
 
     /// <summary>
     /// Udp网络客户端
@@ -150,9 +151,9 @@
 
         protected override bool OnCRC(int index, byte crcCode)
         {
-            if (index < 0 | index > CRCCode.Length)
+            if (index < 0 | index > CRCHelper.CRCCode.Length)
                 return false;
-            if (CRCCode[index] == crcCode)
+            if (CRCHelper.CRCCode[index] == crcCode)
                 return true;
             return false;
         }

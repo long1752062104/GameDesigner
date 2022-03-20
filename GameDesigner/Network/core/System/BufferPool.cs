@@ -696,7 +696,10 @@ namespace Net.System
         }
         public unsafe ulong ReadUInt64()
         {
-            byte num = Buffer[Position++];
+            byte num = Buffer[Position];
+            Position++;//不安全代码中 i++和++i没区别
+            if (num == 0)
+                return 0ul;
             fixed (byte* ptr = &Buffer[Position])
             {
                 Position += num;
@@ -708,7 +711,7 @@ namespace Net.System
                         value |= (ulong)ptr[i] << (i * 8);
                     return value;
                 }
-                else 
+                else
                 {
                     for (byte i = num; i > 0; i++)
                         value |= (ulong)ptr[i] << (i * 8);

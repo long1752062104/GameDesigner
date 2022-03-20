@@ -141,7 +141,6 @@
                             UserIDStack.TryPop(out int uid);
                             Player unClient = new Player();
                             unClient.UserID = uid;
-                            unClient.MID = GetMID(remotePoint);
                             unClient.PlayerID = uid.ToString();
                             unClient.EClient = netEvent.Peer;
                             unClient.ChannelID = netEvent.ChannelID;

@@ -69,7 +69,6 @@
                 UserIDStack.TryPop(out int uid);
                 client = new Player();
                 client.UserID = uid;
-                client.MID = GetMID((IPEndPoint)remotePoint);
                 client.PlayerID = uid.ToString();
                 client.RemotePoint = remotePoint;
                 client.LastTime = DateTime.Now.AddMinutes(5);

@@ -188,8 +188,7 @@
     <None Include="GameDesigner\Component\Client\UnityThread.cs.meta" />
     <None Include="GameDesigner\Component\Clone.cs.meta" />
     <None Include="GameDesigner\Component\Command.cs.meta" />
-    <None Include="GameDesigner\Component\DBEntity.cs.meta" />
-    <None Include="GameDesigner\Network\core\Helper\EncryptHelper.cs.meta" />
+    <None Include="GameDesigner\Component\DataTableExt.cs.meta" />
     <None Include="GameDesigner\Component\InspectorAttribute.cs.meta" />
     <None Include="GameDesigner\Component\MySqlHelper.cs.meta" />
     <None Include="GameDesigner\Component\NTransform.cs.meta" />
@@ -204,6 +203,7 @@
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkAnimation.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkBoxCollider.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkCamera.cs.meta" />
+    <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkGameObject.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkImage.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\Generate\NetworkLight.cs.meta" />
     <None Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs.meta" />
@@ -621,6 +621,7 @@
     <None Include="GameDesigner\Network\core\Event\NDebug.cs.meta" />
     <None Include="GameDesigner\Network\core\Event\TimerEvent.cs.meta" />
     <None Include="GameDesigner\Network\core\Helper.meta" />
+    <None Include="GameDesigner\Network\core\Helper\EncryptHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Helper\SyncVarHelper.cs.meta" />
     <None Include="GameDesigner\Network\core\Server.meta" />
     <None Include="GameDesigner\Network\core\Server\NetBehaviour.cs.meta" />
@@ -743,18 +744,9 @@
     <None Include="GameDesigner\Network\enet\使用说明.txt.meta" />
     <None Include="GameDesigner\Network\gudp.meta" />
     <None Include="GameDesigner\Network\gudp\Client.meta" />
-    <None Include="GameDesigner\Network\gudp\Client\RawClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Client\TcpClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Client\UdpClient.cs.meta" />
-    <None Include="GameDesigner\Network\gudp\Helper.meta" />
-    <None Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs.meta" />
-    <None Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs.meta" />
-    <None Include="GameDesigner\Network\gudp\Helper\GatewayServer1.cs.meta" />
-    <None Include="GameDesigner\Network\gudp\P2P.meta" />
-    <None Include="GameDesigner\Network\gudp\P2P\P2PClient.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server.meta" />
-    <None Include="GameDesigner\Network\gudp\Server\RawPlayer.cs.meta" />
-    <None Include="GameDesigner\Network\gudp\Server\RawServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\TcpServer.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\TcpServerIOCP.cs.meta" />
     <None Include="GameDesigner\Network\gudp\Server\UdpServer.cs.meta" />
@@ -1268,7 +1260,6 @@
     <Compile Include="GameDesigner\Component\Clone.cs" />
     <Compile Include="GameDesigner\Component\Command.cs" />
     <Compile Include="GameDesigner\Component\DataTableExt.cs" />
-    <Compile Include="GameDesigner\Network\core\Helper\EncryptHelper.cs" />
     <Compile Include="GameDesigner\Component\InspectorAttribute.cs" />
     <Compile Include="GameDesigner\Component\MySqlHelper.cs" />
     <Compile Include="GameDesigner\Component\NTransform.cs" />
@@ -1280,6 +1271,7 @@
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkAnimation.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkBoxCollider.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkCamera.cs" />
+    <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkGameObject.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkImage.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\Generate\NetworkLight.cs" />
     <Compile Include="GameDesigner\Component\UnityComponent\NetworkBehaviour.cs" />
@@ -1609,6 +1601,8 @@
     <Compile Include="GameDesigner\Network\core\Event\EventSystem.cs" />
     <Compile Include="GameDesigner\Network\core\Event\NDebug.cs" />
     <Compile Include="GameDesigner\Network\core\Event\TimerEvent.cs" />
+    <Compile Include="GameDesigner\Network\core\Helper\CRCHelper.cs" />
+    <Compile Include="GameDesigner\Network\core\Helper\EncryptHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Helper\SyncVarHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetBehaviour.cs" />
     <Compile Include="GameDesigner\Network\core\Server\NetPlayer.cs" />
@@ -1695,15 +1689,8 @@
     <Compile Include="GameDesigner\Network\enet\ENet\ENet.cs" />
     <Compile Include="GameDesigner\Network\enet\Server\ENetServer.cs" />
     <Compile Include="GameDesigner\Network\enet\Server\NetPeer.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Client\RawClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Client\TcpClient.cs" />
     <Compile Include="GameDesigner\Network\gudp\Client\UdpClient.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Helper\DCSHelper.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Helper\GatewayServer.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Helper\GatewayServer1.cs" />
-    <Compile Include="GameDesigner\Network\gudp\P2P\P2PClient.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Server\RawPlayer.cs" />
-    <Compile Include="GameDesigner\Network\gudp\Server\RawServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\TcpServer.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\TcpServerIOCP.cs" />
     <Compile Include="GameDesigner\Network\gudp\Server\UdpServer.cs" />

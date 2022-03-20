@@ -23,7 +23,7 @@
         /// <summary>
         /// tcp数据长度(4) + 2CRC协议 = 6
         /// </summary>
-        protected new readonly int frame = 6;
+        protected override int frame { get; set; } = 6;
 
         /// <summary>
         /// 构造不可靠传输客户端
@@ -135,7 +135,7 @@
             else
             {
                 int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCCode[crcIndex];
+                byte crcCode = CRCHelper.CRCCode[crcIndex];
                 stream.Position = 4;//size
                 stream.WriteByte((byte)crcIndex);
                 stream.WriteByte(crcCode);
@@ -261,7 +261,6 @@
             revdRTStream?.Close();
             revdRTStream = null;
             UID = 0;
-            MID = 0;
             if (Instance == this) Instance = null;
             Config.GlobalConfig.ThreadPoolRun = false;
             NDebug.Log("客户端已关闭！");
@@ -387,9 +386,9 @@
 
             protected override bool OnCRC(int index, byte crcCode)
             {
-                if (index < 0 | index > CRCCode.Length)
+                if (index < 0 | index > CRCHelper.CRCCode.Length)
                     return false;
-                if (CRCCode[index] == crcCode)
+                if (CRCHelper.CRCCode[index] == crcCode)
                     return true;
                 return false;
             }
