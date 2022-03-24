@@ -8,20 +8,18 @@
     using global::System.Threading;
     using Debug = Event.NDebug;
     using Net.System;
-    using global::System.Security.Cryptography;
-    using Net.Helper;
 
     /// <summary>
     /// tcp 输入输出完成端口服务器
     /// <para>Player:当有客户端连接服务器就会创建一个Player对象出来, Player对象和XXXClient是对等端, 每当有数据处理都会通知Player对象. </para>
     /// <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
     /// </summary>
-    public class TcpServerIOCP<Player, Scene> : ServerBase<Player, Scene> where Player : NetPlayer, new() where Scene : NetScene<Player>, new()
+    public class TcpServerIOCP<Player, Scene> : TcpServer<Player, Scene> where Player : NetPlayer, new() where Scene : NetScene<Player>, new()
     {
         /// <summary>
-        /// tcp数据长度(4) + 2CRC协议 = 6
+        /// tcp数据长度(4) + 1CRC协议 = 5
         /// </summary>
-        protected new readonly int frame = 6;
+        protected override byte frame { get; set; } = 5;
 
         public override void Start(ushort port = 6666)
         {
@@ -195,179 +193,6 @@
                     }
                     break;
             }
-        }
-
-        protected override void RevdDataHandle(object state)
-        {
-            var revdQueue = state as QueueSafe<RevdDataBuffer>;
-            while (IsRunServer)
-            {
-                try
-                {
-                    revdLoopNum++;
-                    int count = revdQueue.Count;
-                    if (count <= 0)
-                    {
-                        Thread.Sleep(1);
-                        continue;
-                    }
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (revdQueue.TryDequeue(out RevdDataBuffer revdData))
-                        {
-                            BufferHandle(revdData.client as Player, ref revdData.buffer);
-                            BufferPool.Push(revdData.buffer);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning("处理异常:" + ex);
-                }
-            }
-        }
-
-        protected override bool IsInternalCommand(Player client, RPCModel model)
-        {
-            if (model.cmd == NetCmd.Connect | model.cmd == NetCmd.Broadcast)
-                return true;
-            return false;
-        }
-
-        protected override void WriteDataHead(Segment stream)
-        {
-            if (MD5CRC)
-            {
-                stream.Position = 20;//留20个字节记录size+md5哈希值
-            }
-            else
-            {
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCCode[crcIndex];
-                stream.Position = 4;//数据大小
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-            }
-        }
-
-        protected override void ResetDataHead(Segment stream)
-        {
-            if (MD5CRC)
-                stream.SetPositionLength(20);//size+md5
-            else
-                stream.SetPositionLength(frame);
-        }
-
-        protected override byte[] PackData(Segment stream)
-        {
-            if (MD5CRC)
-            {
-                MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(stream, 20, stream.Count - 20);
-                EncryptHelper.ToEncrypt(Password, retVal);
-                int len = stream.Count - 20;
-                stream.Position = 0;
-                stream.Write(BitConverter.GetBytes(len), 0, 4);
-                stream.Write(retVal, 0, retVal.Length);
-                stream.Position = len + 20;
-            }
-            else
-            {
-                int len = stream.Count - frame;
-                stream.Position = 0;
-                stream.Write(BitConverter.GetBytes(len), 0, 4);
-                stream.Position = len + frame;
-            }
-            return stream.ToArray();
-        }
-
-        protected override void SendRTDataHandle(Player client, QueueSafe<RPCModel> rtRPCModels)
-        {
-            SendDataHandle(client, rtRPCModels, true);
-        }
-
-        protected override void SendByteData(Player client, byte[] buffer, bool reliable)
-        {
-            if (!client.Client.Connected)
-                return;
-            if (client.sendQueue.Count >= 268435456)//最大只能处理每秒256m数据
-            {
-                Debug.LogError($"[{client.RemotePoint}][{client.UserID}]发送缓冲列表已经超出限制!");
-                return;
-            }
-            if (buffer.Length == frame)//解决长度==6的问题(没有数据)
-                return;
-            client.sendQueue.Enqueue(new SendDataBuffer(client, buffer));
-        }
-
-        protected override void ProcessSend(object state)
-        {
-            var sendQueue = state as QueueSafe<SendDataBuffer>;
-            while (IsRunServer)
-            {
-                try
-                {
-                    int count = sendQueue.Count;
-                    if (count <= 0)
-                    {
-                        Thread.Sleep(1);
-                        continue;
-                    }
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (sendQueue.TryDequeue(out SendDataBuffer sendData))
-                        {
-                            Player client = sendData.client as Player;
-                            if (!client.Client.Connected)
-                                continue;
-                            int count1 = client.Client.Send(sendData.buffer, 0, sendData.buffer.Length, SocketFlags.None, out SocketError error);
-                            if (error != SocketError.Success)
-                                continue;
-                            if (count1 <= 0)
-                                OnSendErrorHandle?.Invoke(client, sendData.buffer, true);
-                            sendAmount++;
-                            sendCount += sendData.buffer.Length;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError("发送异常:" + ex);
-                }
-            }
-        }
-
-        protected override void HeartHandle()
-        {
-            foreach (var client in AllClients)
-            {
-                if (client.Value == null)
-                    continue;
-                if (!client.Value.Client.Connected)
-                {
-                    RemoveClient(client.Value);
-                    continue;
-                }
-                client.Value.heart++;
-                if (!client.Value.Login)
-                {
-                    if (DateTime.Now > client.Value.LastTime)
-                    {
-                        Debug.Log($"赖在服务器的客户端:{client.Key}被强制下线!");
-                        client.Value.TcpRemoteEndPoint = client.Key;//解决key偶尔不对导致一直移除不了问题
-                        RemoveClient(client.Value);
-                        continue;
-                    }
-                }
-                if (client.Value.heart <= HeartLimit)//有5次确认心跳包
-                    continue;
-                SendRT(client.Value, NetCmd.SendHeartbeat, new byte[0]);//保活连接状态
-            }
-        }
-
-        public override void RemoveClient(Player client)
-        {
-            base.RemoveClient(client);
         }
 
         public override void Close()

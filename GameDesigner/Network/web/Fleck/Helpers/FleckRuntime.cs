@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace Fleck.Helpers
 {
@@ -10,13 +9,12 @@ namespace Fleck.Helpers
             return Type.GetType("Mono.Runtime") != null;
         }
 
-        public static bool IsRunningOnWindows()
-        {
+        public static bool IsRunningOnWindows() =>
 #if NET45 || NET40
-            return true;
+            true;
 #else
-            return (RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+            //System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+            true;
 #endif
-        }
     }
 }

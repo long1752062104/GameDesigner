@@ -20,9 +20,21 @@
     public class TcpServer<Player, Scene> : ServerBase<Player, Scene> where Player : NetPlayer, new() where Scene : NetScene<Player>, new()
     {
         /// <summary>
-        /// tcp数据长度(4) + 2CRC协议 = 6
+        /// tcp数据长度(4) + 1CRC协议 = 5
         /// </summary>
-        protected new readonly int frame = 6;
+        protected override byte frame { get; set; } = 5;
+        public override bool MD5CRC
+        {
+            get => md5crc;
+            set
+            {
+                md5crc = value;
+                if (value)
+                    frame = 5 + 16;
+                else
+                    frame = 5;
+            }
+        }
 
         public override void Start(ushort port = 6666)
         {
@@ -192,7 +204,7 @@
                         count--;//避免崩错. 先--
                         if (revdQueue.TryDequeue(out RevdDataBuffer revdData))
                         {
-                            BufferHandle(revdData.client as Player, ref revdData.buffer);
+                            ResolveBuffer(revdData.client as Player, ref revdData.buffer);
                             BufferPool.Push(revdData.buffer);
                         }
                     }
@@ -211,48 +223,31 @@
             return false;
         }
 
-        protected override void WriteDataHead(Segment stream)
-        {
-            if (MD5CRC)
-            {
-                stream.Position = 20;//留20个字节记录size+md5哈希值
-            }
-            else
-            {
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCCode[crcIndex];
-                stream.Position = 4;//数据大小
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-            }
-        }
-
-        protected override void ResetDataHead(Segment stream)
-        {
-            if (MD5CRC)
-                stream.SetPositionLength(20);//size+md5
-            else
-                stream.SetPositionLength(frame);
-        }
-
         protected override byte[] PackData(Segment stream)
         {
             if (MD5CRC)
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(stream, 20, stream.Count - 20);
+                var head = frame;
+                byte[] retVal = md5.ComputeHash(stream, head, stream.Count - head);
                 EncryptHelper.ToEncrypt(Password, retVal);
-                int len = stream.Count - 20;
+                int len = stream.Count - head;
+                var lenBytes = BitConverter.GetBytes(len);
+                byte crc = CRCHelper.CRC8(lenBytes, 0, lenBytes.Length);
                 stream.Position = 0;
-                stream.Write(BitConverter.GetBytes(len), 0, 4);
+                stream.Write(lenBytes, 0, 4);
+                stream.WriteByte(crc);
                 stream.Write(retVal, 0, retVal.Length);
-                stream.Position = len + 20;
+                stream.Position = len + head;
             }
             else
             {
                 int len = stream.Count - frame;
+                var lenBytes = BitConverter.GetBytes(len);
+                byte crc = CRCHelper.CRC8(lenBytes, 0, lenBytes.Length);
                 stream.Position = 0;
-                stream.Write(BitConverter.GetBytes(len), 0, 4);
+                stream.Write(lenBytes, 0, 4);
+                stream.WriteByte(crc);
                 stream.Position = len + frame;
             }
             return stream.ToArray();

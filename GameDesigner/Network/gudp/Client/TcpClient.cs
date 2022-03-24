@@ -21,9 +21,21 @@
     public class TcpClient : ClientBase
     {
         /// <summary>
-        /// tcp数据长度(4) + 2CRC协议 = 6
+        /// tcp数据长度(4) + 1CRC协议 = 5
         /// </summary>
-        protected override int frame { get; set; } = 6;
+        protected override int frame { get; set; } = 5;
+        public override bool MD5CRC
+        {
+            get => md5crc;
+            set
+            {
+                md5crc = value;
+                if (value)
+                    frame = 5 + 16;
+                else
+                    frame = 5;
+            }
+        }
 
         /// <summary>
         /// 构造不可靠传输客户端
@@ -126,48 +138,31 @@
             SendDataHandle(rtRPCModels, true);
         }
 
-        protected override void WriteDataHead(Segment stream)
-        {
-            if (MD5CRC)
-            {
-                stream.Position = 20;//留20个字节记录size+md5哈希值
-            }
-            else
-            {
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCHelper.CRCCode[crcIndex];
-                stream.Position = 4;//size
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-            }
-        }
-
-        protected override void ResetDataHead(Segment stream)
-        {
-            if (MD5CRC)
-                stream.SetPositionLength(20);//size+md5
-            else
-                stream.SetPositionLength(frame);
-        }
-
         protected override byte[] PackData(Segment stream)
         {
             if (MD5CRC)
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(stream, 20, stream.Count - 20);
+                var head = frame;
+                byte[] retVal = md5.ComputeHash(stream, head, stream.Count - head);
                 EncryptHelper.ToEncrypt(Password, retVal);
-                int len = stream.Count - 20;
+                int len = stream.Count - head;
+                var lenBytes = BitConverter.GetBytes(len);
+                byte crc = CRCHelper.CRC8(lenBytes, 0, lenBytes.Length);
                 stream.Position = 0;
-                stream.Write(BitConverter.GetBytes(len), 0, 4);
+                stream.Write(lenBytes, 0, 4);
+                stream.WriteByte(crc);
                 stream.Write(retVal, 0, retVal.Length);
-                stream.Position = len + 20;
+                stream.Position = len + head;
             }
             else 
             {
                 int len = stream.Count - frame;
+                var lenBytes = BitConverter.GetBytes(len);
+                byte retVal = CRCHelper.CRC8(lenBytes, 0, lenBytes.Length);
                 stream.Position = 0;
-                stream.Write(BitConverter.GetBytes(len), 0, 4);
+                stream.Write(lenBytes, 0, 4);
+                stream.WriteByte(retVal);
                 stream.Position = len + frame;
             }
             return stream.ToArray();
@@ -213,24 +208,45 @@
             }
             while (buffer.Position < buffer.Count)
             {
-                int size = BitConverter.ToInt32(buffer.Read(4), 0);
+                if (buffer.Position + 5 > buffer.Count)//流数据偶尔小于frame头部字节
+                {
+                    var position = buffer.Position;
+                    var count = buffer.Count - position;
+                    stackIndex = count;
+                    stackCount = 0;
+                    StackStream.Seek(0, SeekOrigin.Begin);
+                    StackStream.Write(buffer, position, count);
+                    stack++;
+                    break;
+                }
+                var lenBytes = buffer.Read(4);
+                byte crcCode = buffer.ReadByte();//CRC检验索引
+                byte retVal = CRCHelper.CRC8(lenBytes, 0, lenBytes.Length);
+                if (crcCode != retVal)
+                {
+                    stack = 0;
+                    NDebug.LogError($"CRC校验失败:");
+                    return;
+                }
+                int size = BitConverter.ToInt32(lenBytes, 0);
                 if (size < 0 | size > StackBufferSize)//如果出现解析的数据包大小有问题，则不处理
                 {
                     stack = 0;
                     NDebug.LogError($"数据错乱或数据量太大: size:{size}， 如果想传输大数据，请设置StackBufferSize属性");
                     return;
                 }
-                if (buffer.Position + size <= buffer.Count)
+                int value = MD5CRC ? 16 : 0;
+                if (buffer.Position + size + value <= buffer.Count)
                 {
                     stack = 0;
                     var count = buffer.Count;//此长度可能会有连续的数据(粘包)
-                    buffer.Count = buffer.Position + (MD5CRC ? 16 : 2) + size;//需要指定一个完整的数据长度给内部解析
+                    buffer.Count = buffer.Position + value + size;//需要指定一个完整的数据长度给内部解析
                     base.ResolveBuffer(buffer, true);
                     buffer.Count = count;//解析完成后再赋值原来的总长
                 }
                 else
                 {
-                    var position = buffer.Position - 4;//4个字节的大小
+                    var position = buffer.Position - 5;
                     var count = buffer.Count - position;
                     stackIndex = count;
                     stackCount = size;

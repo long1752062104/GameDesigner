@@ -22,8 +22,10 @@ namespace Net.UnityComponent
         }
 
         // Start is called before the first frame update
-        void Start()
+        public virtual void Start()
         {
+            if (ClientManager.I == null)
+                return;
             if (ClientManager.I.client.Connected)
                 OnConnectedHandle();
             else
@@ -155,8 +157,10 @@ namespace Net.UnityComponent
         {
         }
 
-        void OnDestroy()
+        public virtual void OnDestroy()
         {
+            if (ClientManager.I == null)
+                return;
             ClientManager.I.client.OnConnectedHandle -= OnConnectedHandle;
             ClientManager.I.client.OnOperationSync -= OperationSync;
         }

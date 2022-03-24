@@ -187,9 +187,9 @@ namespace Net.Server
         /// </summary>
         protected int revdLoopNum;
         /// <summary>
-        /// 2CRC协议
+        /// 1CRC协议
         /// </summary>
-        protected virtual byte frame { get; set; } = 2;
+        protected virtual byte frame { get; set; } = 1;
         /// <summary>
         /// 允许叠包缓存最大值 默认可发送5242880(5M)的数据包
         /// </summary>
@@ -266,10 +266,21 @@ namespace Net.Server
         /// 组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
         /// </summary>
         public int PackageLength { get; set; } = 1000;
+        protected bool md5crc;
         /// <summary>
         /// 采用md5 + 随机种子校验
         /// </summary>
-        public bool MD5CRC { get; set; }
+        public virtual bool MD5CRC {
+            get => md5crc;
+            set 
+            {
+                md5crc = value;
+                if (value)
+                    frame = 1 + 16;
+                else
+                    frame = 1;
+            }
+        }
         /// <summary>
         /// 随机种子密码
         /// </summary>
@@ -878,7 +889,7 @@ namespace Net.Server
                     {
                         if (revdQueue.TryDequeue(out RevdDataBuffer revdData))
                         {
-                            DataCRCHandle(revdData.client as Player, revdData.buffer);
+                            DataCRCHandle(revdData.client as Player, revdData.buffer, false);
                             BufferPool.Push(revdData.buffer);
                         }
                     }
@@ -890,7 +901,7 @@ namespace Net.Server
             }
         }
 
-        protected virtual void DataCRCHandle(Player client, Segment buffer)
+        protected virtual void DataCRCHandle(Player client, Segment buffer, bool isTcp)
         {
             if (MD5CRC)
             {
@@ -907,12 +918,15 @@ namespace Net.Server
                     }
                 }
             }
-            else
+            else if(!isTcp)
             {
-                int crcIndex = buffer.ReadByte();//CRC检验索引
-                byte crcCode = buffer.ReadByte();//CRC校验码
-                if (!OnCRC(crcIndex, crcCode))
+                byte crcCode = buffer.ReadByte();//CRC检验索引
+                byte retVal = CRCHelper.CRC8(buffer, buffer.Position, buffer.Count);
+                if (crcCode != retVal) 
+                {
+                    Debug.LogError($"[{client.RemotePoint}][{client.UserID}]CRC校验失败:");
                     return;
+                }
             }
             DataHandle(client, buffer);
         }
@@ -947,7 +961,7 @@ namespace Net.Server
             }
         }
 
-        protected virtual void BufferHandle(Player client, ref Segment buffer)
+        protected virtual void ResolveBuffer(Player client, ref Segment buffer)
         {
             client.heart = 0;
             if (client.stack > StackNumberMax)//不能一直叠包
@@ -978,24 +992,45 @@ namespace Net.Server
             }
             while (buffer.Position < buffer.Count)
             {
-                int size = BitConverter.ToInt32(buffer.Read(4), 0);
+                if (buffer.Position + 5 > buffer.Count)//流数据偶尔小于frame头部字节
+                {
+                    var position = buffer.Position;
+                    var count = buffer.Count - position;
+                    client.stackIndex = count;
+                    client.stackCount = 0;
+                    client.stackStream.Seek(0, SeekOrigin.Begin);
+                    client.stackStream.Write(buffer, position, count);
+                    client.stack++;
+                    break;
+                }
+                var lenBytes = buffer.Read(4);
+                byte crcCode = buffer.ReadByte();//CRC检验索引
+                byte retVal = CRCHelper.CRC8(lenBytes, 0, lenBytes.Length);
+                if (crcCode != retVal)
+                {
+                    client.stack = 0;
+                    Debug.LogError($"[{client.RemotePoint}][{client.UserID}]CRC校验失败:");
+                    return;
+                }
+                int size = BitConverter.ToInt32(lenBytes, 0);
                 if (size < 0 | size > StackBufferSize)//如果出现解析的数据包大小有问题，则不处理
                 {
                     client.stack = 0;
                     Debug.LogError($"[{client.RemotePoint}][{client.UserID}]数据错乱或数据量太大: size:{size}， 如果想传输大数据，请设置StackBufferSize属性");
                     return;
                 }
-                if (buffer.Position + size <= buffer.Count)
+                int value = MD5CRC ? 16 : 0;
+                if (buffer.Position + size + value <= buffer.Count)
                 {
                     client.stack = 0;
                     var count = buffer.Count;//此长度可能会有连续的数据(粘包)
-                    buffer.Count = buffer.Position + (MD5CRC ? 16 : 2) + size;//需要指定一个完整的数据长度给内部解析
-                    DataCRCHandle(client, buffer);
+                    buffer.Count = buffer.Position + value + size;//需要指定一个完整的数据长度给内部解析
+                    DataCRCHandle(client, buffer, true);
                     buffer.Count = count;//解析完成后再赋值原来的总长
                 }
                 else
                 {
-                    var position = buffer.Position - 4;//4个字节的大小
+                    var position = buffer.Position - 5;
                     var count = buffer.Count - position;
                     client.stackIndex = count;
                     client.stackCount = size;
@@ -1011,23 +1046,7 @@ namespace Net.Server
         {
             if (model.cmd == NetCmd.Connect)
             {
-                Segment segment = BufferPool.Take(20);
-                if (MD5CRC)
-                {
-                    segment.Position = 16;
-                }
-                else
-                {
-                    segment.WriteByte(0);
-                    segment.WriteByte(0x2d);
-                }
-                segment.WriteByte(74);
-                segment.WriteByte(NetCmd.Connect);
-                segment.WriteValue(0l);
-                segment.WriteValue(0);
-                var buffer = PackData(segment);
-                Server.SendTo(buffer, client.RemotePoint);
-                segment.Dispose();
+                Send(client, NetCmd.Connect, new byte[0]);
                 return true;
             }
             if (model.cmd == NetCmd.Broadcast)
@@ -1422,7 +1441,7 @@ namespace Net.Server
         protected virtual void OnExceededNumber(EndPoint remotePoint)
         {
             Debug.Log("未知客户端排队爆满,阻止连接次数: " + exceededNumber);
-            Server.SendTo(new byte[] { frame, 0, 0, 0, 0, 0x2d, 74, NetCmd.ExceededNumber, 0, 0, 0, 0 }, 0, remotePoint);
+            Server.SendTo(new byte[] { 0, 0x2d, 74, NetCmd.ExceededNumber, 0 }, 0, remotePoint);
         }
 
         /// <summary>
@@ -1432,7 +1451,7 @@ namespace Net.Server
         protected virtual void OnBlockConnection(EndPoint remotePoint)
         {
             Debug.Log("服务器爆满,阻止连接次数: " + blockConnection);
-            Server.SendTo(new byte[] { frame, 0, 0, 0, 0, 0x2d, 74, NetCmd.BlockConnection, 0, 0, 0, 0 }, 0, remotePoint);
+            Server.SendTo(new byte[] { 0, 0x2d, 74, NetCmd.BlockConnection, 0 }, 0, remotePoint);
         }
 
         protected virtual void SendDataHandle()//发送线程
@@ -1499,7 +1518,7 @@ namespace Net.Server
                 int count1 = MTU;
                 if (index + count1 >= len)
                     count1 = len - index;
-                stream1.SetPositionLength(MD5CRC ? 19 : frame + 2);//这4个是头部数据
+                stream1.SetPositionLength(frame + 2);//这4个是头部数据
                 stream2.SetPositionLength(0);
                 stream2.WriteValue(dataIndex);
                 stream2.WriteValue((ushort)Math.Ceiling(dataCount));
@@ -1561,17 +1580,7 @@ namespace Net.Server
 
         protected virtual void WriteDataHead(Segment stream)
         {
-            if (MD5CRC)
-            {
-                stream.Position = 16;//留16个字节记录md5哈希值
-            }
-            else
-            {
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCCode[crcIndex];
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-            }
+            stream.Position = frame;
         }
 
         protected virtual void WriteDataBody(Player client, ref Segment stream, QueueSafe<RPCModel> rPCModels, int count, bool reliable)
@@ -1595,7 +1604,7 @@ namespace Net.Server
                     BufferPool.Push(stream);
                     stream = stream2;
                 }
-                if ((len >= (IsEthernet ? MTU : 50000) | ++index >= PackageLength) & !reliable)//这里的判断是第二次for以上生效
+                if (len >= (IsEthernet ? MTU : 50000) & !reliable)//udp不可靠判断
                 {
                     byte[] buffer = PackData(stream);
                     SendByteData(client, buffer, reliable);
@@ -1606,7 +1615,7 @@ namespace Net.Server
                 stream.WriteByte(rPCModel.cmd);
                 stream.WriteValue(rPCModel.buffer.Length);
                 stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
-                if (rPCModel.bigData)
+                if (rPCModel.bigData | ++index >= PackageLength)
                     break;
             }
         }
@@ -1617,10 +1626,7 @@ namespace Net.Server
         /// <param name="stream"></param>
         protected virtual void ResetDataHead(Segment stream)
         {
-            if (MD5CRC)
-                stream.SetPositionLength(16);
-            else
-                stream.SetPositionLength(frame);
+            stream.SetPositionLength(frame);
         }
 
         protected virtual void SendDataHandle(Player client, QueueSafe<RPCModel> rPCModels, bool reliable)
@@ -1641,11 +1647,19 @@ namespace Net.Server
             if (MD5CRC)
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(stream, 16, stream.Count - 16);
+                byte[] retVal = md5.ComputeHash(stream, frame, stream.Count - frame);
                 EncryptHelper.ToEncrypt(Password, retVal);
                 int len = stream.Count;
                 stream.Position = 0;
                 stream.Write(retVal, 0, retVal.Length);
+                stream.Position = len;
+            }
+            else 
+            {
+                byte retVal = CRCHelper.CRC8(stream, 1, stream.Count);
+                int len = stream.Count;
+                stream.Position = 0;
+                stream.WriteByte(retVal);
                 stream.Position = len;
             }
             return stream.ToArray();
@@ -1703,46 +1717,18 @@ namespace Net.Server
         }
 
         /// <summary>
-        /// CRC校验代码表, 使用者可自行改变CRC校验码, 直接改源代码，重要提示：客户端的CRC表必须和这里的CRC表保持一致
-        /// </summary>
-        protected readonly byte[] CRCCode = new byte[]
-        {
-            0x2d, 0x9e, 0x2e, 0xbe, 0x29, 0x5e, 0x0e, 0x64, 0x30, 0xcb, 0xe5, 0xce, 0x0c, 0x4e,
-            0xe8, 0x4d, 0x87, 0xf0, 0x14, 0xcd, 0x24, 0x3a, 0x4a, 0xe7, 0x73, 0x75, 0x3d, 0x85,
-            0xa7, 0xde, 0x95, 0x23, 0x25, 0x07, 0x11, 0x1d, 0x82, 0x28, 0x33, 0x2c, 0xeb, 0xa5,
-            0x31, 0xf3, 0x91, 0xf6, 0x5c, 0x69, 0xf5, 0xa3, 0x32, 0x26, 0xd7, 0x84, 0x3e, 0x49,
-            0x77, 0xbb, 0x3b, 0xfc, 0x9b, 0xfd, 0xc0, 0xb0, 0x08, 0xb4, 0x62, 0xe4, 0x8e, 0xa6,
-            0xb9, 0x18, 0xef, 0xc6, 0x46, 0xe0, 0x90, 0x20, 0x27, 0x1b, 0x72, 0xc7, 0xf2, 0xdb,
-            0x71, 0x03, 0x7e, 0x00, 0x35, 0x53, 0x4c, 0xe2, 0x63, 0x55, 0x61, 0x4b, 0x9a, 0x93,
-            0x02, 0xab, 0xd9, 0x3c, 0xbd, 0xf9, 0x47, 0x42, 0x09, 0xad, 0x70, 0x1a, 0xc5, 0x2a,
-            0xb8, 0x34, 0xd0, 0x81, 0xe9, 0xae, 0x60, 0x10, 0x4f, 0x74, 0xb7, 0x76, 0xe3, 0xfb,
-            0xe6, 0xc9, 0x6b, 0xdf, 0x3f, 0x12, 0xa8, 0xec, 0xcf, 0x05, 0x1c, 0xc8, 0x98, 0x51,
-            0x21, 0x5d, 0x41, 0x45, 0x94, 0xd1, 0xe1, 0x52, 0x67, 0xea, 0x8b, 0xd5, 0x0d, 0x01,
-            0x97, 0x83, 0xbf, 0x17, 0xbc, 0x40, 0xb1, 0x89, 0x79, 0x7a, 0x16, 0xfe, 0xff, 0x54,
-            0x80, 0x5b, 0x43, 0x13, 0xf1, 0xfa, 0x5f, 0x57, 0x50, 0xee, 0x44, 0x92, 0xca, 0x15,
-            0x9f, 0xf7, 0x56, 0x65, 0x9c, 0xdd, 0x5a, 0xc2, 0x86, 0xd3, 0xf8, 0x06, 0xa0, 0x58,
-            0xa1, 0x6a, 0x39, 0x59, 0xd2, 0xf4, 0x0f, 0x6c, 0x6f, 0x1f, 0xd8, 0x68, 0x19, 0xb2,
-            0x0a, 0x48, 0x6d, 0xa4, 0x8d, 0xa2, 0x37, 0x66, 0x04, 0x22, 0x0b, 0x9d, 0xb6, 0x78,
-            0x36, 0x7d, 0xb3, 0xdc, 0x96, 0x8a, 0xda, 0x7c, 0xba, 0x8c, 0x8f, 0xac, 0x2f, 0x6e,
-            0x7f, 0xcc, 0x38, 0x2b, 0x99, 0xaf, 0xc3, 0xd6, 0xc1, 0xd4, 0xc4, 0xaa, 0x7b, 0x88,
-            0xed, 0x1e, 0xb5, 0xa9,
-        };
-
-        /// <summary>
         /// 当处理CRC校验
         /// </summary>
         /// <returns></returns>
         protected virtual bool OnCRC(int index, byte crcCode)
         {
-            if (index < 0 | index > CRCCode.Length)
+            if (index < 0 | index > CRCHelper.CRCCode.Length)
                 goto JUMP;
-            if (CRCCode[index] == crcCode)
+            if (CRCHelper.CRCCode[index] == crcCode)
                 return true;
             JUMP: Debug.LogError("CRC校验失败:");
             return false;
         }
-
-
 
         /// <summary>
         /// 当执行Rpc(远程过程调用函数)时, 如果想提供服务器效率, 可以重写此方法, 指定要调用的方法, 可以提高服务器性能 (默认反射调用)

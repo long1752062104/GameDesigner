@@ -123,6 +123,18 @@
         }
 
         /// <summary>
+        /// 添加所有可序列化的类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+        /// </summary>
+        /// <param name="types"></param>
+        public static void AddSerializeType3s(Type[] types)
+        {
+            foreach (var type in types)
+            {
+                AddSerializeType3(type);
+            }
+        }
+
+        /// <summary>
         /// 添加可序列化的3个参数类型(T类,T类数组,T类List泛型), 网络参数类型 如果不进行添加将不会被序列化,反序列化
         /// </summary>
         /// <typeparam name="T">要添加的网络类型</typeparam>

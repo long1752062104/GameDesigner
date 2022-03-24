@@ -27,5 +27,20 @@
             0x7f, 0xcc, 0x38, 0x2b, 0x99, 0xaf, 0xc3, 0xd6, 0xc1, 0xd4, 0xc4, 0xaa, 0x7b, 0x88,
             0xed, 0x1e, 0xb5, 0xa9,
         };
+
+        public static byte CRC8(byte[] buffer)
+        {
+            return CRC8(buffer, 0, buffer.Length);
+        }
+
+        public static byte CRC8(byte[] buffer, int off, int len)
+        {
+            byte crc = 0;
+            for (int i = off; i < len; i++)
+            {
+                crc = CRCCode[crc ^ buffer[i]];
+            }
+            return crc;
+        }
     }
 }

@@ -173,6 +173,7 @@ public class Fast2BuildTools2 : EditorWindow
                 EditorUtility.DisplayDialog("提示", "请选择生成脚本路径!", "确定");
                 return;
             }
+            List<Type> types = new List<Type>();
             foreach (var type1 in typeNames)
             {
                 Type type = Net.Serialize.NetConvertOld.GetType(type1.name);
@@ -190,11 +191,13 @@ public class Fast2BuildTools2 : EditorWindow
                     Fast2BuildMethod.BuildArray(type, true, savePath1);
                     Fast2BuildMethod.BuildGeneric(type, true, savePath1);
                 }
+                types.Add(type);
             }
+            Fast2BuildMethod.BuildBindingType(types, savePath);
             Debug.Log("生成完成.");
             AssetDatabase.Refresh();
         }
-        EditorGUILayout.HelpBox("指定主入口类型和调用入口方法，然后选择生成代码文件夹路径，最后点击生成。绑定入口案例:请看Net.Binding.BindingEntry类的GetBindTypes方法", MessageType.Info);
+        EditorGUILayout.HelpBox("使用时在Start方法初始化: Net.Serialize.NetConvertFast2.AddSerializeType3s(Binding.BindingType.TYPES);", MessageType.Info);
     }
 
     private void UpdateFields() 

@@ -2,6 +2,7 @@
 using Net.Event;
 using Net.Serialize;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,7 +12,7 @@ namespace Net.System
     /// <summary>
     /// 内存数据片段
     /// </summary>
-    public class Segment : IDisposable
+    public class Segment : IDisposable , IBufferWriter<byte>
     {
         /// <summary>
         /// 总内存
@@ -718,6 +719,22 @@ namespace Net.System
                     return value;
                 }
             }
+        }
+
+        public void Advance(int count)
+        {
+            Position += count;
+            if (Position > Count) Count = Position;
+        }
+
+        public Memory<byte> GetMemory(int sizeHint = 0)
+        {
+            return Buffer;
+        }
+
+        public Span<byte> GetSpan(int sizeHint = 0)
+        {
+            return Buffer;
         }
     }
 

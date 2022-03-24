@@ -400,6 +400,26 @@ public static class Fast2BuildMethod
         return str;
     }
 
+    public static void BuildBindingType(List<Type> types, string savePath)
+    {
+        StringBuilder str = new StringBuilder();
+        str.AppendLine("using System;");
+        str.AppendLine("namespace Binding");
+        str.AppendLine("{");
+        str.AppendLine("    public static class BindingType");
+        str.AppendLine("    {");
+        str.AppendLine("        public static readonly Type[] TYPES = new Type[]");
+        str.AppendLine("        {");
+        foreach (var item in types)
+        {
+            str.AppendLine($"\t\t\ttypeof({item.FullName}),");
+        }
+        str.AppendLine("        };");
+        str.AppendLine("    }");
+        str.AppendLine("}");
+        File.WriteAllText(savePath + $"//BindingType.cs", str.ToString());
+    }
+
     public static void BuildArray(Type type, bool addNs, string savePath)
     {
         var str = BuildArray(type, addNs);

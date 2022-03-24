@@ -313,9 +313,9 @@ namespace Net.Client
         /// </summary>
         protected BufferStream revdRTStream;
         /// <summary>
-        /// 2CRC协议
+        /// 1CRC协议
         /// </summary>
-        protected virtual int frame { get; set; } = 2;
+        protected virtual int frame { get; set; } = 1;
         /// <summary>
         /// 心跳时间间隔, 默认每1秒检查一次玩家是否离线, 玩家心跳确认为5次, 如果超出5次 则移除玩家客户端. 确认玩家离线总用时5秒, 
         /// 如果设置的值越小, 确认的速度也会越快. 值太小有可能出现直接中断问题, 设置的最小值在100以上
@@ -355,7 +355,6 @@ namespace Net.Client
         /// TCP叠包值， 0:正常 >1:叠包次数 > StackNumberMax :清空叠包缓存流
         /// </summary>
         protected int stack;
-        //internal string stackStreamName;
         internal int stackIndex;
         internal int stackCount;
         /// <summary>
@@ -427,10 +426,21 @@ namespace Net.Client
         /// 组包数量，如果是一些小数据包，最多可以组合多少个？ 默认是组合1000个后发送
         /// </summary>
         public int PackageLength { get; set; } = 1000;
+        protected bool md5crc;
         /// <summary>
         /// 采用md5 + 随机种子校验
         /// </summary>
-        public bool MD5CRC { get; set; }
+        public virtual bool MD5CRC {
+            get => md5crc;
+            set
+            {
+                md5crc = value;
+                if (value)
+                    frame = 1 + 16;
+                else
+                    frame = 1;
+            }
+        }
         /// <summary>
         /// 随机种子密码
         /// </summary>
@@ -1389,17 +1399,7 @@ namespace Net.Client
 
         protected virtual void WriteDataHead(Segment stream)
         {
-            if (MD5CRC)
-            {
-                stream.Position = 16;//留16个字节记录md5哈希值
-            }
-            else
-            {
-                int crcIndex = RandomHelper.Range(0, 256);
-                byte crcCode = CRCHelper.CRCCode[crcIndex];
-                stream.WriteByte((byte)crcIndex);
-                stream.WriteByte(crcCode);
-            }
+            stream.Position = frame;
         }
 
         protected virtual void WriteDataBody(ref Segment stream, QueueSafe<RPCModel> rPCModels, int count, bool reliable)
@@ -1423,7 +1423,7 @@ namespace Net.Client
                     BufferPool.Push(stream);
                     stream = stream2;
                 }
-                if ((len >= (IsEthernet ? MTU : 50000) | ++index >= PackageLength) & !reliable)//这里的判断是第二次for以上生效
+                if (len >= (IsEthernet ? MTU : 50000) & !reliable)//udp不可靠判断
                 {
                     byte[] buffer = PackData(stream);
                     SendByteData(buffer, reliable);
@@ -1434,7 +1434,7 @@ namespace Net.Client
                 stream.WriteByte(rPCModel.cmd);
                 stream.WriteValue(rPCModel.buffer.Length);
                 stream.Write(rPCModel.buffer, 0, rPCModel.buffer.Length);
-                if (rPCModel.bigData)
+                if (rPCModel.bigData | ++index >= PackageLength)
                     break;
             }
         }
@@ -1445,10 +1445,7 @@ namespace Net.Client
         /// <param name="stream"></param>
         protected virtual void ResetDataHead(Segment stream)
         {
-            if (MD5CRC)
-                stream.SetPositionLength(16);
-            else
-                stream.SetPositionLength(frame);
+            stream.SetPositionLength(frame);
         }
 
         /// <summary>
@@ -1472,11 +1469,19 @@ namespace Net.Client
             if (MD5CRC)
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(stream, 16, stream.Count - 16);
+                byte[] retVal = md5.ComputeHash(stream, frame, stream.Count - frame);
                 EncryptHelper.ToEncrypt(Password, retVal);
                 int len = stream.Count;
                 stream.Position = 0;
                 stream.Write(retVal, 0, retVal.Length);
+                stream.Position = len;
+            }
+            else
+            {
+                byte retVal = CRCHelper.CRC8(stream, 1, stream.Count);
+                int len = stream.Count;
+                stream.Position = 0;
+                stream.WriteByte(retVal);
                 stream.Position = len;
             }
             return stream.ToArray();
@@ -1514,7 +1519,7 @@ namespace Net.Client
                 int count1 = MTU;
                 if (index + count1 >= len)
                     count1 = len - index;
-                stream1.SetPositionLength(MD5CRC ? 19 : frame + 2);//这4个是头部数据
+                stream1.SetPositionLength(frame + 2);//这3个是头部数据
                 stream2.SetPositionLength(0);
                 stream2.WriteValue(dataIndex);
                 stream2.WriteValue((ushort)Math.Ceiling(dataCount));
@@ -1690,12 +1695,15 @@ namespace Net.Client
                     }
                 }
             }
-            else 
+            else if(!isTcp)
             {
-                int crcIndex = buffer.ReadByte();//CRC检验索引
-                byte crcCode = buffer.ReadByte();//CRC校验码
-                if (!OnCRC(crcIndex, crcCode))
+                byte crcCode = buffer.ReadByte();//CRC检验索引
+                byte retVal = CRCHelper.CRC8(buffer, buffer.Position, buffer.Count);
+                if (crcCode != retVal)
+                {
+                    NDebug.LogError($"CRC校验失败:");
                     return;
+                }
             }
             DataHandle(buffer);
         }
@@ -2205,7 +2213,10 @@ namespace Net.Client
         public virtual void Close(bool await = true, int millisecondsTimeout = 1000)
         {
             if (NetworkState != NetworkState.ConnectClosed & NetworkState == NetworkState.Connection)
-                Client?.Send(new byte[] { 6, 0, 0, 0, 0, 0x2d, 74, NetCmd.QuitGame, 0, 0, 0, 0 });
+            {
+                Send(NetCmd.QuitGame, new byte[0]);
+                SendDirect();
+            }
             Connected = false;
             openClient = false;
             NetworkState = networkState = NetworkState.ConnectClosed;
