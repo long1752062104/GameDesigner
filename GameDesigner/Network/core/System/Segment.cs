@@ -36,8 +36,6 @@ namespace Net.System
         internal int length;
         internal bool isRecovery;
         internal int referenceCount;
-        private const byte BYTE = 1, SHORT = 2, INT24 = 3, INT32 = 4, INT40 = 5, INT48 = 6, INT56 = 7, LONG = 8;
-        private const long Int24 = 16777216, Int40 = 1099511627776, Int48 = 281474976710656, Int56 = 72057594037927936;
 
         /// <summary>
         /// 获取或设置总内存位置索引
