@@ -943,7 +943,7 @@ namespace Net.Server
                     break;
                 }
                 byte cmd1 = buffer.ReadByte();
-                int dataCount = buffer.ReadValue<int>();
+                int dataCount = buffer.ReadInt32();
                 if (buffer.Position + dataCount > buffer.Count)
                     break;
                 RPCModel rpc = new RPCModel(cmd1, kernel, buffer, buffer.Position, dataCount);
@@ -1192,11 +1192,11 @@ namespace Net.Server
                     break;
                 case NetCmd.ReliableTransport:
                     var pos1 = segment.Position;
-                    ushort index = segment.ReadValue<ushort>();
-                    ushort entry = segment.ReadValue<ushort>();//数据拆分成的多少份
-                    int count = segment.ReadValue<int>();
-                    int dataCount = segment.ReadValue<int>();
-                    uint frame = segment.ReadValue<uint>();
+                    ushort index = segment.ReadUInt16();
+                    ushort entry = segment.ReadUInt16();//数据拆分成的多少份
+                    int count = segment.ReadInt32();
+                    int dataCount = segment.ReadInt32();
+                    uint frame = segment.ReadUInt32();
                     byte[] rtbuffer = new byte[6];
                     if (client.revdReliableFrame > frame)
                     {
@@ -1520,13 +1520,14 @@ namespace Net.Server
                     count1 = len - index;
                 stream1.SetPositionLength(frame + 2);//这4个是头部数据
                 stream2.SetPositionLength(0);
-                stream2.WriteValue(dataIndex);
-                stream2.WriteValue((ushort)Math.Ceiling(dataCount));
-                stream2.WriteValue(count1);
-                stream2.WriteValue(len);
-                stream2.WriteValue(client.sendReliableFrame);
+                stream2.Write(dataIndex);
+                stream2.Write((ushort)Math.Ceiling(dataCount));
+                stream2.Write(count1);
+                stream2.Write(len);
+                stream2.Write(client.sendReliableFrame);
                 stream2.Write(stream, index, count1);
-                stream1.WriteValue(stream2.Count);
+                stream2.Flush();
+                stream1.Write(stream2.Count);
                 stream1.Write(stream2, 0, stream2.Count);
                 byte[] buffer = PackData(stream1);
                 rtDic.Add(dataIndex, new RTBuffer(buffer));
@@ -1599,6 +1600,7 @@ namespace Net.Server
                 int len = stream.Position + rPCModel.buffer.Length + frame + 15;
                 if (len >= stream.Length)
                 {
+                    stream.Flush();
                     var stream2 = BufferPool.Take(len);
                     stream2.Write(stream, 0, stream.Count);
                     BufferPool.Push(stream);
@@ -1644,6 +1646,7 @@ namespace Net.Server
 
         protected virtual byte[] PackData(Segment stream)
         {
+            stream.Flush();
             if (MD5CRC)
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
@@ -2972,7 +2975,7 @@ namespace Net.Server
             }
             byte[] buffer = new byte[bufferSize];
             fileStream.Read(buffer, 0, buffer.Length);
-            Segment segment1 = BufferPool.Take((int)bufferSize + 50);
+            var segment1 = BufferPool.Take((int)bufferSize + 50);
             segment1.WriteValue(fileData.ID);
             segment1.WriteValue(fileData.fileStream.Length);
             segment1.WriteValue(fileData.fileName);

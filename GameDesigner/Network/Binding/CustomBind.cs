@@ -12,12 +12,12 @@ namespace Binding
 		public void Write(Dictionary<string, List<int>> value, Segment stream)
 		{
 			int count = value.Count;
-			stream.WriteValue(count);
+			stream.Write(count);
 			if (count == 0) return;
 			foreach (var value1 in value)
 			{
-				stream.WriteValue(value1.Key);
-				stream.WriteList(value1.Value);
+				stream.Write(value1.Key);
+				stream.Write(value1.Value);
 			}
 		}
 

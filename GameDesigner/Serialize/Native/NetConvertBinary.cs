@@ -1460,8 +1460,8 @@
         public static object DeserializeObject(Segment segment, Type type, bool isPush = true, bool recordType = false, bool ignore = false)
         {
             object obj = default;
-            int index = segment.Index + segment.Position;
-            int count = segment.Index + segment.Count;
+            int index = segment.Offset + segment.Position;
+            int count = segment.Offset + segment.Count;
             if (index < count)
                 obj = ReadObject(segment.Buffer, ref index, type, recordType, ignore);
             segment.Position = index;
@@ -1480,8 +1480,8 @@
         public static T DeserializeObject<T>(Segment segment, bool isPush = true, bool recordType = false, bool ignore = false)
         {
             T obj = default;
-            int index = segment.Index + segment.Position;
-            int count = segment.Index + segment.Count;
+            int index = segment.Offset + segment.Position;
+            int count = segment.Offset + segment.Count;
             if (index < count)
             {
                 Type type = typeof(T);
@@ -1536,8 +1536,8 @@
         public static object Deserialize(Segment segment, bool isPush = true, bool ignore = false)
         {
             object obj = null;
-            int index = segment.Index + segment.Position;
-            int count = segment.Index + segment.Count;
+            int index = segment.Offset + segment.Position;
+            int count = segment.Offset + segment.Count;
             if (index < count)
             {
                 Type type = IndexToType(BitConverter.ToUInt16(segment.Buffer, index));

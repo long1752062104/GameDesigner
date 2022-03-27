@@ -511,7 +511,7 @@
                 if (hasFunc) obj.name = segment.ReadValue<string>();
                 if (hasMask) obj.mask = segment.ReadValue<ushort>();
                 List<object> list = new List<object>();
-                int count = segment.Index + segment.Count;
+                int count = segment.Offset + segment.Count;
                 while (segment.Position < count)
                 {
                     ushort typeIndex = segment.ReadValue<ushort>();

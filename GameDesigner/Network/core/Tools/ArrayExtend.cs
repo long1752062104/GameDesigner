@@ -67,6 +67,28 @@ public static class ArrayExtend
         }
     }
 
+    public static void SetActives<T>(this T[] self, bool active) where T : Object
+    {
+        for (int i = 0; i < self.Length; i++)
+        {
+            if (self[i] is GameObject go)
+                go.SetActive(active);
+            else if (self[i] is MonoBehaviour mb)
+                mb.gameObject.SetActive(active);
+        }
+    }
+
+    public static void SetActives<T>(this List<T> self, bool active) where T : Object
+    {
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i] is GameObject go)
+                go.SetActive(active);
+            else if (self[i] is MonoBehaviour mb)
+                mb.gameObject.SetActive(active);
+        }
+    }
+
     public static void ClearObjects<T>(this List<T> self) where T : Component
     {
         for (int i = 0; i < self.Count; i++)

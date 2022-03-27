@@ -179,9 +179,9 @@ namespace Net.Helper
         private static void SyncVarHandler(Func<ushort, SyncVarInfo> syncVarList, byte[] buffer)
         {
             Segment segment1 = new Segment(buffer, false);
-            while (segment1.Position < segment1.Index + segment1.Count)
+            while (segment1.Position < segment1.Offset + segment1.Count)
             {
-                var index = segment1.ReadValue<ushort>();
+                var index = segment1.ReadUInt16();
                 var syncVar = syncVarList(index);
                 var oldValue = syncVar.value;
                 object value;
@@ -189,7 +189,7 @@ namespace Net.Helper
                     value = segment1.ReadValue(syncVar.type);
                 else if (syncVar.isUnityObject)
                 {
-                    var path = segment1.ReadValue<string>();
+                    var path = segment1.ReadString();
 #if UNITY_EDITOR
                     value = UnityEditor.AssetDatabase.LoadAssetAtPath(path, syncVar.type);
                     syncVar.SetValue(value);

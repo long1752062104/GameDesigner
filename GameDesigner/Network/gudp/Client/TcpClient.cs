@@ -87,6 +87,7 @@
                 catch(Exception ex)
                 {
                     NDebug.LogError("连接错误:" + ex);
+                    AbortedThread();
                     Client?.Close();
                     Client = null;
                     InvokeContext((arg) => {
@@ -140,6 +141,7 @@
 
         protected override byte[] PackData(Segment stream)
         {
+            stream.Flush();
             if (MD5CRC)
             {
                 MD5 md5 = new MD5CryptoServiceProvider();

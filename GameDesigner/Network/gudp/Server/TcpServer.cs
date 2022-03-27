@@ -225,6 +225,7 @@
 
         protected override byte[] PackData(Segment stream)
         {
+            stream.Flush();
             if (MD5CRC)
             {
                 MD5 md5 = new MD5CryptoServiceProvider();
