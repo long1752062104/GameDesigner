@@ -1,0 +1,3 @@
+在nuget搜索必须全部搜索:System.Data.SQLite
+
+System.Data.SQLite 1.0.115.5

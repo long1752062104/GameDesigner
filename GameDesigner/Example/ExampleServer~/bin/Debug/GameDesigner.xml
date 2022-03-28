@@ -2395,68 +2395,6 @@
             竞技模式 1:个人 2:团队
             </summary>
         </member>
-        <member name="T:Net.Helper.EncryptHelper">
-            <summary>
-            加密解密帮助类
-            </summary>
-        </member>
-        <member name="M:Net.Helper.EncryptHelper.ToEncrypt(System.Int32,System.Byte[])">
-            <summary>
-            随机数形式加密法
-            </summary>
-            <param name="password"></param>
-            <param name="buffer"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Helper.EncryptHelper.ToEncrypt(System.Int32,System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            随机数形式加密法
-            </summary>
-            <param name="password"></param>
-            <param name="buffer"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Helper.EncryptHelper.ToDecrypt(System.Int32,System.Byte[])">
-            <summary>
-            随机数形式解密法
-            </summary>
-            <param name="password"></param>
-            <param name="buffer"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.Helper.EncryptHelper.ToDecrypt(System.Int32,System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            随机数形式解密法
-            </summary>
-            <param name="password"></param>
-            <param name="buffer"></param>
-            <returns></returns>
-        </member>
-        <member name="T:Net.Helper.DCSHelper`2">
-            <summary>
-            分散控制系统（分布式子服务器）案例代码 需要开发者扩展
-            <code>服务器先时连接网关服务器，委托网关服务器存ip和端口，当网关服务器有客户端连接后，会指派客户端连接的子服务器</code>
-            </summary>
-            <typeparam name="Player"></typeparam>
-            <typeparam name="Scene"></typeparam>
-        </member>
-        <member name="T:Net.Helper.GatewayServer`1">
-            <summary>
-            网关服务器(主服务器), 负责分配客户端连接最优的游戏服务器, 负载均衡
-            <code>第一步:客户端连接网关服务器，然后网关服务器将集群游戏服务器的ip，端口发给客户端</code>
-            <code>第二步:客户端自动连接到指定的游戏服务器上，请查看NetCmd.SwitchPort指令说明</code>
-            </summary>
-        </member>
-        <member name="F:Net.Helper.GatewayServer`1.serverArea">
-            <summary>
-            分布式(集群)游戏服务器列表
-            </summary>
-        </member>
-        <member name="F:Net.Helper.GatewayServer`1.OnAreaUpdate">
-            <summary>
-            当分布服务器更新时调用
-            </summary>
-        </member>
         <member name="T:Net.Adapter.CallSiteRpcAdapter`1">
             <summary>
             服务器远程过程调用适配器
@@ -2756,6 +2694,11 @@
             当内部解析帧操作列表时调用  !!!!!只允许一个委托
             </summary>
         </member>
+        <member name="F:Net.Client.ClientBase.OnRpcTaskRegister">
+            <summary>
+            当可等待的rpc方法被注册, 用于Rpc适配器上
+            </summary>
+        </member>
         <member name="E:Net.Client.ClientBase.OnPingCallback">
             <summary>
             ping服务器回调 参数double为延迟毫秒单位 当RTOMode属性为可变重传时, 内核将会每秒自动ping一次
@@ -2821,9 +2764,9 @@
             可靠传输文件流对象
             </summary>
         </member>
-        <member name="F:Net.Client.ClientBase.frame">
+        <member name="P:Net.Client.ClientBase.frame">
             <summary>
-            2CRC协议
+            1CRC协议
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.HeartInterval">
@@ -2846,11 +2789,6 @@
         <member name="P:Net.Client.ClientBase.UID">
             <summary>
             用户唯一标识, 对应服务器的<see cref="P:Net.Server.NetPlayer.UserID"/>
-            </summary>
-        </member>
-        <member name="P:Net.Client.ClientBase.MID">
-            <summary>
-            socket的IP和端口组合得到的标识, 0-4byte为IP值, 4-6为Port值 (Machine identification)
             </summary>
         </member>
         <member name="P:Net.Client.ClientBase.SyncFrequency">
@@ -3052,12 +2990,6 @@
             <param name="threadKey">线程名称</param>
             <param name="start">线程函数</param>
         </member>
-        <member name="M:Net.Client.ClientBase.AbortedThread(System.String)">
-            <summary>
-            结束指定的线程
-            </summary>
-            <param name="threadKey">线程名称键值</param>
-        </member>
         <member name="M:Net.Client.ClientBase.AbortedThread">
             <summary>
             结束所有线程
@@ -3209,11 +3141,6 @@
             </summary>
             <param name="buffer"></param>
             <returns></returns>
-        </member>
-        <member name="F:Net.Client.ClientBase.CRCCode">
-            <summary>
-            CRC校验代码表, 用户可自行改变CRC校验码, 直接改源代码, 客户端和服务器检验码必须一致, 否则识别失败
-            </summary>
         </member>
         <member name="M:Net.Client.ClientBase.OnCRC(System.Int32,System.Byte)">
             <summary>
@@ -3395,6 +3322,17 @@
             <param name="pars"></param>
             <returns></returns>
         </member>
+        <member name="M:Net.Client.ClientBase.Call(System.String,System.String,System.Int32,System.Boolean,System.Object[])">
+            <summary>
+            远程同步调用
+            </summary>
+            <param name="func"></param>
+            <param name="callbackFunc">服务器返回后调用的函数名</param>
+            <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+            <param name="intercept">数据是否被拦截? 拦截后将不会调用rpc, 你需要进行处理</param>
+            <param name="pars"></param>
+            <returns></returns>
+        </member>
         <member name="M:Net.Client.ClientBase.Call(System.Byte,System.String,System.String,System.Int32,System.Object[])">
             <summary>
             远程同步调用
@@ -3403,6 +3341,72 @@
             <param name="func"></param>
             <param name="callbackFunc">服务器返回后调用的函数名</param>
             <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+            <param name="pars"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Client.ClientBase.Call(System.Byte,System.String,System.String,System.Int32,System.Boolean,System.Object[])">
+            <summary>
+            远程同步调用
+            </summary>
+            <param name="cmd"></param>
+            <param name="func"></param>
+            <param name="callbackFunc">服务器返回后调用的函数名</param>
+            <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+            <param name="intercept">数据是否被拦截? 拦截后将不会调用rpc, 你需要进行处理</param>
+            <param name="pars"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Client.ClientBase.Call(System.UInt16,System.UInt16,System.Object[])">
+            <summary>
+            远程同步调用
+            </summary>
+            <param name="func"></param>
+            <param name="callbackFunc">服务器返回后调用的函数名</param>
+            <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+            <param name="pars"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Client.ClientBase.Call(System.UInt16,System.UInt16,System.Int32,System.Object[])">
+            <summary>
+            远程同步调用
+            </summary>
+            <param name="func"></param>
+            <param name="callbackFunc">服务器返回后调用的函数名</param>
+            <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+            <param name="pars"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Client.ClientBase.Call(System.UInt16,System.UInt16,System.Int32,System.Boolean,System.Object[])">
+            <summary>
+            远程同步调用
+            </summary>
+            <param name="func"></param>
+            <param name="callbackFunc">服务器返回后调用的函数名</param>
+            <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+            <param name="intercept">数据是否被拦截? 拦截后将不会调用rpc, 你需要进行处理</param>
+            <param name="pars"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Client.ClientBase.Call(System.Byte,System.UInt16,System.UInt16,System.Int32,System.Object[])">
+            <summary>
+            远程同步调用
+            </summary>
+            <param name="cmd"></param>
+            <param name="func"></param>
+            <param name="callbackFunc">服务器返回后调用的函数名</param>
+            <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+            <param name="pars"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Client.ClientBase.Call(System.Byte,System.UInt16,System.UInt16,System.Int32,System.Boolean,System.Object[])">
+            <summary>
+            远程同步调用
+            </summary>
+            <param name="cmd"></param>
+            <param name="func"></param>
+            <param name="callbackFunc">服务器返回后调用的函数名</param>
+            <param name="millisecondsDelay">需要等待的时间,毫秒单位</param>
+            <param name="intercept">数据是否被拦截? 拦截后将不会调用rpc, 你需要进行处理</param>
             <param name="pars"></param>
             <returns></returns>
         </member>
@@ -3422,40 +3426,6 @@
             <param name="cmd">网络命令</param>
             <param name="func">函数名</param>
             <param name="pars">参数</param>
-        </member>
-        <member name="M:Net.Client.ClientBase.SendGateway(System.Int64,System.String,System.Object[])">
-            <summary>
-            网关发往游戏服务器方法
-            </summary>
-            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
-            <param name="func"></param>
-            <param name="pars"></param>
-        </member>
-        <member name="M:Net.Client.ClientBase.SendGateway(System.Byte,System.Int64,System.String,System.Object[])">
-            <summary>
-            网关发往游戏服务器方法
-            </summary>
-            <param name="cmd"></param>
-            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
-            <param name="func"></param>
-            <param name="pars"></param>
-        </member>
-        <member name="M:Net.Client.ClientBase.SendGateway(System.Int64,System.UInt16,System.Object[])">
-            <summary>
-            网关发往游戏服务器方法
-            </summary>
-            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
-            <param name="methodMask"></param>
-            <param name="pars"></param>
-        </member>
-        <member name="M:Net.Client.ClientBase.SendGateway(System.Byte,System.Int64,System.UInt16,System.Object[])">
-            <summary>
-            网关发往游戏服务器方法
-            </summary>
-            <param name="cmd"></param>
-            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
-            <param name="methodMask"></param>
-            <param name="pars"></param>
         </member>
         <member name="M:Net.Client.ClientBase.SendRT(System.String,System.String,System.Delegate,System.Object[])">
             <summary>
@@ -3854,9 +3824,9 @@
             第三版本 2020.9.14
             </summary>
         </member>
-        <member name="F:Net.Client.TcpClient.frame">
+        <member name="P:Net.Client.TcpClient.frame">
             <summary>
-            tcp数据长度(4) + 2CRC协议 = 6
+            tcp数据长度(4) + 1CRC协议 = 5
             </summary>
         </member>
         <member name="M:Net.Client.TcpClient.#ctor">
@@ -3918,11 +3888,6 @@
         <member name="M:Net.Client.UdpClientTest.Update">
             <summary>
             单线程更新，需要开发者自动调用更新
-            </summary>
-        </member>
-        <member name="T:Net.Client.P2PClient">
-            <summary>
-            NAT穿透最详细介绍: https://www.cnblogs.com/ssyfj/p/14791064.html#三：p2p网络中的nat穿透问题---nat的原理和类型
             </summary>
         </member>
         <member name="T:Net.Client.KcpClient">
@@ -4143,6 +4108,62 @@
             <param name="isAsync">如果是耗时任务, 需要设置true</param>
             <returns></returns>
         </member>
+        <member name="F:Net.Helper.CRCHelper.CRCCode">
+            <summary>
+            CRC校验代码表, 用户可自行改变CRC校验码, 直接改源代码, 客户端和服务器检验码必须一致, 否则识别失败
+            </summary>
+        </member>
+        <member name="T:Net.Helper.EncryptHelper">
+            <summary>
+            加密解密帮助类
+            </summary>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.ToEncrypt(System.Int32,System.Byte[])">
+            <summary>
+            随机数形式加密法
+            </summary>
+            <param name="password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.ToEncrypt(System.Int32,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            随机数形式加密法
+            </summary>
+            <param name="password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.ToDecrypt(System.Int32,System.Byte[])">
+            <summary>
+            随机数形式解密法
+            </summary>
+            <param name="password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.ToDecrypt(System.Int32,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            随机数形式解密法
+            </summary>
+            <param name="password"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.DESEncrypt(System.String,System.String)">
+            <summary> 
+            加密字符串  
+            </summary> 
+            <param name="text">要加密的字符串</param> 
+            <returns>加密后的字符串</returns> 
+        </member>
+        <member name="M:Net.Helper.EncryptHelper.DESDecrypt(System.String,System.String)">
+            <summary> 
+            解密字符串  
+            </summary> 
+            <param name="text">要解密的字符串</param> 
+            <returns>解密后的字符串</returns>   
+        </member>
         <member name="T:Net.Server.NetBehaviour`2">
             <summary>
             服务器网络行为
@@ -4281,11 +4302,6 @@
         <member name="P:Net.Server.NetPlayer.TcpRemoteEndPoint">
             <summary>
             tcp远程端口, 由于socket被关闭后无法访问RemoteEndPoint的问题
-            </summary>
-        </member>
-        <member name="P:Net.Server.NetPlayer.MID">
-            <summary>
-            socket的IP和端口组合得到的标识, 0-4byte为IP值, 4-6为Port值 (Machine identification)
             </summary>
         </member>
         <member name="M:Net.Server.NetPlayer.#ctor">
@@ -4828,9 +4844,9 @@
             接收线程循环次数(FPS)
             </summary>
         </member>
-        <member name="F:Net.Server.ServerBase`2.frame">
+        <member name="P:Net.Server.ServerBase`2.frame">
             <summary>
-            2CRC协议
+            1CRC协议
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.StackBufferSize">
@@ -5309,11 +5325,6 @@
             </summary>
             <param name="stream"></param>
         </member>
-        <member name="F:Net.Server.ServerBase`2.CRCCode">
-            <summary>
-            CRC校验代码表, 使用者可自行改变CRC校验码, 直接改源代码，重要提示：客户端的CRC表必须和这里的CRC表保持一致
-            </summary>
-        </member>
         <member name="M:Net.Server.ServerBase`2.OnCRC(System.Int32,System.Byte)">
             <summary>
             当处理CRC校验
@@ -5554,40 +5565,6 @@
             <param name="cmd">网络命令</param>
             <param name="func">函数名</param>
             <param name="pars">参数</param>
-        </member>
-        <member name="M:Net.Server.ServerBase`2.SendGateway(`0,System.Int64,System.String,System.Object[])">
-            <summary>
-            网关发往游戏服务器方法
-            </summary>
-            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
-            <param name="func"></param>
-            <param name="pars"></param>
-        </member>
-        <member name="M:Net.Server.ServerBase`2.SendGateway(`0,System.Byte,System.Int64,System.String,System.Object[])">
-            <summary>
-            网关发往游戏服务器方法
-            </summary>
-            <param name="cmd"></param>
-            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
-            <param name="func"></param>
-            <param name="pars"></param>
-        </member>
-        <member name="M:Net.Server.ServerBase`2.SendGateway(`0,System.Int64,System.UInt16,System.Object[])">
-            <summary>
-            网关发往游戏服务器方法
-            </summary>
-            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
-            <param name="methodMask"></param>
-            <param name="pars"></param>
-        </member>
-        <member name="M:Net.Server.ServerBase`2.SendGateway(`0,System.Byte,System.Int64,System.UInt16,System.Object[])">
-            <summary>
-            网关发往游戏服务器方法
-            </summary>
-            <param name="cmd"></param>
-            <param name="mid">机器id, 详情请看<see cref="P:Net.Server.NetPlayer.MID"/></param>
-            <param name="methodMask"></param>
-            <param name="pars"></param>
         </member>
         <member name="M:Net.Server.ServerBase`2.SendRT(`0,System.Byte[])">
             <summary>
@@ -5850,19 +5827,6 @@
             ENet网络通道ID
             </summary>
         </member>
-        <member name="T:Net.Server.RawServer`2">
-            <summary>
-            原始Udp服务器, 内部处理了IP头部
-            <para>Player:当有客户端连接服务器就会创建一个Player对象出来, Player对象和XXXClient是对等端, 每当有数据处理都会通知Player对象. </para>
-            <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
-            </summary>
-        </member>
-        <member name="M:Net.Server.RawServer`2.Start(System.UInt16)">
-            <summary>
-            启动服务器
-            </summary>
-            <param name="port">端口</param>
-        </member>
         <member name="T:Net.Server.TcpServer`2">
             <summary>
             TCP服务器类型
@@ -5871,9 +5835,9 @@
             <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
             </summary>
         </member>
-        <member name="F:Net.Server.TcpServer`2.frame">
+        <member name="P:Net.Server.TcpServer`2.frame">
             <summary>
-            tcp数据长度(4) + 2CRC协议 = 6
+            tcp数据长度(4) + 1CRC协议 = 5
             </summary>
         </member>
         <member name="T:Net.Server.TcpServerIOCP`2">
@@ -5883,9 +5847,9 @@
             <para>Scene:你可以定义自己的场景类型, 比如帧同步场景处理, mmorpg场景什么处理, 可以重写Scene的Update等等方法实现每个场景的更新和处理. </para>
             </summary>
         </member>
-        <member name="F:Net.Server.TcpServerIOCP`2.frame">
+        <member name="P:Net.Server.TcpServerIOCP`2.frame">
             <summary>
-            tcp数据长度(4) + 2CRC协议 = 6
+            tcp数据长度(4) + 1CRC协议 = 5
             </summary>
         </member>
         <member name="T:Net.Server.UdpServer`2">
@@ -7142,30 +7106,6 @@
             网关转发
             </summary>
         </member>
-        <member name="F:Net.Share.NetCmd.MIDCall">
-            <summary>
-            网关与服务器通信的mid, mid是socket的ip和端口组成, 占用8字节(long类型)
-            <code>使用此命令需要前面两个参数是NetPlayer和long类型</code>
-            <code>服务器使用: </code>
-            <code>[Rpc(cmd = NetCmd.MIDCall)]</code>
-            <code>void test(Player client, long mid, xxx)</code>
-            <code>客户端使用: </code>
-            <code>[Rpc(cmd = NetCmd.MIDCall)]</code>
-            <code>void test(long mid, xxx)</code>
-            </summary>
-        </member>
-        <member name="F:Net.Share.NetCmd.MIDSingleCall">
-            <summary>
-            (主线程调用)网关与服务器通信的mid, mid是socket的ip和端口组成, 占用8字节(long类型)
-            <code>使用此命令需要前面两个参数是NetPlayer和long类型</code>
-            <code>服务器使用: </code>
-            <code>[Rpc(cmd = NetCmd.MIDSingleCall)]</code>
-            <code>void test(Player client, long mid, xxx)</code>
-            <code>客户端使用: </code>
-            <code>[Rpc(cmd = NetCmd.MIDSingleCall)]</code>
-            <code>void test(long mid, xxx)</code>
-            </summary>
-        </member>
         <member name="T:Net.Share.RPCMethod">
             <summary>
             远程过程调用方法
@@ -7868,11 +7808,6 @@
             标记此数据为大数据
             </summary>
         </member>
-        <member name="F:Net.Share.RPCModel.mid">
-            <summary>
-            标记机器id
-            </summary>
-        </member>
         <member name="M:Net.Share.RPCModel.#ctor(System.Byte,System.Byte[])">
             <summary>
             构造
@@ -8090,70 +8025,6 @@
             转换方法
             </summary>
             <param name="size">字节值</param>
-            <returns></returns>
-        </member>
-        <member name="T:Net.System.Segment">
-            <summary>
-            内存数据片段
-            </summary>
-        </member>
-        <member name="P:Net.System.Segment.Buffer">
-            <summary>
-            总内存
-            </summary>
-        </member>
-        <member name="P:Net.System.Segment.Index">
-            <summary>
-            片的开始位置
-            </summary>
-        </member>
-        <member name="P:Net.System.Segment.Count">
-            <summary>
-            片的长度
-            </summary>
-        </member>
-        <member name="P:Net.System.Segment.Position">
-            <summary>
-            读写位置
-            </summary>
-        </member>
-        <member name="P:Net.System.Segment.Length">
-            <summary>
-            获取总长度
-            </summary>
-        </member>
-        <member name="P:Net.System.Segment.Item(System.Int32)">
-            <summary>
-            获取或设置总内存位置索引
-            </summary>
-            <param name="index">内存位置索引</param>
-            <returns></returns>
-        </member>
-        <member name="M:Net.System.Segment.#ctor(System.Byte[])">
-            <summary>
-            构造内存分片
-            </summary>
-            <param name="buffer"></param>
-        </member>
-        <member name="M:Net.System.Segment.#ctor(System.Byte[],System.Boolean)">
-            <summary>
-            构造内存分片
-            </summary>
-            <param name="buffer"></param>
-        </member>
-        <member name="M:Net.System.Segment.#ctor(System.Byte[],System.Int32,System.Int32,System.Boolean)">
-            <summary>
-            构造内存分片
-            </summary>
-            <param name="buffer"></param>
-            <param name="index"></param>
-            <param name="count"></param>
-        </member>
-        <member name="M:Net.System.Segment.ToArray(System.Boolean)">
-            <summary>
-            复制分片数据
-            </summary>
-            <param name="recovery">复制数据后立即回收此分片?</param>
             <returns></returns>
         </member>
         <member name="T:Net.System.BufferPool">
@@ -8576,6 +8447,95 @@
             随机类 (多线程安全)
             </summary>
         </member>
+        <member name="T:Net.System.Segment">
+            <summary>
+            内存数据片段
+            </summary>
+        </member>
+        <member name="P:Net.System.Segment.Buffer">
+            <summary>
+            总内存
+            </summary>
+        </member>
+        <member name="P:Net.System.Segment.Offset">
+            <summary>
+            片的开始位置
+            </summary>
+        </member>
+        <member name="P:Net.System.Segment.Count">
+            <summary>
+            片的长度
+            </summary>
+        </member>
+        <member name="P:Net.System.Segment.Position">
+            <summary>
+            读写位置
+            </summary>
+        </member>
+        <member name="P:Net.System.Segment.Length">
+            <summary>
+            获取总长度
+            </summary>
+        </member>
+        <member name="F:Net.System.Segment.StringRecordSize">
+            <summary>
+            字符串记录的字节大小 1字节255个字符, 2字节65535个字符 3字节16777216字符 4字节4294967296
+            </summary>
+        </member>
+        <member name="P:Net.System.Segment.Item(System.Int32)">
+            <summary>
+            获取或设置总内存位置索引
+            </summary>
+            <param name="index">内存位置索引</param>
+            <returns></returns>
+        </member>
+        <member name="M:Net.System.Segment.#ctor(System.Byte[])">
+            <summary>
+            构造内存分片
+            </summary>
+            <param name="buffer"></param>
+        </member>
+        <member name="M:Net.System.Segment.#ctor(System.Byte[],System.Boolean)">
+            <summary>
+            构造内存分片
+            </summary>
+            <param name="buffer"></param>
+        </member>
+        <member name="M:Net.System.Segment.#ctor(System.Byte[],System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            构造内存分片
+            </summary>
+            <param name="buffer"></param>
+            <param name="index"></param>
+            <param name="count"></param>
+        </member>
+        <member name="M:Net.System.Segment.ToArray(System.Boolean,System.Boolean)">
+            <summary>
+            复制分片数据
+            </summary>
+            <param name="recovery">复制数据后立即回收此分片?</param>
+            <returns></returns>
+        </member>
+        <member name="F:Net.System.Segment2.offset">
+            <summary>
+            片的开始位置
+            </summary>
+        </member>
+        <member name="F:Net.System.Segment2.count">
+            <summary>
+            片的长度
+            </summary>
+        </member>
+        <member name="F:Net.System.Segment2.position">
+            <summary>
+            读写位置
+            </summary>
+        </member>
+        <member name="F:Net.System.Segment2.length">
+            <summary>
+            获取总长度
+            </summary>
+        </member>
         <member name="T:Net.System.ThreadManager">
             <summary>
             主线程管理中心
@@ -8971,6 +8931,12 @@
             添加可序列化的参数类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
             </summary>
             <typeparam name="T">要添加的网络类型</typeparam>
+        </member>
+        <member name="M:Net.Serialize.NetConvertFast2.AddSerializeType3s(System.Type[])">
+            <summary>
+            添加所有可序列化的类型, 网络参数类型 如果不进行添加将不会被序列化,反序列化
+            </summary>
+            <param name="types"></param>
         </member>
         <member name="M:Net.Serialize.NetConvertFast2.AddSerializeType3``1">
             <summary>

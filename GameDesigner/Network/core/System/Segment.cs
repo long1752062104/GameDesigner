@@ -31,11 +31,14 @@ namespace Net.System
         /// 获取总长度
         /// </summary>
         public int Length { get { return length; } }
-
         internal bool isDespose;
         internal int length;
         internal bool isRecovery;
         internal int referenceCount;
+        /// <summary>
+        /// 字符串记录的字节大小 1字节255个字符, 2字节65535个字符 3字节16777216字符 4字节4294967296
+        /// </summary>
+        public static byte StringRecordSize = 2;
 
         /// <summary>
         /// 获取或设置总内存位置索引
@@ -281,14 +284,14 @@ namespace Net.System
         }
         public unsafe void WriteArray(object value)
         {
-            if (!(value is Array array))
-                throw new Exception($"错误!{value}类转换数组失败!");
             switch (value)
             {
                 case byte[] array1:
+                    Write(array1.Length);
                     Write(array1);
                     break;
                 case sbyte[] array1:
+                    Write(array1.Length);
                     Write(array1);
                     break;
                 case bool[] array1:
@@ -343,7 +346,7 @@ namespace Net.System
         }
         public unsafe T[] ReadArray<T>()
         {
-            object array = null;
+            object array;
             switch (Type.GetTypeCode(typeof(T)))
             {
                 case TypeCode.Byte:
@@ -414,6 +417,24 @@ namespace Net.System
         public void WriteByte(byte value)
         {
             Buffer[Position++] = value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WriteSByte(sbyte value)
+        {
+            Buffer[Position++] = (byte)value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Write(byte value)
+        {
+            WriteByte(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Write(sbyte value)
+        {
+            WriteSByte(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -557,13 +578,12 @@ namespace Net.System
             {
                 fixed (byte* ptr1 = &Buffer[Position])
                 {
-                    ptr1[0] = 4;
-                    int count = Encoding.UTF8.GetBytes(ptr, value.Length, ptr1 + 5, value.Length * 3);
-                    Position += 5 + count;
-                    byte num = 0;
-                    while (count > 0)
+                    ptr1[0] = StringRecordSize;
+                    int size = StringRecordSize + 1;
+                    int count = Encoding.UTF8.GetBytes(ptr, value.Length, ptr1 + size, value.Length * 3);
+                    Position += size + count;
+                    for (int num = 1; num < size; num++)//必须重置StringRecordSize位,问题:从内存池取出之前已使用的脏数据后出现问题
                     {
-                        num++;
                         ptr1[num] = (byte)(count >> 0);
                         count >>= 8;
                     }
