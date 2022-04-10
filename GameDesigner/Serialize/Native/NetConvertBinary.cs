@@ -868,12 +868,12 @@
             {
                 byte head = 0;
                 bool hasFunc = !string.IsNullOrEmpty(model.func);
-                bool hasMask = model.methodMask != 0;
+                bool hasMask = model.methodHash != 0;
                 SetBit(ref head, 1, hasFunc);
                 SetBit(ref head, 2, hasMask);
                 stream.WriteByte(head);
                 if (hasFunc) WriteValue(stream, model.func);
-                if (hasMask) WriteValue(stream, model.methodMask);
+                if (hasMask) WriteValue(stream, model.methodHash);
                 foreach (var obj in model.pars)
                 {
                     var type = obj.GetType();

@@ -149,7 +149,7 @@ namespace Net.Client
 
         protected internal override byte[] OnSerializeRpcInternal(RPCModel model)
         {
-            if (!string.IsNullOrEmpty(model.func) | model.methodMask != 0)
+            if (!string.IsNullOrEmpty(model.func) | model.methodHash != 0)
             {
                 MessageModel model1 = new MessageModel(model.cmd, model.func, model.pars);
                 string jsonStr = JsonConvert.SerializeObject(model1);

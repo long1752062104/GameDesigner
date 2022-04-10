@@ -223,7 +223,7 @@
                 }
                 var lenBytes = buffer.Read(4);
                 byte crcCode = buffer.ReadByte();//CRC检验索引
-                byte retVal = CRCHelper.CRC8(lenBytes, 0, lenBytes.Length);
+                byte retVal = CRCHelper.CRC8(lenBytes, 0, 4);
                 if (crcCode != retVal)
                 {
                     stack = 0;

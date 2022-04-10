@@ -128,6 +128,7 @@
                     UserIDStack.TryPop(out int uid);
                     client.UserID = uid;
                     client.PlayerID = uid.ToString();
+                    client.Name = uid.ToString();
                     client.stackStream = BufferStreamShare.Take();
                     Interlocked.Increment(ref ignoranceNumber);
                     var buffer = BufferPool.Take(50);

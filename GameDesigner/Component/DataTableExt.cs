@@ -4,9 +4,26 @@ using System.Data;
 
 public class DataRowEntity
 {
+    public DataRow Row;
+    public DataRowState state;
     public string key;
     public object value;
     public Dictionary<string, object> columns = new Dictionary<string, object>();
+
+    public DataRowEntity() { }
+
+    public DataRowEntity(DataRowState state, DataRow row)
+    {
+        this.state = state;
+        this.Row = row;
+    }
+    public DataRowEntity(DataRowState state, string key, object value, DataRow row)
+    {
+        this.state = state;
+        this.Row = row;
+        this.key = key;
+        this.value = value;
+    }
 }
 
 public class DataTableEntity : DataTable
@@ -18,6 +35,7 @@ public class DataTableEntity : DataTable
         lock (syncRoot) 
         {
             var row = Rows.Add(pars);
+            row.AcceptChanges();
             TableNewRow?.Invoke(this, new DataTableNewRowEventArgs(row));
             return row;
         }
@@ -30,6 +48,7 @@ public class DataTableEntity : DataTable
             if (dataRow.RowState == DataRowState.Deleted)
                 return;
             dataRow.Delete();
+            dataRow.AcceptChanges();
         }
     }
 

@@ -67,6 +67,16 @@ public static class ArrayExtend
         }
     }
 
+    public static void ClearObjects<Key,Value>(this Dictionary<Key,Value> self) where Value : Object
+    {
+        foreach (var item in self)
+        {
+            if(item.Value != null)
+                Object.Destroy(item.Value);
+        }
+        self.Clear();
+    }
+
     public static void SetActives<T>(this T[] self, bool active) where T : Object
     {
         for (int i = 0; i < self.Length; i++)
@@ -86,6 +96,24 @@ public static class ArrayExtend
                 go.SetActive(active);
             else if (self[i] is MonoBehaviour mb)
                 mb.gameObject.SetActive(active);
+        }
+    }
+
+    public static void SetEnableds<T>(this T[] self, bool active) where T : Object
+    {
+        for (int i = 0; i < self.Length; i++)
+        {
+            if (self[i] is MonoBehaviour mb)
+                mb.enabled = active;
+        }
+    }
+
+    public static void SetEnableds<T>(this List<T> self, bool active) where T : Object
+    {
+        for (int i = 0; i < self.Count; i++)
+        {
+            if (self[i] is MonoBehaviour mb)
+                mb.enabled = active;
         }
     }
 

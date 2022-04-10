@@ -70,6 +70,7 @@
                 client = new Player();
                 client.UserID = uid;
                 client.PlayerID = uid.ToString();
+                client.Name = uid.ToString();
                 client.RemotePoint = remotePoint;
                 client.LastTime = DateTime.Now.AddMinutes(5);
                 client.isDispose = false;

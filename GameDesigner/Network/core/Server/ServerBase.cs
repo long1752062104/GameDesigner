@@ -68,7 +68,7 @@ namespace Net.Server
         /// </summary>
         private readonly Dictionary<string, List<RPCMethod>> RpcsDic = new Dictionary<string, List<RPCMethod>>();
         /// <summary>
-        /// 远程方法遮罩
+        /// 远程方法哈希
         /// </summary>
         private readonly MyDictionary<ushort, string> RpcMaskDic = new MyDictionary<ushort, string>();
         /// <summary>
@@ -523,7 +523,7 @@ namespace Net.Server
         /// 当服务器判定客户端为断线或连接异常时，移除客户端时调用
         /// </summary>
         /// <param name="client">要移除的客户端</param>
-        protected virtual void OnRemoveClient(Player client) { Debug.Log($"[{client.PlayerID}]断开连接...!"); }
+        protected virtual void OnRemoveClient(Player client) { Debug.Log($"[{client.Name}]断开连接...!"); }
 
         /// <summary>
         /// 当开始调用服务器RPC函数 或 开始调用自定义网络命令时 可设置请求客户端的client为全局字段，方便在服务器RPC函数内引用!!!
@@ -808,6 +808,7 @@ namespace Net.Server
                         {
                             var buffer = BufferPool.Take();
                             Buffer.BlockCopy(args.Buffer, 0, buffer, 0, count);
+                            buffer.Count = count;
                             receiveCount += count;
                             receiveAmount++;
                             EndPoint remotePoint = args.RemoteEndPoint;
@@ -856,6 +857,7 @@ namespace Net.Server
                 client = new Player();
                 client.UserID = uid;
                 client.PlayerID = uid.ToString();
+                client.Name = uid.ToString();
                 client.RemotePoint = remotePoint;
                 client.LastTime = DateTime.Now.AddMinutes(5);
                 client.isDispose = false;
@@ -908,7 +910,7 @@ namespace Net.Server
                 var md5Hash = buffer.Read(16);
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(buffer, buffer.Position, buffer.Count - buffer.Position);
-                EncryptHelper.ToDecrypt(Password, md5Hash);
+                EncryptHelper.ToDecrypt(Password, md5Hash, 0, 16);
                 for (int i = 0; i < md5Hash.Length; i++)
                 {
                     if (retVal[i] != md5Hash[i])
@@ -954,7 +956,7 @@ namespace Net.Server
                         break;
                     rpc.func = func.name;
                     rpc.pars = func.pars;
-                    rpc.methodMask = func.mask;
+                    rpc.methodHash = func.mask;
                 }
                 DataHandle(client, rpc, buffer);//解析协议完成
                 buffer.Position += dataCount;
@@ -1005,7 +1007,7 @@ namespace Net.Server
                 }
                 var lenBytes = buffer.Read(4);
                 byte crcCode = buffer.ReadByte();//CRC检验索引
-                byte retVal = CRCHelper.CRC8(lenBytes, 0, lenBytes.Length);
+                byte retVal = CRCHelper.CRC8(lenBytes, 0, 4);
                 if (crcCode != retVal)
                 {
                     client.stack = 0;
@@ -1154,32 +1156,32 @@ namespace Net.Server
                     OnRpcExecute(client, model);
                     break;
                 case NetCmd.Local:
-                    client.udpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    client.udpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodHash));
                     break;
                 case NetCmd.LocalRT:
-                    client.tcpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    client.tcpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodHash));
                     break;
                 case NetCmd.Scene:
                     if (!(client.Scene is Scene scene))
                     {
-                        client.udpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                        client.udpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodHash));
                         return;
                     }
-                    Multicast(scene.Clients, false, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    Multicast(scene.Clients, false, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodHash));
                     break;
                 case NetCmd.SceneRT:
                     if (!(client.Scene is Scene scene1))
                     {
-                        client.tcpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                        client.tcpRPCModels.Enqueue(new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodHash));
                         return;
                     }
-                    Multicast(scene1.Clients, true, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    Multicast(scene1.Clients, true, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodHash));
                     break;
                 case NetCmd.Notice:
-                    Multicast(Players.Values.ToList(), false, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    Multicast(Players.Values.ToList(), false, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodHash));
                     break;
                 case NetCmd.NoticeRT:
-                    Multicast(Players.Values.ToList(), true, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodMask));
+                    Multicast(Players.Values.ToList(), true, new RPCModel(model.cmd, model.Buffer, model.kernel, false, model.methodHash));
                     break;
                 case NetCmd.SendHeartbeat:
                     Send(client, NetCmd.RevdHeartbeat, new byte[0]);
@@ -1223,7 +1225,8 @@ namespace Net.Server
                     }
                     if (revdFrame.Add(index))
                     {
-                        client.stackStream.Seek(revdFrame.streamPos + (index * MTU), SeekOrigin.Begin);
+                        int mtu = IsEthernet ? MTU : 60000;
+                        client.stackStream.Seek(revdFrame.streamPos + (index * mtu), SeekOrigin.Begin);
                         client.stackStream.Write(model.buffer, segment.Position, count);
                         InvokeRevdRTProgress(client, revdFrame.Count, entry);
                     }
@@ -1304,7 +1307,7 @@ namespace Net.Server
                     OnOperationSyncHandle(client, list);
                     break;
                 case NetCmd.Ping:
-                    client.udpRPCModels.Enqueue(new RPCModel(NetCmd.PingCallback, model.Buffer, model.kernel, false, model.methodMask));
+                    client.udpRPCModels.Enqueue(new RPCModel(NetCmd.PingCallback, model.Buffer, model.kernel, false, model.methodHash));
                     break;
                 case NetCmd.PingCallback:
                     long ticks = BitConverter.ToInt64(model.buffer, model.index);
@@ -1498,14 +1501,15 @@ namespace Net.Server
                 goto JUMP;
             if (count == 0)
                 return;
-            if (count > 1000)
-                count = 1000;
+            if (count > PackageLength)
+                count = PackageLength;
             var stream = BufferPool.Take();
             WriteDataBody(client, ref stream, rtRPCModels, count, true);
             int len = stream.Position;
             int index = 0;
             ushort dataIndex = 0;
-            float dataCount = (float)len / MTU;
+            int mtu = IsEthernet ? MTU : 60000;
+            float dataCount = (float)len / mtu;
             var rtDic = new MyDictionary<ushort, RTBuffer>();
             client.sendRTList.Add(client.sendReliableFrame, rtDic);
             var stream1 = BufferPool.Take();
@@ -1515,7 +1519,7 @@ namespace Net.Server
             var stream2 = BufferPool.Take();
             while (index < len)
             {
-                int count1 = MTU;
+                int count1 = mtu;
                 if (index + count1 >= len)
                     count1 = len - index;
                 stream1.SetPositionLength(frame + 2);//这4个是头部数据
@@ -1531,7 +1535,7 @@ namespace Net.Server
                 stream1.Write(stream2, 0, stream2.Count);
                 byte[] buffer = PackData(stream1);
                 rtDic.Add(dataIndex, new RTBuffer(buffer));
-                index += MTU;
+                index += mtu;
                 dataIndex++;
             }
             BufferPool.Push(stream);
@@ -1572,7 +1576,7 @@ namespace Net.Server
                         rtb.time = DateTime.Now.AddMilliseconds(client.currRto);
                         bytesLen += rtb.buffer.Length;
                         SendByteData(client, rtb.buffer, true);
-                        if (bytesLen > MTPS / 1000)//一秒最大发送1m数据, 这里会有可能每秒执行1000次
+                        if (bytesLen > MTPS / 0x3E8)//一秒最大发送1m数据, 这里会有可能每秒执行1000次
                             return;
                     }
                 }
@@ -1606,7 +1610,7 @@ namespace Net.Server
                     BufferPool.Push(stream);
                     stream = stream2;
                 }
-                if (len >= (IsEthernet ? MTU : 50000) & !reliable)//udp不可靠判断
+                if (len >= (IsEthernet ? MTU : 60000) & !reliable)//udp不可靠判断
                 {
                     byte[] buffer = PackData(stream);
                     SendByteData(client, buffer, reliable);
@@ -1745,8 +1749,8 @@ namespace Net.Server
 
         protected internal void OnRpcExecuteInternal(Player client, RPCModel model)
         {
-            if (model.methodMask != 0)
-                RpcMaskDic.TryGetValue(model.methodMask, out model.func);
+            if (model.methodHash != 0)
+                RpcMaskDic.TryGetValue(model.methodHash, out model.func);
             if (!RpcsDic.TryGetValue(model.func, out List<RPCMethod> rpcs))
             {
                 Debug.LogWarning($"[{client.RemotePoint}]没有找到:{model.func}的Rpc方法,请使用server(你的服务器类).AddRpcHandle方法注册!");
@@ -2216,12 +2220,12 @@ namespace Net.Server
             client.udpRPCModels.Enqueue(new RPCModel(cmd, func, pars));
         }
 
-        public virtual void Send(Player client, ushort methodMask, params object[] pars)
+        public virtual void Send(Player client, ushort methodHash, params object[] pars)
         {
-            Send(client, NetCmd.CallRpc, methodMask, pars);
+            Send(client, NetCmd.CallRpc, methodHash, pars);
         }
 
-        public virtual void Send(Player client, byte cmd, ushort methodMask, params object[] pars)
+        public virtual void Send(Player client, byte cmd, ushort methodHash, params object[] pars)
         {
             if (client.CloseSend)
                 return;
@@ -2230,7 +2234,7 @@ namespace Net.Server
                 Debug.LogError($"[{client.RemotePoint}][{client.UserID}]数据缓存列表超出限制!");
                 return;
             }
-            client.udpRPCModels.Enqueue(new RPCModel(cmd, methodMask, pars));
+            client.udpRPCModels.Enqueue(new RPCModel(cmd, methodHash, pars));
         }
 
         /// <summary>
@@ -2343,12 +2347,12 @@ namespace Net.Server
             client.tcpRPCModels.Enqueue(new RPCModel(cmd, func, pars, true, true));
         }
 
-        public virtual void SendRT(Player client, ushort methodMask, params object[] pars)
+        public virtual void SendRT(Player client, ushort methodHash, params object[] pars)
         {
-            SendRT(client, NetCmd.CallRpc, methodMask, pars);
+            SendRT(client, NetCmd.CallRpc, methodHash, pars);
         }
 
-        public virtual void SendRT(Player client, byte cmd, ushort methodMask, params object[] pars)
+        public virtual void SendRT(Player client, byte cmd, ushort methodHash, params object[] pars)
         {
             if (client.CloseSend)
                 return;
@@ -2357,7 +2361,7 @@ namespace Net.Server
                 Debug.LogError($"[{client.RemotePoint}][{client.UserID}]数据缓存列表超出限制!");
                 return;
             }
-            client.tcpRPCModels.Enqueue(new RPCModel(cmd, string.Empty, pars, true, true, methodMask));
+            client.tcpRPCModels.Enqueue(new RPCModel(cmd, string.Empty, pars, true, true, methodHash));
         }
 
         /// <summary>
@@ -2681,14 +2685,14 @@ namespace Net.Server
             }
         }
 
-        public virtual void Multicast(IList<Player> clients, bool reliable, ushort methodMask, params object[] pars)
+        public virtual void Multicast(IList<Player> clients, bool reliable, ushort methodHash, params object[] pars)
         {
-            Multicast(clients, reliable, new RPCModel(NetCmd.CallRpc, methodMask, pars));
+            Multicast(clients, reliable, new RPCModel(NetCmd.CallRpc, methodHash, pars));
         }
 
-        public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, ushort methodMask, params object[] pars)
+        public virtual void Multicast(IList<Player> clients, bool reliable, byte cmd, ushort methodHash, params object[] pars)
         {
-            Multicast(clients, reliable, new RPCModel(cmd, methodMask, pars));
+            Multicast(clients, reliable, new RPCModel(cmd, methodHash, pars));
         }
 
         /// <summary>
@@ -2805,7 +2809,7 @@ namespace Net.Server
         {
             SendDirect(client);
             RemoveClient(client);
-            Debug.Log("[" + client.PlayerID + "]被强制下线...!");
+            Debug.Log("[" + client.Name + "]被强制下线...!");
         }
 
         /// <summary>
@@ -2824,7 +2828,7 @@ namespace Net.Server
             client.Login = false;
             OnSignOut(client);
             client.OnSignOut();
-            Debug.Log("[" + client.PlayerID + "]退出登录...!");
+            Debug.Log("[" + client.Name + "]退出登录...!");
         }
 
         /// <summary>

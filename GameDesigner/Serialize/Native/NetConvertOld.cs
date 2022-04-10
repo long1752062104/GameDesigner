@@ -17,7 +17,7 @@
         /// </summary>
         public string name;
         /// <summary>
-        /// 方法遮罩
+        /// 方法哈希
         /// </summary>
         public ushort mask;
         /// <summary>

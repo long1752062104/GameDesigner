@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Net.Event
 {
@@ -215,12 +216,14 @@ namespace Net.Event
             if (!@event.complete)
                 return;
             @event.complete = false;
-            await default(YieldAwaitable);
-            if (@event.ptr2(@event.obj))
-                @event.time = time + @event.timeMax;
-            else
-                events.Remove(@event);
-            @event.complete = true;
+            await Task.Run(()=>
+            {
+                if (@event.ptr2(@event.obj))
+                    @event.time = time + @event.timeMax;
+                else
+                    events.Remove(@event);
+                @event.complete = true;
+            });
         }
 
         public void RemoveEvent(int eventId)

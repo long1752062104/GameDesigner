@@ -458,7 +458,7 @@
         {
             if (Types1.TryGetValue(type, out ushort typeHash))
                 return typeHash;
-            throw new KeyNotFoundException($"没有注册[{type}]类为序列化对象, 请使用序列化生成工具生成{type}绑定类! (如果是基类,请类型作者修复!)");
+            throw new KeyNotFoundException($"没有注册[{type}]类为序列化对象, 请使用序列化生成工具生成{type}绑定类! (如果是基类,请联系作者修复!谢谢)");
         }
 
         public static byte[] SerializeModel(RPCModel model)
@@ -469,12 +469,12 @@
             {
                 byte head = 0;
                 bool hasFunc = !string.IsNullOrEmpty(model.func);
-                bool hasMask = model.methodMask != 0;
+                bool hasMask = model.methodHash != 0;
                 SetBit(ref head, 1, hasFunc);
                 SetBit(ref head, 2, hasMask);
                 stream.WriteByte(head);
                 if (hasFunc) stream.WriteValue(model.func);
-                if (hasMask) stream.WriteValue(model.methodMask);
+                if (hasMask) stream.WriteValue(model.methodHash);
                 foreach (var obj in model.pars)
                 {
                     Type type = obj.GetType();

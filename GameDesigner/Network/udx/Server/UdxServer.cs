@@ -129,6 +129,7 @@
                         unClient.Udx = cli;
                         unClient.UserID = uid;
                         unClient.PlayerID = uid.ToString();
+                        unClient.Name = uid.ToString();
                         unClient.RemotePoint = remotePoint;
                         unClient.LastTime = DateTime.Now.AddMinutes(5);
                         unClient.isDispose = false;

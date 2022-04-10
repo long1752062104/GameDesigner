@@ -1664,6 +1664,7 @@
     <Compile Include="GameDesigner\Network\core\Share\TransportMode.cs" />
     <Compile Include="GameDesigner\Network\core\Share\UnZipHelper.cs" />
     <Compile Include="GameDesigner\Network\core\Share\Win32KernelAPI.cs" />
+    <Compile Include="GameDesigner\Network\core\System\ArraySegment.cs" />
     <Compile Include="GameDesigner\Network\core\System\BufferPool.cs" />
     <Compile Include="GameDesigner\Network\core\System\BufferStream.cs" />
     <Compile Include="GameDesigner\Network\core\System\Dictionary.cs" />

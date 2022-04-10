@@ -127,8 +127,8 @@ namespace Net.Adapter
     {
         public void OnRpcExecute(Player client, RPCModel model)
         {
-            if (model.methodMask != 0)
-                if (!RpcMask.TryGetValue(model.methodMask, out model.func)) model.func = $"[mask:{model.methodMask}]";
+            if (model.methodHash != 0)
+                if (!RpcMask.TryGetValue(model.methodHash, out model.func)) model.func = $"[mask:{model.methodHash}]";
             if (string.IsNullOrEmpty(model.func))
                 return;
             if (rpcTasks.TryGetValue(model.func, out RPCModelTask model1))
@@ -271,8 +271,8 @@ namespace Net.Adapter
 
         public void OnRpcExecute(RPCModel model)
         {
-            if (model.methodMask != 0)
-                if (!RpcMask.TryGetValue(model.methodMask, out model.func)) model.func = $"[mask:{model.methodMask}]";
+            if (model.methodHash != 0)
+                if (!RpcMask.TryGetValue(model.methodHash, out model.func)) model.func = $"[mask:{model.methodHash}]";
             if (string.IsNullOrEmpty(model.func))
                 return;
             if (rpcTasks.TryGetValue(model.func, out RPCModelTask model1))
@@ -344,12 +344,12 @@ namespace Net.Adapter
             }
         }
 
-        public RPCModelTask OnRpcTaskRegister(ushort methodMask, string callbackFunc)
+        public RPCModelTask OnRpcTaskRegister(ushort methodHash, string callbackFunc)
         {
-            if (methodMask != 0)
+            if (methodHash != 0)
             {
-                if (!RpcMask.TryGetValue(methodMask, out var func))
-                    RpcMask.Add(methodMask, func = callbackFunc);
+                if (!RpcMask.TryGetValue(methodHash, out var func))
+                    RpcMask.Add(methodHash, func = callbackFunc);
                 if (!rpcTasks.TryGetValue(func, out var model))
                     rpcTasks.Add(func, model = new RPCModelTask());
                 return model;

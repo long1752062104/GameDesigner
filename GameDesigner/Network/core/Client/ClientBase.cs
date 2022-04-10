@@ -75,7 +75,7 @@ namespace Net.Client
         /// </summary>
         protected MyDictionary<string, List<RPCMethod>> RpcsDic = new MyDictionary<string, List<RPCMethod>>();
         /// <summary>
-        /// 远程方法遮罩
+        /// 远程方法哈希
         /// </summary>
         private readonly MyDictionary<ushort, string> RpcMaskDic = new MyDictionary<ushort, string>();
         /// <summary>
@@ -697,8 +697,8 @@ namespace Net.Client
         /// <param name="model"></param>
         public void AddRpcBuffer(RPCModel model)
         {
-            if (model.methodMask != 0)
-                if (!RpcMaskDic.TryGetValue(model.methodMask, out model.func)) model.func = $"[mask:{model.methodMask}]";
+            if (model.methodHash != 0)
+                if (!RpcMaskDic.TryGetValue(model.methodHash, out model.func)) model.func = $"[mask:{model.methodHash}]";
             if (string.IsNullOrEmpty(model.func))
                 return;
             if (rpcTasks.TryGetValue(model.func, out RPCModelTask model1))
@@ -1424,7 +1424,7 @@ namespace Net.Client
                     BufferPool.Push(stream);
                     stream = stream2;
                 }
-                if (len >= (IsEthernet ? MTU : 50000) & !reliable)//udp不可靠判断
+                if (len >= (IsEthernet ? MTU : 60000) & !reliable)//udp不可靠判断
                 {
                     byte[] buffer = PackData(stream);
                     SendByteData(buffer, reliable);
@@ -1501,14 +1501,15 @@ namespace Net.Client
                 goto JUMP;
             if (count == 0)
                 return;
-            if (count > 1000)
-                count = 1000;
+            if (count > PackageLength)
+                count = PackageLength;
             var stream = BufferPool.Take();
             WriteDataBody(ref stream, rtRPCModels, count, true);
             int len = stream.Position;
             int index = 0;
             ushort dataIndex = 0;
-            float dataCount = (float)len / MTU;
+            int mtu = IsEthernet ? MTU : 60000;
+            float dataCount = (float)len / mtu;
             var rtDic = new MyDictionary<ushort, RTBuffer>();
             sendRTList.TryAdd(sendReliableFrame, rtDic);
             var stream1 = BufferPool.Take();
@@ -1518,7 +1519,7 @@ namespace Net.Client
             var stream2 = BufferPool.Take();
             while (index < len)
             {
-                int count1 = MTU;
+                int count1 = mtu;
                 if (index + count1 >= len)
                     count1 = len - index;
                 stream1.SetPositionLength(frame + 2);//这3个是头部数据
@@ -1534,7 +1535,7 @@ namespace Net.Client
                 stream1.Write(stream2, 0, stream2.Count);
                 byte[] buffer = PackData(stream1);
                 rtDic.Add(dataIndex, new RTBuffer(buffer));
-                index += MTU;
+                index += mtu;
                 dataIndex++;
             }
             BufferPool.Push(stream);
@@ -1569,7 +1570,7 @@ namespace Net.Client
                     rtb.time = DateTime.Now.AddMilliseconds(currRto);
                     bytesLen += rtb.buffer.Length;
                     SendByteData(rtb.buffer, true);
-                    if (bytesLen > MTPS / 1000)//一秒最大发送1m数据, 这里会有可能每秒执行1000次
+                    if (bytesLen > MTPS / 0x3E8)//一秒最大发送1m数据, 这里会有可能每秒执行1000次
                         return;
                 }
             }
@@ -1688,7 +1689,7 @@ namespace Net.Client
                 var md5Hash = buffer.Read(16);
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(buffer, buffer.Position, buffer.Count - buffer.Position);
-                EncryptHelper.ToDecrypt(Password, md5Hash);
+                EncryptHelper.ToDecrypt(Password, md5Hash, 0, 16);
                 for (int i = 0; i < md5Hash.Length; i++)
                 {
                     if (retVal[i] != md5Hash[i])
@@ -1734,7 +1735,7 @@ namespace Net.Client
                         break;
                     rpc.func = func.name;
                     rpc.pars = func.pars;
-                    rpc.methodMask = func.mask;
+                    rpc.methodHash = func.mask;
                 }
                 RPCDataHandle(rpc, buffer);//解析协议完成
                 buffer.Position += dataCount;
@@ -1839,7 +1840,8 @@ namespace Net.Client
                     }
                     if (revdFrame.Add(index))
                     {
-                        revdRTStream.Seek(revdFrame.streamPos + (index * MTU), SeekOrigin.Begin);
+                        int mtu = IsEthernet ? MTU : 60000;
+                        revdRTStream.Seek(revdFrame.streamPos + (index * mtu), SeekOrigin.Begin);
                         revdRTStream.Write(model.buffer, segment.Position, count);
                         InvokeRevdRTProgress(revdFrame.Count, entry);
                     }
@@ -2314,14 +2316,14 @@ namespace Net.Client
             rPCModels.Enqueue(new RPCModel(cmd, func, pars));
         }
 
-        public virtual void Send(ushort methodMask, params object[] pars)
+        public virtual void Send(ushort methodHash, params object[] pars)
         {
-            Send(NetCmd.CallRpc, methodMask, pars);
+            Send(NetCmd.CallRpc, methodHash, pars);
         }
 
-        public virtual void Send(byte cmd, ushort methodMask, params object[] pars)
+        public virtual void Send(byte cmd, ushort methodHash, params object[] pars)
         {
-            Send(new RPCModel(cmd, methodMask, pars));
+            Send(new RPCModel(cmd, methodHash, pars));
         }
 
         public void Send(RPCModel model) 
@@ -2636,14 +2638,14 @@ namespace Net.Client
             SendRT(new RPCModel(cmd, func, pars, true, true));
         }
 
-        public virtual void SendRT(ushort methodMask, params object[] pars)
+        public virtual void SendRT(ushort methodHash, params object[] pars)
         {
-            SendRT(NetCmd.CallRpc, methodMask, pars);
+            SendRT(NetCmd.CallRpc, methodHash, pars);
         }
 
-        public virtual void SendRT(byte cmd, ushort methodMask, params object[] pars)
+        public virtual void SendRT(byte cmd, ushort methodHash, params object[] pars)
         {
-            SendRT(new RPCModel(cmd, methodMask, pars));
+            SendRT(new RPCModel(cmd, methodHash, pars));
         }
 
         public virtual void SendRT(RPCModel model)

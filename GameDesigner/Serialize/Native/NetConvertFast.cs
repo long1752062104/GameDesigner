@@ -229,7 +229,7 @@
                     }
                     byte head = 0;
                     bool hasFunc = !string.IsNullOrEmpty(model.func);
-                    bool hasMask = model.methodMask != 0;
+                    bool hasMask = model.methodHash != 0;
                     SetBit(ref head, 1, hasFunc);
                     SetBit(ref head, 2, hasMask);
                     stream.WriteByte(head);
@@ -239,7 +239,7 @@
                         stream.WriteByte((byte)funcbts.Length);
                         stream.Write(funcbts, 0, funcbts.Length);
                     }
-                    if (hasMask) stream.Write(BitConverter.GetBytes(model.methodMask), 0, 2);
+                    if (hasMask) stream.Write(BitConverter.GetBytes(model.methodHash), 0, 2);
                     ProtoBuf.Serializer.Serialize(stream, datas);
                     return stream.ToArray();
                 }

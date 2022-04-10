@@ -70,6 +70,42 @@ client.SendRT("test", "客户端rpc请求");
 ```
 到此基本使用完成
 
+## 网关转发Nginx
+
+如果需要网关服务器的, 可使用Nginx代理转发到真实服务器, 加了Nginx代理后,服务器和客户端流程为 客户端:client->Nginx->gameServer, 服务器:gameServer->Nginx->client
+
+
+```
+worker_processes  1;
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+#pid        logs/nginx.pid;
+events {
+    #客户端连接数量
+    worker_connections  10240;
+}
+stream{
+    upstream gameServer{
+        #这里是真实的游戏服务器,如果在阿里云,腾讯云,填写对应的ip即可
+        server 127.0.0.1:6667;
+    }
+    server{
+        #nginx的监听端口,客户端连接的端口
+        listen 6666;
+        proxy_pass gameServer;
+    }
+}
+```
+详情请看:https://www.cnblogs.com/knowledgesea/p/6497783.html
+
+## MySql使用
+
+1.mysql安装可到gdnet群:825240544群文件去下载, 或者官网下载:http://c.biancheng.net/view/2391.html
+2.mysql可视化界面工具Navicat, 到这里下载:https://www.cnblogs.com/yx-man/p/13220878.html
+3.以上两步好后, 打开Navicat创建mysql数据库, 创建表和字段后, 即可用mysql orm工具生成*.cs类文件:https://gitee.com/leng_yue/my-sql-data-build
+4.orm工具生成的文件可拖入unity项目, 使用unity菜单GameDesigner/Network/ExternalReference工具添加文件引用
+
 ## 对象池
 gdnet提供BufferPool二进制数据对象池和ObjectPool类对象池, 在网络代码内部采用了BufferPool对象池, 使得网络可以高速读写处理数据, 而不是每次要创建一个byte[]来处理!
 

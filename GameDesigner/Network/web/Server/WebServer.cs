@@ -157,6 +157,7 @@
                 unClient.LastTime = DateTime.Now.AddMinutes(5);
                 unClient.UserID = uid;
                 unClient.PlayerID = uid.ToString();
+                unClient.Name = uid.ToString();
                 unClient.isDispose = false;
                 unClient.CloseSend = false;
                 Interlocked.Increment(ref ignoranceNumber);
@@ -316,7 +317,7 @@
 
         protected override byte[] OnSerializeRpc(RPCModel model)
         {
-            if (!string.IsNullOrEmpty(model.func) | model.methodMask != 0)
+            if (!string.IsNullOrEmpty(model.func) | model.methodHash != 0)
             {
                 MessageModel model1 = new MessageModel(model.cmd, model.func, model.pars);
                 string jsonStr = JsonConvert.SerializeObject(model1);

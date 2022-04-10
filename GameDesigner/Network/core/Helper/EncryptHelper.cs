@@ -75,6 +75,8 @@ namespace Net.Helper
         /// <returns>加密后的字符串</returns> 
         public static string DESEncrypt(string encryptKey, string text)
         {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
             byte[] keyArray = Encoding.UTF8.GetBytes(encryptKey);
             byte[] toEncryptArray = Encoding.UTF8.GetBytes(text);
             RijndaelManaged rDel = new RijndaelManaged();
@@ -102,6 +104,21 @@ namespace Net.Helper
             ICryptoTransform cTransform = rDel.CreateDecryptor();
             byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
             return Encoding.UTF8.GetString(resultArray);
+        }
+
+        public static string GetMD5(string sDataIn)
+        {
+            MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+            byte[] bytValue, bytHash;
+            bytValue = Encoding.UTF8.GetBytes(sDataIn);
+            bytHash = md5.ComputeHash(bytValue);
+            md5.Clear();
+            string sTemp = "";
+            for (int i = 0; i < bytHash.Length; i++)
+            {
+                sTemp += bytHash[i].ToString("X").PadLeft(2, '0');
+            }
+            return sTemp.ToLower();
         }
     }
 }

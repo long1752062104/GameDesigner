@@ -42,9 +42,9 @@
         /// </summary>
         public string func;
         /// <summary>
-        /// 远程方法遮罩值
+        /// 远程方法哈希值
         /// </summary>
-        public ushort methodMask;
+        public ushort methodHash;
         /// <summary>
         /// 远程参数
         /// </summary>
@@ -73,7 +73,7 @@
             serialize = false;
             index = 0;
             count = buffer.Length;
-            methodMask = 0;
+            methodHash = 0;
             bigData = false;
         }
 
@@ -93,17 +93,17 @@
             buffer = null;
             index = 0;
             count = 0; 
-            methodMask = 0;
+            methodHash = 0;
             bigData = false;
         }
 
-        public RPCModel(byte cmd, ushort methodMask, object[] pars)
+        public RPCModel(byte cmd, ushort methodHash, object[] pars)
         {
             kernel = true;
             serialize = true;
             this.cmd = cmd;
             func = string.Empty;
-            this.methodMask = methodMask;
+            this.methodHash = methodHash;
             this.pars = pars;
             buffer = null;
             index = 0;
@@ -127,7 +127,7 @@
             serialize = false;
             index = 0;
             count = buffer.Length;
-            methodMask = 0; 
+            methodHash = 0; 
             bigData = false;
         }
 
@@ -141,7 +141,7 @@
             func = null;
             pars = null;
             serialize = false;
-            methodMask = 0;
+            methodHash = 0;
             bigData = false;
         }
 
@@ -162,11 +162,11 @@
             pars = null;
             index = 0;
             count = buffer.Length;
-            methodMask = 0;
+            methodHash = 0;
             bigData = false;
         }
 
-        public RPCModel(byte cmd, byte[] buffer, bool kernel, bool serialize, ushort methodMask)
+        public RPCModel(byte cmd, byte[] buffer, bool kernel, bool serialize, ushort methodHash)
         {
             this.cmd = cmd;
             this.buffer = buffer;
@@ -176,7 +176,7 @@
             pars = null;
             index = 0;
             count = buffer.Length;
-            this.methodMask = methodMask; 
+            this.methodHash = methodHash; 
             bigData = false;
         }
 
@@ -198,11 +198,11 @@
             buffer = null;
             index = 0;
             count = 0;
-            methodMask = 0;
+            methodHash = 0;
             bigData = false;
         }
 
-        public RPCModel(byte cmd, string func, object[] pars, bool kernel, bool serialize, ushort methodMask)
+        public RPCModel(byte cmd, string func, object[] pars, bool kernel, bool serialize, ushort methodHash)
         {
             this.cmd = cmd;
             this.func = func;
@@ -212,7 +212,7 @@
             buffer = null;
             index = 0;
             count = 0;
-            this.methodMask = methodMask; 
+            this.methodHash = methodHash; 
             bigData = false;
         }
 
@@ -236,7 +236,7 @@
             string cmdStr = "";
             if (cmd < fields.Length)
                 cmdStr = fields[cmd].Name;
-            return $"指令:{cmdStr} 内核:{kernel} 方法:{func} Mask:{methodMask} 数据:{(buffer != null ? buffer.Length : 0)}";
+            return $"指令:{cmdStr} 内核:{kernel} 方法:{func} Mask:{methodHash} 数据:{(buffer != null ? buffer.Length : 0)}";
         }
     }
 }

@@ -142,6 +142,7 @@
                             Player unClient = new Player();
                             unClient.UserID = uid;
                             unClient.PlayerID = uid.ToString();
+                            unClient.Name = uid.ToString();
                             unClient.EClient = netEvent.Peer;
                             unClient.ChannelID = netEvent.ChannelID;
                             unClient.RemotePoint = remotePoint;

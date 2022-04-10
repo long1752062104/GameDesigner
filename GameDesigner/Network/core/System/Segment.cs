@@ -255,18 +255,19 @@ namespace Net.System
             return value;
         }
 
-        public unsafe byte[] Read(int count)
+        public byte[] Read(int count)
         {
-            byte[] buffer = new byte[count];
-            fixed (byte* ptr = &Buffer[Position])
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    buffer[i] = ptr[i];
-                }
-            }
+            byte[] array = new byte[count];
+            global::System.Buffer.BlockCopy(Buffer, Position, array, 0, count);
             Position += count;
-            return buffer;
+            return array;
+        }
+
+        public ArraySegment ReadAS(int count)
+        {
+            var array = new ArraySegment(this, Position, count);
+            Position += count;
+            return array;
         }
 
         public unsafe void WriteList<T>(List<T> array)

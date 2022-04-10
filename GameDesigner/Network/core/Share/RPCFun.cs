@@ -13,7 +13,7 @@
         /// </summary>
         public byte cmd;
         /// <summary>
-        /// 远程方法的掩饰
+        /// 远程方法的哈希值
         /// </summary>
         public ushort mask;
         /// <summary>

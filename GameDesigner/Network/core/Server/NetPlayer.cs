@@ -17,6 +17,10 @@
     public class NetPlayer : IDisposable
     {
         /// <summary>
+        /// 玩家名称
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
         /// Tcp套接字
         /// </summary>
         public Socket Client { get; set; }
@@ -45,7 +49,7 @@
         /// </summary>
         public MyDictionary<string, RPCMethod> Rpcs { get; set; } = new MyDictionary<string, RPCMethod>();
         /// <summary>
-        /// 远程方法遮罩
+        /// 远程方法哈希
         /// </summary>
         private readonly MyDictionary<ushort, string> RpcMaskDic = new MyDictionary<ushort, string>();
         /// <summary>
@@ -71,7 +75,6 @@
         /// TCP叠包值， 0:正常 >1:叠包次数 >25:清空叠包缓存流
         /// </summary>
         internal int stack = 0;
-        //internal string stackStreamName;
         internal int stackIndex;
         internal int stackCount;
         /// <summary>
@@ -338,8 +341,8 @@
         /// <param name="model"></param>
         public virtual void OnRpcExecute(RPCModel model)
         {
-            if (model.methodMask != 0)
-                RpcMaskDic.TryGetValue(model.methodMask, out model.func);
+            if (model.methodHash != 0)
+                RpcMaskDic.TryGetValue(model.methodHash, out model.func);
             if (!Rpcs.TryGetValue(model.func, out RPCMethod rpc))
             {
                 NDebug.LogWarning($"没有找到:{model}的Rpc方法,请使用netPlayer.AddRpcHandle方法注册!");
@@ -355,7 +358,7 @@
         /// </summary>
         public virtual void OnStart()
         {
-            NDebug.Log($"玩家[{PlayerID}]登录了游戏...");
+            NDebug.Log($"玩家[{Name}]登录了游戏...");
         }
 
         /// <summary>
