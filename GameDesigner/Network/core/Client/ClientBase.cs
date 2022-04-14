@@ -75,9 +75,9 @@ namespace Net.Client
         /// </summary>
         protected MyDictionary<string, List<RPCMethod>> RpcsDic = new MyDictionary<string, List<RPCMethod>>();
         /// <summary>
-        /// 远程方法哈希
+        /// 远程方法遮罩
         /// </summary>
-        private readonly MyDictionary<ushort, string> RpcMaskDic = new MyDictionary<ushort, string>();
+        private readonly MyDictionary<ushort, List<RPCMethod>> RpcMaskDic = new MyDictionary<ushort, List<RPCMethod>>();
         /// <summary>
         /// 线程字典
         /// </summary>
@@ -528,14 +528,16 @@ namespace Net.Client
                 if (rpc != null)
                 {
                     RPCMethod item = new RPCMethod(target, info as MethodInfo, rpc.cmd);
-                    if (rpc.mask != 0)
+                    if (rpc.hash != 0)
                     {
-                        if (!RpcMaskDic.TryGetValue(rpc.mask, out string func))
-                            RpcMaskDic.Add(rpc.mask, info.Name);
-                        else if (func != info.Name)
-                            NDebug.LogError($"错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
+                        if (!RpcMaskDic.TryGetValue(rpc.hash, out var list))
+                            RpcMaskDic.Add(rpc.hash, list = new List<RPCMethod>());
+                        list.Add(item);
                     }
-                    AddRpc(RpcsDic, Rpcs, item);
+                    if (!RpcsDic.TryGetValue(item.method.Name, out var list1))
+                        RpcsDic.Add(item.method.Name, list1 = new List<RPCMethod>());
+                    list1.Add(item);
+                    Rpcs.Add(item);
                 }
                 else
                 {
@@ -578,14 +580,6 @@ namespace Net.Client
             return false;
         }
 
-        private void AddRpc(MyDictionary<string, List<RPCMethod>> rpcs, List<RPCMethod> rpcsList, RPCMethod item)
-        {
-            if (!rpcs.ContainsKey(item.method.Name))
-                rpcs.Add(item.method.Name, new List<RPCMethod>());
-            rpcs[item.method.Name].Add(item);
-            rpcsList.Add(item);
-        }
-
         /// <summary>
         /// 移除子客户端的RPCFun函数
         /// </summary>
@@ -616,14 +610,14 @@ namespace Net.Client
                         if (rpcs.Value[i].method.Equals(@delegate.Method))
                         {
                             rpcs.Value.RemoveAt(i);
-                            if (i > 0) i--;
+                            if (i >= 0) i--;
                         }
                         continue;
                     }
                     if (rpcs.Value[i].target.Equals(target) | rpcs.Value[i].method.Equals(null))
                     {
                         rpcs.Value.RemoveAt(i);
-                        if (i > 0) i--;
+                        if (i >= 0) i--;
                     }
                 }
                 if (rpcs.Value.Count <= 0)
@@ -692,36 +686,66 @@ namespace Net.Client
         }
 
         /// <summary>
+        /// 派发给所有被收集的Rpc方法
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <param name="pars"></param>
+        public void DispatcherRpc(ushort hash, params object[] pars)
+        {
+            AddRpcBuffer(new RPCModel(0, hash, pars));
+        }
+
+        /// <summary>
         /// 添加网络函数数据,添加后自动在rpc中调用
         /// </summary>
         /// <param name="model"></param>
         public void AddRpcBuffer(RPCModel model)
         {
+            List<RPCMethod> methods;
             if (model.methodHash != 0)
-                if (!RpcMaskDic.TryGetValue(model.methodHash, out model.func)) model.func = $"[mask:{model.methodHash}]";
-            if (string.IsNullOrEmpty(model.func))
-                return;
-            if (rpcTasks.TryGetValue(model.func, out RPCModelTask model1))
             {
-                model1.model = model;
-                model1.IsCompleted = true;
-                model1.referenceCount--;
-                if(model1.referenceCount <= 0)
-                    rpcTasks.TryRemove(model.func, out _);
-                if (model1.intercept)
+                if (rpcTasks1.TryGetValue(model.methodHash, out RPCModelTask model1))
+                {
+                    model1.model = model;
+                    model1.IsCompleted = true;
+                    model1.referenceCount--;
+                    if (model1.referenceCount <= 0)
+                        rpcTasks1.TryRemove(model.methodHash, out _);
+                    if (model1.intercept)
+                        return;
+                }
+                if (!RpcMaskDic.TryGetValue(model.methodHash, out methods))
+                {
+                    NDebug.LogWarning($"[mask:{model.methodHash}]的远程方法未被收集!请定义[Rpc(hash = {model.methodHash})] void xx方法和参数, 并使用client.AddRpcHandle方法收集rpc方法!");
                     return;
+                }
             }
-            if (!RpcsDic.TryGetValue(model.func, out List<RPCMethod> rpcs))
+            else 
+            {
+                if (string.IsNullOrEmpty(model.func))
+                    return;
+                if (rpcTasks.TryGetValue(model.func, out RPCModelTask model1))
+                {
+                    model1.model = model;
+                    model1.IsCompleted = true;
+                    model1.referenceCount--;
+                    if (model1.referenceCount <= 0)
+                        rpcTasks.TryRemove(model.func, out _);
+                    if (model1.intercept)
+                        return;
+                }
+                if (!RpcsDic.TryGetValue(model.func, out methods))
+                {
+                    NDebug.LogWarning($"{model.func}的远程方法未被收集!请定义[Rpc]void {model.func}方法和参数, 并使用client.AddRpcHandle方法收集rpc方法!");
+                    return;
+                }
+            }
+            if (methods.Count <= 0)
             {
                 NDebug.LogWarning($"{model.func}的远程方法未被收集!请定义[Rpc]void {model.func}方法和参数, 并使用client.AddRpcHandle方法收集rpc方法!");
                 return;
             }
-            if (rpcs.Count <= 0)
-            {
-                NDebug.LogWarning($"{model.func}的远程方法未被收集!请定义[Rpc]void {model.func}方法和参数, 并使用client.AddRpcHandle方法收集rpc方法!");
-                return;
-            }
-            foreach (RPCMethod rpc in rpcs)
+            foreach (RPCMethod rpc in methods)
             {
                 if (rpc.cmd == NetCmd.ThreadRpc)
                 {
@@ -2316,14 +2340,14 @@ namespace Net.Client
             rPCModels.Enqueue(new RPCModel(cmd, func, pars));
         }
 
-        public virtual void Send(ushort methodHash, params object[] pars)
+        public virtual void Send(ushort methodMask, params object[] pars)
         {
-            Send(NetCmd.CallRpc, methodHash, pars);
+            Send(NetCmd.CallRpc, methodMask, pars);
         }
 
-        public virtual void Send(byte cmd, ushort methodHash, params object[] pars)
+        public virtual void Send(byte cmd, ushort methodMask, params object[] pars)
         {
-            Send(new RPCModel(cmd, methodHash, pars));
+            Send(new RPCModel(cmd, methodMask, pars));
         }
 
         public void Send(RPCModel model) 
@@ -2438,6 +2462,7 @@ namespace Net.Client
         }
 
         private readonly ConcurrentDictionary<string, RPCModelTask> rpcTasks = new ConcurrentDictionary<string, RPCModelTask>();
+        private readonly ConcurrentDictionary<ushort, RPCModelTask> rpcTasks1 = new ConcurrentDictionary<ushort, RPCModelTask>();
 
         /// <summary>
         /// 远程同步调用
@@ -2587,10 +2612,8 @@ namespace Net.Client
             {
                 if (callbackFunc1 != 0)
                 {
-                    if (!RpcMaskDic.TryGetValue(callbackFunc1, out var methodName))
-                        RpcMaskDic.Add(callbackFunc1, methodName = callbackFunc1.ToString());
-                    if (!rpcTasks.TryGetValue(methodName, out model))
-                        rpcTasks.TryAdd(methodName, model = new RPCModelTask());
+                    if (!rpcTasks1.TryGetValue(callbackFunc1, out model))
+                        rpcTasks1.TryAdd(callbackFunc1, model = new RPCModelTask());
                 }
                 else
                 {
@@ -2638,14 +2661,14 @@ namespace Net.Client
             SendRT(new RPCModel(cmd, func, pars, true, true));
         }
 
-        public virtual void SendRT(ushort methodHash, params object[] pars)
+        public virtual void SendRT(ushort methodMask, params object[] pars)
         {
-            SendRT(NetCmd.CallRpc, methodHash, pars);
+            SendRT(NetCmd.CallRpc, methodMask, pars);
         }
 
-        public virtual void SendRT(byte cmd, ushort methodHash, params object[] pars)
+        public virtual void SendRT(byte cmd, ushort methodMask, params object[] pars)
         {
-            SendRT(new RPCModel(cmd, methodHash, pars));
+            SendRT(new RPCModel(cmd, methodMask, pars));
         }
 
         public virtual void SendRT(RPCModel model)
@@ -2786,15 +2809,16 @@ namespace Net.Client
 
         public virtual void SendRT(byte cmd, ushort func, ushort funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, SynchronizationContext context, params object[] pars)
         {
-            if (!RpcMaskDic.TryGetValue(funcCB, out string funcCB1))
+            if (!RpcMaskDic.TryGetValue(funcCB, out var list))
             {
-                NDebug.LogError($"回调方法没有定义! 请在回调方法添加[Rpc(mask = {funcCB})]");
+                NDebug.LogError($"回调方法没有定义! 请在回调方法添加[Rpc(hash = {funcCB})]");
                 return;
             }
+            var funcCB1 = list[0].method.Name;
             SendRT(new RPCModel(cmd, string.Empty, pars, true, true, func), funcCB1, callback, millisecondsDelay, outTimeAct, context, pars);
         }
 
-        private void SendRT(RPCModel model, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, SynchronizationContext context, params object[] pars)
+        private async void SendRT(RPCModel model, string funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, SynchronizationContext context, params object[] pars)
         {
             if (!Connected)
                 return;
@@ -2806,26 +2830,23 @@ namespace Net.Client
             rtRPCModels.Enqueue(model);
             if (!rpcTasks.TryGetValue(funcCB, out RPCModelTask model1))
                 rpcTasks.TryAdd(funcCB, model1 = new RPCModelTask());
-            Task.Run(() =>
+            DateTime time = DateTime.Now.AddMilliseconds(millisecondsDelay);
+            while (DateTime.Now < time)
             {
-                DateTime time = DateTime.Now.AddMilliseconds(millisecondsDelay);
-                while (DateTime.Now < time)
+                await Task.Yield();
+                if (model1.IsCompleted)
                 {
-                    Thread.Sleep(1);
-                    if (model1.IsCompleted)
-                    {
-                        if (context != null)
-                            context.Post((state) => { callback.DynamicInvoke(model1.model.pars); }, null);
-                        else
-                            callback.DynamicInvoke(model1.model.pars);
-                        return;
-                    }
+                    if (context != null)
+                        context.Post((state) => { callback.DynamicInvoke(model1.model.pars); }, null);
+                    else
+                        callback.DynamicInvoke(model1.model.pars);
+                    return;
                 }
-                if (context != null)
-                    context.Post((state) => { outTimeAct?.Invoke(); }, null);
-                else
-                    outTimeAct?.Invoke();
-            });
+            }
+            if (context != null)
+                context.Post((state) => { outTimeAct?.Invoke(); }, null);
+            else
+                outTimeAct?.Invoke();
         }
 
         /// <summary>

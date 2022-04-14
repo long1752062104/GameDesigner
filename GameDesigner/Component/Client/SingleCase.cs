@@ -2,6 +2,7 @@
 namespace Net.Component
 {
     using global::System;
+    using global::System.Collections.Generic;
     using UnityEngine;
 
     /// <summary>
@@ -46,22 +47,30 @@ namespace Net.Component
             set { instance = value; }
         }
 
-        public Action OnBack;
+        public Stack<Action> OnBack = new Stack<Action>();
 
         public static T Show(Action onBack = null)
         {
-            I.gameObject.SetActive(true);
-            I.OnBack = onBack;
-            return I;
+            var i = I;
+            if (i == null)
+                return null;
+            i.gameObject.SetActive(true);
+            if(onBack != null)
+                i.OnBack.Push(onBack);
+            return i;
         }
 
         public static void Hide(bool isBack = true)
         {
-            I.gameObject.SetActive(false);
+            var i = I;
+            if (i == null)
+                return;
+            i.gameObject.SetActive(false);
             if (isBack)
             {
-                I.OnBack?.Invoke();
-                I.OnBack = null;
+                if (i.OnBack.Count == 0)
+                    return;
+                i.OnBack.Pop()();
             }
         }
     }

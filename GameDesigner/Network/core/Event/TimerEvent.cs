@@ -192,7 +192,8 @@ namespace Net.Event
                         if (i >= 0) i--;
                         continue;//解决J:执行后索引超出异常
                     }
-                J: events[i].time = time + events[i].timeMax;
+                J: if(i > 0 & i < events.Count)
+                    events[i].time = time + events[i].timeMax;
                 }
             }
         }

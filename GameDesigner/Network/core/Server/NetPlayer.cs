@@ -51,7 +51,7 @@
         /// <summary>
         /// 远程方法哈希
         /// </summary>
-        private readonly MyDictionary<ushort, string> RpcMaskDic = new MyDictionary<ushort, string>();
+        private readonly MyDictionary<ushort, RPCMethod> RpcMaskDic = new MyDictionary<ushort, RPCMethod>();
         /// <summary>
         /// 临时客户端持续时间: (内核使用):
         /// 未知客户端连接服务器, 长时间未登录账号, 未知客户端临时内存对此客户端回收, 并强行断开此客户端连接
@@ -214,11 +214,11 @@
                 RPCFun rpc = info.GetCustomAttribute<RPCFun>();
                 if (rpc != null)
                 {
-                    if (rpc.mask != 0)
-                        if (!RpcMaskDic.TryGetValue(rpc.mask, out string func))
-                            RpcMaskDic.Add(rpc.mask, info.Name);
-                        else if (func != info.Name)
-                            NDebug.LogError($"[{RemotePoint}][{UserID}]错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
+                    if (rpc.hash != 0)
+                        if (!RpcMaskDic.ContainsKey(rpc.hash))
+                            RpcMaskDic.Add(rpc.hash, new RPCMethod(target, info as MethodInfo, rpc.cmd));
+                        else
+                            NDebug.LogError($"[{RemotePoint}][{UserID}]错误! 请修改Rpc方法{info.Name}的mask值, mask值必须是唯一的!");
                     if (!Rpcs.ContainsKey(info.Name))
                         Rpcs.Add(info.Name, new RPCMethod(target, info as MethodInfo, rpc.cmd));
                     else if (replace)
@@ -341,14 +341,21 @@
         /// <param name="model"></param>
         public virtual void OnRpcExecute(RPCModel model)
         {
+            RPCMethod method;
             if (model.methodHash != 0)
-                RpcMaskDic.TryGetValue(model.methodHash, out model.func);
-            if (!Rpcs.TryGetValue(model.func, out RPCMethod rpc))
+            {
+                if (!RpcMaskDic.TryGetValue(model.methodHash, out method))
+                {
+                    NDebug.LogWarning($"没有找到:{model}的Rpc方法,请使用netPlayer.AddRpcHandle方法注册!");
+                    return;
+                }
+            }
+            else if (!Rpcs.TryGetValue(model.func, out method))
             {
                 NDebug.LogWarning($"没有找到:{model}的Rpc方法,请使用netPlayer.AddRpcHandle方法注册!");
                 return;
             }
-            rpc.Invoke(model.pars);
+            method.Invoke(model.pars);
         }
         #endregion
 

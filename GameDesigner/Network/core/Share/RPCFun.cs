@@ -15,7 +15,7 @@
         /// <summary>
         /// 远程方法的哈希值
         /// </summary>
-        public ushort mask;
+        public ushort hash;
         /// <summary>
         /// <code>如果在unity编译为il2cpp后端脚本并使用CallSiteRpcAdapter快速调用rpc适配器，则需要先声明类型出来，因为编译后，类型将无法在创建出来</code>
         /// 例子: void Test(int num, string str); 则需要使用 [Rpc(il2cpp = typeof(RPCPTR&lt;int, string&gt;))]

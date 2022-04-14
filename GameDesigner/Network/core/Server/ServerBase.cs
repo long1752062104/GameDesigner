@@ -70,7 +70,7 @@ namespace Net.Server
         /// <summary>
         /// 远程方法哈希
         /// </summary>
-        private readonly MyDictionary<ushort, string> RpcMaskDic = new MyDictionary<ushort, string>();
+        private readonly MyDictionary<ushort, List<RPCMethod>> RpcMaskDic = new MyDictionary<ushort, List<RPCMethod>>();
         /// <summary>
         /// 所有在线的客户端
         /// </summary>
@@ -1749,14 +1749,21 @@ namespace Net.Server
 
         protected internal void OnRpcExecuteInternal(Player client, RPCModel model)
         {
+            List<RPCMethod> methods;
             if (model.methodHash != 0)
-                RpcMaskDic.TryGetValue(model.methodHash, out model.func);
-            if (!RpcsDic.TryGetValue(model.func, out List<RPCMethod> rpcs))
             {
-                Debug.LogWarning($"[{client.RemotePoint}]没有找到:{model.func}的Rpc方法,请使用server(你的服务器类).AddRpcHandle方法注册!");
+                if (!RpcMaskDic.TryGetValue(model.methodHash, out methods))
+                {
+                    Debug.LogWarning($"[{client.RemotePoint}]没有找到:{model}的Rpc方法,请使用server(你的服务器类).AddRpcHandle方法注册!");
+                    return;
+                }
+            }
+            else if (!RpcsDic.TryGetValue(model.func, out methods))
+            {
+                Debug.LogWarning($"[{client.RemotePoint}]没有找到:{model}的Rpc方法,请使用server(你的服务器类).AddRpcHandle方法注册!");
                 return;
             }
-            foreach (RPCMethod rpc in rpcs)
+            foreach (RPCMethod rpc in methods)
             {
                 try
                 {
@@ -2733,16 +2740,15 @@ namespace Net.Server
                 if (rpc != null)
                 {
                     RPCMethod item = new RPCMethod(target, info, rpc.cmd);
-                    if (rpc.mask != 0)
+                    if (rpc.hash != 0)
                     {
-                        if (!RpcMaskDic.TryGetValue(rpc.mask, out string func))
-                            RpcMaskDic.Add(rpc.mask, info.Name);
-                        else if (func != info.Name)
-                            Debug.LogError($"错误! 请修改Rpc方法{info.Name}或{func}的mask值, mask值必须是唯一的!");
+                        if (!RpcMaskDic.TryGetValue(rpc.hash, out var list))
+                            RpcMaskDic.Add(rpc.hash, list = new List<RPCMethod>());
+                        list.Add(item);
                     }
-                    if (!RpcsDic.ContainsKey(item.method.Name))
-                        RpcsDic.Add(item.method.Name, new List<RPCMethod>());
-                    RpcsDic[item.method.Name].Add(item);
+                    if (!RpcsDic.TryGetValue(item.method.Name, out var list1))
+                        RpcsDic.Add(item.method.Name, list1 = new List<RPCMethod>());
+                    list1.Add(item);
                     Rpcs.Add(item);
                 }
             }
