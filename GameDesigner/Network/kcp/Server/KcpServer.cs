@@ -55,13 +55,13 @@
                 if (ignoranceNumber >= LineUp)//排队人数
                 {
                     exceededNumber++;
-                    OnExceededNumber(remotePoint);
+                    OnExceededNumber(null, remotePoint);
                     return;
                 }
                 if (onlineNumber >= OnlineLimit)//服务器最大在线人数
                 {
                     blockConnection++;
-                    OnBlockConnection(remotePoint);
+                    OnBlockConnection(null, remotePoint);
                     return;
                 }
                 exceededNumber = 0;

@@ -73,11 +73,11 @@ namespace Net.Client
         /// <summary>
         /// 远程方法优化字典
         /// </summary>
-        protected MyDictionary<string, List<RPCMethod>> RpcsDic = new MyDictionary<string, List<RPCMethod>>();
+        protected MyDictionary<string, List<RPCMethod>> RpcDic = new MyDictionary<string, List<RPCMethod>>();
         /// <summary>
-        /// 远程方法遮罩
+        /// 远程方法哈希字典
         /// </summary>
-        private readonly MyDictionary<ushort, List<RPCMethod>> RpcMaskDic = new MyDictionary<ushort, List<RPCMethod>>();
+        private readonly MyDictionary<ushort, List<RPCMethod>> RpcHashDic = new MyDictionary<ushort, List<RPCMethod>>();
         /// <summary>
         /// 线程字典
         /// </summary>
@@ -486,7 +486,7 @@ namespace Net.Client
         }
 
         public List<RPCMethod> RPCs { get { return Rpcs; } set { Rpcs = value; } }
-        public MyDictionary<string, List<RPCMethod>> RPCsDic { get { return RpcsDic; } set { RpcsDic = value; } }
+        public MyDictionary<string, List<RPCMethod>> RPCsDic { get { return RpcDic; } set { RpcDic = value; } }
         
         /// <summary>
         /// 添加网络Rpc
@@ -513,7 +513,7 @@ namespace Net.Client
         {
             if (!append)
             {
-                foreach (List<RPCMethod> rpcs in RpcsDic.Values)
+                foreach (List<RPCMethod> rpcs in RpcDic.Values)
                 {
                     foreach (RPCMethod o in rpcs)
                         if (o.target == target)
@@ -530,12 +530,12 @@ namespace Net.Client
                     RPCMethod item = new RPCMethod(target, info as MethodInfo, rpc.cmd);
                     if (rpc.hash != 0)
                     {
-                        if (!RpcMaskDic.TryGetValue(rpc.hash, out var list))
-                            RpcMaskDic.Add(rpc.hash, list = new List<RPCMethod>());
+                        if (!RpcHashDic.TryGetValue(rpc.hash, out var list))
+                            RpcHashDic.Add(rpc.hash, list = new List<RPCMethod>());
                         list.Add(item);
                     }
-                    if (!RpcsDic.TryGetValue(item.method.Name, out var list1))
-                        RpcsDic.Add(item.method.Name, list1 = new List<RPCMethod>());
+                    if (!RpcDic.TryGetValue(item.method.Name, out var list1))
+                        RpcDic.Add(item.method.Name, list1 = new List<RPCMethod>());
                     list1.Add(item);
                     Rpcs.Add(item);
                 }
@@ -595,37 +595,65 @@ namespace Net.Client
         {
             if (target is string key)
             {
-                if (RpcsDic.ContainsKey(key))
-                    RpcsDic.Remove(key);
+                if (RpcDic.ContainsKey(key))
+                    RpcDic.Remove(key);
                 return;
             }
-            var rpcsList = new List<RPCMethod>();
-            var dic = new Dictionary<string, List<RPCMethod>>(RpcsDic);
-            foreach (var rpcs in dic)
+            RemoveRpcInternal(RpcDic, target, true);
+            RemoveRpcInternal(RpcHashDic, target, false);
+        }
+
+        private void RemoveRpcInternal<K, List>(MyDictionary<K, List> dic, object target, bool update) where List : List<RPCMethod>
+        {
+            var entries = dic.entries;
+            bool isUpdate = false;
+            for (int i = 0; i < entries.Length; i++)
             {
-                for (int i = 0; i < rpcs.Value.Count; i++)
+                if (entries[i].hashCode == -1)
+                    continue;
+                var rpcs1 = entries[i].value;
+                if (rpcs1 == null)
+                    continue;
+                for (int n = rpcs1.Count - 1; n >= 0; n--)
                 {
                     if (target is Delegate @delegate)
                     {
-                        if (rpcs.Value[i].method.Equals(@delegate.Method))
+                        if (rpcs1[i].method.Equals(@delegate.Method))
                         {
-                            rpcs.Value.RemoveAt(i);
-                            if (i >= 0) i--;
+                            rpcs1.RemoveAt(n);
+                            isUpdate = true;
                         }
                         continue;
                     }
-                    if (rpcs.Value[i].target.Equals(target) | rpcs.Value[i].method.Equals(null))
+                    if (rpcs1[n].method == null)
                     {
-                        rpcs.Value.RemoveAt(i);
-                        if (i >= 0) i--;
+                        rpcs1.RemoveAt(n);
+                        isUpdate = true;
+                        continue;
+                    }
+                    if (rpcs1[n].method.IsStatic)
+                        continue;
+                    if (rpcs1[n].target == null)
+                    {
+                        rpcs1.RemoveAt(n);
+                        isUpdate = true;
+                        continue;
+                    }
+                    if (rpcs1[n].target.Equals(null) | rpcs1[n].method.Equals(null))
+                    {
+                        rpcs1.RemoveAt(n);
+                        isUpdate = true;
+                        continue;
+                    }
+                    if (rpcs1[n].target.Equals(target))
+                    {
+                        rpcs1.RemoveAt(n);
+                        isUpdate = true;
                     }
                 }
-                if (rpcs.Value.Count <= 0)
-                    RpcsDic.Remove(rpcs.Key);
-                else
-                    rpcsList.AddRange(rpcs.Value);
             }
-            Rpcs = rpcsList;
+            if (update & isUpdate)
+                UpdateRpcs();
         }
 
         /// <summary>
@@ -714,7 +742,7 @@ namespace Net.Client
                     if (model1.intercept)
                         return;
                 }
-                if (!RpcMaskDic.TryGetValue(model.methodHash, out methods))
+                if (!RpcHashDic.TryGetValue(model.methodHash, out methods))
                 {
                     NDebug.LogWarning($"[mask:{model.methodHash}]的远程方法未被收集!请定义[Rpc(hash = {model.methodHash})] void xx方法和参数, 并使用client.AddRpcHandle方法收集rpc方法!");
                     return;
@@ -734,7 +762,7 @@ namespace Net.Client
                     if (model1.intercept)
                         return;
                 }
-                if (!RpcsDic.TryGetValue(model.func, out methods))
+                if (!RpcDic.TryGetValue(model.func, out methods))
                 {
                     NDebug.LogWarning($"{model.func}的远程方法未被收集!请定义[Rpc]void {model.func}方法和参数, 并使用client.AddRpcHandle方法收集rpc方法!");
                     return;
@@ -1262,20 +1290,27 @@ namespace Net.Client
         //检查rpc函数
         private void CheckRpcUpdate()
         {
-            var entries = RpcsDic.entries;
+            CheckRpcUpdate(RpcDic, true);
+            CheckRpcUpdate(RpcHashDic, false);
+        }
+
+        private void CheckRpcUpdate<K, List>(MyDictionary<K, List> dic, bool update) where List : List<RPCMethod>
+        {
+            var entries = dic.entries;
+            bool isUpdate = false;
             for (int i = 0; i < entries.Length; i++)
             {
-                if (entries[i].hashCode == 0)
+                if (entries[i].hashCode == -1)
                     continue;
                 var rpcs1 = entries[i].value;
                 if (rpcs1 == null)
                     continue;
-                for (int n = 0; n < rpcs1.Count; n++)
+                for (int n = rpcs1.Count - 1; n >= 0; n--)
                 {
                     if (rpcs1[n].method == null)
                     {
                         rpcs1.RemoveAt(n);
-                        UpdateRpcs();
+                        isUpdate = true;
                         continue;
                     }
                     if (rpcs1[n].method.IsStatic)
@@ -1283,22 +1318,24 @@ namespace Net.Client
                     if (rpcs1[n].target == null)
                     {
                         rpcs1.RemoveAt(n);
-                        UpdateRpcs();
+                        isUpdate = true;
                         continue;
                     }
                     if (rpcs1[n].target.Equals(null) | rpcs1[n].method.Equals(null))
                     {
                         rpcs1.RemoveAt(n);
-                        UpdateRpcs();
+                        isUpdate = true;
                     }
                 }
             }
+            if (update & isUpdate)
+                UpdateRpcs();
         }
 
         private void UpdateRpcs()
         {
             var rpcsList = new List<RPCMethod>();
-            var dic = new Dictionary<string, List<RPCMethod>>(RpcsDic);
+            var dic = new Dictionary<string, List<RPCMethod>>(RpcDic);
             foreach (var rpcs in dic)
                 rpcsList.AddRange(rpcs.Value);
             Rpcs = rpcsList;
@@ -2809,7 +2846,7 @@ namespace Net.Client
 
         public virtual void SendRT(byte cmd, ushort func, ushort funcCB, Delegate callback, int millisecondsDelay, Action outTimeAct, SynchronizationContext context, params object[] pars)
         {
-            if (!RpcMaskDic.TryGetValue(funcCB, out var list))
+            if (!RpcHashDic.TryGetValue(funcCB, out var list))
             {
                 NDebug.LogError($"回调方法没有定义! 请在回调方法添加[Rpc(hash = {funcCB})]");
                 return;

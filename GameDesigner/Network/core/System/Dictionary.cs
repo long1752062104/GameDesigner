@@ -365,11 +365,12 @@ namespace Net.System
         {
             int prime = HashHelpers.GetPrime(capacity);
             buckets = new int[prime];
+            entries = new Entry[prime];
             for (int i = 0; i < buckets.Length; i++)
             {
                 buckets[i] = -1;
+                entries[i].hashCode = -1;
             }
-            entries = new Entry[prime];
             freeList = -1;
         }
 
@@ -817,7 +818,7 @@ namespace Net.System
             }
         }
 
-        private int[] buckets;
+        internal int[] buckets;
 
         public Entry[] entries;//unity的editor用到
 

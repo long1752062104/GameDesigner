@@ -2472,14 +2472,14 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="F:Net.Client.ClientBase.RpcsDic">
+        <member name="F:Net.Client.ClientBase.RpcDic">
             <summary>
             远程方法优化字典
             </summary>
         </member>
-        <member name="F:Net.Client.ClientBase.RpcMaskDic">
+        <member name="F:Net.Client.ClientBase.RpcHashDic">
             <summary>
-            远程方法遮罩
+            远程方法哈希字典
             </summary>
         </member>
         <member name="F:Net.Client.ClientBase.threadDic">
@@ -2975,6 +2975,13 @@
             派发给所有被收集的Rpc方法
             </summary>
             <param name="func"></param>
+            <param name="pars"></param>
+        </member>
+        <member name="M:Net.Client.ClientBase.DispatcherRpc(System.UInt16,System.Object[])">
+            <summary>
+            派发给所有被收集的Rpc方法
+            </summary>
+            <param name="hash"></param>
             <param name="pars"></param>
         </member>
         <member name="M:Net.Client.ClientBase.AddRpcBuffer(Net.Share.RPCModel)">
@@ -4208,6 +4215,11 @@
             <code>注意:不要试图new player出来, new出来后是没有作用的!</code>
             </summary>
         </member>
+        <member name="P:Net.Server.NetPlayer.Name">
+            <summary>
+            玩家名称
+            </summary>
+        </member>
         <member name="P:Net.Server.NetPlayer.Client">
             <summary>
             Tcp套接字
@@ -4245,7 +4257,7 @@
         </member>
         <member name="F:Net.Server.NetPlayer.RpcMaskDic">
             <summary>
-            远程方法遮罩
+            远程方法哈希
             </summary>
         </member>
         <member name="P:Net.Server.NetPlayer.LastTime">
@@ -4714,14 +4726,14 @@
             远程过程调用委托
             </summary>
         </member>
-        <member name="F:Net.Server.ServerBase`2.RpcsDic">
+        <member name="F:Net.Server.ServerBase`2.RpcDic">
             <summary>
             远程函数优化字典
             </summary>
         </member>
-        <member name="F:Net.Server.ServerBase`2.RpcMaskDic">
+        <member name="F:Net.Server.ServerBase`2.RpcHashDic">
             <summary>
-            远程方法遮罩
+            远程方法哈希
             </summary>
         </member>
         <member name="P:Net.Server.ServerBase`2.Clients">
@@ -5301,13 +5313,13 @@
             </summary>
             <param name="client"></param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.OnExceededNumber(System.Net.EndPoint)">
+        <member name="M:Net.Server.ServerBase`2.OnExceededNumber(`0,System.Net.EndPoint)">
             <summary>
             当服务器连接人数溢出时调用
             </summary>
             <param name="remotePoint"></param>
         </member>
-        <member name="M:Net.Server.ServerBase`2.OnBlockConnection(System.Net.EndPoint)">
+        <member name="M:Net.Server.ServerBase`2.OnBlockConnection(`0,System.Net.EndPoint)">
             <summary>
             当服务器爆满时调用
             </summary>
@@ -7704,9 +7716,9 @@
             网络命令
             </summary>
         </member>
-        <member name="F:Net.Share.RPCFun.mask">
+        <member name="F:Net.Share.RPCFun.hash">
             <summary>
-            远程方法的掩饰
+            远程方法的哈希值
             </summary>
         </member>
         <member name="F:Net.Share.RPCFun.il2cpp">
@@ -7788,9 +7800,9 @@
             远程函数名
             </summary>
         </member>
-        <member name="F:Net.Share.RPCModel.methodMask">
+        <member name="F:Net.Share.RPCModel.methodHash">
             <summary>
-            远程方法遮罩值
+            远程方法哈希值
             </summary>
         </member>
         <member name="F:Net.Share.RPCModel.pars">
@@ -8026,6 +8038,11 @@
             </summary>
             <param name="size">字节值</param>
             <returns></returns>
+        </member>
+        <member name="T:Net.System.ArraySegment">
+            <summary>
+            内存字节数组片
+            </summary>
         </member>
         <member name="T:Net.System.BufferPool">
             <summary>
@@ -8987,7 +9004,7 @@
         </member>
         <member name="F:Net.Serialize.FuncData.mask">
             <summary>
-            方法遮罩
+            方法哈希
             </summary>
         </member>
         <member name="F:Net.Serialize.FuncData.pars">

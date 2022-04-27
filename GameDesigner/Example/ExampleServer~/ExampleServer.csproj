@@ -49,13 +49,14 @@
     <Compile Include="Example1\Service.cs" />
     <Compile Include="Example2\Command.cs" />
     <Compile Include="Example2\DBExt\Example2DBExt.cs" />
+    <Compile Include="Example2\DB\ConfigData.cs" />
     <Compile Include="Example2\DB\Example2DB.cs" />
+    <Compile Include="Example2\DB\Example2RpcMaskType.cs" />
     <Compile Include="Example2\DB\UserinfoData.cs" />
     <Compile Include="Example2\Player.cs" />
     <Compile Include="Example2\Scene.cs" />
     <Compile Include="Example2\SceneData.cs" />
     <Compile Include="Example2\Service.cs" />
-    <Compile Include="Example2\SQLiteHelper.cs" />
     <Compile Include="Example3\Player.cs" />
     <Compile Include="Example3\Scene.cs" />
     <Compile Include="Example3\Service.cs" />

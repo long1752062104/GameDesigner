@@ -79,7 +79,7 @@
             }
             threads.Add("SendDataHandle", send);
             threads.Add("SceneUpdateHandle", suh);
-            KeyValuePair<string, Scene> scene = OnAddDefaultScene();
+            var scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
             scene.Value.Name = scene.Key;
             Scenes.TryAdd(scene.Key, scene.Value);

@@ -305,7 +305,7 @@ namespace Net.Adapter
             var entries = RPCS.entries;
             for (int i = 0; i < entries.Length; i++)
             {
-                if (entries[i].hashCode == 0)
+                if (entries[i].hashCode == -1)
                     continue;
                 var rpc = entries[i].value;
                 if (rpc == null)
@@ -327,7 +327,7 @@ namespace Net.Adapter
             var entries = RPCS.entries;
             for (int i = 0; i < entries.Length; i++)
             {
-                if (entries[i].hashCode == 0)
+                if (entries[i].hashCode == -1)
                     continue;
                 var rpc = entries[i].value;
                 if (rpc == null)

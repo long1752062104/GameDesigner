@@ -6,6 +6,7 @@
     using global::System.Reflection;
     using Net.System;
     using Net.Share;
+    using global::Binding;
 
     /// <summary>
     /// 快速序列化2接口--动态匹配
@@ -130,7 +131,10 @@
         {
             foreach (var type in types)
             {
-                AddSerializeType3(type);
+                if (type.IsGenericType)
+                    AddSerializeType(type);
+                else
+                    AddSerializeType3(type);
             }
         }
 
@@ -168,7 +172,7 @@
             ushort hashType = (ushort)Types.Count;
             Types.Add(hashType, type);
             Types1.Add(type, hashType);
-            Types2.Add(type, new TypeBind() { type = bindType, hashCode = hashType } );
+            Types2.Add(type, new TypeBind() { bind = Activator.CreateInstance(bindType), hashCode = hashType } );
         }
 
         private static void AddBaseType3<T>()
@@ -186,7 +190,7 @@
             ushort hashType = (ushort)Types.Count;
             Types.Add(hashType, type);
             Types1.Add(type, hashType);
-            Types2.Add(type, new TypeBind() { type = typeof(BaseBind<T>), hashCode = hashType });
+            Types2.Add(type, new TypeBind() { bind = Activator.CreateInstance(typeof(BaseBind<T>)), hashCode = hashType });
         }
 
         private static void AddBaseArrayType<T>()
@@ -197,7 +201,7 @@
             ushort hashType = (ushort)Types.Count;
             Types.Add(hashType, type);
             Types1.Add(type, hashType);
-            Types2.Add(type, new TypeBind() { type = typeof(BaseArrayBind<T>), hashCode = hashType });
+            Types2.Add(type, new TypeBind() { bind = Activator.CreateInstance(typeof(BaseArrayBind<T>)), hashCode = hashType });
         }
 
         private static void AddBaseListType<T>()
@@ -208,7 +212,7 @@
             ushort hashType = (ushort)Types.Count;
             Types.Add(hashType, type);
             Types1.Add(type, hashType);
-            Types2.Add(type, new TypeBind() { type = typeof(BaseListBind<T>), hashCode = hashType });
+            Types2.Add(type, new TypeBind() { bind = Activator.CreateInstance(typeof(BaseListBind<T>)), hashCode = hashType });
         }
 
         public static void InitBindInterfaces()
@@ -226,6 +230,11 @@
                     BindTypes.Add(itemType, type);
                 }
             }
+        }
+
+        public static void AddSerializeTypeBind()
+        {
+            //BindTypes.Add(itemType, type);
         }
 
         /// <summary>
@@ -306,9 +315,9 @@
             }
         }
 
-        private class TypeBind 
+        private class TypeBind
         {
-            public Type type;
+            public object bind;
             public ushort hashCode;
         }
 
@@ -320,7 +329,7 @@
                 Type type = value.GetType();
                 if(Types2.TryGetValue(type, out TypeBind typeBind))
                 {
-                    var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
+                    var bind = (ISerialize<T>)typeBind.bind;
                     bind.Write(value, stream);
                 }
                 else if (type.IsEnum)
@@ -350,7 +359,7 @@
                 Type type = value.GetType();
                 if (Types2.TryGetValue(type, out TypeBind typeBind))
                 {
-                    var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
+                    var bind = (ISerialize<T>)typeBind.bind;
                     bind.Write(value, stream);
                 }
                 else if (type.IsEnum)
@@ -375,7 +384,7 @@
                 Type type = value.GetType();
                 if (Types2.TryGetValue(type, out TypeBind typeBind))
                 {
-                    var bind = (ISerialize)Activator.CreateInstance(typeBind.type);
+                    var bind = (ISerialize)typeBind.bind;
                     bind.WriteValue(value, stream);
                 }
                 else if (type.IsEnum) 
@@ -403,7 +412,7 @@
             Type type = typeof(T);
             if (Types2.TryGetValue(type, out TypeBind typeBind)) 
             {
-                var bind = (ISerialize<T>)Activator.CreateInstance(typeBind.type);
+                var bind = (ISerialize<T>)typeBind.bind;
                 T value = bind.Read(segment);
                 if (isPush) BufferPool.Push(segment);
                 return value;
@@ -422,7 +431,7 @@
         {
             if (Types2.TryGetValue(type, out TypeBind typeBind))
             {
-                var bind = (ISerialize)Activator.CreateInstance(typeBind.type);
+                var bind = (ISerialize)typeBind.bind;
                 object value = bind.ReadValue(segment);
                 if(isPush) BufferPool.Push(segment);
                 return value;
@@ -481,7 +490,7 @@
                     stream.WriteValue(TypeToIndex(type));
                     if (Types2.TryGetValue(type, out TypeBind typeBind))
                     {
-                        var bind = (ISerialize)Activator.CreateInstance(typeBind.type);
+                        var bind = (ISerialize)typeBind.bind;
                         bind.WriteValue(obj, stream);
                     }
                     else if (type.IsEnum)

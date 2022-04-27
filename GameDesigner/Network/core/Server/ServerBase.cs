@@ -66,11 +66,11 @@ namespace Net.Server
         /// <summary>
         /// 远程函数优化字典
         /// </summary>
-        private readonly Dictionary<string, List<RPCMethod>> RpcsDic = new Dictionary<string, List<RPCMethod>>();
+        private readonly MyDictionary<string, List<RPCMethod>> RpcDic = new MyDictionary<string, List<RPCMethod>>();
         /// <summary>
         /// 远程方法哈希
         /// </summary>
-        private readonly MyDictionary<ushort, List<RPCMethod>> RpcMaskDic = new MyDictionary<ushort, List<RPCMethod>>();
+        private readonly MyDictionary<ushort, List<RPCMethod>> RpcHashDic = new MyDictionary<ushort, List<RPCMethod>>();
         /// <summary>
         /// 所有在线的客户端
         /// </summary>
@@ -836,14 +836,14 @@ namespace Net.Server
                 if (ignoranceNumber >= LineUp)//排队人数
                 {
                     exceededNumber++;
-                    OnExceededNumber(remotePoint);
+                    OnExceededNumber(null, remotePoint);
                     BufferPool.Push(buffer);
                     return;
                 }
                 if (onlineNumber >= OnlineLimit)//服务器最大在线人数
                 {
                     blockConnection++;
-                    OnBlockConnection(remotePoint);
+                    OnBlockConnection(null, remotePoint);
                     BufferPool.Push(buffer);
                     return;
                 }
@@ -1441,7 +1441,7 @@ namespace Net.Server
         /// 当服务器连接人数溢出时调用
         /// </summary>
         /// <param name="remotePoint"></param>
-        protected virtual void OnExceededNumber(EndPoint remotePoint)
+        protected virtual void OnExceededNumber(Player client, EndPoint remotePoint)
         {
             Debug.Log("未知客户端排队爆满,阻止连接次数: " + exceededNumber);
             Server.SendTo(new byte[] { 0, 0x2d, 74, NetCmd.ExceededNumber, 0 }, 0, remotePoint);
@@ -1451,7 +1451,7 @@ namespace Net.Server
         /// 当服务器爆满时调用
         /// </summary>
         /// <param name="remotePoint"></param>
-        protected virtual void OnBlockConnection(EndPoint remotePoint)
+        protected virtual void OnBlockConnection(Player client, EndPoint remotePoint)
         {
             Debug.Log("服务器爆满,阻止连接次数: " + blockConnection);
             Server.SendTo(new byte[] { 0, 0x2d, 74, NetCmd.BlockConnection, 0 }, 0, remotePoint);
@@ -1752,13 +1752,13 @@ namespace Net.Server
             List<RPCMethod> methods;
             if (model.methodHash != 0)
             {
-                if (!RpcMaskDic.TryGetValue(model.methodHash, out methods))
+                if (!RpcHashDic.TryGetValue(model.methodHash, out methods))
                 {
                     Debug.LogWarning($"[{client.RemotePoint}]没有找到:{model}的Rpc方法,请使用server(你的服务器类).AddRpcHandle方法注册!");
                     return;
                 }
             }
-            else if (!RpcsDic.TryGetValue(model.func, out methods))
+            else if (!RpcDic.TryGetValue(model.func, out methods))
             {
                 Debug.LogWarning($"[{client.RemotePoint}]没有找到:{model}的Rpc方法,请使用server(你的服务器类).AddRpcHandle方法注册!");
                 return;
@@ -2727,7 +2727,7 @@ namespace Net.Server
         {
             if (!append)
             {
-                foreach (List<RPCMethod> rpcs in RpcsDic.Values)
+                foreach (List<RPCMethod> rpcs in RpcDic.Values)
                 {
                     foreach (RPCMethod o in rpcs)
                         if (o.target == target)
@@ -2742,12 +2742,12 @@ namespace Net.Server
                     RPCMethod item = new RPCMethod(target, info, rpc.cmd);
                     if (rpc.hash != 0)
                     {
-                        if (!RpcMaskDic.TryGetValue(rpc.hash, out var list))
-                            RpcMaskDic.Add(rpc.hash, list = new List<RPCMethod>());
+                        if (!RpcHashDic.TryGetValue(rpc.hash, out var list))
+                            RpcHashDic.Add(rpc.hash, list = new List<RPCMethod>());
                         list.Add(item);
                     }
-                    if (!RpcsDic.TryGetValue(item.method.Name, out var list1))
-                        RpcsDic.Add(item.method.Name, list1 = new List<RPCMethod>());
+                    if (!RpcDic.TryGetValue(item.method.Name, out var list1))
+                        RpcDic.Add(item.method.Name, list1 = new List<RPCMethod>());
                     list1.Add(item);
                     Rpcs.Add(item);
                 }
@@ -2767,23 +2767,75 @@ namespace Net.Server
 
         protected void RemoveRpcInternal(object target)
         {
-            List<RPCMethod> rpcsList = new List<RPCMethod>();
-            Dictionary<string, List<RPCMethod>> dic = new Dictionary<string, List<RPCMethod>>(RpcsDic);
-            foreach (KeyValuePair<string, List<RPCMethod>> rpcs in dic)
+            if (target is string key)
             {
-                for (int i = 0; i < rpcs.Value.Count; i++)
+                if (RpcDic.ContainsKey(key))
+                    RpcDic.Remove(key);
+                return;
+            }
+            RemoveRpcInternal(RpcDic, target, true);
+            RemoveRpcInternal(RpcHashDic, target, false);
+        }
+
+        private void RemoveRpcInternal<K, List>(MyDictionary<K, List> dic, object target, bool update) where List : List<RPCMethod>
+        {
+            var entries = dic.entries;
+            bool isUpdate = false;
+            for (int i = 0; i < entries.Length; i++)
+            {
+                if (entries[i].hashCode == -1)
+                    continue;
+                var rpcs1 = entries[i].value;
+                if (rpcs1 == null)
+                    continue;
+                for (int n = rpcs1.Count - 1; n >= 0; n--)
                 {
-                    if (rpcs.Value[i].target.Equals(target) | rpcs.Value[i].method.Equals(null))
+                    if (target is Delegate @delegate)
                     {
-                        rpcs.Value.RemoveAt(i);
-                        i--;
+                        if (rpcs1[i].method.Equals(@delegate.Method))
+                        {
+                            rpcs1.RemoveAt(n);
+                            isUpdate = true;
+                        }
+                        continue;
+                    }
+                    if (rpcs1[n].method == null)
+                    {
+                        rpcs1.RemoveAt(n);
+                        isUpdate = true;
+                        continue;
+                    }
+                    if (rpcs1[n].method.IsStatic)
+                        continue;
+                    if (rpcs1[n].target == null)
+                    {
+                        rpcs1.RemoveAt(n);
+                        isUpdate = true;
+                        continue;
+                    }
+                    if (rpcs1[n].target.Equals(null) | rpcs1[n].method.Equals(null))
+                    {
+                        rpcs1.RemoveAt(n);
+                        isUpdate = true;
+                        continue;
+                    }
+                    if (rpcs1[n].target.Equals(target))
+                    {
+                        rpcs1.RemoveAt(n);
+                        isUpdate = true;
                     }
                 }
-                if (rpcs.Value.Count <= 0)
-                    RpcsDic.Remove(rpcs.Key);
-                else
-                    rpcsList.AddRange(rpcs.Value);
             }
+            if (update & isUpdate)
+                UpdateRpcs();
+        }
+
+        private void UpdateRpcs()
+        {
+            var rpcsList = new List<RPCMethod>();
+            var dic = new Dictionary<string, List<RPCMethod>>(RpcDic);
+            foreach (var rpcs in dic)
+                rpcsList.AddRange(rpcs.Value);
             Rpcs = rpcsList;
         }
 

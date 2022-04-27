@@ -3,7 +3,7 @@ using System.Data;
 
 /// <summary>
 /// 此类由MySqlDataBuild工具生成, 请不要在此类编辑代码! 请定义一个扩展类进行处理
-/// MySqlDataBuild工具提供Rpc自动同步到SQLite数据库的功能, 提供数据库注释功能
+/// MySqlDataBuild工具提供Rpc自动同步到mysql数据库的功能, 提供数据库注释功能
 /// MySqlDataBuild工具gitee地址:https://gitee.com/leng_yue/my-sql-data-build
 /// </summary>
 public partial class UserinfoData
@@ -23,22 +23,57 @@ public System.Int64 Id
             return;
         id = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "id", value = value, index = 0, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "id", value = value, Row = Row });
 #elif CLIENT
         IdCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Int64 SyncId
+{
+    get { return id; }
+    set
+    {
+        if (id == value)
+            return;
+        id = value;
+        IdCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Int64 SyncIDId
+{
+    get { return id; }
+    set
+    {
+        if (id == value)
+            return;
+        id = value;
+        SyncIdCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void IdCall()
 {
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 1, id);
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.ID1, id);
 }
 
-[Net.Share.Rpc(mask = 1)]
+public void SyncIdCall()
+{
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.ID1, (int)id, id);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.ID1)]
 private void IdCall(System.Int64 value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     Id = value;
@@ -58,24 +93,69 @@ public System.String Account
     {
         if (account == value)
             return;
+        if (value == null)
+            value = string.Empty;
         account = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "account", value = value, index = 1, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "account", value = value, Row = Row });
 #elif CLIENT
         AccountCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.String SyncAccount
+{
+    get { return account; }
+    set
+    {
+        if (account == value)
+            return;
+        if (value == null)
+            value = string.Empty;
+        account = value;
+        AccountCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.String SyncIDAccount
+{
+    get { return account; }
+    set
+    {
+        if (account == value)
+            return;
+        if (value == null)
+            value = string.Empty;
+        account = value;
+        SyncAccountCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void AccountCall()
 {
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 2, account);
+    if (account == null)
+        account = string.Empty;
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.ACCOUNT, account);
 }
 
-[Net.Share.Rpc(mask = 2)]
+public void SyncAccountCall()
+{
+    if (account == null)
+        account = string.Empty;
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.ACCOUNT, (int)id, account);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.ACCOUNT)]
 private void AccountCall(System.String value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     Account = value;
@@ -95,24 +175,69 @@ public System.String Password
     {
         if (password == value)
             return;
+        if (value == null)
+            value = string.Empty;
         password = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "password", value = value, index = 2, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "password", value = value, Row = Row });
 #elif CLIENT
         PasswordCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.String SyncPassword
+{
+    get { return password; }
+    set
+    {
+        if (password == value)
+            return;
+        if (value == null)
+            value = string.Empty;
+        password = value;
+        PasswordCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.String SyncIDPassword
+{
+    get { return password; }
+    set
+    {
+        if (password == value)
+            return;
+        if (value == null)
+            value = string.Empty;
+        password = value;
+        SyncPasswordCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void PasswordCall()
 {
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 3, password);
+    if (password == null)
+        password = string.Empty;
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.PASSWORD, password);
 }
 
-[Net.Share.Rpc(mask = 3)]
+public void SyncPasswordCall()
+{
+    if (password == null)
+        password = string.Empty;
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.PASSWORD, (int)id, password);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.PASSWORD)]
 private void PasswordCall(System.String value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     Password = value;
@@ -134,22 +259,57 @@ public System.Double MoveSpeed
             return;
         moveSpeed = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "moveSpeed", value = value, index = 3, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "moveSpeed", value = value, Row = Row });
 #elif CLIENT
         MoveSpeedCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Double SyncMoveSpeed
+{
+    get { return moveSpeed; }
+    set
+    {
+        if (moveSpeed == value)
+            return;
+        moveSpeed = value;
+        MoveSpeedCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Double SyncIDMoveSpeed
+{
+    get { return moveSpeed; }
+    set
+    {
+        if (moveSpeed == value)
+            return;
+        moveSpeed = value;
+        SyncMoveSpeedCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void MoveSpeedCall()
 {
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 4, moveSpeed);
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.MOVESPEED, moveSpeed);
 }
 
-[Net.Share.Rpc(mask = 4)]
+public void SyncMoveSpeedCall()
+{
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.MOVESPEED, (int)id, moveSpeed);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.MOVESPEED)]
 private void MoveSpeedCall(System.Double value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     MoveSpeed = value;
@@ -169,24 +329,69 @@ public System.String Position
     {
         if (position == value)
             return;
+        if (value == null)
+            value = string.Empty;
         position = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "position", value = value, index = 4, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "position", value = value, Row = Row });
 #elif CLIENT
         PositionCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.String SyncPosition
+{
+    get { return position; }
+    set
+    {
+        if (position == value)
+            return;
+        if (value == null)
+            value = string.Empty;
+        position = value;
+        PositionCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.String SyncIDPosition
+{
+    get { return position; }
+    set
+    {
+        if (position == value)
+            return;
+        if (value == null)
+            value = string.Empty;
+        position = value;
+        SyncPositionCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void PositionCall()
 {
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 5, position);
+    if (position == null)
+        position = string.Empty;
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.POSITION, position);
 }
 
-[Net.Share.Rpc(mask = 5)]
+public void SyncPositionCall()
+{
+    if (position == null)
+        position = string.Empty;
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.POSITION, (int)id, position);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.POSITION)]
 private void PositionCall(System.String value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     Position = value;
@@ -206,24 +411,69 @@ public System.String Rotation
     {
         if (rotation == value)
             return;
+        if (value == null)
+            value = string.Empty;
         rotation = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "rotation", value = value, index = 5, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "rotation", value = value, Row = Row });
 #elif CLIENT
         RotationCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.String SyncRotation
+{
+    get { return rotation; }
+    set
+    {
+        if (rotation == value)
+            return;
+        if (value == null)
+            value = string.Empty;
+        rotation = value;
+        RotationCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.String SyncIDRotation
+{
+    get { return rotation; }
+    set
+    {
+        if (rotation == value)
+            return;
+        if (value == null)
+            value = string.Empty;
+        rotation = value;
+        SyncRotationCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void RotationCall()
 {
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 6, rotation);
+    if (rotation == null)
+        rotation = string.Empty;
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.ROTATION, rotation);
 }
 
-[Net.Share.Rpc(mask = 6)]
+public void SyncRotationCall()
+{
+    if (rotation == null)
+        rotation = string.Empty;
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.ROTATION, (int)id, rotation);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.ROTATION)]
 private void RotationCall(System.String value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     Rotation = value;
@@ -245,22 +495,57 @@ public System.Int64 Health
             return;
         health = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "health", value = value, index = 6, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "health", value = value, Row = Row });
 #elif CLIENT
         HealthCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Int64 SyncHealth
+{
+    get { return health; }
+    set
+    {
+        if (health == value)
+            return;
+        health = value;
+        HealthCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Int64 SyncIDHealth
+{
+    get { return health; }
+    set
+    {
+        if (health == value)
+            return;
+        health = value;
+        SyncHealthCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void HealthCall()
 {
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 7, health);
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.HEALTH, health);
 }
 
-[Net.Share.Rpc(mask = 7)]
+public void SyncHealthCall()
+{
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.HEALTH, (int)id, health);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.HEALTH)]
 private void HealthCall(System.Int64 value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     Health = value;
@@ -282,22 +567,57 @@ public System.Int64 HealthMax
             return;
         healthMax = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "healthMax", value = value, index = 7, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "healthMax", value = value, Row = Row });
 #elif CLIENT
         HealthMaxCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Int64 SyncHealthMax
+{
+    get { return healthMax; }
+    set
+    {
+        if (healthMax == value)
+            return;
+        healthMax = value;
+        HealthMaxCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Int64 SyncIDHealthMax
+{
+    get { return healthMax; }
+    set
+    {
+        if (healthMax == value)
+            return;
+        healthMax = value;
+        SyncHealthMaxCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void HealthMaxCall()
 {
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 8, healthMax);
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.HEALTHMAX, healthMax);
 }
 
-[Net.Share.Rpc(mask = 8)]
+public void SyncHealthMaxCall()
+{
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.HEALTHMAX, (int)id, healthMax);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.HEALTHMAX)]
 private void HealthMaxCall(System.Int64 value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     HealthMax = value;
@@ -322,23 +642,59 @@ public System.Byte[] BufferBytes
             return;
         buffer = value;
 #if SERVER
-        Example2DB.I.Update(new DBEntity() { table = "Userinfo", idName = "id", id = (int)id, name = "buffer", value = value, index = 8, row = Row });
+        Example2DB.I.Update(new DataRowEntity() { state = DataRowState.Modified, key = "buffer", value = value, Row = Row });
 #elif CLIENT
         BufferBytesCall();
 #endif
     }
 }
 
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Byte[] SyncBufferBytes
+{
+    get { return buffer; }
+    set
+    {
+        if (buffer == value)
+            return;
+        buffer = value;
+        BufferBytesCall();
+    }
+}
+
+[Net.Serialize.NonSerialized]
+[Newtonsoft_X.Json.JsonIgnore]
+[ProtoBuf.ProtoIgnore]
+public System.Byte[] SyncIDBufferBytes
+{
+    get { return buffer; }
+    set
+    {
+        if (buffer == value)
+            return;
+        buffer = value;
+        SyncBufferBytesCall();
+    }
+}
+
 /// <summary>
-/// 同步变量到SQLite数据库
+/// 同步变量到MySql数据库
 /// </summary>
 public void BufferBytesCall()
 {
     object array = buffer;
-    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, 9, array);
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.BUFFER, array);
 }
 
-[Net.Share.Rpc(mask = 9)]
+public void SyncBufferBytesCall()
+{
+    object array = new object[]{ (int)id, buffer };
+    Net.Client.ClientBase.Instance.SendRT(Net.Share.NetCmd.EntityRpc, (ushort)Example2RpcMaskType.BUFFER, array);
+}
+
+[Net.Share.Rpc(hash = (ushort)Example2RpcMaskType.BUFFER)]
 private void BufferBytesCall(System.Byte[] value)//重写NetPlayer的OnStart方法来处理客户端自动同步到服务器数据库, 方法内部添加AddRpc(data(UserinfoData));收集Rpc
 {
     BufferBytes = value;
@@ -349,6 +705,21 @@ private void BufferBytesCall(System.Byte[] value)//重写NetPlayer的OnStart方�
 [Newtonsoft_X.Json.JsonIgnore]
 [ProtoBuf.ProtoIgnore]
 public Action OnBufferBytes;
+
+public UserinfoData(params object[] parms)
+{
+    if (parms == null)
+        return;
+    if (parms.Length == 0)
+        return;
+    var row = Example2DB.I.AddUserinfoNewRow(parms);
+    Init(row);
+}
+
+public void Delete()
+{
+    Example2DB.I.UserinfoTable.DeleteRow(Row);
+}
 
 public void Init(DataRow row)
 {
@@ -372,4 +743,28 @@ public void Init(DataRow row)
     if (row[8] is System.Byte[] buffer)
         this.buffer = buffer;
 }
+#if SERVER
+public void Update()
+{
+    Example2DB.I.Update(new DataRowEntity(DataRowState.Modified, "account", account, Row));
+    Example2DB.I.Update(new DataRowEntity(DataRowState.Modified, "password", password, Row));
+    Example2DB.I.Update(new DataRowEntity(DataRowState.Modified, "moveSpeed", moveSpeed, Row));
+    Example2DB.I.Update(new DataRowEntity(DataRowState.Modified, "position", position, Row));
+    Example2DB.I.Update(new DataRowEntity(DataRowState.Modified, "rotation", rotation, Row));
+    Example2DB.I.Update(new DataRowEntity(DataRowState.Modified, "health", health, Row));
+    Example2DB.I.Update(new DataRowEntity(DataRowState.Modified, "healthMax", healthMax, Row));
+    Example2DB.I.Update(new DataRowEntity(DataRowState.Modified, "buffer", buffer, Row));
+}
+public void UpdateDataRow()
+{
+    Row[1] = account;
+    Row[2] = password;
+    Row[3] = moveSpeed;
+    Row[4] = position;
+    Row[5] = rotation;
+    Row[6] = health;
+    Row[7] = healthMax;
+    Row[8] = buffer;
+}
+#endif
 }

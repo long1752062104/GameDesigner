@@ -19,6 +19,10 @@ public class Fast2BuildTools2 : EditorWindow
     private string savePath, savePath1;
     private bool serField = true;
     private bool serProperty = true;
+    private string typeEntry;
+    private string typeEntry1;
+    private string methodEntry;
+    private string methodEntry1;
 
     [MenuItem("GameDesigner/Network/Fast2BuildTool-2")]
     static void ShowWindow()
@@ -151,6 +155,20 @@ public class Fast2BuildTools2 : EditorWindow
         serField = EditorGUILayout.Toggle("序列化字段:", serField);
         serProperty = EditorGUILayout.Toggle("序列化属性:", serProperty);
         GUILayout.BeginHorizontal();
+        typeEntry = EditorGUILayout.TextField("收集类名:", typeEntry);
+        methodEntry = EditorGUILayout.TextField("收集方法:", methodEntry);
+        if (typeEntry != typeEntry1)
+        {
+            typeEntry1 = typeEntry;
+            SaveData();
+        }
+        if (methodEntry != methodEntry1)
+        {
+            methodEntry1 = methodEntry;
+            SaveData();
+        }
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("保存路径:", savePath);
         if (GUILayout.Button("选择路径", GUILayout.Width(100)))
         {
@@ -192,6 +210,33 @@ public class Fast2BuildTools2 : EditorWindow
                     Fast2BuildMethod.BuildGeneric(type, true, savePath1);
                 }
                 types.Add(type);
+            }
+            if (!string.IsNullOrEmpty(typeEntry)) 
+            {
+                var types1 = (Type[])Net.Serialize.NetConvertOld.GetType(typeEntry).GetMethod(methodEntry).Invoke(null, null);
+                foreach (var type in types1)
+                {
+                    if (type.IsGenericType)
+                    {
+                        var args = type.GenericTypeArguments;
+                        var text = Fast2BuildMethod.BuildDictionary(type);
+                        var className1 = $"Dictionary_{args[0].FullName.Replace(".", "").Replace("+", "")}_{args[1].FullName.Replace(".", "").Replace("+", "")}_Bind";
+                        File.WriteAllText(savePath + $"//{className1}.cs", text);
+                    }
+                    else 
+                    {
+                        Fast2BuildMethod.Build(type, true, savePath, serField, serProperty, new List<string>());
+                        Fast2BuildMethod.BuildArray(type, true, savePath);
+                        Fast2BuildMethod.BuildGeneric(type, true, savePath);
+                        if (!string.IsNullOrEmpty(savePath1))
+                        {
+                            Fast2BuildMethod.Build(type, true, savePath1, serField, serProperty, new List<string>());
+                            Fast2BuildMethod.BuildArray(type, true, savePath1);
+                            Fast2BuildMethod.BuildGeneric(type, true, savePath1);
+                        }
+                    }
+                    types.Add(type);
+                }
             }
             Fast2BuildMethod.BuildBindingType(types, savePath);
             Debug.Log("生成完成.");
@@ -264,6 +309,8 @@ public class Fast2BuildTools2 : EditorWindow
             typeNames = data.typeNames;
             savePath = data.savepath; 
             savePath1 = data.savepath1;
+            typeEntry = data.typeEntry;
+            methodEntry = data.methodEntry;
         }
     }
 
@@ -273,6 +320,8 @@ public class Fast2BuildTools2 : EditorWindow
             typeNames = typeNames,
             savepath = savePath,
             savepath1 = savePath1,
+            typeEntry = typeEntry,
+            methodEntry = methodEntry,
         };
         var jsonstr = Newtonsoft_X.Json.JsonConvert.SerializeObject(data);
         var path = Application.dataPath.Replace("Assets", "") + "data2.txt";
@@ -302,6 +351,8 @@ public class Fast2BuildTools2 : EditorWindow
     {
         public string savepath, savepath1;
         public List<FoldoutData> typeNames;
+        public string typeEntry;
+        public string methodEntry;
     }
 }
 #endif

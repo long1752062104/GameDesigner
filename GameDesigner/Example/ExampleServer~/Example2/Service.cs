@@ -105,14 +105,24 @@
                     SendRT(unClient, "RegisterCallback", "账号已经存在!");
                     return;
                 }
-                data = new UserinfoData();
-                int id = Example2DB.I.UserinfoTable.Rows.Count + 1;
-                object buffer = new byte[] { 1,2,3, (byte)id };
-                data.Row = Example2DB.I.AddUserinfoNewRow(id, acc, pwd, null, null, null, 100, 100, buffer);
-                data.Init(data.Row);
+                int id = GetConfigID(1);//请使用Navicat可视化工具或SQLite可视化工具查看config表
+                data = new UserinfoData(id, acc, pwd, null, null, null, 100, 100);
                 Example2DB.I.UserinfoDatas.TryAdd(acc, data);
                 SendRT(unClient, "RegisterCallback", "注册成功！");
             });
+        }
+
+        /// <summary>
+        /// 解决表的唯一id碰撞问题
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal int GetConfigID(int id)
+        {
+            lock(this)
+            {
+                return (int)Example2DB.I.Configs[id].Number++;
+            }
         }
 
         /// <summary>

@@ -3,26 +3,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Data.SQLite;
 using Net.Event;
-using Net.System;
-
-public class ContextCall
-{
-    private readonly Action<object> ptr;
-    private readonly object obj;
-    public ContextCall(Action<object> ptr, object obj = null)
-    {
-        this.ptr = ptr;
-        this.obj = obj;
-    }
-    internal void Invoke()
-    {
-        ptr(obj);
-    }
-}
 
 /// <summary>
 /// Example2DB数据库管理类
@@ -32,161 +17,350 @@ public class ContextCall
 /// </summary>
 public partial class Example2DB
 {
-     private class ID
-     {
-         internal string name;
-         internal Dictionary<string, object> dic = new Dictionary<string, object>();
-         public ID(string name)
-         {
-             this.name = name;
-         }
-     }
 	public static Example2DB I { get; private set; } = new Example2DB();
-private readonly ConcurrentQueue<DBEntity> entityStack = new ConcurrentQueue<DBEntity>();
-private readonly ConcurrentQueue<ContextCall> context = new ConcurrentQueue<ContextCall>();
-private Dictionary<string, Dictionary<int, ID>> dataTable = new Dictionary<string, Dictionary<int, ID>>();
-private ListSafe<DataRow> dataRows = new ListSafe<DataRow>();
-public DataTable UserinfoTable;
+private readonly ConcurrentQueue<Action> context = new ConcurrentQueue<Action>();
+private readonly ConcurrentQueue<DataRowEntity> dataRows = new ConcurrentQueue<DataRowEntity>();
+private readonly Dictionary<DataRow, DataRowEntity> dataTable = new Dictionary<DataRow, DataRowEntity>();
+public DataTableEntity ConfigTable;
+public DataTableEntity UserinfoTable;
+     private static readonly Stack<SQLiteConnection> conns = new Stack<SQLiteConnection>();
+     public static string connStr = @"Data Source='D:\TestProject\Assets\GameDesigner\Example\ExampleServer~\bin\Debug\Data\example2.db'";
 
-public void Init(Action<object> onInit)
-{
-    UserinfoTable = SQLiteHelper.ExecuteQuery($"SELECT * FROM userinfo");
+     private static SQLiteConnection CheckConn(SQLiteConnection conn)
+     {
+         if (conn == null)
+         {
+             conn = new SQLiteConnection(connStr); //数据库连接
+             conn.Open();
+         }
+         if (conn.State != ConnectionState.Open)
+         {
+             conn.Close();
+             conn = new SQLiteConnection(connStr); //数据库连接
+             conn.Open();
+         }
+         return conn;
+     }
+
+     public void Init(Action<List<object>> onInit, int connLen = 5)
+     {
+         while (conns.Count > 0)
+         {
+             var conn = conns.Pop();
+             conn.Close();
+         }
+         for (int i = 0; i < connLen; i++)
+         {
+              conns.Push(CheckConn(null));
+         }
+         List<object> list = new List<object>();
+    ConfigTable = ExecuteQuery($"SELECT * FROM config");
+    ConfigTable.ColumnChanged += (o, e) =>
+     {
+         var entity = new DataRowEntity();
+         entity.Row = e.Row;
+         entity.state = DataRowState.Modified;
+         entity.key = e.Column.ColumnName;
+         entity.value = e.ProposedValue;
+         dataRows.Enqueue(entity);
+     };
+    ConfigTable.RowDeleting += (o, e) =>
+     {
+         var entity = new DataRowEntity();
+         var primaryKey = e.Row.Table.PrimaryKey[0].ColumnName;
+         entity.Row = e.Row;
+         entity.state = DataRowState.Deleted;
+         entity.key = primaryKey;
+         entity.value = e.Row[primaryKey];
+         dataRows.Enqueue(entity);
+     };
+    ConfigTable.TableNewRow += (o, e) =>
+     {
+         dataRows.Enqueue(new DataRowEntity(DataRowState.Added, e.Row));
+     };
+    foreach (DataRow row in ConfigTable.Rows)
+    {
+        ConfigData data = new ConfigData();
+        data.Init(row);
+        list.Add(data);
+    }
+    UserinfoTable = ExecuteQuery($"SELECT * FROM userinfo");
+    UserinfoTable.ColumnChanged += (o, e) =>
+     {
+         var entity = new DataRowEntity();
+         entity.Row = e.Row;
+         entity.state = DataRowState.Modified;
+         entity.key = e.Column.ColumnName;
+         entity.value = e.ProposedValue;
+         dataRows.Enqueue(entity);
+     };
+    UserinfoTable.RowDeleting += (o, e) =>
+     {
+         var entity = new DataRowEntity();
+         var primaryKey = e.Row.Table.PrimaryKey[0].ColumnName;
+         entity.Row = e.Row;
+         entity.state = DataRowState.Deleted;
+         entity.key = primaryKey;
+         entity.value = e.Row[primaryKey];
+         dataRows.Enqueue(entity);
+     };
+    UserinfoTable.TableNewRow += (o, e) =>
+     {
+         dataRows.Enqueue(new DataRowEntity(DataRowState.Added, e.Row));
+     };
     foreach (DataRow row in UserinfoTable.Rows)
     {
         UserinfoData data = new UserinfoData();
         data.Init(row);
-        onInit?.Invoke(data);
+        list.Add(data);
     }
-}
+         onInit?.Invoke(list);
+     }
 
-public void Update(DBEntity dBEntity)//更新的行,列
-{
-    entityStack.Enqueue(dBEntity);
-}
+     public static DataTableEntity ExecuteQuery(string cmdText)
+     {
+         while (conns.Count == 0)
+         {
+             Thread.Sleep(1);
+         }
+         var conn = CheckConn(conns.Pop());
+         var dt = new DataTableEntity();
+         try
+         {
+             using (var cmd = new SQLiteCommand())
+             {
+                 cmd.CommandText = cmdText;
+                 cmd.Connection = conn;
+                 cmd.Parameters.Clear();
+                 using (var sdr = cmd.ExecuteReader())
+                 {
+                     dt.Load(sdr);
+                 }
+             }
+         }
+         catch (Exception ex)
+         {
+             NDebug.LogError(cmdText + " 错误: " + ex);
+         }
+         finally
+         {
+             conns.Push(conn);
+         }
+         return dt;
+     }
 
-public void Invoke(ContextCall call)//在同一线程调用, 避免多线程调用问题
+     public static async Task<int> ExecuteNonQuery(string cmdText, List<SQLiteParameter> parameters)
+     {
+         while (conns.Count == 0)
+         {
+             Thread.Sleep(1);
+         }
+         var conn = CheckConn(conns.Pop());
+         var pars = parameters.ToArray();
+         return await Task.Run(() =>
+         {
+             var count = ExecuteNonQuery(conn, cmdText, pars);
+             conns.Push(conn);
+             return count;
+         });
+     }
+
+     public static void ExecuteNonQuery(string cmdText, List<SQLiteParameter> parameters, Action<int> onComplete)
+     {
+         while (conns.Count == 0)
+         {
+             Thread.Sleep(1);
+         }
+         var conn = CheckConn(conns.Pop());
+         var pars = parameters.ToArray();
+         Task.Run(() =>
+         {
+             var count = ExecuteNonQuery(conn, cmdText, pars);
+             conns.Push(conn);
+             onComplete(count);
+         });
+     }
+
+     private static int ExecuteNonQuery(SQLiteConnection conn, string cmdText, SQLiteParameter[] parameters)
+     {
+         var transaction = conn.BeginTransaction();
+         try
+         {
+             using (SQLiteCommand cmd = new SQLiteCommand())
+             {
+                 cmd.Transaction = transaction;
+                 cmd.CommandText = cmdText;
+                 cmd.Connection = conn;
+                 cmd.Parameters.AddRange(parameters);
+                 int res = cmd.ExecuteNonQuery();
+                 transaction.Commit();
+                 return res;
+             }
+         }
+         catch (Exception ex)
+         {
+             transaction.Rollback();
+             NDebug.LogError(cmdText + " 错误: " + ex);
+         }
+         return -1;
+     }
+
+public void Update(DataRowEntity entity)//更新的行,列
 {
-    context.Enqueue(call);
+    dataRows.Enqueue(entity);
 }
 
 public void Invoke(Action call)//在同一线程调用, 避免多线程调用问题
 {
-    context.Enqueue(new ContextCall((obj=> { call(); })));
+    context.Enqueue(call);
 }
 
-public void ExecutedContext()//单线程每次轮询调用, 需要自己调用此方法
+public bool ExecutedContext()//单线程每次轮询调用, 需要自己调用此方法
 {
-    while (context.TryDequeue(out ContextCall contextCall))
-    {
+    while (context.TryDequeue(out var contextCall))
         contextCall.Invoke();
-    }
+    return true;
 }
 
-public void Executed()//每秒调用一次, 需要自己调用此方法
+public bool Executed()//每秒调用一次, 需要自己调用此方法
 {
-    while (entityStack.TryDequeue(out DBEntity entity))
+    dataTable.Clear();
+    while (dataRows.TryDequeue(out var e))
     {
-        UpdateInternal(entity);
+        switch (e.state)
+        {
+            case DataRowState.Added:
+                {
+                    dataTable[e.Row] = e;
+                }
+                break;
+            case DataRowState.Deleted:
+                {
+                    if (!dataTable.TryGetValue(e.Row, out var entity))
+                        dataTable.Add(e.Row, entity = e);
+                    entity.state = DataRowState.Deleted;
+                    entity.key = e.key;
+                    entity.value = e.value;
+                }
+                break;
+            case DataRowState.Modified:
+                {
+                    if (e.state == DataRowState.Detached | e.state == DataRowState.Deleted | e.Row == null) continue;
+                    if (!dataTable.TryGetValue(e.Row, out var entity))
+                        dataTable.Add(e.Row, entity = e);
+                    entity.columns[e.key] = e.value;
+                }
+                break;
+        }
     }
-        UpdateInternal();
+    UpdateInternal();
+    return true;
 }
 
-private void UpdateInternal(DBEntity entity)//被更改的行,列
-{
-    try
-    {
-        if (entity.row == null)
-            return;
-        if (entity.value == null)
-            return;
-        if (!dataTable.TryGetValue(entity.table, out var dic))
-            dataTable.Add(entity.table, dic = new Dictionary<int, ID>());
-        if (!dic.TryGetValue(entity.id, out var id))
-            dic.Add(entity.id, id = new ID(entity.idName));
-        id.dic[entity.name] = entity.value;
-    }
-    catch (Exception ex)
-    {
-       NDebug.LogError($"{ entity.table}更新异常:第{entity.index}列赋值有问题:{entity.value} 详细信息: " + ex);
-    }
-}
-
-private void UpdateInternal()//往SQLite数据库批量更新
+private void UpdateInternal()//往mysql数据库批量更新
 {
    try
    {
      StringBuilder sb = new StringBuilder();
      var parms = new List<SQLiteParameter>();
-     int count = 0;
-     if (dataRows.Count > 0)
+     int count = 0, parmsLen = 0;
+     foreach (var item in dataTable)
      {
-         var dataRows1 = dataRows.GetRemoveRange(0, dataRows.Count);
-         if (dataRows1 == null)
-             return;
-         foreach (DataRow row in dataRows1)
+         var row = item.Key;
+         switch (item.Value.state)
          {
-             string cmdText = $"INSERT INTO {row.Table.TableName} (";
-             for (int i = 0; i < row.Table.Columns.Count; i++)
-             {
-                 if (row[i] == null | row[i] == DBNull.Value)
-                     continue;
-                 cmdText += row.Table.Columns[i].ColumnName + ",";
-             }
-             cmdText = cmdText.TrimEnd(',');
-             cmdText += ") VALUES(";
-             for (int i = 0; i < row.Table.Columns.Count; i++)
-             {
-                 if (row[i] == null | row[i] == DBNull.Value)
-                     continue;
-                 if (row[i] is string)
-                     cmdText += $"'{row[i]}',";
-                 else if (row[i] is byte[])
+             case DataRowState.Added:
                  {
-                     cmdText += $"@buffer{count},";
-                     parms.Add(new SQLiteParameter($"@buffer{count}", row[i]));
+                     string cmdText = $"INSERT INTO {row.Table.TableName} (";
+                     for (int i = 0; i < row.Table.Columns.Count; i++)
+                     {
+                         if (row[i] == null | row[i] == DBNull.Value)
+                             continue;
+                         cmdText += $"`{row.Table.Columns[i].ColumnName}`,";
+                     }
+                     cmdText = cmdText.TrimEnd(',');
+                     cmdText += ") VALUES(";
+                     for (int i = 0; i < row.Table.Columns.Count; i++)
+                     {
+                         if (row[i] == null | row[i] == DBNull.Value)
+                             continue;
+                         if (row[i] is string | row[i] is DateTime)
+                             cmdText += $"'{row[i]}',";
+                         else if (row[i] is byte[] buffer)
+                         {
+                             cmdText += $"@buffer{count},";
+                             parms.Add(new SQLiteParameter($"@buffer{count}", buffer));
+                             parmsLen += buffer.Length;
+                             count++;
+                         }
+                         else
+                             cmdText += $"{row[i]},";
+                     }
+                     cmdText = cmdText.TrimEnd(',');
+                     cmdText += ");";
+                     sb.Append(cmdText);
+                     count++;
+                     row.AcceptChanges();
                  }
-                 else
-                     cmdText += $"{row[i]},";
-             }
-             cmdText = cmdText.TrimEnd(',');
-             cmdText += "); ";
-             sb.Append(cmdText);
-             count++;
+                 break;
+             case DataRowState.Deleted:
+                 {
+                     string cmdText = $"DELETE FROM {item.Key.Table.TableName} WHERE `{item.Value.key}` = ";
+                     if (item.Value.value is string | item.Value.value is DateTime)
+                         cmdText += $"'{item.Value.value}';";
+                     else
+                         cmdText += $"{item.Value.value};";
+                     sb.Append(cmdText);
+                 }
+                 break;
+             case DataRowState.Modified:
+                 {
+                     if (row.RowState == DataRowState.Detached | row.RowState == DataRowState.Deleted) continue;
+                     var prikey = item.Key.Table.PrimaryKey[0];
+                     var key = prikey.ColumnName;
+                     var value = row[prikey.Ordinal];
+                     string cmdText = $"UPDATE {row.Table.TableName} SET ";
+                     foreach (var cell in item.Value.columns)
+                     {
+                         if (cell.Value is string | cell.Value is DateTime)
+                             cmdText += $"`{cell.Key}`='{cell.Value}',";
+                         else if (cell.Value is byte[] buffer)
+                         {
+                             cmdText += $"`{cell.Key}`=@buffer{count},";
+                             parms.Add(new SQLiteParameter($"@buffer{count}", buffer));
+                             parmsLen += buffer.Length;
+                             count++;
+                         }
+                         else
+                             cmdText += $"`{cell.Key}`={cell.Value},";
+                     }
+                     cmdText = cmdText.TrimEnd(',');
+                     cmdText += $" WHERE `{key}`={value}; ";
+                     sb.Append(cmdText);
+                     count++;
+                     row.AcceptChanges();
+                 }
+                 break;
          }
-     }
-     foreach (var table1 in dataTable)
-     {
-         foreach (var id in table1.Value)
+         if (sb.Length + parmsLen >= 2000000)
          {
-             string cmdText = $"UPDATE {table1.Key} SET ";
-             foreach (var cell in id.Value.dic)
+             ExecuteNonQuery(sb.ToString(), parms, (count1) =>
              {
-                 if (cell.Value is string)
-                     cmdText += $"{cell.Key}='{cell.Value}',";
-                 else if (cell.Value is byte[])
-                 {
-                     cmdText += $"{cell.Key}=@buffer{count},";
-                     parms.Add(new SQLiteParameter($"@buffer{count}", cell.Value));
-                 }
-                 else
-                     cmdText += $"{cell.Key}={cell.Value},";
-             }
-             cmdText = cmdText.TrimEnd(',');
-             cmdText += $" WHERE {id.Value.name}={id.Key};";
-             sb.Append(cmdText);
-             count++;
+                 NDebug.Log("sql批量处理完成:" + count1);
+             });
+             sb.Clear();
+             parms.Clear();
+             count = 0;
+             parmsLen = 0;
          }
      }
      if (sb.Length > 0)
      {
-         if (count > 1000)
+         ExecuteNonQuery(sb.ToString(), parms, (count1) =>
          {
-             Stopwatch stopwatch = Stopwatch.StartNew();
-             SQLiteHelper.ExecuteNonQuery(sb.ToString(), parms);
-             stopwatch.Stop();
-             NDebug.Log($"执行:{count}个账号更新,耗时:{stopwatch.Elapsed}");
-         }
-         else SQLiteHelper.ExecuteNonQuery(sb.ToString(), parms);
+             if (count1 > 2000)
+                 NDebug.Log("sql批量处理完成: " + count1);
+         });
      }
   }
   catch (Exception ex)
@@ -194,10 +368,14 @@ private void UpdateInternal()//往SQLite数据库批量更新
       NDebug.LogError("SQL异常: " + ex);
    }
  }
+   public DataRow AddConfigNewRow(params object[] parms)
+   {
+       var row = ConfigTable.AddRow(parms);
+       return row;
+   }
    public DataRow AddUserinfoNewRow(params object[] parms)
    {
-       var row = UserinfoTable.Rows.Add(parms);
-       dataRows.Add(row);
+       var row = UserinfoTable.AddRow(parms);
        return row;
    }
 }

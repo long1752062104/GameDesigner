@@ -89,12 +89,12 @@ public static class Fast2BuildMethod
 
     public static void Build(Type type, bool addNs, string savePath, bool serField, bool serProperty, List<string> ignores)
     {
-        var str = Build(type, addNs, serField, serProperty, ignores);
+        var str = Build(type, addNs, serField, serProperty, ignores, savePath);
         var className = type.FullName.Replace(".", "").Replace("+", "");
         File.WriteAllText(savePath + $"//{className}Bind.cs", str.ToString());
     }
 
-    public static StringBuilder Build(Type type, bool addNs, bool serField, bool serProperty, List<string> ignores)
+    public static StringBuilder Build(Type type, bool addNs, bool serField, bool serProperty, List<string> ignores, string savePath = null)
     {
         StringBuilder str = new StringBuilder();
         bool hasns = !string.IsNullOrEmpty(type.Namespace) | addNs;
@@ -248,7 +248,7 @@ public static class Fast2BuildMethod
             }
             else if (members[i].IsGenericType)
             {
-                if (members[i].ItemType1 == null)
+                if (members[i].ItemType1 == null)//List<T>
                 {
                     typecode = Type.GetTypeCode(members[i].ItemType);
                     if (typecode != TypeCode.Object)
@@ -273,15 +273,40 @@ public static class Fast2BuildMethod
                         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
                     }
                 }
-                else 
+                else //Dic
                 {
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
-                    var local = $"Dictionary_{members[i].ItemType.Name}_{members[i].ItemType1.Name.Replace("`", "")}__Bind";
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();//请定义这个字典结构类来实现字典序列化");
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value.{members[i].Name}, stream);");
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+                    typecode = Type.GetTypeCode(members[i].ItemType);
+                    if (typecode != TypeCode.Object)
+                    {
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                        string bind;
+                        if(members[i].ItemType1.IsArray)
+                            bind = members[i].ItemType1.FullName.Replace(".", "").Replace("+", "") + "ArrayBind";
+                        else if(members[i].ItemType1.IsGenericType)
+                            bind = members[i].ItemType1.FullName.Replace(".", "").Replace("+", "") + "GenericBind";
+                        else
+                            bind = members[i].ItemType1.FullName.Replace(".", "").Replace("+", "") + "Bind";
+                        var local = $"DictionaryBind<{members[i].ItemType.FullName}, {members[i].ItemType1.FullName}>";
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value.{members[i].Name}, stream, new {bind}());");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+
+                        var text = BuildDictionary(members[i].Type);
+                        var className1 = $"Dictionary_{members[i].ItemType.FullName.Replace(".","").Replace("+","")}_{members[i].ItemType1.FullName.Replace(".", "").Replace("+", "")}_Bind";
+                        File.WriteAllText(savePath + $"//{className1}.cs", text);
+                    }
+                    else 
+                    {
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(value.{members[i].Name} != null)");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                        var local = $"Dictionary_{members[i].ItemType.Name}_{members[i].ItemType1.Name.Replace("`", "")}__Bind";
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}NetConvertBase.SetBit(ref bits[{bitPos}], {++bitInx1}, true);");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();//请定义这个字典结构类来实现字典序列化");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}bind.Write(value.{members[i].Name}, stream);");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+                    }
                 }
             }
             else
@@ -342,7 +367,7 @@ public static class Fast2BuildMethod
             }
             else if (members[i].IsGenericType)
             {
-                if (members[i].ItemType1 == null)
+                if (members[i].ItemType1 == null) //List<T>
                 {
                     typecode = Type.GetTypeCode(members[i].ItemType);
                     if (typecode != TypeCode.Object)
@@ -360,14 +385,34 @@ public static class Fast2BuildMethod
                         str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
                     }
                 }
-                else 
+                else // Dic
                 {
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
-                    var local = $"Dictionary_{members[i].ItemType.Name}_{members[i].ItemType1.Name.Replace("`", "")}__Bind";
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();//请定义这个字典结构类来实现字典反序列化");
-                    str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = bind.Read(stream);");
-                    str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+                    typecode = Type.GetTypeCode(members[i].ItemType);
+                    if (typecode != TypeCode.Object)
+                    {
+                        string bind;
+                        if (members[i].ItemType1.IsArray)
+                            bind = members[i].ItemType1.FullName.Replace(".", "").Replace("+", "") + "ArrayBind";
+                        else if (members[i].ItemType1.IsGenericType)
+                            bind = members[i].ItemType1.FullName.Replace(".", "").Replace("+", "") + "GenericBind";
+                        else
+                            bind = members[i].ItemType1.FullName.Replace(".", "").Replace("+", "") + "Bind";
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                        var local = $"DictionaryBind<{members[i].ItemType.FullName}, {members[i].ItemType1.FullName}>";
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = bind.Read(stream, new {bind}());");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+                    }
+                    else
+                    {
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}if(NetConvertBase.GetBit(bits[{bitPos}], {++bitInx1}))");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "{");
+                        var local = $"Dictionary_{members[i].ItemType.Name}_{members[i].ItemType1.Name.Replace("`", "")}__Bind";
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}var bind = new {local}();//请定义这个字典结构类来实现字典反序列化");
+                        str.AppendLine($"{(hasns ? "\t\t\t\t" : "\t\t\t")}value.{members[i].Name} = bind.Read(stream);");
+                        str.AppendLine($"{(hasns ? "\t\t\t" : "\t\t")}" + "}");
+                    }
                 }
             }
             else
@@ -404,6 +449,7 @@ public static class Fast2BuildMethod
     {
         StringBuilder str = new StringBuilder();
         str.AppendLine("using System;");
+        str.AppendLine("using System.Collections.Generic;");
         str.AppendLine("namespace Binding");
         str.AppendLine("{");
         str.AppendLine("    public static class BindingType");
@@ -412,7 +458,10 @@ public static class Fast2BuildMethod
         str.AppendLine("        {");
         foreach (var item in types)
         {
-            str.AppendLine($"\t\t\ttypeof({item.FullName}),");
+            if(item.IsGenericType & item.GenericTypeArguments.Length == 2)
+                str.AppendLine($"\t\t\ttypeof(Dictionary<{item.GenericTypeArguments[0].FullName},{item.GenericTypeArguments[1].FullName}>),");
+            else
+                str.AppendLine($"\t\t\ttypeof({item.FullName}),");
         }
         str.AppendLine("        };");
         str.AppendLine("    }");
@@ -532,5 +581,61 @@ public static class Fast2BuildMethod
         str.AppendLine($"{(hasns ? "\t}" : "}")}");
         if (hasns) str.AppendLine("}");
         return str;
+    }
+
+    public static string BuildDictionary(Type type)
+    {
+        var text =
+@"using Binding;
+using Net.Serialize;
+using Net.System;
+using System.Collections.Generic;
+public struct Dictionary_{TKeyName}_{TValueName}_Bind : ISerialize<Dictionary<{TKey}, {TValue}>>, ISerialize
+{
+    public void Write(Dictionary<{TKey}, {TValue}> value, Segment stream)
+    {
+        int count = value.Count;
+        stream.Write(count);
+        if (count == 0) return;
+        foreach (var value1 in value)
+        {
+            stream.Write(value1.Key);
+            var bind = new {BindTypeName}();
+            bind.Write(value1.Value, stream);
+        }
+    }
+
+    public Dictionary<{TKey}, {TValue}> Read(Segment stream)
+    {
+        var count = stream.ReadInt32();
+        var value = new Dictionary<{TKey}, {TValue}>();
+        if (count == 0) return value;
+        for (int i = 0; i < count; i++)
+        {
+            var key = stream.ReadValue<{TKey}>();
+            var bind = new {BindTypeName}();
+            var value1 = bind.Read(stream);
+            value.Add(key, value1);
+        }
+        return value;
+    }
+
+    public void WriteValue(object value, Segment stream)
+    {
+        Write((Dictionary<{TKey}, {TValue}>)value, stream);
+    }
+
+    public object ReadValue(Segment stream)
+    {
+        return Read(stream);
+    }
+}";
+        var args = type.GenericTypeArguments;
+        text = text.Replace("{TKeyName}", $"{args[0].FullName.Replace(".", "").Replace("+", "")}");
+        text = text.Replace("{TValueName}", $"{args[1].FullName.Replace(".", "").Replace("+", "")}");
+        text = text.Replace("{TKey}", $"{args[0].FullName}");
+        text = text.Replace("{TValue}", $"{args[1].FullName}");
+        text = text.Replace("{BindTypeName}", $"{args[1].FullName.Replace(".", "").Replace("+", "")}Bind");
+        return text;
     }
 }

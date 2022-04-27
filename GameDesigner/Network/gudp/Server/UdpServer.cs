@@ -83,7 +83,7 @@
             threads.Add("ProcessReceive", proRevd);
             threads.Add("SendDataHandle", send);
             threads.Add("SceneUpdateHandle", suh);
-            global::System.Collections.Generic.KeyValuePair<string, Scene> scene = OnAddDefaultScene();
+            var scene = OnAddDefaultScene();
             MainSceneName = scene.Key;
             scene.Value.Name = MainSceneName;
             Scenes.TryAdd(scene.Key, scene.Value);

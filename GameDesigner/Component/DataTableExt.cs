@@ -2,27 +2,34 @@
 using System.Collections.Generic;
 using System.Data;
 
+public interface IDataRow 
+{
+    DataRowState RowState { get; set; }
+    void Init(DataRow row);
+}
+
 public class DataRowEntity
 {
-    public DataRow Row;
     public DataRowState state;
-    public string key;
-    public object value;
+    public string tableName;
+    public IDataRow Row;
+    public string columnName;
+    public object columnValue;
+    public string primaryKey;
+    public object primaryValue;
     public Dictionary<string, object> columns = new Dictionary<string, object>();
-
+    
     public DataRowEntity() { }
 
-    public DataRowEntity(DataRowState state, DataRow row)
+    public DataRowEntity(string tableName, DataRowState state, string columnName, object columnValue, IDataRow row, string primaryKey, object primaryValue)
     {
-        this.state = state;
+        this.tableName = tableName;
+        this.state = state; 
         this.Row = row;
-    }
-    public DataRowEntity(DataRowState state, string key, object value, DataRow row)
-    {
-        this.state = state;
-        this.Row = row;
-        this.key = key;
-        this.value = value;
+        this.columnName = columnName;
+        this.columnValue = columnValue;
+        this.primaryKey = primaryKey;
+        this.primaryValue = primaryValue;
     }
 }
 

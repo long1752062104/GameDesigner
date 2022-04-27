@@ -59,16 +59,10 @@ namespace ExampleServer
             server.Run((ushort)port);//启动
             run = true;
             button1.Text = "关闭";
-            SQLiteHelper.connStr = $"Data Source='{AppDomain.CurrentDomain.BaseDirectory}/Data/example2.db';";
-            Example2DB.I.Init(Example2DB.I.OnInit);
-            ThreadManager.Invoke(0f, ()=> {//每帧检查调用mysql线程调用中心
-                Example2DB.I.ExecutedContext();
-                return true;
-            }, true);
-            ThreadManager.Invoke(1f, ()=> {//每秒检查有没有数据需要往mysql数据库更新
-                Example2DB.I.Executed();
-                return true;
-            }, true);
+            Example2DB.connStr = $"Data Source='{AppDomain.CurrentDomain.BaseDirectory}/Data/example2.db';";
+            Example2DB.I.Init(Example2DB.I.OnInit, 1);
+            ThreadManager.Invoke(Example2DB.I.ExecutedContext, true);//每帧检查调用mysql线程调用中心
+            ThreadManager.Invoke(1f, Example2DB.I.Executed, true);//每秒检查有没有数据需要往mysql数据库更新
             //Task.Run(() =>
             //{
             //    while (true)

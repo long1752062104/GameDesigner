@@ -12,6 +12,10 @@ namespace Net.System
     {
         private static Thread MainThread;
         public static TimerEvent Event { get; private set; } = new TimerEvent();
+        /// <summary>
+        /// 时间计数间隔
+        /// </summary>
+        public static int Interval { get; set; } = 2;
 
         static ThreadManager()
         {
@@ -28,7 +32,7 @@ namespace Net.System
                     try
                     {
                         Thread.Sleep(1);
-                        Event.UpdateEvent(2);
+                        Event.UpdateEvent(Interval);
                     }
                     catch (Exception ex)
                     {

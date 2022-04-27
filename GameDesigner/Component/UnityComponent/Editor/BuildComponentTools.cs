@@ -201,7 +201,7 @@ public class BuildComponentTools : EditorWindow
         str.AppendLine("       public override void Awake()");
         str.AppendLine("      {");
         str.AppendLine("          base.Awake();");
-        str.AppendLine($"          self = {(type == typeof(GameObject) ? "gameObject" : "GetComponent<{type.FullName}>()")};");
+        str.AppendLine($"          self = {(type == typeof(GameObject) ? "gameObject" : $"GetComponent<{type.FullName}>()")};");
 
         parNum = 0;
         for (int i = 0; i < properties.Length; i++)

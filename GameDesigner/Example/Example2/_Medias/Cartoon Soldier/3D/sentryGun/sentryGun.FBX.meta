@@ -1,49 +1,98 @@
 fileFormatVersion: 2
 guid: f182fe226f95ce743b071340be580597
 ModelImporter:
-  serializedVersion: 19
-  fileIDToRecycleName:
-    100000: //RootNode
-    100002: sentryGunBarrel
-    100004: sentryGunPitch
-    100006: sentryGunRotator
-    400000: //RootNode
-    400002: sentryGunBarrel
-    400004: sentryGunPitch
-    400006: sentryGunRotator
-    2300000: //RootNode
-    2300002: sentryGunBarrel
-    2300004: sentryGunPitch
-    2300006: sentryGunRotator
-    3300000: //RootNode
-    3300002: sentryGunBarrel
-    3300004: sentryGunPitch
-    3300006: sentryGunRotator
-    4300000: sentryGunBase
-    4300002: sentryGunRotator
-    4300004: sentryGunPitch
-    4300006: sentryGunBarrel
-    11100000: //RootNode
+  serializedVersion: 19301
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: sentryGunBarrel
+  - first:
+      1: 100004
+    second: sentryGunPitch
+  - first:
+      1: 100006
+    second: sentryGunRotator
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: sentryGunBarrel
+  - first:
+      4: 400004
+    second: sentryGunPitch
+  - first:
+      4: 400006
+    second: sentryGunRotator
+  - first:
+      23: 2300000
+    second: //RootNode
+  - first:
+      23: 2300002
+    second: sentryGunBarrel
+  - first:
+      23: 2300004
+    second: sentryGunPitch
+  - first:
+      23: 2300006
+    second: sentryGunRotator
+  - first:
+      33: 3300000
+    second: //RootNode
+  - first:
+      33: 3300002
+    second: sentryGunBarrel
+  - first:
+      33: 3300004
+    second: sentryGunPitch
+  - first:
+      33: 3300006
+    second: sentryGunRotator
+  - first:
+      43: 4300000
+    second: sentryGunBase
+  - first:
+      43: 4300002
+    second: sentryGunRotator
+  - first:
+      43: 4300004
+    second: sentryGunPitch
+  - first:
+      43: 4300006
+    second: sentryGunBarrel
+  - first:
+      111: 11100000
+    second: //RootNode
+  externalObjects: {}
   materials:
-    importMaterials: 0
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
-    animationCompression: 1
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
+    extraUserProperties: []
     clipAnimations: []
     isReadable: 1
   meshes:
@@ -51,13 +100,24 @@ ModelImporter:
     globalScale: 0.01
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 0
     importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
@@ -67,9 +127,14 @@ ModelImporter:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 4
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -79,11 +144,16 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 0.01
     rootMotionBoneName: 
     hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 1
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
   humanoidOversampling: 1
+  avatarSetup: 0
   additionalBone: 0
   userData: 
   assetBundleName: 

@@ -568,6 +568,12 @@ namespace Net.System
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Write(Enum value)
+        {
+            Write(value.GetHashCode());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Write(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -980,6 +986,12 @@ namespace Net.System
             }
             Position += 16;
             return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe T ReadEnum<T>() where T : Enum
+        {
+            return (T)Enum.ToObject(typeof(T), ReadInt32());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
